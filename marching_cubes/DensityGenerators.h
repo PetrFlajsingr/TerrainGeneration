@@ -1,0 +1,393 @@
+//
+// Created by petr on 10/20/19.
+//
+
+#ifndef TERRAINGENERATION_DENSITYGENERATORS_H
+#define TERRAINGENERATION_DENSITYGENERATORS_H
+
+#include "../gui/CameraController.h"
+#include "lookuptables.h"
+#include "shaders/GlslShaderLoader.h"
+#include <geGL/StaticCalls.h>
+#include <geGL/geGL.h>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <optional>
+#include <string>
+
+namespace {
+struct AxisInterval {
+  float lowerBound;
+  float higherBound;
+  uint parts;
+
+  uint getCellCount() { return parts; }
+};
+
+struct AreaInterval {
+  AxisInterval xInterval;
+  AxisInterval yInterval;
+  AxisInterval zInterval;
+
+  uint getCellCount() {
+    return xInterval.getCellCount() * yInterval.getCellCount() *
+           zInterval.getCellCount();
+  }
+};
+
+} // namespace
+
+struct Compute {
+  Compute(AreaInterval areaInterval) : areaInterval(areaInterval) {
+    GLint isLinked;
+    csShader = std::make_shared<ge::gl::Shader>(GL_COMPUTE_SHADER, "mc_chunk.comp"_shader_file);
+    // csProgram = std::make_shared<ge::gl::Program>();
+    csProgram = ge::gl::glCreateProgram();
+    ge::gl::glAttachShader(csProgram, csShader->getId());
+
+
+    gsShader = std::make_shared<ge::gl::Shader>(GL_GEOMETRY_SHADER, loadShaderFile("cubes_to_triangles", ShaderType::Geometry));
+    gsCubeShader = std::make_shared<ge::gl::Shader>(GL_GEOMETRY_SHADER, loadShaderFile("cube_edges", ShaderType::Geometry));
+    vsShaderLight = std::make_shared<ge::gl::Shader>(GL_VERTEX_SHADER, loadShaderFile("mvp_light", ShaderType::Vertex));
+    vsShader = std::make_shared<ge::gl::Shader>(GL_VERTEX_SHADER, loadShaderFile("mvp", ShaderType::Vertex));
+    fsShaderLight = std::make_shared<ge::gl::Shader>(GL_FRAGMENT_SHADER, loadShaderFile("uniform_color_light", ShaderType::Fragment));
+    fsShader = std::make_shared<ge::gl::Shader>(GL_FRAGMENT_SHADER, loadShaderFile("uniform_color", ShaderType::Fragment));
+
+
+    drawNormalsProgram = ge::gl::glCreateProgram();
+
+    gsNormalShader = std::make_shared<ge::gl::Shader>(GL_GEOMETRY_SHADER, "normal_to_line.geom"_shader_file);
+    vsNormalShader = std::make_shared<ge::gl::Shader>(GL_VERTEX_SHADER, "normal_to_line.vert"_shader_file);
+    ge::gl::glAttachShader(drawNormalsProgram, gsNormalShader->getId());
+    ge::gl::glAttachShader(drawNormalsProgram, vsNormalShader->getId());
+    ge::gl::glAttachShader(drawNormalsProgram, fsShader->getId());
+    ge::gl::glLinkProgram(drawNormalsProgram);
+
+    ge::gl::glGetProgramiv(drawNormalsProgram, GL_LINK_STATUS, &isLinked);
+    if (isLinked == GL_FALSE) {
+      int length;
+      std::string log;
+      ge::gl::glGetProgramiv(drawNormalsProgram, GL_INFO_LOG_LENGTH, &length);
+      log.resize(static_cast<unsigned long>(length));
+      ge::gl::glGetProgramInfoLog(drawNormalsProgram, length, &length, &log[0]);
+
+      // The program is useless now. So delete it.
+      ge::gl::glDeleteProgram(drawNormalsProgram);
+      std::cerr << "cannot Link: " << log << std::endl;
+      throw std::runtime_error("cannot link opengl program");
+    }
+
+
+    gsProgram = ge::gl::glCreateProgram();
+    //ge::gl::glAttachShader(gsProgram, vsShader->getId());
+    ge::gl::glAttachShader(gsProgram, gsShader->getId());
+
+    drawProgram = ge::gl::glCreateProgram();
+    ge::gl::glAttachShader(drawProgram, vsShaderLight->getId());
+    ge::gl::glAttachShader(drawProgram, fsShaderLight->getId());
+
+    chunkSkeletonDrawProgram = ge::gl::glCreateProgram();
+    ge::gl::glAttachShader(chunkSkeletonDrawProgram, vsShader->getId());
+    ge::gl::glAttachShader(chunkSkeletonDrawProgram, gsCubeShader->getId());
+    ge::gl::glAttachShader(chunkSkeletonDrawProgram, fsShader->getId());
+
+    ge::gl::glProgramParameteri(csProgram, GL_PROGRAM_SEPARABLE, GL_TRUE);
+    ge::gl::glProgramParameteri(gsProgram, GL_PROGRAM_SEPARABLE, GL_TRUE);
+    ge::gl::glProgramParameteri(drawProgram, GL_PROGRAM_SEPARABLE, GL_TRUE);
+
+    ge::gl::glLinkProgram(csProgram);
+    ge::gl::glLinkProgram(drawProgram);
+    ge::gl::glLinkProgram(chunkSkeletonDrawProgram);
+    ge::gl::glGetProgramiv(chunkSkeletonDrawProgram, GL_LINK_STATUS, &isLinked);
+    if (isLinked == GL_FALSE) {
+      int length;
+      std::string log;
+      ge::gl::glGetProgramiv(chunkSkeletonDrawProgram, GL_INFO_LOG_LENGTH, &length);
+      log.resize(static_cast<unsigned long>(length));
+      ge::gl::glGetProgramInfoLog(chunkSkeletonDrawProgram, length, &length, &log[0]);
+
+      // The program is useless now. So delete it.
+      ge::gl::glDeleteProgram(chunkSkeletonDrawProgram);
+      std::cerr << "cannot Link: " << log << std::endl;
+      throw std::runtime_error("cannot link opengl program");
+    }
+
+    const GLchar *varyings[] = {"gl_Position", "normal"};
+    ge::gl::glTransformFeedbackVaryings(gsProgram, 2, varyings,
+                                        GL_SEPARATE_ATTRIBS);
+    ge::gl::glLinkProgram(gsProgram);
+
+
+    ge::gl::glGetProgramiv(gsProgram, GL_LINK_STATUS, &isLinked);
+    if (isLinked == GL_FALSE) {
+      int length;
+      std::string log;
+      ge::gl::glGetProgramiv(gsProgram, GL_INFO_LOG_LENGTH, &length);
+      log.resize(static_cast<unsigned long>(length));
+      ge::gl::glGetProgramInfoLog(gsProgram, length, &length, &log[0]);
+
+      // The program is useless now. So delete it.
+      ge::gl::glDeleteProgram(gsProgram);
+      std::cerr << "cannot Link: " << log << std::endl;
+      throw std::runtime_error("cannot link opengl program");
+    }
+
+    generateVertices();
+
+    vb = std::make_shared<ge::gl::Buffer>(vertices.size() * sizeof(float) * 4,
+                                          vertices.data(), GL_STATIC_COPY);
+    densityBuffer = std::make_shared<ge::gl::Buffer>(
+        vertices.size() * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+    cubeIndexBuffer = std::make_shared<ge::gl::Buffer>(
+        vertices.size() * sizeof(uint), nullptr, GL_DYNAMIC_DRAW);
+    geometryQuery = std::make_shared<ge::gl::AsynchronousQuery>(
+        GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
+        ge::gl::AsynchronousQuery::UINT32);
+
+    polyCountLUTBuffer = std::make_shared<ge::gl::Buffer>(
+        mc::LUT::polygonCount.size() * sizeof(uint32_t),
+        mc::LUT::polygonCount.data(), GL_STATIC_COPY);
+    edgeLUTBuffer = std::make_shared<ge::gl::Buffer>(
+        mc::LUT::edges.size() * sizeof(uint32_t) * 3 * 5, mc::LUT::edges.data(),
+        GL_STATIC_COPY);
+    edgeToVertexLUTBuffer = std::make_shared<ge::gl::Buffer>(
+        mc::LUT::edgeToVertexIds.size() * sizeof(uint32_t) * 2, mc::LUT::edgeToVertexIds.data(),
+        GL_STATIC_COPY);
+
+
+    vertexFeedbackBuffer = std::make_shared<ge::gl::Buffer>(
+        vertices.size() * sizeof(float) * 8*8*8*5, nullptr, GL_DYNAMIC_DRAW);
+
+    normalFeedbackBuffer = std::make_shared<ge::gl::Buffer>(vertices.size() * sizeof(float) * 8*8*8*5, nullptr, GL_DYNAMIC_DRAW);
+
+    vao = std::make_shared<ge::gl::VertexArray>();
+    vao->addAttrib(vb, 0, 4, GL_FLOAT, static_cast<GLsizei>(sizeof(float) * 4),
+                   0);
+
+    vao2 = std::make_shared<ge::gl::VertexArray>();
+    vao2->addAttrib(vertexFeedbackBuffer, 0, 4, GL_FLOAT, static_cast<GLsizei>(sizeof(float) * 4),
+                    0);
+    vao2->addAttrib(normalFeedbackBuffer, 1, 3, GL_FLOAT, static_cast<GLsizei>(sizeof(float) * 3),
+                    0);
+
+
+    //ge::gl::glGenTransformFeedbacks(1, &feedbackName);
+    //ge::gl::glGenTransformFeedbacks(1, &normalFeedbackName);
+
+    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackName);
+    ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
+                             vertexFeedbackBuffer->getId());
+    //ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+
+    //ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackName);
+    ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1,
+                             normalFeedbackBuffer->getId());
+    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+
+    cameraController = CameraController(glm::vec3{.5f, .5f, 2.f});
+  }
+
+  void operator()() {
+    ge::gl::glUseProgram(csProgram);
+    vb->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+    cubeIndexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
+
+    auto uni = ge::gl::glGetUniformLocation(csProgram, "bah");
+
+    ge::gl::glUniform1ui(uni, 0);
+    ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    ge::gl::glDispatchCompute(1, 1, 1);
+
+    ge::gl::glUniform1ui(uni, 1);
+    ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    ge::gl::glDispatchCompute(1, 1, 1);
+
+    /*std::vector<float> density;
+    density.resize(vertices.size());
+    outb->getData(density, 0);
+
+    std::vector<GLuint> ffs;
+    ffs.resize(vertices.size());
+    outc->getData(ffs, 0);
+
+    std::cout << density.size() << std::endl;
+    std::cout << vertices.size() << std::endl;
+    assert(density.size() == vertices.size());
+    assert(density.size() == ffs.size());
+    for (int i = 0; i < density.size(); ++i) {
+      assert(density[i] == -vertices[i].y);
+    }*/
+
+
+    ge::gl::glUseProgram(gsProgram);
+    ge::gl::glEnable(GL_RASTERIZER_DISCARD);
+    // vb->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    polyCountLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+    edgeLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
+    edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 3);
+    cubeIndexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 4);
+    vb->bindBase(GL_SHADER_STORAGE_BUFFER, 5);
+
+    vao->bind();
+
+
+    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackName);
+    // ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, normalFeedbackName);
+    ge::gl::glBeginTransformFeedback(GL_POINTS);//GL_TRIANGLES);
+    geometryQuery->begin();
+
+    ge::gl::glDrawArrays(GL_POINTS, 0, vertices.size());
+
+    geometryQuery->end();
+    ge::gl::glEndTransformFeedback();
+    ge::gl::glDisable(GL_RASTERIZER_DISCARD);
+
+    auto primitiveCount = geometryQuery->getui();
+
+    auto view = cameraController.getViewMatrix();
+    auto model = glm::mat4();
+    auto projection = glm::perspective(glm::radians(45.f), 1920.f/1080, 0.1f, 100.0f);
+    auto MVPmatrix = projection * view * model;
+
+
+    std::vector<glm::vec4> feedback;
+    feedback.resize(primitiveCount * sizeof(float) * 4);
+    ge::gl::glBindBuffer(GL_ARRAY_BUFFER, vertexFeedbackBuffer->getId());
+    ge::gl::glGetBufferSubData(GL_ARRAY_BUFFER, 0, primitiveCount * sizeof(float) * 4,
+                               feedback.data());
+
+    std::vector<glm::vec3> normals;
+    normals.resize(primitiveCount * sizeof(float) * 3);
+    ge::gl::glBindBuffer(GL_ARRAY_BUFFER, normalFeedbackBuffer->getId());
+    ge::gl::glGetBufferSubData(GL_ARRAY_BUFFER, 0, primitiveCount * sizeof(float) * 3,
+                               normals.data());
+
+    std::cout << "Primitives written: " << primitiveCount << std::endl;
+    glm::vec4 red{1, 0, 0, 1};
+
+    ge::gl::glUseProgram(chunkSkeletonDrawProgram);
+    vb->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+
+    auto colorUni = ge::gl::glGetUniformLocation(chunkSkeletonDrawProgram, "color");
+    ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(chunkSkeletonDrawProgram, "mvpUniform"), 1, GL_FALSE,
+                               &MVPmatrix[0][0]);
+
+    ge::gl::glUniform4fv(colorUni, 1, &red[0]);
+    ge::gl::glDrawArrays(GL_POINTS, 0, vertices.size());
+
+    ge::gl::glUseProgram(drawProgram);
+
+    //ge::gl::glEnable(GL_CULL_FACE);
+    ge::gl::glEnable(GL_DEPTH_TEST);
+
+    auto lightPosUni = ge::gl::glGetUniformLocation(drawProgram, "lightPos");
+    glm::vec3 lightPos(0.5, 2, 0.5);
+    ge::gl::glUniform3fv(lightPosUni, 1, &lightPos[0]);
+
+    auto cameraPosUni = ge::gl::glGetUniformLocation(drawProgram, "cameraPos");
+    ge::gl::glUniform3fv(cameraPosUni, 1, &cameraController.camera.Position[0]);
+    auto mvpMatrixUniformId =
+        ge::gl::glGetUniformLocation(drawProgram, "mvpUniform");
+    auto colorId =
+        ge::gl::glGetUniformLocation(drawProgram, "color");
+    ge::gl::glUniformMatrix4fv(mvpMatrixUniformId, 1, GL_FALSE,
+                               &MVPmatrix[0][0]);
+
+    ge::gl::glUniform4fv(colorId, 1, &red[0]);
+    ge::gl::glPointSize(10.f);
+    //ge::gl::glDrawArrays(GL_POINTS, 0, vertices.size());
+    vao2->bind();
+
+    glm::vec4 green{0, 1, 0, 1};
+    ge::gl::glUniform4fv(colorId, 1, &green[0]);
+    //ge::gl::glDrawTransformFeedback(GL_POINTS, feedbackName);
+    ge::gl::glDrawTransformFeedback(GL_TRIANGLES, feedbackName);
+
+    /*ge::gl::glLineWidth(5.f);
+    glm::vec4 blue(0, 0, 1, 1);
+    ge::gl::glUniform4fv(colorId, 1, &blue[0]);
+    ge::gl::glDrawTransformFeedback(GL_LINES, feedbackName);
+    ge::gl::glLineWidth(1.f);*/
+
+    ge::gl::glUseProgram(drawNormalsProgram);
+
+    glm::vec4 normalColor{1, 0, 1, 1};
+    ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(drawNormalsProgram, "color"), 1,
+                               &normalColor[0]);
+
+    ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(drawNormalsProgram, "mvpUniform"), 1, GL_FALSE,
+                               &MVPmatrix[0][0]);
+    ge::gl::glDrawTransformFeedback(GL_POINTS, feedbackName);
+
+    ge::gl::glFlush();
+  }
+  GLuint csProgram;
+  GLuint gsProgram;
+  GLuint drawProgram;
+  GLuint feedbackName;
+  GLuint chunkSkeletonDrawProgram;
+  GLuint drawNormalsProgram;
+
+  std::shared_ptr<ge::gl::Shader> csShader;
+  std::shared_ptr<ge::gl::Shader> gsShader;
+  std::shared_ptr<ge::gl::Shader> gsNormalShader;
+  std::shared_ptr<ge::gl::Shader> gsCubeShader;
+  std::shared_ptr<ge::gl::Shader> vsShaderLight;
+  std::shared_ptr<ge::gl::Shader> vsShader;
+  std::shared_ptr<ge::gl::Shader> vsNormalShader;
+  std::shared_ptr<ge::gl::Shader> fsShaderLight;
+  std::shared_ptr<ge::gl::Shader> fsShader;
+
+  std::shared_ptr<ge::gl::Buffer> vb;
+  std::shared_ptr<ge::gl::VertexArray> vao;
+  std::shared_ptr<ge::gl::VertexArray> vao2;
+  std::shared_ptr<ge::gl::Buffer> densityBuffer;
+  std::shared_ptr<ge::gl::Buffer> cubeIndexBuffer;
+  std::shared_ptr<ge::gl::Buffer> vertexFeedbackBuffer;
+  std::shared_ptr<ge::gl::Buffer> normalFeedbackBuffer;
+  std::vector<glm::vec4> vertices;
+
+  std::shared_ptr<ge::gl::AsynchronousQuery> geometryQuery;
+
+  std::shared_ptr<ge::gl::Buffer> polyCountLUTBuffer;
+  std::shared_ptr<ge::gl::Buffer> edgeLUTBuffer;
+  std::shared_ptr<ge::gl::Buffer> edgeToVertexLUTBuffer;
+
+  AreaInterval areaInterval;
+
+  std::array<GLuint, 1> subroutines{0};
+
+  CameraController cameraController;
+
+  void generateVertices() {
+    vertices.reserve(areaInterval.getCellCount());
+
+    float zStep = std::abs(areaInterval.zInterval.higherBound -
+                           areaInterval.zInterval.lowerBound) /
+                  areaInterval.zInterval.parts;
+    float yStep = std::abs(areaInterval.yInterval.higherBound -
+                           areaInterval.yInterval.lowerBound) /
+                  areaInterval.yInterval.parts;
+    float xStep = std::abs(areaInterval.xInterval.higherBound -
+                           areaInterval.xInterval.lowerBound) /
+                  areaInterval.xInterval.parts;
+
+    for (float z = areaInterval.zInterval.lowerBound;
+         z < areaInterval.zInterval.higherBound; z += zStep) {
+      for (float y = areaInterval.yInterval.lowerBound;
+           y < areaInterval.yInterval.higherBound; y += yStep) {
+        for (float x = areaInterval.xInterval.lowerBound;
+             x < areaInterval.xInterval.higherBound; x += xStep) {
+          // vertices.emplace_back(x, y, z);
+          vertices.emplace_back(x, y, z, 1);
+        }
+      }
+    }
+    std::cout << vertices.size() << std::endl;
+  }
+};
+
+
+#endif // TERRAINGENERATION_DENSITYGENERATORS_H

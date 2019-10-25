@@ -25,7 +25,8 @@ if(NOT geGL_POPULATED)
     add_subdirectory(${gegl_SOURCE_DIR} ${gegl_BINARY_DIR})
 endif()
 
+include_directories(third_party)
 
-add_executable(TerrainGeneration main.cpp)
+add_executable(TerrainGeneration main.cpp gui/CameraController.cpp marching_cubes/DensityGenerators.cpp marching_cubes/shaders/GlslShaderLoader.cpp)
 
 target_link_libraries(TerrainGeneration geGL::geGL SDL2CPP::SDL2CPP glm)

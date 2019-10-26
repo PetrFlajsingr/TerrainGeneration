@@ -299,24 +299,25 @@ void ulala(uint index, vec3 vertex) {
     //density[index] = sin(vertices[index].y);
     //density[index] = vertices[index].x + -vertices[index].y;
     //density[index] = -(sqrt(pow(.5-vertices[index].x, 2) + pow(.5-vertices[index].y, 2) + pow(.5-vertices[index].z, 2)) - 0.25 + offset);
+    //density[index] = -vertex.y + 4 - pow(vertex.x + offset - 2, 2) - pow(vertex.z - 1.5, 2);
     //density[index] = -(sqrt(pow(1-vertex.x, 2) + pow(1-vertex.y, 2) + pow(1-vertex.z, 2)) - 0.9);
 
-    density[index] = snoise((vertex.xyz + offset));
-    density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
-    /*if (vertex.y > 0.8) {
-        density[index] = 1;
-        return;
-    }
-    density[index] = cnoise((vertex.xyz + offset)*3);
-    density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);*/
+    //density[index] = snoise((vertex.xyz + vec3(offset,0,0)));
+    //density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+
+    //density[index] = cnoise((vertex.xyz + offset));
+    //density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
 
     //density[index] += 0.5*noise(vertices[index].xyz*3 + offset) -0.5;
 
     //density[index] = noise(1*(vertex.xyz + offset))* noise(5*(vertex.xyz + offset)) - 0.5;
 
-    //density[index] = cube(vertices[index].xyz, 0.96);
+    //density[index] = cube(vertices[index].xyz, 5);
     //density[index] = -wtf(vertices[index].xyz + vec3(0.5, 0.5, 0.5), 0.5);
     //density[index] = pow(vertices[index].x - 0.5, 2) / 10 + pow(vertices[index].z - 0.5, 2) / 5;
+
+    density[index] = -(sqrt(pow(10-vertex.x, 2) + pow(10-vertex.y, 2) + pow(10-vertex.z, 2)) - 4.5);
+
 }
 
 uint getVertexStateFlag(bool state, uint position) {
@@ -341,20 +342,12 @@ void ulala2(uint index) {
 }
 
 void main() {
- //   if (gl_WorkGroupID != uvec3(1,0,0) && gl_WorkGroupID != uvec3(0,0,0)) return;
-
-    /*uint tmp = gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y +
-    gl_WorkGroupID.y * gl_NumWorkGroups.x +
-    gl_WorkGroupID.x;
-
-    uint groupSize = gl_WorkGroupSize.x * gl_WorkGroupSize.y*gl_WorkGroupSize.z;
-    uint index = tmp*groupSize + gl_LocalInvocationIndex;*/
     uint dim = 32;
     uint index = gl_GlobalInvocationID.z * dim * dim +
     gl_GlobalInvocationID.y * dim +
     gl_GlobalInvocationID.x;
     if (bah == 0) {
-        float step = 1/32.f;
+        float step = 1/(32.f/8);
         vec3 vertex = start + gl_GlobalInvocationID * vec3(step);
         ulala(index, vertex);
         vertices[index] = vec4(vertex, 1);

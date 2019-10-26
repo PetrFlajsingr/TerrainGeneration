@@ -26,6 +26,7 @@ if(NOT geGL_POPULATED)
 endif()
 
 include_directories(third_party)
+include_directories(utils)
 
 add_executable(TerrainGeneration main.cpp gui/CameraController.cpp marching_cubes/DensityGenerators.cpp marching_cubes/shaders/GlslShaderLoader.cpp marching_cubes/Chunk.cpp)
 

@@ -310,18 +310,19 @@ float fnc(vec3 vertex) {
     float hard_floor_y = 0.1;
     //return -sqrt(vertex.y) +0.3+ sqrt(abs(vertex.x - 0.3));
     //return -vertex.y + 0.5;
-    //return cnoise((vertex.xyz + offset)*3) + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
-    return snoise((vertex.xyz + offset)) + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+    //return cnoise((vertex.xyz + offset)) + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+    //return snoise((vertex.xyz + vec3(offset,0,0))) + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+    //return -vertex.y + 4 - pow(vertex.x + offset - 2, 2) - pow(vertex.z - 1.5, 2);
     //+noise(vertex.xyz*3 + offset) - 0.5;
 
     //return noise(2*(vertex.xyz + offset))- 0.5;
 
     //return -vertex.y + 0.5;
     //return -(sqrt(pow(1-vertex.x, 2) + pow(1-vertex.y, 2) + pow(1-vertex.z, 2)) - 0.9);
-    //return -(sqrt(pow(0.25-vertex.x*0.7, 2) + pow(.5-vertex.y, 2) + pow(.5-vertex.z, 2)) - 0.25);
+    return -(sqrt(pow(10-vertex.x, 2) + pow(10-vertex.y, 2) + pow(10-vertex.z, 2)) - 4.5);
     //return  vertex.x + -vertex.y + 0.1;
     //return -sin(vertex.y*10);
-    //return cube(vertex.xyz, 0.96);
+    //return cube(vertex.xyz, 5);
     //return -wtf(vertex.xyz, 0.5);
     //return  pow(vertex.x - 0.5, 2) / 10 + pow(vertex.z - 0.5, 2) / 5;
 }

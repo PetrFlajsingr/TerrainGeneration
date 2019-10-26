@@ -4,9 +4,10 @@
 
 #include "Chunk.h"
 #include <glm/vec4.hpp>
-mc::Chunk::Chunk(Chunk::Size size, glm::vec3 position, glm::vec4 color)
+mc::Chunk::Chunk(Chunk::Size size, float width, glm::vec3 position, glm::vec4 color)
     : componentCount([this] { return std::pow(this->size, 3); }),
-      position(position), size(size), id(idCounter), color(color) {
+      position(position), size(size), id(idCounter), color(color),
+      width(width) {
   ge::gl::glGenTransformFeedbacks(1, &feedbackName);
   initBuffers();
   ++idCounter;
@@ -27,6 +28,7 @@ void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
   cubeIndexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
 
   ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "start"), 1, &position[0]);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "step"), width / size);
   ge::gl::glDispatchCompute(4,4,4);
   if (blocking == Blocking::Yes) {
     ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -137,6 +139,12 @@ std::ostream &mc::operator<<(std::ostream &stream, mc::Chunk &chunk) {
   stream << "Chunk #" << chunk.id << ", size: " << chunk.size << "x" << chunk.size << "x" << chunk.size;
   return stream;
 }
+
 uint mc::Chunk::getId() const {
   return id;
+}
+
+void mc::Chunk::invalidate() {
+  computed = false;
+  hasDataToDraw = false;
 }

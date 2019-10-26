@@ -302,7 +302,7 @@ void ulala(uint index, vec3 vertex) {
     //density[index] = -vertex.y + 4 - pow(vertex.x + offset - 2, 2) - pow(vertex.z - 1.5, 2);
     //density[index] = -(sqrt(pow(1-vertex.x, 2) + pow(1-vertex.y, 2) + pow(1-vertex.z, 2)) - 0.9);
 
-    //density[index] = snoise((vertex.xyz + vec3(offset,0,0)));
+    density[index] = snoise((vertex.xyz + vec3(offset,0,0)));
     //density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
 
     //density[index] = cnoise((vertex.xyz + offset));
@@ -316,7 +316,7 @@ void ulala(uint index, vec3 vertex) {
     //density[index] = -wtf(vertices[index].xyz + vec3(0.5, 0.5, 0.5), 0.5);
     //density[index] = pow(vertices[index].x - 0.5, 2) / 10 + pow(vertices[index].z - 0.5, 2) / 5;
 
-    density[index] = -(sqrt(pow(10-vertex.x, 2) + pow(10-vertex.y, 2) + pow(10-vertex.z, 2)) - 4.5);
+    //density[index] = -(sqrt(pow(10-vertex.x, 2) + pow(10-vertex.y, 2) + pow(10-vertex.z, 2)) - 4.5);
 
 }
 
@@ -341,13 +341,14 @@ void ulala2(uint index) {
     cubeIndex[index] &= 255 * uint((index % (dim * dim * dim)) < dim * dim * (dim - 1));
 }
 
+uniform float step;
 void main() {
     uint dim = 32;
     uint index = gl_GlobalInvocationID.z * dim * dim +
     gl_GlobalInvocationID.y * dim +
     gl_GlobalInvocationID.x;
     if (bah == 0) {
-        float step = 1/(32.f/8);
+        //float step = 1/(32.f);
         vec3 vertex = start + gl_GlobalInvocationID * vec3(step);
         ulala(index, vertex);
         vertices[index] = vec4(vertex, 1);

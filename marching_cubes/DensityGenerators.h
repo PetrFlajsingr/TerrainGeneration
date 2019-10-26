@@ -47,7 +47,7 @@ struct AreaInterval {
 } // namespace
 
 struct Compute {
-  const float d = 1/8.f;
+  const float d = 1/1.f;
   const float w = 1 / (d * 32.0);
   std::vector<mc::Chunk> chunks; /*{{32, {0/d-0*w, 0/d-0*w, 0/d-0*w}},
                                  {32, {0/d-0*w, 0/d-0*w, 1/d-1*w}},
@@ -78,11 +78,11 @@ struct Compute {
                                  };*/
 
   void generateChunks() {
-    for (int i = 0; i < 7; ++i) {
-      for (int j = 0; j < 7; ++j) {
-        for (int k = 0; k < 7; ++k) {
+    for (int i = 0; i < 14; i+=2) {
+      for (int j = 0; j < 14; j+=2) {
+        for (int k = 0; k < 14; k+=2) {
           chunks.emplace_back(
-              32, glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w}, glm::vec4(i/7.f,j/7.f,k/7.f, 1));
+              32, 2.0f, glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w}, glm::vec4(i/7.f,j/7.f,k/7.f, 1));
         }
       }
     }

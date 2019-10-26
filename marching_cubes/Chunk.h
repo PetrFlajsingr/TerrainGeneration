@@ -18,7 +18,7 @@ class Chunk {
 
 public:
   using Size = uint32_t;
-  Chunk(Size size, glm::vec3 position, glm::vec4 color);
+  Chunk(Size size, float width, glm::vec3 position, glm::vec4 color);
 
   Lazy<Size> componentCount;
 
@@ -37,14 +37,11 @@ public:
 
   void render(GLuint program);
 
-  void invalidate() {
-    computed = false;
-    hasDataToDraw = false;
-  }
+  void invalidate();
 
   friend std::ostream &operator<<(std::ostream &stream, Chunk &chunk);
 
-  uint getId() const;
+  [[nodiscard]] uint getId() const;
 
   GLuint feedbackName;
   std::shared_ptr<ge::gl::Buffer> vertexBuffer;         // vec3
@@ -54,6 +51,7 @@ private:
   static inline constexpr Size verticesPerTriangle = 4;
 
   const Size size;
+  const float width;
   const glm::vec3 position;
   const glm::vec4 color;
 

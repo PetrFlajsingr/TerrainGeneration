@@ -2,4 +2,4 @@
 
 Project for Advanced Computer Graphics, FIT VUT.
 
-![Alt text](img/art.png "Demo")
+![Alt text](https://i.imgur.com/PeimkjL.png "Demo")

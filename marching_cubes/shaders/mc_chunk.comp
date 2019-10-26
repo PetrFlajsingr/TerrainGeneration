@@ -1,12 +1,16 @@
 #version 430
 
-layout(local_size_x=512)in;
+//layout(local_size_x=512)in;
+layout(local_size_x=8,local_size_y=8,local_size_z=8)in;
 
 layout(binding=0,std430)buffer Vertices{vec4 vertices[];};
 layout(binding=1,std430)buffer Density{float density[];};
 layout(binding=2,std430)buffer CubeIndex{uint cubeIndex[];};
 
 uniform uint bah;
+
+uniform vec3 start;
+
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
 vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
@@ -144,46 +148,70 @@ float wtf(vec3 p, float size) {
 }
 
 float cube(vec3 p, float size) {
-    p -= 0.5;
+    p -= size;
     if (abs(p.x) < size && abs(p.y) < size && abs(p.z) < size) {
         return -(abs(p.x) + abs(p.y) + abs(p.z));
     }
     return (abs(p.x) + abs(p.y) + abs(p.z));
 }
 
-void ulala(uint index) {
+uniform float offset;
+void ulala(uint index, vec3 vertex) {
+    float hard_floor_y = 0.1;
     //density[index] = -sin(vertices[index].y*10);
-    density[index] = -vertices[index].y + sqrt(abs(vertices[index].x - 0.3));
-    //density[index] = -vertices[index].y + 0.5;
+    //density[index] = -sqrt(vertices[index].y) + 0.3 + sqrt(abs(vertices[index].x - 0.3));
+    //density[index] = -vertex.y + 0.7;
     //density[index] = sin(vertices[index].y);
     //density[index] = vertices[index].x + -vertices[index].y;
-    //density[index] = -(sqrt(pow(.5-vertices[index].x, 2) + pow(.5-vertices[index].y, 2) + pow(.5-vertices[index].z, 2)) - 0.25);
-    //density[index] = -(sqrt(pow(0.3-vertices[index].x * 0.8, 2) + pow(.5-vertices[index].y, 2) + pow(.5-vertices[index].z, 2)) - 0.25) / 10;
-    //density[index] = cnoise(vertices[index].xyz);
-    //density[index] = noise(vertices[index].x);
-    //density[index] = cube(vertices[index].xyz, 0.3);
-    //density[index] = -wtf(vertices[index].xyz, 1);
+    //density[index] = -(sqrt(pow(.5-vertices[index].x, 2) + pow(.5-vertices[index].y, 2) + pow(.5-vertices[index].z, 2)) - 0.25 + offset);
+    //density[index] = -(sqrt(pow(1-vertex.x, 2) + pow(1-vertex.y, 2) + pow(1-vertex.z, 2)) - 0.9);
+    density[index] = cnoise(vertex.xyz + offset);
+    density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+    density[index] += 0.5*noise(vertices[index].xyz*3 + offset) -0.5;
+    //density[index] = cube(vertices[index].xyz, 0.96);
+    //density[index] = -wtf(vertices[index].xyz + vec3(0.5, 0.5, 0.5), 0.5);
     //density[index] = pow(vertices[index].x - 0.5, 2) / 10 + pow(vertices[index].z - 0.5, 2) / 5;
 }
+
+uint getVertexStateFlag(bool state, uint position) {
+    return uint(state) << position;
+}
+
 void ulala2(uint index) {
-    uint dim = 8;
+    uint dim = 32;
 
-    cubeIndex[index] = uint(density[index + dim] > 0);
-    cubeIndex[index] |= uint(density[index] > 0) << 1;
-    cubeIndex[index] |= uint(density[index + 1] > 0) << 2;
-    cubeIndex[index] |= uint(density[index + dim + 1] > 0) << 3;
-    cubeIndex[index] |= uint(density[index + dim * dim + dim] > 0) << 4;
-    cubeIndex[index] |= uint(density[index + dim * dim] > 0) << 5;
-    cubeIndex[index] |= uint(density[index + dim * dim + 1] > 0) << 6;
-    cubeIndex[index] |= uint(density[index + dim * dim + dim + 1] > 0) << 7;
+    cubeIndex[index]  = getVertexStateFlag(density[index + dim] > 0, 0);
+    cubeIndex[index] |= getVertexStateFlag(density[index] > 0, 1);
+    cubeIndex[index] |= getVertexStateFlag(density[index + 1] > 0, 2);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim + 1] > 0, 3);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + dim] > 0, 4);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim] > 0, 5);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + 1] > 0, 6);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + dim + 1] > 0, 7);
 
-    cubeIndex[index] &= (255 * uint(index < 448));
+    cubeIndex[index] &= 255 * uint((index % dim) < dim - 1);
+    cubeIndex[index] &= 255 * uint((index % (dim * dim)) < dim * (dim - 1));
+    cubeIndex[index] &= 255 * uint((index % (dim * dim * dim)) < dim * dim * (dim - 1));
 }
 
 void main() {
-    uint index = gl_GlobalInvocationID.x;
+ //   if (gl_WorkGroupID != uvec3(1,0,0) && gl_WorkGroupID != uvec3(0,0,0)) return;
+
+    /*uint tmp = gl_WorkGroupID.z * gl_NumWorkGroups.x * gl_NumWorkGroups.y +
+    gl_WorkGroupID.y * gl_NumWorkGroups.x +
+    gl_WorkGroupID.x;
+
+    uint groupSize = gl_WorkGroupSize.x * gl_WorkGroupSize.y*gl_WorkGroupSize.z;
+    uint index = tmp*groupSize + gl_LocalInvocationIndex;*/
+    uint dim = 32;
+    uint index = gl_GlobalInvocationID.z * dim * dim +
+    gl_GlobalInvocationID.y * dim +
+    gl_GlobalInvocationID.x;
     if (bah == 0) {
-        ulala(index);
+        float step = 1/32.f;
+        vec3 vertex = start + gl_GlobalInvocationID * vec3(step);
+        ulala(index, vertex);
+        vertices[index] = vec4(vertex, 1);
     } else {
         ulala2(index);
     }

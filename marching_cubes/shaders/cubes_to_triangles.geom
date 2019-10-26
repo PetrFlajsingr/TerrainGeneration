@@ -19,35 +19,10 @@ in gl_PerVertex
     vec4 gl_Position;
 } gl_in[];
 
-out gl_PerVertex
-{
-    vec4 gl_Position;
-};
-layout(stream=1) out vec3 normal;
-
-vec3 calculateNormal(vec3 p1, vec3 p2, vec3 p3) {
-    vec3 vector1 = p2.xyz - p1.xyz;
-    vec3 vector2 = p3.xyz - p1.xyz;
-    return normalize (cross (vector1, vector2));
-}
-
-uint computeVertexIndex(uint number, uint offset) {
-    uint w = 8;
-    uint h = 8;
-    uint d = 8;
-    switch (number) {
-        case 0: return offset + w;
-        case 1: return offset;
-        case 2: return offset + 1;
-        case 3: return offset + w + 1;
-        case 4: return offset + w * h + w;
-        case 5: return offset + w * h;
-        case 6: return offset + w * h + 1;
-        case 7: return offset + w * h + w + 1;
-    }
-    return 0;
-}
-
+out Wat{
+    vec4 pos;
+    vec3 normal;
+}data;
 
 
 vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
@@ -187,33 +162,60 @@ float wtf(vec3 p, float size) {
 }
 
 float cube(vec3 p, float size) {
-    p -= 0.5;
+    p -= size;
     if (abs(p.x) < size && abs(p.y) < size && abs(p.z) < size) {
         return -(abs(p.x) + abs(p.y) + abs(p.z));
     }
     return (abs(p.x) + abs(p.y) + abs(p.z));
 }
 
-
+uniform float offset;
 float fnc(vec3 vertex) {
-    return -vertex.y + sqrt(abs(vertex.x - 0.3));
-    //return -vertex.y + vertex.x - vertex.z;
-    //return cnoise(vertex.xyz);
-    //return noise(vertex.x);
+    float hard_floor_y = 0.1;
+    //return -sqrt(vertex.y) +0.3+ sqrt(abs(vertex.x - 0.3));
     //return -vertex.y + 0.5;
-    //return -(sqrt(pow(.5-vertex.x, 2) + pow(.5-vertex.y, 2) + pow(.5-vertex.z, 2)) - 0.25);
-    //return -(sqrt(pow(0.3-vertex.x * 0.8, 2) + pow(.5-vertex.y, 2) + pow(.5-vertex.z, 2)) - 0.25) / 10;
+    return cnoise(vertex.xyz + offset) + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0)
+    +noise(vertex.xyz*3 + offset) - 0.5;
+    //return -vertex.y + 0.5;
+    //return -(sqrt(pow(1-vertex.x, 2) + pow(1-vertex.y, 2) + pow(1-vertex.z, 2)) - 0.9);
+    //return -(sqrt(pow(0.25-vertex.x*0.7, 2) + pow(.5-vertex.y, 2) + pow(.5-vertex.z, 2)) - 0.25);
     //return  vertex.x + -vertex.y + 0.1;
     //return -sin(vertex.y*10);
-    //return -cube(vertex.xyz, 0.3);
+    //return cube(vertex.xyz, 0.96);
     //return -wtf(vertex.xyz, 0.5);
     //return  pow(vertex.x - 0.5, 2) / 10 + pow(vertex.z - 0.5, 2) / 5;
 }
 
+vec3 calculateNormal(vec3 p1, vec3 p2, vec3 p3) {
+    vec3 vector1 = p2.xyz - p1.xyz;
+    vec3 vector2 = p3.xyz - p1.xyz;
+    return normalize (cross (vector1, vector2));
+}
+
+uint computeVertexIndex(uint number, uint offset) {
+    uint w = 32;
+    uint h = w;
+    switch (number) {
+        case 0: return offset + w;
+        case 1: return offset;
+        case 2: return offset + 1;
+        case 3: return offset + w + 1;
+        case 4: return offset + w * h + w;
+        case 5: return offset + w * h;
+        case 6: return offset + w * h + 1;
+        case 7: return offset + w * h + w + 1;
+    }
+    return 0;
+}
+
+
 void main() {
-    if (gl_PrimitiveIDIn % 8 == 7 || gl_PrimitiveIDIn % 64 > 55 || gl_PrimitiveIDIn >= 448) return;
+    uint dim = 8;
+    //if (gl_PrimitiveIDIn % 8 == 7 || gl_PrimitiveIDIn % dim * dim >= dim * (dim - 1) || gl_PrimitiveIDIn >= pow(dim, 3) - pow(dim, 2) - 6) return;
     uint local_cubeIndex = cubeIndex[gl_PrimitiveIDIn];
     for (uint i = 0; i < polyCountLUT[local_cubeIndex]; ++i) {
+        float d = 1.0/(256);
+        vec3 grad = vec3(0, -1, 0);
         vec4 polyVecs[3];
         uint edge = polyEdgesLUT[local_cubeIndex * 15];
 
@@ -224,72 +226,20 @@ void main() {
 
             vec4 diff = (v1 - v0);
             float perc = density[computeVertexIndex(edgeToVertexIdsLUT[edge].first, gl_PrimitiveIDIn)]
-            / abs(density[computeVertexIndex(edgeToVertexIdsLUT[edge].first, gl_PrimitiveIDIn)]- density[computeVertexIndex(edgeToVertexIdsLUT[edge].second, gl_PrimitiveIDIn)]);
+                / abs(density[computeVertexIndex(edgeToVertexIdsLUT[edge].first, gl_PrimitiveIDIn)]
+                    - density[computeVertexIndex(edgeToVertexIdsLUT[edge].second, gl_PrimitiveIDIn)]);
 
-            gl_Position = v0 + diff * abs(perc);
-            polyVecs[j - i*3] = gl_Position;
+            data.pos = v0 + diff * abs(perc);
+            grad.x = fnc(data.pos.xyz + vec3(d, 0, 0)) - fnc(data.pos.xyz + vec3(-d, 0, 0));
+            grad.y = fnc(data.pos.xyz + vec3(0, d, 0)) - fnc(data.pos.xyz + vec3(0, -d, 0));
+            grad.z = fnc(data.pos.xyz + vec3(0, 0, d)) - fnc(data.pos.xyz + vec3(0, 0, -d));
+
+
+            data.normal = -normalize(grad);
+
             EmitVertex();
             EndPrimitive();
         }
-
-        float d = 1.0/(512);
-        vec3 grad;
-        grad.x = fnc(polyVecs[0].xyz + vec3(d, 0, 0)) - fnc(polyVecs[0].xyz + vec3(-d, 0, 0));
-        grad.y = fnc(polyVecs[0].xyz + vec3(0, d, 0)) - fnc(polyVecs[0].xyz + vec3(0, -d, 0));
-        grad.z = fnc(polyVecs[0].xyz + vec3(0, 0, d)) - fnc(polyVecs[0].xyz + vec3(0, 0, -d));
-
-        normal = -normalize(grad);
-        EmitStreamVertex(1);EndStreamPrimitive(1);
-
-        grad.x = fnc(polyVecs[1].xyz + vec3(d, 0, 0)) - fnc(polyVecs[1].xyz + vec3(-d, 0, 0));
-        grad.y = fnc(polyVecs[1].xyz + vec3(0, d, 0)) - fnc(polyVecs[1].xyz + vec3(0, -d, 0));
-        grad.z = fnc(polyVecs[1].xyz + vec3(0, 0, d)) - fnc(polyVecs[1].xyz + vec3(0, 0, -d));
-
-        normal = -normalize(grad);
-        EmitStreamVertex(1);EndStreamPrimitive(1);
-
-        grad.x = fnc(polyVecs[2].xyz + vec3(d, 0, 0)) - fnc(polyVecs[2].xyz + vec3(-d, 0, 0));
-        grad.y = fnc(polyVecs[2].xyz + vec3(0, d, 0)) - fnc(polyVecs[2].xyz + vec3(0, -d, 0));
-        grad.z = fnc(polyVecs[2].xyz + vec3(0, 0, d)) - fnc(polyVecs[2].xyz + vec3(0, 0, -d));
-
-        normal = -normalize(grad);
-        EmitStreamVertex(1);EndStreamPrimitive(1);
-
-        /*float d = 1.0/(8*8*8);
-        vec3 grad;
-        grad.x = fnc(polyVecs[0].xyz + vec3(d, 0, 0)) - fnc(polyVecs[0].xyz + vec3(-d, 0, 0));
-        grad.y = fnc(polyVecs[0].xyz + vec3(0, d, 0)) - fnc(polyVecs[0].xyz + vec3(0, -d, 0));
-        grad.z =fnc(polyVecs[0].xyz + vec3(0, 0, d)) - fnc(polyVecs[0].xyz + vec3(0, 0, -d));
-
-        normal = normalize(grad);
-        EmitStreamVertex(1);EndStreamPrimitive(1);
-
-        grad.x = fnc(polyVecs[1].xyz + vec3(d, 0, 0)) - fnc(polyVecs[1].xyz + vec3(-d, 0, 0));
-        grad.y = fnc(polyVecs[1].xyz + vec3(0, d, 0)) - fnc(polyVecs[1].xyz + vec3(0, -d, 0));
-        grad.z =fnc(polyVecs[1].xyz + vec3(0, 0, d)) - fnc(polyVecs[1].xyz + vec3(0, 0, -d));
-
-        normal = normalize(grad);
-        EmitStreamVertex(1);EndStreamPrimitive(1);
-
-        grad.x = fnc(polyVecs[2].xyz + vec3(d, 0, 0)) - fnc(polyVecs[2].xyz + vec3(-d, 0, 0));
-        grad.y = fnc(polyVecs[2].xyz + vec3(0, d, 0)) - fnc(polyVecs[2].xyz + vec3(0, -d, 0));
-        grad.z =fnc(polyVecs[2].xyz + vec3(0, 0, d)) - fnc(polyVecs[2].xyz + vec3(0, 0, -d));
-
-        normal = normalize(grad);
-        EmitStreamVertex(1);EndStreamPrimitive(1);*/
-        /* if (mul > 1) {
-             mul = -1;
-         } else {
-             mul = 1;
-         }
-
-
-
-        normal = mul * calculateNormal(polyVecs[0].xyz, polyVecs[1].xyz, polyVecs[2].xyz);
-        EmitStreamVertex(1);EndStreamPrimitive(1);
-        EmitStreamVertex(1);EndStreamPrimitive(1);
-        EmitStreamVertex(1);
-        EndStreamPrimitive(1);*/
     }
 
 }

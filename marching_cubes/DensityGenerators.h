@@ -15,6 +15,13 @@
 #include <optional>
 #include <string>
 
+#define CHUNK_LEN 32
+#define CHUNK_SIZE (CHUNK_LEN*CHUNK_LEN*CHUNK_LEN)
+
+#define DRAW_MESH0
+#define DRAW_NORMALS0
+#define DRAW_SKELETON0
+
 namespace {
 struct AxisInterval {
   float lowerBound;
@@ -112,7 +119,8 @@ struct Compute {
       throw std::runtime_error("cannot link opengl program");
     }
 
-    const GLchar *varyings[] = {"gl_Position", "normal"};
+    //const GLchar *varyings[] = {"gl_Position", "normal"};
+    const GLchar *varyings[] = {"Wat.pos", "Wat.normal"};
     ge::gl::glTransformFeedbackVaryings(gsProgram, 2, varyings,
                                         GL_SEPARATE_ATTRIBS);
     ge::gl::glLinkProgram(gsProgram);
@@ -134,12 +142,12 @@ struct Compute {
 
     generateVertices();
 
-    vb = std::make_shared<ge::gl::Buffer>(vertices.size() * sizeof(float) * 4,
-                                          vertices.data(), GL_STATIC_COPY);
+    vb = std::make_shared<ge::gl::Buffer>(CHUNK_SIZE * sizeof(float) * 4,
+                                          /*vertices.data()*/nullptr, GL_DYNAMIC_DRAW);
     densityBuffer = std::make_shared<ge::gl::Buffer>(
-        vertices.size() * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+        CHUNK_SIZE * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
     cubeIndexBuffer = std::make_shared<ge::gl::Buffer>(
-        vertices.size() * sizeof(uint), nullptr, GL_DYNAMIC_DRAW);
+        CHUNK_SIZE * sizeof(uint), nullptr, GL_DYNAMIC_DRAW);
     geometryQuery = std::make_shared<ge::gl::AsynchronousQuery>(
         GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
         ge::gl::AsynchronousQuery::UINT32);
@@ -156,9 +164,9 @@ struct Compute {
 
 
     vertexFeedbackBuffer = std::make_shared<ge::gl::Buffer>(
-        vertices.size() * sizeof(float) * 8*8*8*5, nullptr, GL_DYNAMIC_DRAW);
+        CHUNK_SIZE * 5 * 4 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
-    normalFeedbackBuffer = std::make_shared<ge::gl::Buffer>(vertices.size() * sizeof(float) * 8*8*8*5, nullptr, GL_DYNAMIC_DRAW);
+    normalFeedbackBuffer = std::make_shared<ge::gl::Buffer>(CHUNK_SIZE * 5 * 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
     vao = std::make_shared<ge::gl::VertexArray>();
     vao->addAttrib(vb, 0, 4, GL_FLOAT, static_cast<GLsizei>(sizeof(float) * 4),
@@ -188,36 +196,25 @@ struct Compute {
   }
 
   void operator()() {
+    static float offset = 0;
+    offset += 0.002;
     ge::gl::glUseProgram(csProgram);
     vb->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
     densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
     cubeIndexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
 
     auto uni = ge::gl::glGetUniformLocation(csProgram, "bah");
+    ge::gl::glUniform1f( ge::gl::glGetUniformLocation(csProgram, "offset"), offset);
+    glm::vec3 start{0, 0, 0};
+    ge::gl::glUniform3fv( ge::gl::glGetUniformLocation(csProgram, "start"), 1, &start[0]);
 
     ge::gl::glUniform1ui(uni, 0);
+    ge::gl::glDispatchCompute(4,4,4);
     ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    ge::gl::glDispatchCompute(1, 1, 1);
 
     ge::gl::glUniform1ui(uni, 1);
+    ge::gl::glDispatchCompute(4,4,4);
     ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    ge::gl::glDispatchCompute(1, 1, 1);
-
-    /*std::vector<float> density;
-    density.resize(vertices.size());
-    outb->getData(density, 0);
-
-    std::vector<GLuint> ffs;
-    ffs.resize(vertices.size());
-    outc->getData(ffs, 0);
-
-    std::cout << density.size() << std::endl;
-    std::cout << vertices.size() << std::endl;
-    assert(density.size() == vertices.size());
-    assert(density.size() == ffs.size());
-    for (int i = 0; i < density.size(); ++i) {
-      assert(density[i] == -vertices[i].y);
-    }*/
 
 
     ge::gl::glUseProgram(gsProgram);
@@ -233,12 +230,13 @@ struct Compute {
     vao->bind();
 
 
+    ge::gl::glUniform1f( ge::gl::glGetUniformLocation(gsProgram, "offset"), offset);
     ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackName);
     // ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, normalFeedbackName);
     ge::gl::glBeginTransformFeedback(GL_POINTS);//GL_TRIANGLES);
     geometryQuery->begin();
 
-    ge::gl::glDrawArrays(GL_POINTS, 0, vertices.size());
+    ge::gl::glDrawArrays(GL_POINTS, 0, CHUNK_SIZE);
 
     geometryQuery->end();
     ge::gl::glEndTransformFeedback();
@@ -251,22 +249,10 @@ struct Compute {
     auto projection = glm::perspective(glm::radians(45.f), 1920.f/1080, 0.1f, 100.0f);
     auto MVPmatrix = projection * view * model;
 
-
-    std::vector<glm::vec4> feedback;
-    feedback.resize(primitiveCount * sizeof(float) * 4);
-    ge::gl::glBindBuffer(GL_ARRAY_BUFFER, vertexFeedbackBuffer->getId());
-    ge::gl::glGetBufferSubData(GL_ARRAY_BUFFER, 0, primitiveCount * sizeof(float) * 4,
-                               feedback.data());
-
-    std::vector<glm::vec3> normals;
-    normals.resize(primitiveCount * sizeof(float) * 3);
-    ge::gl::glBindBuffer(GL_ARRAY_BUFFER, normalFeedbackBuffer->getId());
-    ge::gl::glGetBufferSubData(GL_ARRAY_BUFFER, 0, primitiveCount * sizeof(float) * 3,
-                               normals.data());
-
     std::cout << "Primitives written: " << primitiveCount << std::endl;
     glm::vec4 red{1, 0, 0, 1};
 
+#ifdef DRAW_SKELETON
     ge::gl::glUseProgram(chunkSkeletonDrawProgram);
     vb->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -274,16 +260,17 @@ struct Compute {
     ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(chunkSkeletonDrawProgram, "mvpUniform"), 1, GL_FALSE,
                                &MVPmatrix[0][0]);
 
+    ge::gl::glLineWidth(0.01f);
     ge::gl::glUniform4fv(colorUni, 1, &red[0]);
-    ge::gl::glDrawArrays(GL_POINTS, 0, vertices.size());
-
+    ge::gl::glDrawArrays(GL_POINTS, 0, CHUNK_SIZE);
+#endif
     ge::gl::glUseProgram(drawProgram);
 
     //ge::gl::glEnable(GL_CULL_FACE);
     ge::gl::glEnable(GL_DEPTH_TEST);
 
     auto lightPosUni = ge::gl::glGetUniformLocation(drawProgram, "lightPos");
-    glm::vec3 lightPos(0.5, 2, 0.5);
+    glm::vec3 lightPos(1, 3, 1);
     ge::gl::glUniform3fv(lightPosUni, 1, &lightPos[0]);
 
     auto cameraPosUni = ge::gl::glGetUniformLocation(drawProgram, "cameraPos");
@@ -300,26 +287,31 @@ struct Compute {
     //ge::gl::glDrawArrays(GL_POINTS, 0, vertices.size());
     vao2->bind();
 
+
     glm::vec4 green{0, 1, 0, 1};
     ge::gl::glUniform4fv(colorId, 1, &green[0]);
     //ge::gl::glDrawTransformFeedback(GL_POINTS, feedbackName);
     ge::gl::glDrawTransformFeedback(GL_TRIANGLES, feedbackName);
 
-    /*ge::gl::glLineWidth(5.f);
+#ifdef DRAW_MESH
+    ge::gl::glLineWidth(5.f);
     glm::vec4 blue(0, 0, 1, 1);
     ge::gl::glUniform4fv(colorId, 1, &blue[0]);
     ge::gl::glDrawTransformFeedback(GL_LINES, feedbackName);
-    ge::gl::glLineWidth(1.f);*/
+    ge::gl::glLineWidth(1.f);
+#endif
 
+#ifdef DRAW_NORMALS
     ge::gl::glUseProgram(drawNormalsProgram);
 
-    glm::vec4 normalColor{1, 0, 1, 1};
+    glm::vec4 normalColor{1, 0, 1, 0.6};
     ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(drawNormalsProgram, "color"), 1,
-                               &normalColor[0]);
+                         &normalColor[0]);
 
     ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(drawNormalsProgram, "mvpUniform"), 1, GL_FALSE,
                                &MVPmatrix[0][0]);
     ge::gl::glDrawTransformFeedback(GL_POINTS, feedbackName);
+#endif
 
     ge::gl::glFlush();
   }
@@ -347,7 +339,7 @@ struct Compute {
   std::shared_ptr<ge::gl::Buffer> cubeIndexBuffer;
   std::shared_ptr<ge::gl::Buffer> vertexFeedbackBuffer;
   std::shared_ptr<ge::gl::Buffer> normalFeedbackBuffer;
-  std::vector<glm::vec4> vertices;
+  //std::vector<glm::vec4> vertices;
 
   std::shared_ptr<ge::gl::AsynchronousQuery> geometryQuery;
 
@@ -362,7 +354,7 @@ struct Compute {
   CameraController cameraController;
 
   void generateVertices() {
-    vertices.reserve(areaInterval.getCellCount());
+   /* vertices.reserve(areaInterval.getCellCount());
 
     float zStep = std::abs(areaInterval.zInterval.higherBound -
                            areaInterval.zInterval.lowerBound) /
@@ -385,7 +377,7 @@ struct Compute {
         }
       }
     }
-    std::cout << vertices.size() << std::endl;
+    std::cout << vertices.size() << std::endl;*/
   }
 };
 

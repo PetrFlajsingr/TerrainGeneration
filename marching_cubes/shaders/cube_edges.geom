@@ -17,9 +17,8 @@ out gl_PerVertex
 };
 
 uint computeVertexIndex(uint number, uint offset) {
-    uint w = 8;
-    uint h = 8;
-    uint d = 8;
+    uint w = 32;
+    uint h = w;
     switch (number) {
         case 0: return offset + w;
         case 1: return offset;
@@ -34,7 +33,10 @@ uint computeVertexIndex(uint number, uint offset) {
 }
 
 void main() {
-    if (gl_PrimitiveIDIn % 8 == 7 || gl_PrimitiveIDIn % 64 > 55 || gl_PrimitiveIDIn >= 448) return;
+    uint dim = 32;
+    if ((gl_PrimitiveIDIn % dim) == dim - 1 ||
+(gl_PrimitiveIDIn % (dim * dim)) >= dim * (dim - 1) ||
+(gl_PrimitiveIDIn % (dim * dim * dim)) >= dim * dim * (dim - 1)) return;
 
     gl_Position = mvpUniform * vertices[computeVertexIndex(0, gl_PrimitiveIDIn)];
     EmitVertex();

@@ -18,7 +18,7 @@
 #include <string>
 
 #define DRAW_MESH0
-#define DRAW_NORMALS
+#define DRAW_NORMALS0
 #define DRAW_SKELETON0
 
 constexpr uint skeletonStep = 31;
@@ -35,7 +35,7 @@ struct Compute {
         for (int k = 0; k < chunkCount*step; k+=step) {
           chunks.emplace_back(
               32, 1.0f * step, glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w},
-              glm::vec4(i / static_cast<float>(chunkCount * step),
+              glm::vec4{1.0, 0, 0, 0} + glm::vec4(i / static_cast<float>(chunkCount * step),
                         j / static_cast<float>(chunkCount * step),
                         k / static_cast<float>(chunkCount * step), 1));
         }
@@ -219,6 +219,8 @@ struct Compute {
 
     glm::vec4 red{1, 0, 0, 1};
 
+    geo::ViewFrustum viewFrustum = geo::ViewFrustum::FromProjectionView(view, projection);
+
 #ifdef DRAW_SKELETON
     ge::gl::glEnable(GL_LINE_SMOOTH);
     ge::gl::glUseProgram(chunkSkeletonDrawProgram);
@@ -242,7 +244,7 @@ struct Compute {
 
 #endif
     if (std::any_of(chunks.begin(), chunks.end(),
-                    std::mem_fn(&mc::Chunk::shouldBeDrawn))) {
+                   [&viewFrustum](auto &chunk) {return chunk.shouldBeDrawn(viewFrustum);})) {
       ge::gl::glUseProgram(drawProgram);
 
 
@@ -264,7 +266,7 @@ struct Compute {
       ge::gl::glUniform4fv(colorId, 1, &blue[0]);
       ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       for (auto &chunk : chunks) {
-        if (chunk.shouldBeDrawn()) {
+        if (chunk.shouldBeDrawn(viewFrustum)) {
           chunk.render(mc::Chunk::MeshLines, drawProgram);
         }
       }
@@ -273,7 +275,7 @@ struct Compute {
 #else
 
       for (auto &chunk : chunks) {
-        if (chunk.shouldBeDrawn()) {
+        if (chunk.shouldBeDrawn(viewFrustum)) {
           chunk.render(mc::Chunk::Mesh, drawProgram);
         }
       }
@@ -293,7 +295,7 @@ struct Compute {
         GL_FALSE, &MVPmatrix[0][0]);
 
     for (auto &chunk : chunks) {
-      if (chunk.shouldBeDrawn()) {
+      if (chunk.shouldBeDrawn(viewFrustum)) {
         chunk.render(mc::Chunk::Normals, drawNormalsProgram);
         //ge::gl::glDrawTransformFeedback(GL_POINTS, chunk.feedbackName);
       }

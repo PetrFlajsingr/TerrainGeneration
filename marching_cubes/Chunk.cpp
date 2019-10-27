@@ -12,11 +12,16 @@ mc::Chunk::Chunk(Chunk::Size size, float width, glm::vec3 position,
   ge::gl::glGenTransformFeedbacks(1, &feedbackName);
   initBuffers();
   ++idCounter;
+
 }
 
 bool mc::Chunk::isComputed() const { return computed; }
 
 bool mc::Chunk::shouldBeDrawn() const { return hasDataToDraw; }
+
+bool mc::Chunk::shouldBeDrawn(const geo::ViewFrustum &viewFrustum) {
+  return hasDataToDraw && geo::isAABBInViewFrustum(calcBB(), viewFrustum);
+}
 
 void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
 
@@ -95,7 +100,6 @@ void mc::Chunk::render(RenderType renderType, GLuint program) {
   GLint primitiveType;
   glm::vec4 color = this->color;
   switch (renderType) {
-
   case Mesh:
     primitiveType = GL_TRIANGLES;
     break;
@@ -161,3 +165,4 @@ void mc::Chunk::invalidate() {
   computed = false;
   hasDataToDraw = false;
 }
+

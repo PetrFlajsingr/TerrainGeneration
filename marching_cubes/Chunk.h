@@ -5,6 +5,7 @@
 #ifndef TERRAINGENERATION_CHUNK_H
 #define TERRAINGENERATION_CHUNK_H
 
+#include <Geometry.h>
 #include <Lazy.h>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
@@ -15,18 +16,17 @@
 namespace mc {
 class Chunk {
   static inline uint idCounter = 0;
-
 public:
   enum RenderType {Mesh, MeshLines, Normals};
 
   using Size = uint32_t;
   Chunk(Size size, float width, glm::vec3 position, glm::vec4 color);
 
-  Lazy<Size> componentCount;
-
   [[nodiscard]] bool isComputed() const;
 
   [[nodiscard]] bool shouldBeDrawn() const;
+
+  [[nodiscard]] bool shouldBeDrawn(const geo::ViewFrustum &viewFrustum);
 
  void
   dispatchDensityComputation(GLuint program,
@@ -44,6 +44,7 @@ public:
   friend std::ostream &operator<<(std::ostream &stream, Chunk &chunk);
 
   [[nodiscard]] uint getId() const;
+
 
   GLuint feedbackName;
   std::shared_ptr<ge::gl::Buffer> vertexBuffer;         // vec3
@@ -71,6 +72,17 @@ private:
 
 
   void initBuffers();
+
+
+
+public:
+  Lazy<Size> componentCount;
+  geo::AABB calcBB() {
+    geo::AABB result;
+    result.p1 = this->position;
+    result.p2 = this->position + this->width;
+    return result;
+  }
 };
 }
 #endif // TERRAINGENERATION_CHUNK_H

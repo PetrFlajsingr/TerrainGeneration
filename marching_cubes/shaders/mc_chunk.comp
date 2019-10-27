@@ -290,6 +290,8 @@ float snoise(vec3 v){
 
 
 
+
+
 uniform float offset;
 void ulala(uint index, vec3 vertex) {
     float hard_floor_y = 0.1;
@@ -302,8 +304,19 @@ void ulala(uint index, vec3 vertex) {
     //density[index] = -vertex.y + 4 - pow(vertex.x + offset - 2, 2) - pow(vertex.z - 1.5, 2);
     //density[index] = -(sqrt(pow(1-vertex.x, 2) + pow(1-vertex.y, 2) + pow(1-vertex.z, 2)) - 0.9);
 
-    density[index] = snoise((vertex.xyz + vec3(offset,0,0)));
-    //density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+    density[index] = -vertex.y + 2
+   // + snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
+    //+ cnoise((vertex.xyz + vec3(offset,0,0)*8)/0.5)
+    + 5*cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*2)/2)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*1)/4)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*0.5)/8)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*0.25)/16)
+    + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+
+    if (vertex.x > 3 && vertex.x < 8) {
+        density[index] = -vertex.y+2;
+    }
 
     //density[index] = cnoise((vertex.xyz + offset));
     //density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
@@ -318,6 +331,8 @@ void ulala(uint index, vec3 vertex) {
 
     //density[index] = -(sqrt(pow(10-vertex.x, 2) + pow(10-vertex.y, 2) + pow(10-vertex.z, 2)) - 4.5);
 
+    //density[index] = pow(vertex.x, 2) + pow(vertex.y, 2) + pow(vertex.z, 2);
+
 }
 
 uint getVertexStateFlag(bool state, uint position) {
@@ -326,15 +341,16 @@ uint getVertexStateFlag(bool state, uint position) {
 
 void ulala2(uint index) {
     uint dim = 32;
+    float limit = 0;
 
-    cubeIndex[index]  = getVertexStateFlag(density[index + dim] > 0, 0);
-    cubeIndex[index] |= getVertexStateFlag(density[index] > 0, 1);
-    cubeIndex[index] |= getVertexStateFlag(density[index + 1] > 0, 2);
-    cubeIndex[index] |= getVertexStateFlag(density[index + dim + 1] > 0, 3);
-    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + dim] > 0, 4);
-    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim] > 0, 5);
-    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + 1] > 0, 6);
-    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + dim + 1] > 0, 7);
+    cubeIndex[index]  = getVertexStateFlag(density[index + dim] > limit, 0);
+    cubeIndex[index] |= getVertexStateFlag(density[index] > limit, 1);
+    cubeIndex[index] |= getVertexStateFlag(density[index + 1] > limit, 2);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim + 1] > limit, 3);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + dim] > limit, 4);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim] > limit, 5);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + 1] > limit, 6);
+    cubeIndex[index] |= getVertexStateFlag(density[index + dim * dim + dim + 1] > limit, 7);
 
     cubeIndex[index] &= 255 * uint((index % dim) < dim - 1);
     cubeIndex[index] &= 255 * uint((index % (dim * dim)) < dim * (dim - 1));

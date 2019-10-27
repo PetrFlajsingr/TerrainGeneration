@@ -6,6 +6,7 @@
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 
+#include <FPSCounter.h>
 #include <glm/glm.hpp>
 
 #include "gui/CameraController.h"
@@ -98,9 +99,7 @@ int main(int, char *[]) {
                                     {-1, 1, 0.1},
                                     {-1, 1, 0.1}});*/
 
-  Compute compute({{0, 1, 8},
-                   {0, 1, 8},
-                   {0, 1, 8}});
+  Compute compute;
 
   window->setEventCallback(SDL_KEYDOWN, compute.cameraController.getKeyboardCallback());
   window->setEventCallback(SDL_MOUSEMOTION,
@@ -109,6 +108,8 @@ int main(int, char *[]) {
                            compute.cameraController.getMouseDownCallback());
   window->setEventCallback(SDL_MOUSEBUTTONUP,
                            compute.cameraController.getMouseUpCallback());
+
+  FPSCounter fpsCounter;
   // draw loop
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -130,6 +131,10 @@ int main(int, char *[]) {
 
     ge::gl::glBindVertexArray(0);*/
     window->swap();
+
+    fpsCounter.step();
+
+    std::cout << fpsCounter << std::endl;
   });
 
   (*mainLoop)();

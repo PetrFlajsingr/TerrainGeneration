@@ -17,6 +17,8 @@ class Chunk {
   static inline uint idCounter = 0;
 
 public:
+  enum RenderType {Mesh, MeshLines, Normals};
+
   using Size = uint32_t;
   Chunk(Size size, float width, glm::vec3 position, glm::vec4 color);
 
@@ -35,7 +37,7 @@ public:
 
   void calculateVertices(GLuint program);
 
-  void render(GLuint program);
+  void render(RenderType renderType, GLuint program);
 
   void invalidate();
 

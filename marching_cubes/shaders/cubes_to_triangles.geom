@@ -305,13 +305,14 @@ float snoise(vec3 v){
 
 
 
+
 uniform float offset;
 float fnc(vec3 vertex) {
     float hard_floor_y = 0.1;
     //return -sqrt(vertex.y) +0.3+ sqrt(abs(vertex.x - 0.3));
     //return -vertex.y + 0.5;
     //return cnoise((vertex.xyz + offset)) + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
-    return snoise((vertex.xyz + vec3(offset,0,0))) + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+    //return snoise((vertex.xyz + vec3(offset,0,0))) + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
     //return -vertex.y + 4 - pow(vertex.x + offset - 2, 2) - pow(vertex.z - 1.5, 2);
     //+noise(vertex.xyz*3 + offset) - 0.5;
 
@@ -325,6 +326,22 @@ float fnc(vec3 vertex) {
     //return cube(vertex.xyz, 5);
     //return -wtf(vertex.xyz, 0.5);
     //return  pow(vertex.x - 0.5, 2) / 10 + pow(vertex.z - 0.5, 2) / 5;
+
+    float result = -vertex.y + 2
+    // + snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
+    //+ cnoise((vertex.xyz + vec3(offset,0,0)*8)/0.5)
+    + 5*cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*2)/2)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*1)/4)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*0.5)/8)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*0.25)/16)
+    + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+
+    if (vertex.x > 3 && vertex.x < 8) {
+        result = -vertex.y+2;
+    }
+    return result;
+
 }
 
 vec3 calculateNormal(vec3 p1, vec3 p2, vec3 p3) {

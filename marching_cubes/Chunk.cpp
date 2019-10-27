@@ -4,7 +4,8 @@
 
 #include "Chunk.h"
 #include <glm/vec4.hpp>
-mc::Chunk::Chunk(Chunk::Size size, float width, glm::vec3 position, glm::vec4 color)
+mc::Chunk::Chunk(Chunk::Size size, float width, glm::vec3 position,
+                 glm::vec4 color)
     : componentCount([this] { return std::pow(this->size, 3); }),
       position(position), size(size), id(idCounter), color(color),
       width(width) {
@@ -13,13 +14,9 @@ mc::Chunk::Chunk(Chunk::Size size, float width, glm::vec3 position, glm::vec4 co
   ++idCounter;
 }
 
-bool mc::Chunk::isComputed() const {
-  return computed;
-}
+bool mc::Chunk::isComputed() const { return computed; }
 
-bool mc::Chunk::shouldBeDrawn() const {
-  return hasDataToDraw;
-}
+bool mc::Chunk::shouldBeDrawn() const { return hasDataToDraw; }
 
 void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
 
@@ -27,9 +24,11 @@ void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
   densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
   cubeIndexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
 
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "start"), 1, &position[0]);
-  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "step"), width / size);
-  ge::gl::glDispatchCompute(4,4,4);
+  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "start"), 1,
+                       &position[0]);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "step"),
+                      width / size);
+  ge::gl::glDispatchCompute(4, 4, 4);
   if (blocking == Blocking::Yes) {
     ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
   }
@@ -38,11 +37,12 @@ void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
   cubeIndexBuffer->unbindBase(GL_SHADER_STORAGE_BUFFER, 2);
 }
 
-void mc::Chunk::dispatchCubeIndicesComputation(GLuint program, Blocking blocking) {
+void mc::Chunk::dispatchCubeIndicesComputation(GLuint program,
+                                               Blocking blocking) {
   vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
   densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
   cubeIndexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
-  ge::gl::glDispatchCompute(4,4,4);
+  ge::gl::glDispatchCompute(4, 4, 4);
   if (blocking == Blocking::Yes) {
     ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
   }
@@ -51,8 +51,7 @@ void mc::Chunk::dispatchCubeIndicesComputation(GLuint program, Blocking blocking
   cubeIndexBuffer->unbindBase(GL_SHADER_STORAGE_BUFFER, 2);
 }
 
-void
-mc::Chunk::calculateVertices(GLuint program) {
+void mc::Chunk::calculateVertices(GLuint program) {
 
   ge::gl::AsynchronousQuery geometryQuery{
       GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
@@ -87,15 +86,32 @@ mc::Chunk::calculateVertices(GLuint program) {
   hasDataToDraw = primitiveCount != 0;
 }
 
-void mc::Chunk::render(GLuint program) {
+void mc::Chunk::render(RenderType renderType, GLuint program) {
 
   if (!isComputed()) {
-    throw std::logic_error("Chunk::render(...): Attempting to draw a chunk which has not been computed yet.");
+    throw std::logic_error("Chunk::render(...): Attempting to draw a chunk "
+                           "which has not been computed yet.");
+  }
+  GLint primitiveType;
+  glm::vec4 color = this->color;
+  switch (renderType) {
+
+  case Mesh:
+    primitiveType = GL_TRIANGLES;
+    break;
+  case MeshLines:
+    primitiveType = GL_TRIANGLES;
+    break;
+  case Normals:
+    primitiveType = GL_POINTS;
+    color = {1.0, 0, 1.0, 1.0};
+    break;
   }
   if (shouldBeDrawn()) {
-    ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(program, "color"), 1, &color[0]);
+    ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(program, "color"), 1,
+                         &color[0]);
     drawVertexArray->bind();
-    ge::gl::glDrawTransformFeedback(GL_TRIANGLES, feedbackName);
+    ge::gl::glDrawTransformFeedback(primitiveType, feedbackName);
   }
 }
 
@@ -109,17 +125,15 @@ void mc::Chunk::initBuffers() {
   cubeIndexBuffer = std::make_shared<ge::gl::Buffer>(
       chunkComponentCount * sizeof(uint), nullptr, GL_DYNAMIC_DRAW);
   vertexFeedbackBuffer = std::make_shared<ge::gl::Buffer>(
-      chunkComponentCount * maxVerticesPerCube * 4 *
-      sizeof(float),
-      nullptr, GL_DYNAMIC_DRAW);
+      chunkComponentCount * maxVerticesPerCube * 4 * sizeof(float), nullptr,
+      GL_DYNAMIC_DRAW);
   normalFeedbackBuffer = std::make_shared<ge::gl::Buffer>(
-      chunkComponentCount * maxVerticesPerCube * 3 *
-      sizeof(float),
-      nullptr, GL_DYNAMIC_DRAW);
+      chunkComponentCount * maxVerticesPerCube * 3 * sizeof(float), nullptr,
+      GL_DYNAMIC_DRAW);
 
   geometryVertexArray = std::make_shared<ge::gl::VertexArray>();
   geometryVertexArray->addAttrib(vertexBuffer, 0, 4, GL_FLOAT,
-                             static_cast<GLsizei>(sizeof(float) * 4), 0);
+                                 static_cast<GLsizei>(sizeof(float) * 4), 0);
 
   drawVertexArray = std::make_shared<ge::gl::VertexArray>();
   drawVertexArray->addAttrib(vertexFeedbackBuffer, 0, 4, GL_FLOAT,
@@ -136,13 +150,12 @@ void mc::Chunk::initBuffers() {
 }
 
 std::ostream &mc::operator<<(std::ostream &stream, mc::Chunk &chunk) {
-  stream << "Chunk #" << chunk.id << ", size: " << chunk.size << "x" << chunk.size << "x" << chunk.size;
+  stream << "Chunk #" << chunk.id << ", size: " << chunk.size << "x"
+         << chunk.size << "x" << chunk.size;
   return stream;
 }
 
-uint mc::Chunk::getId() const {
-  return id;
-}
+uint mc::Chunk::getId() const { return id; }
 
 void mc::Chunk::invalidate() {
   computed = false;

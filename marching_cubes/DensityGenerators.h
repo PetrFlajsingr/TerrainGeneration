@@ -17,78 +17,33 @@
 #include <optional>
 #include <string>
 
-#define CHUNK_LEN 32
-#define CHUNK_SIZE (CHUNK_LEN * CHUNK_LEN * CHUNK_LEN)
-
 #define DRAW_MESH0
-#define DRAW_NORMALS0
+#define DRAW_NORMALS
 #define DRAW_SKELETON0
 
-namespace {
-struct AxisInterval {
-  float lowerBound;
-  float higherBound;
-  uint parts;
-
-  uint getCellCount() { return parts; }
-};
-
-struct AreaInterval {
-  AxisInterval xInterval;
-  AxisInterval yInterval;
-  AxisInterval zInterval;
-
-  uint getCellCount() {
-    return xInterval.getCellCount() * yInterval.getCellCount() *
-           zInterval.getCellCount();
-  }
-};
-
-} // namespace
-
+constexpr uint skeletonStep = 31;
 struct Compute {
-  const float d = 1/1.f;
+  const float d = 1 / 1.f;
   const float w = 1 / (d * 32.0);
-  std::vector<mc::Chunk> chunks; /*{{32, {0/d-0*w, 0/d-0*w, 0/d-0*w}},
-                                 {32, {0/d-0*w, 0/d-0*w, 1/d-1*w}},
-                                 {32, {0/d-0*w, 0/d-0*w, 2/d-2*w}},
-                                 {32, {0/d-0*w, 1/d-1*w, 0/d-0*w}},
-                                 {32, {0/d-0*w, 1/d-1*w, 1/d-1*w}},
-                                 {32, {0/d-0*w, 1/d-1*w, 2/d-2*w}},
-                                 {32, {0/d-0*w, 2/d-2*w, 0/d-0*w}},
-                                 {32, {0/d-0*w, 2/d-2*w, 1/d-1*w}},
-                                 {32, {0/d-0*w, 2/d-2*w, 2/d-2*w}},
-                                 {32, {1/d-1*w, 0/d-0*w, 0/d-0*w}},
-                                 {32, {1/d-1*w, 0/d-0*w, 1/d-1*w}},
-                                 {32, {1/d-1*w, 0/d-0*w, 2/d-2*w}},
-                                 {32, {1/d-1*w, 1/d-1*w, 0/d-0*w}},
-                                 {32, {1/d-1*w, 1/d-1*w, 1/d-1*w}},
-                                 {32, {1/d-1*w, 1/d-1*w, 2/d-2*w}},
-                                 {32, {1/d-1*w, 2/d-2*w, 0/d-0*w}},
-                                 {32, {1/d-1*w, 2/d-2*w, 1/d-1*w}},
-                                 {32, {1/d-1*w, 2/d-2*w, 2/d-2*w}},
-                                 {32, {2/d-2*w, 0/d-0*w, 0/d-0*w}},
-                                 {32, {2/d-2*w, 0/d-0*w, 1/d-1*w}},
-                                 {32, {2/d-2*w, 0/d-0*w, 2/d-2*w}},
-                                 {32, {2/d-2*w, 1/d-1*w, 0/d-0*w}},
-                                 {32, {2/d-2*w, 1/d-1*w, 1/d-1*w}},
-                                 {32, {2/d-2*w, 1/d-1*w, 2/d-2*w}},
-                                 {32, {2/d-2*w, 2/d-2*w, 1/d-1*w}},
-                                 {32, {2/d-2*w, 2/d-2*w, 2/d-2*w}},
-                                 };*/
+  std::vector<mc::Chunk> chunks;
 
   void generateChunks() {
-    for (int i = 0; i < 14; i+=2) {
-      for (int j = 0; j < 14; j+=2) {
-        for (int k = 0; k < 14; k+=2) {
+    const uint chunkCount = 3;
+    const uint step = 2;
+    for (int i = 0; i < chunkCount*step; i+=step) {
+      for (int j = 0; j < chunkCount*step; j+=step) {
+        for (int k = 0; k < chunkCount*step; k+=step) {
           chunks.emplace_back(
-              32, 2.0f, glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w}, glm::vec4(i/7.f,j/7.f,k/7.f, 1));
+              32, 1.0f * step, glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w},
+              glm::vec4(i / static_cast<float>(chunkCount * step),
+                        j / static_cast<float>(chunkCount * step),
+                        k / static_cast<float>(chunkCount * step), 1));
         }
       }
     }
   }
 
-  Compute(AreaInterval areaInterval) : areaInterval(areaInterval) {
+  Compute() {
     generateChunks();
     GLint isLinked;
     csShader = std::make_shared<ge::gl::Shader>(GL_COMPUTE_SHADER,
@@ -194,17 +149,6 @@ struct Compute {
       throw std::runtime_error("cannot link opengl program");
     }
 
-    // vb = std::make_shared<ge::gl::Buffer>(CHUNK_SIZE * sizeof(float) * 4,
-    //                                      /*vertices.data()*/nullptr,
-    //                                      GL_DYNAMIC_DRAW);
-    // densityBuffer = std::make_shared<ge::gl::Buffer>(
-    //    CHUNK_SIZE * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-    // cubeIndexBuffer = std::make_shared<ge::gl::Buffer>(
-    //    CHUNK_SIZE * sizeof(uint), nullptr, GL_DYNAMIC_DRAW);
-    // geometryQuery = std::make_shared<ge::gl::AsynchronousQuery>(
-    //    GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
-    //    ge::gl::AsynchronousQuery::UINT32);
-
     polyCountLUTBuffer = std::make_shared<ge::gl::Buffer>(
         mc::LUT::polygonCount.size() * sizeof(uint32_t),
         mc::LUT::polygonCount.data(), GL_STATIC_COPY);
@@ -215,45 +159,14 @@ struct Compute {
         mc::LUT::edgeToVertexIds.size() * sizeof(uint32_t) * 2,
         mc::LUT::edgeToVertexIds.data(), GL_STATIC_COPY);
 
-    // vertexFeedbackBuffer = std::make_shared<ge::gl::Buffer>(
-    //    CHUNK_SIZE * 5 * 4 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-    //
-    // normalFeedbackBuffer = std::make_shared<ge::gl::Buffer>(CHUNK_SIZE * 5 *
-    // 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-    //
-    // vao = std::make_shared<ge::gl::VertexArray>();
-    // vao->addAttrib(vb, 0, 4, GL_FLOAT, static_cast<GLsizei>(sizeof(float) *
-    // 4),
-    //               0);
-    //
-    // vao2 = std::make_shared<ge::gl::VertexArray>();
-    // vao2->addAttrib(vertexFeedbackBuffer, 0, 4, GL_FLOAT,
-    // static_cast<GLsizei>(sizeof(float) * 4),
-    //                0);
-    // vao2->addAttrib(normalFeedbackBuffer, 1, 3, GL_FLOAT,
-    // static_cast<GLsizei>(sizeof(float) * 3),
-    //                0);
-
-    // ge::gl::glGenTransformFeedbacks(1, &feedbackName);
-    // ge::gl::glGenTransformFeedbacks(1, &normalFeedbackName);
-
-    // ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackName);
-    // ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
-    //                         vertexFeedbackBuffer->getId());
-    ////ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
-    //
-    ////ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackName);
-    // ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1,
-    //                         normalFeedbackBuffer->getId());
-    // ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
-
     cameraController = CameraController(glm::vec3{.5f, .5f, 2.f});
   }
 
   void operator()() {
-    const uint NAH = 2413564;
+    ge::gl::glEnable(GL_MULTISAMPLE);
+    ge::gl::glEnable(GL_DEPTH_TEST);
     static float offset = 0;
-    offset += 0.002;
+    offset += 0.02;
     if (std::any_of(chunks.begin(), chunks.end(),
                     [](const auto &a) { return !a.isComputed(); })) {
 
@@ -271,8 +184,6 @@ struct Compute {
 
       for (auto &chunk : chunks) {
         if (!chunk.isComputed()) {
-          if (chunk.getId() == NAH)
-            continue;
           chunk.dispatchDensityComputation(csProgram);
         }
       }
@@ -281,8 +192,6 @@ struct Compute {
 
       for (auto &chunk : chunks) {
         if (!chunk.isComputed()) {
-          if (chunk.getId() == NAH)
-            continue;
           chunk.dispatchCubeIndicesComputation(csProgram);
         }
       }
@@ -296,8 +205,6 @@ struct Compute {
 
       for (auto &chunk : chunks) {
         if (!chunk.isComputed()) {
-          if (chunk.getId() == NAH)
-            continue;
           chunk.calculateVertices(gsProgram);
         }
       }
@@ -313,6 +220,7 @@ struct Compute {
     glm::vec4 red{1, 0, 0, 1};
 
 #ifdef DRAW_SKELETON
+    ge::gl::glEnable(GL_LINE_SMOOTH);
     ge::gl::glUseProgram(chunkSkeletonDrawProgram);
 
     auto colorUni =
@@ -324,12 +232,11 @@ struct Compute {
     ge::gl::glLineWidth(0.01f);
     ge::gl::glUniform4fv(colorUni, 1, &red[0]);
 
+    ge::gl::glUniform1ui(ge::gl::glGetUniformLocation(chunkSkeletonDrawProgram, "step"), skeletonStep);
     for (auto &chunk : chunks) {
       if (chunk.shouldBeDrawn()) {
-        if (chunk.getId() == NAH)
-          continue;
         chunk.vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-        ge::gl::glDrawArrays(GL_POINTS, 0, CHUNK_SIZE);
+        ge::gl::glDrawArrays(GL_POINTS, 0, chunk.componentCount);
       }
     }
 
@@ -338,8 +245,6 @@ struct Compute {
                     std::mem_fn(&mc::Chunk::shouldBeDrawn))) {
       ge::gl::glUseProgram(drawProgram);
 
-      // ge::gl::glEnable(GL_CULL_FACE);
-      ge::gl::glEnable(GL_DEPTH_TEST);
 
       auto lightPosUni = ge::gl::glGetUniformLocation(drawProgram, "lightPos");
       glm::vec3 lightPos = cameraController.camera.Position; //(1, 3, 1);
@@ -355,27 +260,24 @@ struct Compute {
       ge::gl::glUniformMatrix4fv(mvpMatrixUniformId, 1, GL_FALSE,
                                  &MVPmatrix[0][0]);
 #ifdef DRAW_MESH
-      ge::gl::glLineWidth(5.f);
       glm::vec4 blue(0, 0, 1, 1);
       ge::gl::glUniform4fv(colorId, 1, &blue[0]);
+      ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       for (auto &chunk : chunks) {
         if (chunk.shouldBeDrawn()) {
-          if (chunk.getId() == NAH)
-            continue;
-          ge::gl::glDrawTransformFeedback(GL_LINES, chunk.feedbackName);
+          chunk.render(mc::Chunk::MeshLines, drawProgram);
         }
       }
+      ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-      ge::gl::glLineWidth(1.f);
+#else
+
+      for (auto &chunk : chunks) {
+        if (chunk.shouldBeDrawn()) {
+          chunk.render(mc::Chunk::Mesh, drawProgram);
+        }
+      }
 #endif
-
-      for (auto &chunk : chunks) {
-        if (chunk.shouldBeDrawn()) {
-          if (chunk.getId() == NAH)
-            continue;
-          chunk.render(drawProgram);
-        }
-      }
     }
 
 #ifdef DRAW_NORMALS
@@ -392,9 +294,8 @@ struct Compute {
 
     for (auto &chunk : chunks) {
       if (chunk.shouldBeDrawn()) {
-        if (chunk.getId() == 2)
-          continue;
-        ge::gl::glDrawTransformFeedback(GL_POINTS, chunk.feedbackName);
+        chunk.render(mc::Chunk::Normals, drawNormalsProgram);
+        //ge::gl::glDrawTransformFeedback(GL_POINTS, chunk.feedbackName);
       }
     }
 #endif
@@ -403,11 +304,9 @@ struct Compute {
     }
     ge::gl::glFlush();
   }
-  // GLuint csProgram;
   GLuint csProgram;
   GLuint gsProgram;
   GLuint drawProgram;
-  GLuint feedbackName;
   GLuint chunkSkeletonDrawProgram;
   GLuint drawNormalsProgram;
 
@@ -421,24 +320,9 @@ struct Compute {
   std::shared_ptr<ge::gl::Shader> fsShaderLight;
   std::shared_ptr<ge::gl::Shader> fsShader;
 
-  // std::shared_ptr<ge::gl::Buffer> vb;
-  // std::shared_ptr<ge::gl::VertexArray> vao;
-  // std::shared_ptr<ge::gl::VertexArray> vao2;
-  // std::shared_ptr<ge::gl::Buffer> densityBuffer;
-  // std::shared_ptr<ge::gl::Buffer> cubeIndexBuffer;
-  // std::shared_ptr<ge::gl::Buffer> vertexFeedbackBuffer;
-  // std::shared_ptr<ge::gl::Buffer> normalFeedbackBuffer;
-  // std::vector<glm::vec4> vertices;
-
-  // std::shared_ptr<ge::gl::AsynchronousQuery> geometryQuery;
-
   std::shared_ptr<ge::gl::Buffer> polyCountLUTBuffer;
   std::shared_ptr<ge::gl::Buffer> edgeLUTBuffer;
   std::shared_ptr<ge::gl::Buffer> edgeToVertexLUTBuffer;
-
-  AreaInterval areaInterval;
-
-  std::array<GLuint, 1> subroutines{0};
 
   CameraController cameraController;
 };

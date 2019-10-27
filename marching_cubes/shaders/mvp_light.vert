@@ -12,8 +12,11 @@ out gl_PerVertex
     vec4 gl_Position;
 };
 out vec3 light;
+out float yPos;
 
 void main() {
+    yPos = length(Position.xyz - vec3(0,-3,0));
+
     gl_Position = mvpUniform * Position;
 
     float specularStrength = 0.8;

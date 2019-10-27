@@ -9,6 +9,8 @@
 #include "Chunk.h"
 #include "lookuptables.h"
 #include "shaders/GlslShaderLoader.h"
+#include "shaders/ShaderLiterals.h"
+#include <chrono>
 #include <functional>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
@@ -16,11 +18,14 @@
 #include <glm/vec4.hpp>
 #include <optional>
 #include <string>
+using namespace ShaderLiterals;
 
 #define DRAW_MESH0
 #define DRAW_NORMALS0
 #define DRAW_SKELETON0
+static bool drawAllSkeletons = true;
 
+using namespace std::chrono_literals;
 constexpr uint skeletonStep = 31;
 struct Compute {
   const float d = 1 / 1.f;
@@ -28,14 +33,15 @@ struct Compute {
   std::vector<mc::Chunk> chunks;
 
   void generateChunks() {
-    const uint chunkCount = 3;
-    const uint step = 2;
+    const uint chunkCount = 8;
+    const uint step = 1;
+    const glm::vec3 offset {-4, -5, -2.5};
     for (int i = 0; i < chunkCount*step; i+=step) {
       for (int j = 0; j < chunkCount*step; j+=step) {
         for (int k = 0; k < chunkCount*step; k+=step) {
           chunks.emplace_back(
-              32, 1.0f * step, glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w},
-              glm::vec4{1.0, 0, 0, 0} + glm::vec4(i / static_cast<float>(chunkCount * step),
+              32, 1.0f * step, glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w} + offset,
+              glm::vec4{.2, 0.2, 0.2, 0} + glm::vec4(i / static_cast<float>(chunkCount * step),
                         j / static_cast<float>(chunkCount * step),
                         k / static_cast<float>(chunkCount * step), 1));
         }
@@ -43,6 +49,16 @@ struct Compute {
     }
   }
 
+  uint cnt2 = 0;
+
+  auto now() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+  }
+  std::chrono::milliseconds total = 0s;
+  std::chrono::milliseconds TFtime = 0s;
+  std::chrono::milliseconds CStime = 0s;
+  std::chrono::milliseconds rendertime = 0s;
+  int cntComp = 0, cntRender = 0;
   Compute() {
     generateChunks();
     GLint isLinked;
@@ -67,6 +83,29 @@ struct Compute {
     fsShader = std::make_shared<ge::gl::Shader>(
         GL_FRAGMENT_SHADER,
         loadShaderFile("uniform_color", ShaderType::Fragment));
+
+    fsBlinPhongShader = std::make_shared<ge::gl::Shader>(
+        GL_FRAGMENT_SHADER,"blin_phong"_frag);
+    vsBlinPhongShader = std::make_shared<ge::gl::Shader>(
+        GL_VERTEX_SHADER, "blin_phong"_vert);
+
+    bpDrawProgram = ge::gl::glCreateProgram();
+    ge::gl::glAttachShader(bpDrawProgram, fsBlinPhongShader->getId());
+    ge::gl::glAttachShader(bpDrawProgram, vsBlinPhongShader->getId());
+    ge::gl::glLinkProgram(bpDrawProgram);
+    ge::gl::glGetProgramiv(bpDrawProgram, GL_LINK_STATUS, &isLinked);
+    if (isLinked == GL_FALSE) {
+      int length;
+      std::string log;
+      ge::gl::glGetProgramiv(bpDrawProgram, GL_INFO_LOG_LENGTH, &length);
+      log.resize(static_cast<unsigned long>(length));
+      ge::gl::glGetProgramInfoLog(bpDrawProgram, length, &length, &log[0]);
+
+      // The program is useless now. So delete it.
+      ge::gl::glDeleteProgram(bpDrawProgram);
+      std::cerr << "cannot Link: " << log << std::endl;
+      throw std::runtime_error("cannot link opengl program");
+    }
 
     drawNormalsProgram = ge::gl::glCreateProgram();
 
@@ -163,6 +202,8 @@ struct Compute {
   }
 
   void operator()() {
+
+    auto startTime = now();
     ge::gl::glEnable(GL_MULTISAMPLE);
     ge::gl::glEnable(GL_DEPTH_TEST);
     static float offset = 0;
@@ -184,7 +225,7 @@ struct Compute {
 
       for (auto &chunk : chunks) {
         if (!chunk.isComputed()) {
-          chunk.dispatchDensityComputation(csProgram);
+          chunk.dispatchDensityComputation(csProgram, Blocking::No);
         }
       }
 
@@ -192,10 +233,12 @@ struct Compute {
 
       for (auto &chunk : chunks) {
         if (!chunk.isComputed()) {
-          chunk.dispatchCubeIndicesComputation(csProgram);
+          chunk.dispatchCubeIndicesComputation(csProgram, Blocking::No);
         }
       }
 
+      CStime += now() - startTime;
+      startTime = now();
       ge::gl::glUseProgram(gsProgram);
       ge::gl::glEnable(GL_RASTERIZER_DISCARD);
 
@@ -209,7 +252,11 @@ struct Compute {
         }
       }
       ge::gl::glDisable(GL_RASTERIZER_DISCARD);
+
+      ++cntComp;
+      TFtime += now() - startTime;
     }
+    startTime = now();
 
     auto view = cameraController.getViewMatrix();
     auto model = glm::mat4();
@@ -236,7 +283,7 @@ struct Compute {
 
     ge::gl::glUniform1ui(ge::gl::glGetUniformLocation(chunkSkeletonDrawProgram, "step"), skeletonStep);
     for (auto &chunk : chunks) {
-      if (chunk.shouldBeDrawn()) {
+      if (drawAllSkeletons || chunk.shouldBeDrawn(viewFrustum)) {
         chunk.vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
         ge::gl::glDrawArrays(GL_POINTS, 0, chunk.componentCount);
       }
@@ -244,15 +291,27 @@ struct Compute {
 
 #endif
     if (std::any_of(chunks.begin(), chunks.end(),
-                   [&viewFrustum](auto &chunk) {return chunk.shouldBeDrawn(viewFrustum);})) {
-      ge::gl::glUseProgram(drawProgram);
+                   [&viewFrustum](auto &chunk) {return chunk.shouldBeDrawn();})) {
+      ge::gl::glUseProgram(/*drawProgram*/bpDrawProgram);
 
 
-      auto lightPosUni = ge::gl::glGetUniformLocation(drawProgram, "lightPos");
-      glm::vec3 lightPos = cameraController.camera.Position; //(1, 3, 1);
-      ge::gl::glUniform3fv(lightPosUni, 1, &lightPos[0]);
+     // auto lightPosUni = ge::gl::glGetUniformLocation(drawProgram, "lightPos");
+     // glm::vec3 lightPos = cameraController.camera.Position;
+     // ge::gl::glUniform3fv(lightPosUni, 1, &lightPos[0]);
 
-      auto cameraPosUni =
+     ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(bpDrawProgram, "modelView"), 1, GL_FALSE, &view[0][0]);
+     ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(bpDrawProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+     glm::vec3 white {1,1,1};
+     ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "lightColor"), 1, &white[0]);
+     ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "lightPos"), 1, &cameraController.camera.Position[0]);
+     ge::gl::glUniform1f(ge::gl::glGetUniformLocation(bpDrawProgram, "lightPower"), 40.f);
+      ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "ambientColor"), 1, &white[0]);
+      ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "diffuseColor"), 1, &white[0]);
+      ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "specColor"), 1, &white[0]);
+      ge::gl::glUniform1f(ge::gl::glGetUniformLocation(bpDrawProgram, "shininess"), 16.f);
+
+     /* auto cameraPosUni =
           ge::gl::glGetUniformLocation(drawProgram, "cameraPos");
       ge::gl::glUniform3fv(cameraPosUni, 1,
                            &cameraController.camera.Position[0]);
@@ -260,7 +319,7 @@ struct Compute {
           ge::gl::glGetUniformLocation(drawProgram, "mvpUniform");
       auto colorId = ge::gl::glGetUniformLocation(drawProgram, "color");
       ge::gl::glUniformMatrix4fv(mvpMatrixUniformId, 1, GL_FALSE,
-                                 &MVPmatrix[0][0]);
+                                 &MVPmatrix[0][0]);*/
 #ifdef DRAW_MESH
       glm::vec4 blue(0, 0, 1, 1);
       ge::gl::glUniform4fv(colorId, 1, &blue[0]);
@@ -273,13 +332,17 @@ struct Compute {
       ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 #else
-
+      int cnt = 0;
       for (auto &chunk : chunks) {
         if (chunk.shouldBeDrawn(viewFrustum)) {
-          chunk.render(mc::Chunk::Mesh, drawProgram);
+          ++cnt;
+          chunk.render(mc::Chunk::Mesh, bpDrawProgram);
         }
       }
+      std::cout << "Drawn " << cnt << std::endl;
 #endif
+      ++cntRender;
+      rendertime += now() - startTime;
     }
 
 #ifdef DRAW_NORMALS
@@ -301,8 +364,12 @@ struct Compute {
       }
     }
 #endif
-    for (auto &chunk : chunks) {
-      //chunk.invalidate();
+    ++cnt2;
+    if (cnt2 % 100 == 0) {
+      for (auto &chunk : chunks) {
+        //chunk.invalidate();
+      }
+      std::cout << "Times:=> CS:  " << CStime.count() << ", TF: " << TFtime.count() << ", Render: " << rendertime.count() << " ms.";
     }
     ge::gl::glFlush();
   }
@@ -311,6 +378,7 @@ struct Compute {
   GLuint drawProgram;
   GLuint chunkSkeletonDrawProgram;
   GLuint drawNormalsProgram;
+  GLuint bpDrawProgram;
 
   std::shared_ptr<ge::gl::Shader> csShader;
   std::shared_ptr<ge::gl::Shader> gsShader;
@@ -321,6 +389,8 @@ struct Compute {
   std::shared_ptr<ge::gl::Shader> vsNormalShader;
   std::shared_ptr<ge::gl::Shader> fsShaderLight;
   std::shared_ptr<ge::gl::Shader> fsShader;
+  std::shared_ptr<ge::gl::Shader> vsBlinPhongShader;
+  std::shared_ptr<ge::gl::Shader> fsBlinPhongShader;
 
   std::shared_ptr<ge::gl::Buffer> polyCountLUTBuffer;
   std::shared_ptr<ge::gl::Buffer> edgeLUTBuffer;

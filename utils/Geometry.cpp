@@ -107,7 +107,7 @@ bool geo::isAABBInViewFrustum(const geo::AABB &aabb,
     }
 
     if (glm::dot(normal, createPoint(aabb.p2, aabb.p1, normal)) + pos < 0.0f) {
-      return false;
+      return true;
     }
   }
   return true;

@@ -304,19 +304,78 @@ void ulala(uint index, vec3 vertex) {
     //density[index] = -vertex.y + 4 - pow(vertex.x + offset - 2, 2) - pow(vertex.z - 1.5, 2);
     //density[index] = -(sqrt(pow(1-vertex.x, 2) + pow(1-vertex.y, 2) + pow(1-vertex.z, 2)) - 0.9);
 
+
     density[index] = -vertex.y + 2
-   // + snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
+    // + snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
     //+ cnoise((vertex.xyz + vec3(offset,0,0)*8)/0.5)
-    + 5*cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
     + cnoise((vertex.xyz + vec3(offset,0,0)*2)/2)
     + cnoise((vertex.xyz + vec3(offset,0,0)*1)/4)
     + cnoise((vertex.xyz + vec3(offset,0,0)*0.5)/8)
     + cnoise((vertex.xyz + vec3(offset,0,0)*0.25)/16)
-    + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+    ;//+ clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
 
-    if (vertex.x > 3 && vertex.x < 8) {
-        density[index] = -vertex.y+2;
-    }
+   // + snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
+    //+ cnoise((vertex.xyz + vec3(offset,0,0)*8)/0.5)
+//  + cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
+//  + cnoise((vertex.xyz + vec3(offset,0,0)*2)/2)
+//  + cnoise((vertex.xyz + vec3(offset,0,0)*1)/4)
+//  + cnoise((vertex.xyz + vec3(offset,0,0)*0.5)/8)
+//  + cnoise((vertex.xyz + vec3(offset,0,0)*0.25)/16)
+//  + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
+
+
+    float rad = 2.3;
+    density[index] = rad - length(vertex - vec3(0, -rad, 0)) ;
+   /* if (vertex.x > 1 || vertex.y > 1 || vertex.z > 1) { density[index] = length(vertex - vec3(0, -rad, 0));
+return;
+    }*/
+    /*if (length(vertex - vec3(0, -rad, 0)) < 2.6) {
+        density[index] = -density[index];
+        return;
+    }*/
+
+    float seed = 1234;
+    density[index] += pow(
+    +  1/2 *                    noise(seed + (vertex.xyz + offset)/2)
+    +  1 *                      noise(seed + (vertex.xyz + offset))
+    +  0.5 *                    noise(seed + 2 * (vertex.xyz + offset))
+    + 0.25 *                    noise(seed + 4 * (vertex.xyz + offset))
+    + 1/8 *                     noise(seed + 8 * (vertex.xyz + offset))
+    + 1/16 *                    noise(seed + 16 * (vertex.xyz + offset))
+    + 1/32 *                    noise(seed + 32 * (vertex.xyz + offset))
+    + 1/64 *                    noise(seed + 64 * (vertex.xyz + offset))
+    + 1/125 *                   noise(seed + 125 * (vertex.xyz + offset))
+    , 1)
+    ;
+   // density[index] +=  cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
+   // + cnoise((vertex.xyz + vec3(offset,0,0)*2)/2)
+   // + cnoise((vertex.xyz + vec3(offset,0,0)*1)/4)
+   // + cnoise((vertex.xyz + vec3(offset,0,0)*0.5)/8)
+   // + cnoise((vertex.xyz + vec3(offset,0,0)*0.25)/16);
+
+  /*  float flat_spot_height = 5;
+    float outer_radius = 1;
+    float inner_radius = 0.5;
+    vec2 flat_spot_xz_coord = vec2(5, 5);
+    float distance_from_flat_spot = length(vertex.xz - flat_spot_xz_coord);
+    float flatten_amount = clamp(outer_radius - distance_from_flat_spot, 0.0, 1.0)/
+    (outer_radius - inner_radius) * 0.9;
+    density[index] = mix(density[index], vertex.y - flat_spot_height, flatten_amount);*/
+
+  // if (vertex.x < 5 && vertex.y < 5 && vertex.z < 5&& vertex.z > 1) {
+  //     //density[index] = -vertex.y+2;
+  //     density[index] = -(sqrt(pow(3-vertex.x, 2) + pow(3-vertex.y, 2) + pow(3-vertex.z, 2)) - 2);
+  // }
+
+  // if (vertex.x > 5 && vertex.y > 3 && vertex.z > 5 && vertex.x < 10 && vertex.y < 10 && vertex.z < 10) {
+  //     //density[index] = -vertex.y+2;
+  //     density[index] = cube(vertices[index].xyz, 2.0);
+  // }
+
+
+
+
 
     //density[index] = cnoise((vertex.xyz + offset));
     //density[index] += clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);

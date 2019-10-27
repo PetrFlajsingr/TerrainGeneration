@@ -327,21 +327,45 @@ float fnc(vec3 vertex) {
     //return -wtf(vertex.xyz, 0.5);
     //return  pow(vertex.x - 0.5, 2) / 10 + pow(vertex.z - 0.5, 2) / 5;
 
-    float result = -vertex.y + 2
-    // + snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
-    //+ cnoise((vertex.xyz + vec3(offset,0,0)*8)/0.5)
-    + 5*cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
-    + cnoise((vertex.xyz + vec3(offset,0,0)*2)/2)
-    + cnoise((vertex.xyz + vec3(offset,0,0)*1)/4)
-    + cnoise((vertex.xyz + vec3(offset,0,0)*0.5)/8)
-    + cnoise((vertex.xyz + vec3(offset,0,0)*0.25)/16)
-    + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);
 
-    if (vertex.x > 3 && vertex.x < 8) {
-        result = -vertex.y+2;
-    }
+    float rad = 2.6;
+    float result = rad - length(vertex - vec3(0, -rad, 0)) ;
+
+    float seed = 1234;
+    result += pow(
+    +  1/2 *                    noise(seed + (vertex.xyz + offset)/2)
+    +  1 *                      noise(seed + (vertex.xyz + offset))
+    +  0.5 *                    noise(seed + 2 * (vertex.xyz + offset))
+    + 0.25 *                    noise(seed + 4 * (vertex.xyz + offset))
+    + 1/8 *                     noise(seed + 8 * (vertex.xyz + offset))
+    + 1/16 *                    noise(seed + 16 * (vertex.xyz + offset))
+    + 1/32 *                    noise(seed + 32 * (vertex.xyz + offset))
+    + 1/64 *                    noise(seed + 64 * (vertex.xyz + offset))
+    + 1/125 *                   noise(seed + 125 * (vertex.xyz + offset))
+    , 1)
+    ;
+
+
+   //float result = -vertex.y + 2
+   //// + snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
+   ////+ cnoise((vertex.xyz + vec3(offset,0,0)*8)/0.5)
+   //+ cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
+   //+ cnoise((vertex.xyz + vec3(offset,0,0)*2)/2)
+   //+ cnoise((vertex.xyz + vec3(offset,0,0)*1)/4)
+   //+ cnoise((vertex.xyz + vec3(offset,0,0)*0.5)/8)
+   //+ cnoise((vertex.xyz + vec3(offset,0,0)*0.25)/16)
+   //;//+ clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);;
+
+   // if (vertex.x > 5 && vertex.y > 3 && vertex.z > 5 && vertex.x < 10 && vertex.y < 10 && vertex.z < 10) {
+   //     //density[index] = -vertex.y+2;
+   //     result = cube(vertex.xyz, 2.0);
+   // }
+//
+   // if (vertex.x < 5 && vertex.y < 5 && vertex.z < 5 && vertex.z > 1) {
+   //     //density[index] = -vertex.y+2;
+   //     result = -(sqrt(pow(3-vertex.x, 2) + pow(3-vertex.y, 2) + pow(3-vertex.z, 2)) - 2);
+   // }
     return result;
-
 }
 
 vec3 calculateNormal(vec3 p1, vec3 p2, vec3 p3) {

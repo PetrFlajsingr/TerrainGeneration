@@ -20,7 +20,7 @@ bool mc::Chunk::isComputed() const { return computed; }
 bool mc::Chunk::shouldBeDrawn() const { return hasDataToDraw; }
 
 bool mc::Chunk::shouldBeDrawn(const geo::ViewFrustum &viewFrustum) {
-  return hasDataToDraw && geo::isAABBInViewFrustum(calcBB(), viewFrustum);
+  return hasDataToDraw;// && geo::isAABBInViewFrustum(calcBB(), viewFrustum);
 }
 
 void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
@@ -57,15 +57,11 @@ void mc::Chunk::dispatchCubeIndicesComputation(GLuint program,
 }
 
 void mc::Chunk::calculateVertices(GLuint program) {
-
   ge::gl::AsynchronousQuery geometryQuery{
       GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
       ge::gl::AsynchronousQuery::UINT32};
 
   densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-  // polyCountLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
-  // edgeLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
-  // edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 3);
   cubeIndexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 4);
   vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 5);
 
@@ -86,7 +82,7 @@ void mc::Chunk::calculateVertices(GLuint program) {
   vertexBuffer->unbindBase(GL_SHADER_STORAGE_BUFFER, 5);
 
   const auto primitiveCount = geometryQuery.getui();
-  std::cout << *this << "\t|: primitive count: " << primitiveCount << std::endl;
+ // std::cout << *this << "\t|: primitive count: " << primitiveCount << std::endl;
   computed = true;
   hasDataToDraw = primitiveCount != 0;
 }
@@ -154,8 +150,8 @@ void mc::Chunk::initBuffers() {
 }
 
 std::ostream &mc::operator<<(std::ostream &stream, mc::Chunk &chunk) {
-  stream << "Chunk #" << chunk.id << ", size: " << chunk.size << "x"
-         << chunk.size << "x" << chunk.size;
+ stream << "Chunk #" << chunk.id << ", size: " << chunk.size << "x"
+        << chunk.size << "x" << chunk.size;
   return stream;
 }
 

@@ -1,0 +1,32 @@
+#version 430
+
+layout(local_size_x=8, local_size_y=8, local_size_z=8)in;
+
+layout(binding=0, std430)buffer Density{ float density[]; };
+
+uniform vec3 start;
+uniform float step;
+
+vec3 getPosition() {
+    return start + gl_GlobalInvocationID * vec3(step);
+}
+
+uint getIndex() {
+    uint dim = 32;
+    return gl_GlobalInvocationID.z * dim * dim +
+    gl_GlobalInvocationID.y * dim +
+    gl_GlobalInvocationID.x;
+}
+
+void calculateDensity() {
+    vec3 vertex = getPosition();
+
+    float hard_floor_y = 0.1;
+    float rad = 3;
+    density[index] = rad - length(vertex - vec3(0, -rad, 0));
+    density[index] += fbm(vertex.xyz);
+}
+
+void main() {
+    density[getIndex()] = calculateDensity();
+}

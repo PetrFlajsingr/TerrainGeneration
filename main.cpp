@@ -111,6 +111,7 @@ int main(int, char *[]) {
 
   FPSCounter fpsCounter;
   // draw loop
+  int cnt = 0;
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -134,7 +135,10 @@ int main(int, char *[]) {
 
     fpsCounter.step();
 
-    std::cout << fpsCounter << std::endl;
+    if (cnt % 1000 == 0)
+      std::cout << fpsCounter << '\n';
+
+    ++cnt;
   });
 
   (*mainLoop)();

@@ -62,12 +62,16 @@ private:
   bool hasDataToDraw = false;
 
   std::shared_ptr<ge::gl::Buffer> densityBuffer;        // float
-  std::shared_ptr<ge::gl::Buffer> cubeIndexBuffer;      // uint8
+  std::shared_ptr<ge::gl::Buffer> cubeIndexBuffer;      // uint
   std::shared_ptr<ge::gl::Buffer> vertexFeedbackBuffer; // vec3
   std::shared_ptr<ge::gl::Buffer> normalFeedbackBuffer; // vec3
 
+  std::shared_ptr<ge::gl::Buffer> bsLines; // vec3
+
   std::shared_ptr<ge::gl::VertexArray>  drawVertexArray; // vertex vec3, normal vec3
   std::shared_ptr<ge::gl::VertexArray>  geometryVertexArray; // vertex vec3, normal vec3
+
+  std::shared_ptr<ge::gl::VertexArray>  bsVertexArray; // vertex vec3, normal vec3
 
 
 
@@ -77,10 +81,24 @@ private:
 
 public:
   Lazy<Size> componentCount;
+
+
+  geo::BoundingSphere boundingSphere;
+  geo::AABB boundingBox;
+
   geo::AABB calcBB() {
     geo::AABB result;
-    result.p1 = this->position;
-    result.p2 = this->position + this->width;
+    result.p1 = position;
+    result.p2 = position + width;
+    return result;
+  }
+
+  geo::BoundingSphere calcBS() {
+    geo::BoundingSphere result;
+    glm::vec3 p1 = position;
+    glm::vec3 p2 = position + width;
+    result.center = geo::midPoint(p1, p2);
+    result.radius = glm::distance(result.center, p1);
     return result;
   }
 };

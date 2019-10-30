@@ -14,16 +14,20 @@
 #include <functional>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <logger.h>
+#include <now.h>
 #include <optional>
 #include <string>
 using namespace ShaderLiterals;
+using namespace LoggerStreamModifiers;
 
 #define DRAW_MESH0
 #define DRAW_NORMALS0
-#define DRAW_SKELETON0
-static bool drawAllSkeletons = true;
+#define DRAW_SKELETON
+static bool drawAllSkeletons = false;
 
 using namespace std::chrono_literals;
 constexpr uint skeletonStep = 31;
@@ -32,18 +36,28 @@ struct Compute {
   const float w = 1 / (d * 32.0);
   std::vector<mc::Chunk> chunks;
 
+  glm::vec3 gravityCenter{0, -3, 0};
+
+  Logger<true> logger;
+
+  glm::mat4 projection =
+      glm::perspective(glm::radians(45.f), 1920.f / 1080, 0.1f, 100.0f);
+
   void generateChunks() {
-    const uint chunkCount = 8;
+    const uint chunkCount = 12;
     const uint step = 1;
-    const glm::vec3 offset {-4, -5, -2.5};
-    for (int i = 0; i < chunkCount*step; i+=step) {
-      for (int j = 0; j < chunkCount*step; j+=step) {
-        for (int k = 0; k < chunkCount*step; k+=step) {
+     const glm::vec3 offset {-4, -5, -2.5};
+    //const glm::vec3 offset{-22, -30, -20};
+    for (int i = 0; i < chunkCount * step; i += step) {
+      for (int j = 0; j < chunkCount * step; j += step) {
+        for (int k = 0; k < chunkCount * step; k += step) {
           chunks.emplace_back(
-              32, 1.0f * step, glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w} + offset,
-              glm::vec4{.2, 0.2, 0.2, 0} + glm::vec4(i / static_cast<float>(chunkCount * step),
-                        j / static_cast<float>(chunkCount * step),
-                        k / static_cast<float>(chunkCount * step), 1));
+              32, 1.0f * step,
+              glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w} + offset,
+              glm::vec4{.2, 0.2, 0.2, 0} +
+                  glm::vec4(i / static_cast<float>(chunkCount * step),
+                            j / static_cast<float>(chunkCount * step),
+                            k / static_cast<float>(chunkCount * step), 1));
         }
       }
     }
@@ -51,9 +65,6 @@ struct Compute {
 
   uint cnt2 = 0;
 
-  auto now() {
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-  }
   std::chrono::milliseconds total = 0s;
   std::chrono::milliseconds TFtime = 0s;
   std::chrono::milliseconds CStime = 0s;
@@ -84,10 +95,10 @@ struct Compute {
         GL_FRAGMENT_SHADER,
         loadShaderFile("uniform_color", ShaderType::Fragment));
 
-    fsBlinPhongShader = std::make_shared<ge::gl::Shader>(
-        GL_FRAGMENT_SHADER,"blin_phong"_frag);
-    vsBlinPhongShader = std::make_shared<ge::gl::Shader>(
-        GL_VERTEX_SHADER, "blin_phong"_vert);
+    fsBlinPhongShader =
+        std::make_shared<ge::gl::Shader>(GL_FRAGMENT_SHADER, "blin_phong"_frag);
+    vsBlinPhongShader =
+        std::make_shared<ge::gl::Shader>(GL_VERTEX_SHADER, "blin_phong"_vert);
 
     bpDrawProgram = ge::gl::glCreateProgram();
     ge::gl::glAttachShader(bpDrawProgram, fsBlinPhongShader->getId());
@@ -198,20 +209,22 @@ struct Compute {
         mc::LUT::edgeToVertexIds.size() * sizeof(uint32_t) * 2,
         mc::LUT::edgeToVertexIds.data(), GL_STATIC_COPY);
 
-    cameraController = CameraController(glm::vec3{.5f, .5f, 2.f});
+    cameraController = CameraController(glm::vec3{.10f, .10f, 10.f});
   }
 
   void operator()() {
 
-    auto startTime = now();
+    auto startTime = now<std::chrono::milliseconds>();
     ge::gl::glEnable(GL_MULTISAMPLE);
     ge::gl::glEnable(GL_DEPTH_TEST);
+    ge::gl::glCullFace(GL_FRONT);
+    ge::gl::glEnable(GL_CULL_FACE);
     static float offset = 0;
     offset += 0.02;
     if (std::any_of(chunks.begin(), chunks.end(),
                     [](const auto &a) { return !a.isComputed(); })) {
 
-      std::cout << "Running compute on chunk" << std::endl;
+      logger << "Running compute\n";
       ge::gl::glUseProgram(csProgram);
 
       auto uni = ge::gl::glGetUniformLocation(csProgram, "bah");
@@ -237,8 +250,9 @@ struct Compute {
         }
       }
 
-      CStime += now() - startTime;
-      startTime = now();
+      CStime += now<std::chrono::milliseconds>() - startTime;
+      startTime = now<std::chrono::milliseconds>();
+
       ge::gl::glUseProgram(gsProgram);
       ge::gl::glEnable(GL_RASTERIZER_DISCARD);
 
@@ -254,22 +268,37 @@ struct Compute {
       ge::gl::glDisable(GL_RASTERIZER_DISCARD);
 
       ++cntComp;
-      TFtime += now() - startTime;
+      TFtime += now<std::chrono::milliseconds>() -startTime;
     }
-    startTime = now();
+    startTime = now<std::chrono::milliseconds>();
 
+
+    glm::vec3 up = glm::normalize((gravityCenter - cameraController.camera.Position));
+    //cameraController.camera.WorldUp = -up;// glm::vec3(0, 0, 0);
     auto view = cameraController.getViewMatrix();
     auto model = glm::mat4();
-    auto projection =
-        glm::perspective(glm::radians(45.f), 1920.f / 1080, 0.1f, 100.0f);
     auto MVPmatrix = projection * view * model;
 
     glm::vec4 red{1, 0, 0, 1};
 
-    geo::ViewFrustum viewFrustum = geo::ViewFrustum::FromProjectionView(view, projection);
+    geo::ViewFrustum viewFrustum =
+        geo::ViewFrustum::FromProjectionView(view, projection);
 
+  /*  logger.startTime();
+    for (int i = 0; i < 100000; ++i) {
+      geo::isAABBInViewFrustum(chunks[0].boundingBox, viewFrustum);
+    }
+    logger.endTime();
+    logger.printElapsedTime();
+    logger.startTime();
+    for (int i = 0; i < 100000; ++i) {
+      geo::isBoundingSphereInViewFrustum(chunks[0].boundingSphere, viewFrustum);
+    }
+    logger.endTime();
+    logger.printElapsedTime();
+exit(0);*/
 #ifdef DRAW_SKELETON
-    ge::gl::glEnable(GL_LINE_SMOOTH);
+    // ge::gl::glEnable(GL_LINE_SMOOTH);
     ge::gl::glUseProgram(chunkSkeletonDrawProgram);
 
     auto colorUni =
@@ -281,7 +310,9 @@ struct Compute {
     ge::gl::glLineWidth(0.01f);
     ge::gl::glUniform4fv(colorUni, 1, &red[0]);
 
-    ge::gl::glUniform1ui(ge::gl::glGetUniformLocation(chunkSkeletonDrawProgram, "step"), skeletonStep);
+    ge::gl::glUniform1ui(
+        ge::gl::glGetUniformLocation(chunkSkeletonDrawProgram, "step"),
+        skeletonStep);
     for (auto &chunk : chunks) {
       if (drawAllSkeletons || chunk.shouldBeDrawn(viewFrustum)) {
         chunk.vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
@@ -290,59 +321,78 @@ struct Compute {
     }
 
 #endif
-    if (std::any_of(chunks.begin(), chunks.end(),
-                   [&viewFrustum](auto &chunk) {return chunk.shouldBeDrawn();})) {
-      ge::gl::glUseProgram(/*drawProgram*/bpDrawProgram);
+    if (std::any_of(chunks.begin(), chunks.end(), [&viewFrustum](auto &chunk) {
+          return chunk.shouldBeDrawn();
+        })) {
+      ge::gl::glUseProgram(/*drawProgram*/ bpDrawProgram);
 
+      // auto lightPosUni = ge::gl::glGetUniformLocation(drawProgram,
+      // "lightPos"); glm::vec3 lightPos = cameraController.camera.Position;
+      // ge::gl::glUniform3fv(lightPosUni, 1, &lightPos[0]);
 
-     // auto lightPosUni = ge::gl::glGetUniformLocation(drawProgram, "lightPos");
-     // glm::vec3 lightPos = cameraController.camera.Position;
-     // ge::gl::glUniform3fv(lightPosUni, 1, &lightPos[0]);
+      ge::gl::glUniformMatrix4fv(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "modelView"), 1, GL_FALSE,
+          &view[0][0]);
+      ge::gl::glUniformMatrix4fv(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "projection"), 1,
+          GL_FALSE, &projection[0][0]);
 
-     ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(bpDrawProgram, "modelView"), 1, GL_FALSE, &view[0][0]);
-     ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(bpDrawProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+      glm::vec3 white{1, 1, 1};
+      ge::gl::glUniform3fv(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "lightColor"), 1,
+          &white[0]);
 
-     glm::vec3 white {1,1,1};
-     ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "lightColor"), 1, &white[0]);
-     ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "lightPos"), 1, &cameraController.camera.Position[0]);
-     ge::gl::glUniform1f(ge::gl::glGetUniformLocation(bpDrawProgram, "lightPower"), 40.f);
-      ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "ambientColor"), 1, &white[0]);
-      ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "diffuseColor"), 1, &white[0]);
-      ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "specColor"), 1, &white[0]);
-      ge::gl::glUniform1f(ge::gl::glGetUniformLocation(bpDrawProgram, "shininess"), 16.f);
+      glm::vec3 lightPos = cameraController.camera.Position; // {2,5,2};
+      ge::gl::glUniform3fv(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "lightPos"), 1,
+          &lightPos[0]);
+      ge::gl::glUniform1f(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "lightPower"), 40.f);
+      ge::gl::glUniform3fv(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "ambientColor"), 1,
+          &white[0]);
+      ge::gl::glUniform3fv(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "diffuseColor"), 1,
+          &white[0]);
+      ge::gl::glUniform3fv(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "specColor"), 1,
+          &white[0]);
+      ge::gl::glUniform1f(
+          ge::gl::glGetUniformLocation(bpDrawProgram, "shininess"), 16.f);
 
-     /* auto cameraPosUni =
-          ge::gl::glGetUniformLocation(drawProgram, "cameraPos");
-      ge::gl::glUniform3fv(cameraPosUni, 1,
-                           &cameraController.camera.Position[0]);
-      auto mvpMatrixUniformId =
-          ge::gl::glGetUniformLocation(drawProgram, "mvpUniform");
-      auto colorId = ge::gl::glGetUniformLocation(drawProgram, "color");
-      ge::gl::glUniformMatrix4fv(mvpMatrixUniformId, 1, GL_FALSE,
-                                 &MVPmatrix[0][0]);*/
+      /* auto cameraPosUni =
+           ge::gl::glGetUniformLocation(drawProgram, "cameraPos");
+       ge::gl::glUniform3fv(cameraPosUni, 1,
+                            &cameraController.camera.Position[0]);
+       auto mvpMatrixUniformId =
+           ge::gl::glGetUniformLocation(drawProgram, "mvpUniform");
+       auto colorId = ge::gl::glGetUniformLocation(drawProgram, "color");
+       ge::gl::glUniformMatrix4fv(mvpMatrixUniformId, 1, GL_FALSE,
+                                  &MVPmatrix[0][0]);*/
+
+      int cnt = 0;
 #ifdef DRAW_MESH
-      glm::vec4 blue(0, 0, 1, 1);
-      ge::gl::glUniform4fv(colorId, 1, &blue[0]);
       ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       for (auto &chunk : chunks) {
         if (chunk.shouldBeDrawn(viewFrustum)) {
+          ++cnt;
           chunk.render(mc::Chunk::MeshLines, drawProgram);
         }
       }
       ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 #else
-      int cnt = 0;
+
       for (auto &chunk : chunks) {
         if (chunk.shouldBeDrawn(viewFrustum)) {
           ++cnt;
           chunk.render(mc::Chunk::Mesh, bpDrawProgram);
         }
       }
-      std::cout << "Drawn " << cnt << std::endl;
 #endif
       ++cntRender;
-      rendertime += now() - startTime;
+      rendertime += now<std::chrono::milliseconds>() -startTime;
+     // logger << debug() << "Drawn " << cnt << "\n";
     }
 
 #ifdef DRAW_NORMALS
@@ -360,17 +410,19 @@ struct Compute {
     for (auto &chunk : chunks) {
       if (chunk.shouldBeDrawn(viewFrustum)) {
         chunk.render(mc::Chunk::Normals, drawNormalsProgram);
-        //ge::gl::glDrawTransformFeedback(GL_POINTS, chunk.feedbackName);
+        // ge::gl::glDrawTransformFeedback(GL_POINTS, chunk.feedbackName);
       }
     }
 #endif
-    ++cnt2;
+
     if (cnt2 % 100 == 0) {
       for (auto &chunk : chunks) {
-        //chunk.invalidate();
+        // chunk.invalidate();
       }
-      std::cout << "Times:=> CS:  " << CStime.count() << ", TF: " << TFtime.count() << ", Render: " << rendertime.count() << " ms.";
+      logger << debug() << "Times:=> CS:  " << CStime.count() << ", TF: " << TFtime.count()
+             << ", Render: " << rendertime.count() << " ms.\n";
     }
+    ++cnt2;
     ge::gl::glFlush();
   }
   GLuint csProgram;

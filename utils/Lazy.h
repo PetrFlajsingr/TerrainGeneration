@@ -15,18 +15,22 @@ public:
   explicit Lazy(CalcFunction &&calcFunction) : calcFunction(calcFunction) {}
 
   operator const T&() {
-    if (!value.has_value()) {
-      value = calcFunction();
+    return value();
+  }
+
+  const T& value() {
+    if (!data.has_value()) {
+      data = calcFunction();
     }
-    return value.value();
+    return data.value();
   }
 
   void invalidate() {
-    value = std::nullopt;
+    data = std::nullopt;
   }
 private:
   CalcFunction calcFunction;
-  std::optional<T> value;
+  std::optional<T> data;
 };
 
 #endif // TERRAINGENERATION_LAZY_H

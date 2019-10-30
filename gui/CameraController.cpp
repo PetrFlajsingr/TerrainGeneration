@@ -40,7 +40,7 @@ CameraController::EventCallback CameraController::getMouseDownCallback() {
 CameraController::EventCallback CameraController::getMouseMoveCallback() {
   return [this](const SDL_Event &event) {
     if (lockedToCamera) {
-      camera.ProcessMouseMovement(event.motion.xrel, event.motion.yrel, false);
+      camera.ProcessMouseMovement(event.motion.xrel, event.motion.yrel, true);
       return true;
     }
     return false;

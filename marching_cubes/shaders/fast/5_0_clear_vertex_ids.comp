@@ -1,0 +1,17 @@
+#version 430
+
+layout(binding=0, std430)buffer VertexIDs{ uint vertexIDs[]; };
+
+layout(local_size_x=8, local_size_y=8, local_size_z=8)in;
+
+uniform vec3 start;
+uniform float step;
+
+void main() {
+    uint dim = 32;
+    uint index = gl_GlobalInvocationID.z * dim * dim +
+    gl_GlobalInvocationID.y * dim +
+    gl_GlobalInvocationID.x;
+
+    vertexIDs[index] = 0;
+}

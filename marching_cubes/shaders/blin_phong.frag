@@ -17,6 +17,23 @@ uniform float shininess;
 in float yPos;
 
 out vec4 FragColor;
+
+vec3 colorForHeight(float height, float minHeight, float maxHeight) {
+
+    float range = maxHeight/2 - minHeight;
+    vec3 color;
+    if(height >= minHeight && height <= maxHeight/2) {
+        color.y = height / range;
+        color.x = 1.0f - color.y;
+        color.z = 0.0f;
+
+    } else if(height > maxHeight/2 && height <= maxHeight) {
+        color.x = 0.0f;
+        color.z = (height - maxHeight/2) / range;
+        color.y = 1.0f - color.z;
+    }
+    return color;
+}
 void main() {
 
     vec3 normal = normalize(NormalInterp);
@@ -36,11 +53,11 @@ void main() {
         specular = pow(specAngle, shininess);
 
     }
-    vec3 colorLinear = ambientColor +
+    vec3 colorLinear = ambientColor/2 +
     diffuseColor * lambertian * lightColor * lightPower / distance +
     specColor * specular * lightColor * lightPower / distance;
 
-    vec3 color = vec3(0);
+   /* vec3 color = vec3(0);
     if (yPos < 3.4) {
         color.z = (yPos - 2.8) * 1;
     } else if (yPos < 3.8) {
@@ -48,5 +65,9 @@ void main() {
     } else {
         color =  vec3((yPos - 4)*1, (yPos - 3.4)*1, 0);
     }
-    FragColor = vec4(color*colorLinear, 1.0);
+    */
+
+
+    FragColor = vec4(colorForHeight(yPos, 0, 20)*colorLinear, 1.0);
+    FragColor = vec4(color.xyz *colorLinear, 1.0);
 }

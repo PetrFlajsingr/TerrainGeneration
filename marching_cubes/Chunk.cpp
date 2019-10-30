@@ -12,15 +12,18 @@ mc::Chunk::Chunk(Chunk::Size size, float width, glm::vec3 position,
   ge::gl::glGenTransformFeedbacks(1, &feedbackName);
   initBuffers();
   ++idCounter;
-
+  boundingSphere = calcBS();
+  boundingBox = calcBB();
 }
 
 bool mc::Chunk::isComputed() const { return computed; }
 
-bool mc::Chunk::shouldBeDrawn() const { return hasDataToDraw; }
+bool mc::Chunk::shouldBeDrawn() const {
+  return hasDataToDraw; }
 
 bool mc::Chunk::shouldBeDrawn(const geo::ViewFrustum &viewFrustum) {
-  return hasDataToDraw;// && geo::isAABBInViewFrustum(calcBB(), viewFrustum);
+  //return hasDataToDraw && geo::isBoundingSphereInViewFrustum(boundingSphere, viewFrustum);
+  return hasDataToDraw ;//&& geo::isAABBInViewFrustum(boundingBox, viewFrustum);
 }
 
 void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
@@ -57,6 +60,7 @@ void mc::Chunk::dispatchCubeIndicesComputation(GLuint program,
 }
 
 void mc::Chunk::calculateVertices(GLuint program) {
+  assert(componentCount.value() == std::pow(size, 3));
   ge::gl::AsynchronousQuery geometryQuery{
       GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
       ge::gl::AsynchronousQuery::UINT32};
@@ -94,13 +98,16 @@ void mc::Chunk::render(RenderType renderType, GLuint program) {
                            "which has not been computed yet.");
   }
   GLint primitiveType;
-  glm::vec4 color = this->color;
+  bool drawBS = false;
+  auto color = this->color;
   switch (renderType) {
   case Mesh:
     primitiveType = GL_TRIANGLES;
     break;
   case MeshLines:
+    ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     primitiveType = GL_TRIANGLES;
+    drawBS = true;
     break;
   case Normals:
     primitiveType = GL_POINTS;
@@ -112,6 +119,17 @@ void mc::Chunk::render(RenderType renderType, GLuint program) {
                          &color[0]);
     drawVertexArray->bind();
     ge::gl::glDrawTransformFeedback(primitiveType, feedbackName);
+
+    if (drawBS) {
+      glm::vec4 white {1.f, 1.f, 1.f, 1.f};
+      ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(program, "color"), 1,
+                           &white[0]);
+      bsVertexArray->bind();
+      ge::gl::glDrawArrays(GL_LINES, 0, 12);
+    }
+  }
+  if (renderType == RenderType::MeshLines) {
+    ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 }
 
@@ -147,6 +165,29 @@ void mc::Chunk::initBuffers() {
   ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1,
                            normalFeedbackBuffer->getId());
   ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+
+
+  auto bs = calcBS();
+  std::vector<glm::vec4> vals{
+    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+    glm::vec4{bs.center.x + bs.radius, bs.center.y, bs.center.z, 1},
+
+    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+    glm::vec4{bs.center.x, bs.center.y + bs.radius, bs.center.z, 1},
+    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+    glm::vec4{bs.center.x , bs.center.y, bs.center.z + bs.radius, 1},
+    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+    glm::vec4{bs.center.x - bs.radius, bs.center.y, bs.center.z, 1},
+    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+    glm::vec4{bs.center.x, bs.center.y- bs.radius, bs.center.z, 1},
+    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+    glm::vec4{bs.center.x, bs.center.y, bs.center.z- bs.radius, 1},
+  };
+  bsLines = std::make_shared<ge::gl::Buffer>(
+      vals.size() * sizeof(float) * 4, vals.data(), GL_DYNAMIC_DRAW);
+  bsVertexArray = std::make_shared<ge::gl::VertexArray>();
+  bsVertexArray->addAttrib(bsLines, 0, 4, GL_FLOAT,
+                             static_cast<GLsizei>(sizeof(float) * 4), 0);
 }
 
 std::ostream &mc::operator<<(std::ostream &stream, mc::Chunk &chunk) {

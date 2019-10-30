@@ -37,6 +37,7 @@ public:
   // Euler Angles
   float Yaw;
   float Pitch;
+  float Roll = 5;
   // Camera options
   float MovementSpeed;
   float MouseSensitivity;
@@ -87,8 +88,8 @@ public:
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
 
-    Yaw   += xoffset;
-    Pitch += yoffset;
+    Yaw   += xoffset;// * (1 - WorldUp.x);
+    Pitch += yoffset;// * (1 - WorldUp.y);
 
     // Make sure that when pitch is out of bounds, screen doesn't get flipped
     if (constrainPitch)

@@ -3,6 +3,7 @@ project(TerrainGeneration)
 
 set(CMAKE_CXX_STANDARD 17)
 
+
 include(FetchContent)
 
 set(SDL2_DIR /home/petr/Desktop/pgpa/install/lib/cmake/SDL2)
@@ -28,6 +29,6 @@ endif()
 include_directories(third_party)
 include_directories(utils)
 
-add_executable(TerrainGeneration main.cpp gui/CameraController.cpp marching_cubes/DensityGenerators.cpp marching_cubes/shaders/GlslShaderLoader.cpp marching_cubes/Chunk.cpp utils/FPSCounter.cpp utils/Geometry.cpp utils/Geometry.h marching_cubes/shaders/ShaderLiterals.h)
+add_executable(TerrainGeneration main.cpp gui/CameraController.cpp marching_cubes/DensityGenerators.cpp marching_cubes/shaders/GlslShaderLoader.cpp marching_cubes/Chunk.cpp utils/FPSCounter.cpp utils/Geometry.cpp utils/Geometry.h marching_cubes/shaders/ShaderLiterals.h utils/now.h utils/meta.h utils/logger.h gui/Camera.cpp gui/Camera.h marching_cubes/FastChunkGen.cpp marching_cubes/FastChunkGen.h)
 
 target_link_libraries(TerrainGeneration geGL::geGL SDL2CPP::SDL2CPP glm)

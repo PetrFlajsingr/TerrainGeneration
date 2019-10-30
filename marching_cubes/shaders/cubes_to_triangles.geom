@@ -303,6 +303,65 @@ float snoise(vec3 v){
     dot(p2,x2), dot(p3,x3) ) );
 }
 
+vec3 normalNoise(vec2 _st, float _zoom, float _speed){
+    vec2 v1 = _st;
+    vec2 v2 = _st;
+    vec2 v3 = _st;
+    float expon = pow(10.0, _zoom*2.0);
+    v1 /= 1.0*expon;
+    v2 /= 0.62*expon;
+    v3 /= 0.83*expon;
+    float time = 1;
+    float n = time*_speed;
+    float nr = (snoise(vec3(v1, n)) + snoise(vec3(v2, n)) + snoise(vec3(v3, n))) / 6.0 + 0.5;
+    n = time * _speed + 1000.0;
+    float ng = (snoise(vec3(v1, n)) + snoise(vec3(v2, n)) + snoise(vec3(v3, n))) / 6.0 + 0.5;
+    return vec3(nr,ng,0.5);
+}
+
+
+    #define NUM_OCTAVES 5
+
+float fbm(float x) {
+    float v = 0.0;
+    float a = 0.5;
+    float shift = float(100);
+    for (int i = 0; i < NUM_OCTAVES; ++i) {
+        v += a * noise(x);
+        x = x * 2.0 + shift;
+        a *= 0.5;
+    }
+    return v;
+}
+
+
+float fbm(vec2 x) {
+    float v = 0.0;
+    float a = 0.5;
+    vec2 shift = vec2(100);
+    // Rotate to reduce axial bias
+    mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
+    for (int i = 0; i < NUM_OCTAVES; ++i) {
+        v += a * noise(x);
+        x = rot * x * 2.0 + shift;
+        a *= 0.5;
+    }
+    return v;
+}
+
+
+float fbm(vec3 x) {
+    float v = 0.0;
+    float a = 0.5;
+    vec3 shift = vec3(100);
+    for (int i = 0; i < NUM_OCTAVES; ++i) {
+        v += a * noise(x);
+        x = x * 2.0 + shift;
+        a *= 0.5;
+    }
+    return v;
+}
+
 
 
 
@@ -327,23 +386,26 @@ float fnc(vec3 vertex) {
     //return -wtf(vertex.xyz, 0.5);
     //return  pow(vertex.x - 0.5, 2) / 10 + pow(vertex.z - 0.5, 2) / 5;
 
+   /* return -vertex.y + 2
+   //+ snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
+   //+ cnoise((vertex.xyz + vec3(offset,0,0)*8)/0.5)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*2)/2)
+    + cnoise((vertex.xyz + vec3(offset,0,0)*1)/4)
+   + cnoise((vertex.xyz + vec3(offset,0,0)*0.5)/8)
+   + cnoise((vertex.xyz + vec3(offset,0,0)*0.25)/16)
+    + clamp((hard_floor_y - vertex.y) * 3 * 40, 0.0, 1.0);*/
 
-    float rad = 2.6;
+    float rad = 3;
     float result = rad - length(vertex - vec3(0, -rad, 0)) ;
-
-    float seed = 1234;
+    result += fbm(vertex.xyz);
+   /* float seed = 1234;
     result += pow(
-    +  1/2 *                    noise(seed + (vertex.xyz + offset)/2)
-    +  1 *                      noise(seed + (vertex.xyz + offset))
-    +  0.5 *                    noise(seed + 2 * (vertex.xyz + offset))
-    + 0.25 *                    noise(seed + 4 * (vertex.xyz + offset))
-    + 1/8 *                     noise(seed + 8 * (vertex.xyz + offset))
-    + 1/16 *                    noise(seed + 16 * (vertex.xyz + offset))
-    + 1/32 *                    noise(seed + 32 * (vertex.xyz + offset))
-    + 1/64 *                    noise(seed + 64 * (vertex.xyz + offset))
-    + 1/125 *                   noise(seed + 125 * (vertex.xyz + offset))
-    , 1)
-    ;
+    noise(4 * vertex)*0.25
+    + noise(2 * vertex) * 0.5
+    + noise(vertex) * 1
+    , 1);*/
+
 
 
    //float result = -vertex.y + 2

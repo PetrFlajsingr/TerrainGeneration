@@ -19,10 +19,23 @@ struct ViewFrustum {
 struct AABB {
   glm::vec3 p1, p2;
 
+  bool operator==(const AABB &rhs) const;
+  bool operator!=(const AABB &rhs) const;
+
   friend std::ostream&operator<<(std::ostream&stream, const AABB &aabb);
 };
 
+struct BoundingSphere {
+  glm::vec3 center;
+  float radius;
+};
+
+float distanceToPlane(const glm::vec4 &plane, const glm::vec4 &point);
+
 bool isAABBInViewFrustum(const AABB &aabb, const ViewFrustum &viewFrustum);
+bool isBoundingSphereInViewFrustum(const BoundingSphere &bs, const ViewFrustum &viewFrustum);
+
+glm::vec3 midPoint(const glm::vec3 &p1, const glm::vec3 &p2);
 
 } // namespace geo
 

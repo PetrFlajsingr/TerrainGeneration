@@ -16,7 +16,7 @@ out float yPos;
 
 
 void main () {
-    yPos = length(Position.xyz - vec3(0,-3, 0));
+    yPos = length(Position.xyz - vec3(0,-20, 0));
     gl_Position = projection * modelView * Position;
     Pos = (modelView * Position).xyz;
     mat4 normalMat = transpose(inverse(modelView));

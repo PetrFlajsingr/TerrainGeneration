@@ -82,9 +82,23 @@ geo::ViewFrustum::FromProjectionView(const glm::mat4 &viewMatrix,
   }
   return result;
 }
-
-bool geo::isAABBInViewFrustum(const geo::AABB &aabb,
-                              const geo::ViewFrustum &viewFrustum) {
+geo::FrustumPosition geo::ViewFrustum::contains(const geo::BoundingSphere &bs) const {
+  auto center = glm::vec4{bs.center, 1.0};
+  auto dist01 = std::min(distanceToPlane(planes[0], center),
+                         distanceToPlane(planes[1], center));
+  if (dist01 <= 0)
+    return FrustumPosition::Outside;
+  auto dist23 = std::min(distanceToPlane(planes[2], center),
+                         distanceToPlane(planes[3], center));
+  if (dist23 <= 0)
+    return FrustumPosition::Outside;
+  auto dist45 = std::min(distanceToPlane(planes[4], center),
+                         distanceToPlane(planes[5], center));
+  if (dist45 > 0) {
+    return FrustumPosition::Inside;
+  }
+}
+geo::FrustumPosition geo::ViewFrustum::contains(const geo::AABB &aabb) const {
   static auto createPoint = [](auto &first, auto &second, auto &normal) {
     glm::vec3 result = first;
 
@@ -98,19 +112,20 @@ bool geo::isAABBInViewFrustum(const geo::AABB &aabb,
     return result;
   };
   for (auto i = 0; i < 6; i++) {
-    const float pos = viewFrustum.planes[i].w;
-    const auto normal = glm::vec3(viewFrustum.planes[i]);
+    const float pos = planes[i].w;
+    const auto normal = glm::vec3(planes[i]);
 
     if (glm::dot(normal, createPoint(aabb.p1, aabb.p2, normal)) + pos < 0.0f) {
-      return false;
+      return FrustumPosition::Outside;
     }
 
     if (glm::dot(normal, createPoint(aabb.p2, aabb.p1, normal)) + pos < 0.0f) {
-      return true;
+      return FrustumPosition::Intersection;
     }
   }
-  return true;
+  return FrustumPosition::Inside;
 }
+
 std::ostream &geo::operator<<(std::ostream &stream, const geo::AABB &aabb) {
   stream << "P1: [" << aabb.p1.x << ", " << aabb.p1.y << ", " << aabb.p1.z
          << "], P2: [ "
@@ -123,21 +138,7 @@ bool geo::AABB::operator==(const geo::AABB &rhs) const {
 bool geo::AABB::operator!=(const geo::AABB &rhs) const {
   return !(rhs == *this);
 }
-bool geo::isBoundingSphereInViewFrustum(const geo::BoundingSphere &bs,
-                                        const geo::ViewFrustum &viewFrustum) {
-  auto center = glm::vec4{bs.center, 1.0};
-  auto dist01 = std::min(distanceToPlane(viewFrustum.planes[0], center),
-                         distanceToPlane(viewFrustum.planes[1], center));
-  if (dist01 <= 0)
-    return false;
-  auto dist23 = std::min(distanceToPlane(viewFrustum.planes[2], center),
-                         distanceToPlane(viewFrustum.planes[3], center));
-  if (dist23 <= 0)
-    return false;
-  auto dist45 = std::min(distanceToPlane(viewFrustum.planes[4], center),
-                         distanceToPlane(viewFrustum.planes[5], center));
-  return dist45 > 0;
-}
+
 glm::vec3 geo::midPoint(const glm::vec3 &p1, const glm::vec3 &p2) {
   return glm::vec3{(p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2};
 }

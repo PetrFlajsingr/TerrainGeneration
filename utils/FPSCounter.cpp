@@ -8,7 +8,7 @@ float FPSCounter::average() {
 }
 
 float FPSCounter::current() {
-  return static_cast<float>(1) / lastFrameDuration.count() * std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count();
+  return 1.f / lastFrameDuration.count() * std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count();
 }
 
 

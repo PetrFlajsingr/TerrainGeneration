@@ -7,13 +7,14 @@
 
 #include "../gui/CameraController.h"
 #include "Chunk.h"
+#include "GlslShaderLoader.h"
+#include "ShaderLiterals.h"
 #include "lookuptables.h"
-#include "shaders/GlslShaderLoader.h"
-#include "shaders/ShaderLiterals.h"
 #include <chrono>
 #include <functional>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
+#include <gl_utils.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -26,7 +27,7 @@ using namespace LoggerStreamModifiers;
 
 #define DRAW_MESH0
 #define DRAW_NORMALS0
-#define DRAW_SKELETON
+#define DRAW_SKELETON0
 static bool drawAllSkeletons = false;
 
 using namespace std::chrono_literals;
@@ -44,13 +45,13 @@ struct Compute {
       glm::perspective(glm::radians(45.f), 1920.f / 1080, 0.1f, 100.0f);
 
   void generateChunks() {
-    const uint chunkCount = 12;
-    const uint step = 1;
-     const glm::vec3 offset {-4, -5, -2.5};
-    //const glm::vec3 offset{-22, -30, -20};
-    for (int i = 0; i < chunkCount * step; i += step) {
-      for (int j = 0; j < chunkCount * step; j += step) {
-        for (int k = 0; k < chunkCount * step; k += step) {
+    const uint chunkCount = 10;
+    const float step = 1;
+    const glm::vec3 offset{-4, -5, -2.5};
+    // const glm::vec3 offset{-22, -30, -20};
+    for (float i = 0; i < chunkCount * step; i += step) {
+      for (float j = 0; j < chunkCount * step; j += step) {
+        for (float k = 0; k < chunkCount * step; k += step) {
           chunks.emplace_back(
               32, 1.0f * step,
               glm::vec3{i / d - i * w, j / d - j * w, k / d - k * w} + offset,
@@ -72,7 +73,6 @@ struct Compute {
   int cntComp = 0, cntRender = 0;
   Compute() {
     generateChunks();
-    GLint isLinked;
     csShader = std::make_shared<ge::gl::Shader>(GL_COMPUTE_SHADER,
                                                 "mc_chunk.comp"_shader_file);
     // csProgram = std::make_shared<ge::gl::Program>();
@@ -95,27 +95,16 @@ struct Compute {
         GL_FRAGMENT_SHADER,
         loadShaderFile("uniform_color", ShaderType::Fragment));
 
-    fsBlinPhongShader =
-        std::make_shared<ge::gl::Shader>(GL_FRAGMENT_SHADER, "blin_phong"_frag);
-    vsBlinPhongShader =
-        std::make_shared<ge::gl::Shader>(GL_VERTEX_SHADER, "blin_phong"_vert);
+    fsBlinPhongShader = "blin_phong"_frag;
+    vsBlinPhongShader = "blin_phong"_vert;
 
     bpDrawProgram = ge::gl::glCreateProgram();
     ge::gl::glAttachShader(bpDrawProgram, fsBlinPhongShader->getId());
     ge::gl::glAttachShader(bpDrawProgram, vsBlinPhongShader->getId());
     ge::gl::glLinkProgram(bpDrawProgram);
-    ge::gl::glGetProgramiv(bpDrawProgram, GL_LINK_STATUS, &isLinked);
-    if (isLinked == GL_FALSE) {
-      int length;
-      std::string log;
-      ge::gl::glGetProgramiv(bpDrawProgram, GL_INFO_LOG_LENGTH, &length);
-      log.resize(static_cast<unsigned long>(length));
-      ge::gl::glGetProgramInfoLog(bpDrawProgram, length, &length, &log[0]);
-
-      // The program is useless now. So delete it.
-      ge::gl::glDeleteProgram(bpDrawProgram);
-      std::cerr << "cannot Link: " << log << std::endl;
-      throw std::runtime_error("cannot link opengl program");
+    if (!checkProgramLinkStatus(bpDrawProgram)) {
+      throw std::runtime_error(
+          "Program could not be linked: generateDensityProgram");
     }
 
     drawNormalsProgram = ge::gl::glCreateProgram();
@@ -129,18 +118,9 @@ struct Compute {
     ge::gl::glAttachShader(drawNormalsProgram, fsShader->getId());
     ge::gl::glLinkProgram(drawNormalsProgram);
 
-    ge::gl::glGetProgramiv(drawNormalsProgram, GL_LINK_STATUS, &isLinked);
-    if (isLinked == GL_FALSE) {
-      int length;
-      std::string log;
-      ge::gl::glGetProgramiv(drawNormalsProgram, GL_INFO_LOG_LENGTH, &length);
-      log.resize(static_cast<unsigned long>(length));
-      ge::gl::glGetProgramInfoLog(drawNormalsProgram, length, &length, &log[0]);
-
-      // The program is useless now. So delete it.
-      ge::gl::glDeleteProgram(drawNormalsProgram);
-      std::cerr << "cannot Link: " << log << std::endl;
-      throw std::runtime_error("cannot link opengl program");
+    if (!checkProgramLinkStatus(drawNormalsProgram)) {
+      throw std::runtime_error(
+          "Program could not be linked: generateDensityProgram");
     }
 
     gsProgram = ge::gl::glCreateProgram();
@@ -163,40 +143,19 @@ struct Compute {
     ge::gl::glLinkProgram(csProgram);
     ge::gl::glLinkProgram(drawProgram);
     ge::gl::glLinkProgram(chunkSkeletonDrawProgram);
-    ge::gl::glGetProgramiv(chunkSkeletonDrawProgram, GL_LINK_STATUS, &isLinked);
-    if (isLinked == GL_FALSE) {
-      int length;
-      std::string log;
-      ge::gl::glGetProgramiv(chunkSkeletonDrawProgram, GL_INFO_LOG_LENGTH,
-                             &length);
-      log.resize(static_cast<unsigned long>(length));
-      ge::gl::glGetProgramInfoLog(chunkSkeletonDrawProgram, length, &length,
-                                  &log[0]);
-
-      // The program is useless now. So delete it.
-      ge::gl::glDeleteProgram(chunkSkeletonDrawProgram);
-      std::cerr << "cannot Link: " << log << std::endl;
-      throw std::runtime_error("cannot link opengl program");
+    if (!checkProgramLinkStatus(chunkSkeletonDrawProgram)) {
+      throw std::runtime_error(
+          "Program could not be linked: generateDensityProgram");
     }
 
-    // const GLchar *varyings[] = {"gl_Position", "normal"};
     const GLchar *varyings[] = {"Wat.pos", "Wat.normal"};
     ge::gl::glTransformFeedbackVaryings(gsProgram, 2, varyings,
                                         GL_SEPARATE_ATTRIBS);
     ge::gl::glLinkProgram(gsProgram);
 
-    ge::gl::glGetProgramiv(gsProgram, GL_LINK_STATUS, &isLinked);
-    if (isLinked == GL_FALSE) {
-      int length;
-      std::string log;
-      ge::gl::glGetProgramiv(gsProgram, GL_INFO_LOG_LENGTH, &length);
-      log.resize(static_cast<unsigned long>(length));
-      ge::gl::glGetProgramInfoLog(gsProgram, length, &length, &log[0]);
-
-      // The program is useless now. So delete it.
-      ge::gl::glDeleteProgram(gsProgram);
-      std::cerr << "cannot Link: " << log << std::endl;
-      throw std::runtime_error("cannot link opengl program");
+    if (!checkProgramLinkStatus(gsProgram)) {
+      throw std::runtime_error(
+          "Program could not be linked: generateDensityProgram");
     }
 
     polyCountLUTBuffer = std::make_shared<ge::gl::Buffer>(
@@ -268,13 +227,12 @@ struct Compute {
       ge::gl::glDisable(GL_RASTERIZER_DISCARD);
 
       ++cntComp;
-      TFtime += now<std::chrono::milliseconds>() -startTime;
+      TFtime += now<std::chrono::milliseconds>() - startTime;
     }
     startTime = now<std::chrono::milliseconds>();
 
-
-    glm::vec3 up = glm::normalize((gravityCenter - cameraController.camera.Position));
-    //cameraController.camera.WorldUp = -up;// glm::vec3(0, 0, 0);
+    glm::vec3 up =
+        glm::normalize((gravityCenter - cameraController.camera.Position));
     auto view = cameraController.getViewMatrix();
     auto model = glm::mat4();
     auto MVPmatrix = projection * view * model;
@@ -284,21 +242,8 @@ struct Compute {
     geo::ViewFrustum viewFrustum =
         geo::ViewFrustum::FromProjectionView(view, projection);
 
-  /*  logger.startTime();
-    for (int i = 0; i < 100000; ++i) {
-      geo::isAABBInViewFrustum(chunks[0].boundingBox, viewFrustum);
-    }
-    logger.endTime();
-    logger.printElapsedTime();
-    logger.startTime();
-    for (int i = 0; i < 100000; ++i) {
-      geo::isBoundingSphereInViewFrustum(chunks[0].boundingSphere, viewFrustum);
-    }
-    logger.endTime();
-    logger.printElapsedTime();
-exit(0);*/
+
 #ifdef DRAW_SKELETON
-    // ge::gl::glEnable(GL_LINE_SMOOTH);
     ge::gl::glUseProgram(chunkSkeletonDrawProgram);
 
     auto colorUni =
@@ -319,16 +264,12 @@ exit(0);*/
         ge::gl::glDrawArrays(GL_POINTS, 0, chunk.componentCount);
       }
     }
-
 #endif
     if (std::any_of(chunks.begin(), chunks.end(), [&viewFrustum](auto &chunk) {
           return chunk.shouldBeDrawn();
         })) {
-      ge::gl::glUseProgram(/*drawProgram*/ bpDrawProgram);
+      ge::gl::glUseProgram(bpDrawProgram);
 
-      // auto lightPosUni = ge::gl::glGetUniformLocation(drawProgram,
-      // "lightPos"); glm::vec3 lightPos = cameraController.camera.Position;
-      // ge::gl::glUniform3fv(lightPosUni, 1, &lightPos[0]);
 
       ge::gl::glUniformMatrix4fv(
           ge::gl::glGetUniformLocation(bpDrawProgram, "modelView"), 1, GL_FALSE,
@@ -360,15 +301,6 @@ exit(0);*/
       ge::gl::glUniform1f(
           ge::gl::glGetUniformLocation(bpDrawProgram, "shininess"), 16.f);
 
-      /* auto cameraPosUni =
-           ge::gl::glGetUniformLocation(drawProgram, "cameraPos");
-       ge::gl::glUniform3fv(cameraPosUni, 1,
-                            &cameraController.camera.Position[0]);
-       auto mvpMatrixUniformId =
-           ge::gl::glGetUniformLocation(drawProgram, "mvpUniform");
-       auto colorId = ge::gl::glGetUniformLocation(drawProgram, "color");
-       ge::gl::glUniformMatrix4fv(mvpMatrixUniformId, 1, GL_FALSE,
-                                  &MVPmatrix[0][0]);*/
 
       int cnt = 0;
 #ifdef DRAW_MESH
@@ -391,8 +323,7 @@ exit(0);*/
       }
 #endif
       ++cntRender;
-      rendertime += now<std::chrono::milliseconds>() -startTime;
-     // logger << debug() << "Drawn " << cnt << "\n";
+      rendertime += now<std::chrono::milliseconds>() - startTime;
     }
 
 #ifdef DRAW_NORMALS
@@ -419,8 +350,9 @@ exit(0);*/
       for (auto &chunk : chunks) {
         // chunk.invalidate();
       }
-      logger << debug() << "Times:=> CS:  " << CStime.count() << ", TF: " << TFtime.count()
-             << ", Render: " << rendertime.count() << " ms.\n";
+      logger << debug() << "Times:=> CS:  " << CStime.count()
+             << ", TF: " << TFtime.count() << ", Render: " << rendertime.count()
+             << " ms.\n";
     }
     ++cnt2;
     ge::gl::glFlush();

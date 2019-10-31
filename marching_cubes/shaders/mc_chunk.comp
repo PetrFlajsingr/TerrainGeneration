@@ -405,7 +405,8 @@ return;*/
 
     float rad = 3;
     density[index] = rad - length(vertex - vec3(0, -rad, 0)) ;
-    density[index] += fbm(vertex.xyz);
+
+    density[index] += 2 * fbm(vertex.xyz / 2) + fbm(vertex.xyz) + 0.5*fbm(vertex.xyz * 2) + 0.25*fbm(vertex.xyz * 4) + 0.125*fbm(vertex.xyz * 8);
 
     return;
    /* if (vertex.x > 1 || vertex.y > 1 || vertex.z > 1) { density[index] = length(vertex - vec3(0, -rad, 0));

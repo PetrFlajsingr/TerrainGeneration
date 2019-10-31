@@ -1,6 +1,6 @@
 #version 430
 
-layout(binding=0, std430)buffer VertexIDs{ uvec3 vertexIDs[]; };
+layout(binding=0, std430)buffer VertexIDs{ uint vertexIDs[]; };
 
 
 in uint edgeMarker;
@@ -12,10 +12,6 @@ void setVertexID(uvec3 index, uint offset, uint vertexID) {
 }
 
 void main() {
-    uint index = gl_GlobalInvocationID.z * dim * dim +
-                 gl_GlobalInvocationID.y * dim +
-                 gl_GlobalInvocationID.x;
-
     uvec3 chunkCoord = uvec3(((edgeMarker >> 8u) & 0xFFu) * 3,
                        (edgeMarker >> 16u) & 0xFFu,
                        (edgeMarker >> 24u) & 0xFFu);

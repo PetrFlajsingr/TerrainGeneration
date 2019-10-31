@@ -9,9 +9,9 @@
 
 class FastChunkGen {
 public:
+  FastChunkGen();
 
-  void loadShaders();
-
+  void test();
 private:
   using Shader = std::shared_ptr<ge::gl::Shader>;
   using Program = GLuint;
@@ -25,6 +25,8 @@ private:
   Shader clearVertexIDs;
   Shader splatVertices;
   Shader genIndices;
+  Shader passThrough2;
+  Shader passThrough3;
 
   Program generateDensityProgram;
   Program streamCasesProgram;
@@ -32,17 +34,30 @@ private:
   Program generateVerticesProgram;
   Program clearVertexIDsProgram;
   Program splatVerticesProgram;
-  Program generateIndicesProrgam;
+  Program generateIndicesProgram;
 
   Buffer polyCountLUTBuffer;
   Buffer edgeLUTBuffer;
   Buffer edgeToVertexLUTBuffer;
-
   Buffer densityBuffer;
   Buffer vertexBuffer;
   Buffer vertexIDsBuffer;
   Buffer indexBuffer;
+  Buffer chunkCoordBuffer;
+  Buffer caseBuffer;
+  Buffer edgeBuffer;
 
+  VertexArray chunkCoordVertexArray;
+  VertexArray caseMarkersVertexArray;
+
+  GLuint transFeedbackName1;
+  GLuint transFeedbackName2;
+
+  void loadShaders();
+  void createLUT();
+  void createBuffers();
+  void createPrograms();
+  void linkPrograms();
 };
 
 #endif // TERRAINGENERATION_FASTCHUNKGEN_H

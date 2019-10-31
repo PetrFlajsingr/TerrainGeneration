@@ -33,7 +33,7 @@ std::string loadShaderFile(std::string_view name, ShaderType type) {
   const auto pathToFile = SHADER_FOLDER + "/" + std::string(name) + extension;
   std::ifstream inStream(pathToFile);
   if (!inStream.is_open()) {
-    throw "Shader opening failed: "s + std::string(name);
+    throw std::runtime_error("Shader opening failed: "s + std::string(name));
   }
   return std::string(std::istreambuf_iterator<char>(inStream), std::istreambuf_iterator<char>());
 }

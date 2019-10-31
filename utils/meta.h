@@ -20,7 +20,6 @@ static inline constexpr bool is_specialization_v = is_specialization<T, U>::valu
 template <typename T>
 static inline constexpr bool is_duration_v = is_specialization<T, std::chrono::duration>::value;
 
-
 template <typename T, typename... Types>
 static inline constexpr bool is_one_of_v = (std::is_same_v<T, Types> || ... || false);
 

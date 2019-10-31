@@ -9,7 +9,8 @@
 
 template<typename T, typename = std::enable_if_t<is_duration_v<T>>>
 inline auto now() {
-  return std::chrono::duration_cast<T>(std::chrono::system_clock::now().time_since_epoch());
+  using namespace std::chrono;
+  return duration_cast<T>(system_clock::now().time_since_epoch());
 }
 
 #endif // TERRAINGENERATION_NOW_H

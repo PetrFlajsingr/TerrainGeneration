@@ -5,7 +5,7 @@ layout(binding=0, std430)buffer Density{ float density[]; };
 layout(points) in;
 layout(points, max_vertices = 1) out;
 
-in uvec3 chunkCoords;
+in uvec3 chunkCoords[];
 
 out uint marker;
 
@@ -36,10 +36,14 @@ uint getCubeIndex(uint index) {
 void main() {
     uint cubeIndex = getCubeIndex(gl_PrimitiveIDIn);
     if (cubeIndex != 0 && cubeIndex != 255) {
+        uint dim = 32;
         uint result = cubeIndex;
-        result |= chunkCoords.x << 8;
-        result |= chunkCoords.y << 16;
-        result |= chunkCoords.z << 24;
+        uint z = uint(gl_PrimitiveIDIn / pow(dim, 2));
+        uint y = uint(gl_PrimitiveIDIn % (dim * dim) / dim);
+        uint x = uint(gl_PrimitiveIDIn % dim);
+        result |= x << 8;
+        result |= y << 16;
+        result |= z << 24;
         marker = result;
 
         EmitVertex();

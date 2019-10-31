@@ -23,7 +23,7 @@ bool mc::Chunk::shouldBeDrawn() const {
 
 bool mc::Chunk::shouldBeDrawn(const geo::ViewFrustum &viewFrustum) {
   //return hasDataToDraw && geo::isBoundingSphereInViewFrustum(boundingSphere, viewFrustum);
-  return hasDataToDraw ;//&& geo::isAABBInViewFrustum(boundingBox, viewFrustum);
+  return hasDataToDraw && viewFrustum.contains(boundingBox) != geo::FrustumPosition::Outside;
 }
 
 void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {

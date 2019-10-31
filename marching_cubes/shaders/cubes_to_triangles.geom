@@ -386,7 +386,7 @@ float fnc(vec3 vertex) {
     //return -wtf(vertex.xyz, 0.5);
     //return  pow(vertex.x - 0.5, 2) / 10 + pow(vertex.z - 0.5, 2) / 5;
 
-   /* return -vertex.y + 2
+   /* return -vertex.y + 1
    //+ snoise((vertex.xyz + vec3(offset,0,0)*16)/0.25)
    //+ cnoise((vertex.xyz + vec3(offset,0,0)*8)/0.5)
     + cnoise((vertex.xyz + vec3(offset,0,0)*4)/1)
@@ -398,7 +398,7 @@ float fnc(vec3 vertex) {
 
     float rad = 3;
     float result = rad - length(vertex - vec3(0, -rad, 0)) ;
-    result += fbm(vertex.xyz);
+    result += 2 * fbm(vertex.xyz / 2) + fbm(vertex.xyz) + 0.5*fbm(vertex.xyz * 2) + 0.25*fbm(vertex.xyz * 4) + 0.125*fbm(vertex.xyz * 8);
    /* float seed = 1234;
     result += pow(
     noise(4 * vertex)*0.25

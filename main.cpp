@@ -11,6 +11,7 @@
 
 #include "gui/CameraController.h"
 #include "marching_cubes/DensityGenerators.h"
+#include "marching_cubes/FastChunkGen.h"
 #include "marching_cubes/lookuptables.h"
 #include "third_party/Camera.h"
 
@@ -109,6 +110,10 @@ int main(int, char *[]) {
   window->setEventCallback(SDL_MOUSEBUTTONUP,
                            compute.cameraController.getMouseUpCallback());
 
+  FastChunkGen gen;
+  gen.test();
+
+  return 0;
   FPSCounter fpsCounter;
   // draw loop
   int cnt = 0;

@@ -22,19 +22,28 @@ protected:
 };
 
 class Error : public Throwable {
-  using Throwable::Throwable;
+public:
+  explicit Error(std::string_view msg,
+  std::experimental::source_location srcLoc =
+      std::experimental::source_location::current());
 };
 class Exception : public Throwable {
-  using Throwable::Throwable;
+  explicit Exception(std::string_view msg,
+  std::experimental::source_location srcLoc =
+      std::experimental::source_location::current());;
 };
 
 class ProgrammingError : public Error {
 public:
-  explicit ProgrammingError(std::string_view msg);
+  explicit ProgrammingError(std::string_view msg,
+  std::experimental::source_location srcLoc =
+      std::experimental::source_location::current());;
 };
 
 class InternalError : public Error {
-  using Error::Error;
+  explicit InternalError(std::string_view msg,
+  std::experimental::source_location srcLoc =
+      std::experimental::source_location::current());;
 };
 
 }

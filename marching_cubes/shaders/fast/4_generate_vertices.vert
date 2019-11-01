@@ -79,7 +79,7 @@ float calculateDensity(vec3 vertex) {
     float rad = 3;
     float result = rad - length(vertex - vec3(0, -rad, 0));
     result += fbm(vertex.xyz, 5);
-    return result;
+    return -vertex.y + 0.1;
 }
 
 void main() {
@@ -101,9 +101,7 @@ void main() {
                     / abs(density[v0Index]
                     - density[v1Index]);
 
-    //Position = vec4(v0 + diff * abs(perc), 1);
-    Position = vec4(v0Index, v1Index, perc, 0);
-    Normal = vec3(density[v0Index], density[v1Index], 1);
+    Position = vec4(v0 + diff * abs(perc), 1);
 
     float d = 1.0/(256);
     vec3 grad;
@@ -111,6 +109,6 @@ void main() {
     grad.y = calculateDensity(Position.xyz + vec3(0, d, 0)) - calculateDensity(Position.xyz + vec3(0, -d, 0));
     grad.z = calculateDensity(Position.xyz + vec3(0, 0, d)) - calculateDensity(Position.xyz + vec3(0, 0, -d));
 
-    //Normal = -normalize(grad);
+    Normal = -normalize(grad);
 
 }

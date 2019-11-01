@@ -60,7 +60,7 @@ template<typename T>
 constexpr bool is_stream_v = is_one_of_v<T, out, err>;
 }
 
-template <bool Debug> class Logger {
+template <bool EnableDebug> class Logger {
 private:
   /**
    *
@@ -115,29 +115,30 @@ private:
       print("Container, size: "s + std::to_string(value.size()));
       print(" {\n");
       for (const auto &val : value) {
-        print(val, indentLevel + 1);
-      }
-      print("\n");
-      print(indent(indentLevel));
-      print("},\n");
-    } else if constexpr (is_vec_specialisation_v<T>) {
-      print(indent(indentLevel));
-      print("glm::vec type, size: "s + std::to_string(value.length()));
-      print(" {\n");
-      for (auto i = 0; i < value.length(); ++i) {
         print(indent(indentLevel + 1));
-        print(value[i]);
+        print(val, indentLevel + 1);
         print(",\n");
       }
       print(indent(indentLevel));
       print("},\n");
+    } else if constexpr (is_vec_specialisation_v<T>) {
+      print(indent(indentLevel));
+      print("glm::vec" + std::to_string(value.length()) + ":");
+      print(" {");
+      for (auto i = 0; i < value.length(); ++i) {
+        print(value[i]);
+        if (i < value.length() - 1) {
+          print(", ");
+        }
+      }
+      print("}");
     } else {
       std::cout << value;
     }
   }
 public:
   template <LogLevel Level, bool PrintTime = false, bool PrintNewLine = true, typename... T> void log(T &&... message) const {
-    if constexpr (!Debug && Level == LogLevel::Debug) {
+    if constexpr (!EnableDebug && Level == LogLevel::Debug) {
       return;
     }
     if constexpr (Level != LogLevel::Verbose) {

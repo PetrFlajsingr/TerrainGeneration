@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_GEGL_UTILS_H
 #define TERRAINGENERATION_GEGL_UTILS_H
 
+#include "shader_literals.h"
 #include <geGL/geGL.h>
-#include "ShaderLiterals.h"
 
 template <typename T = uint8_t>
 std::shared_ptr<ge::gl::Buffer> createBuffer(std::size_t componentCount, GLbitfield flags = GL_STATIC_DRAW, GLvoid const* data  = nullptr) {

@@ -6,10 +6,10 @@
 #define TERRAINGENERATION_CHUNK_H
 
 #include <Geometry.h>
-#include <Lazy.h>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 #include <glm/glm.hpp>
+#include <lazy.h>
 #include <types.h>
 #include <valarray>
 

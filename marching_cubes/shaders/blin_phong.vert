@@ -12,11 +12,11 @@ out gl_PerVertex
 
 out vec3 NormalInterp;
 out vec3 Pos;
-out float yPos;
+out vec3 posi;
 
 
 void main () {
-    yPos = length(Position.xyz - vec3(0,-20, 0));
+    posi = Position.xyz;
     gl_Position = projection * modelView * Position;
     Pos = (modelView * Position).xyz;
     mat4 normalMat = transpose(inverse(modelView));

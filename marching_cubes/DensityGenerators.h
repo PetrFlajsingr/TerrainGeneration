@@ -7,17 +7,18 @@
 
 #include "../gui/CameraController.h"
 #include "Chunk.h"
+#include "FastChunkGen.h"
 #include "GlslShaderLoader.h"
-#include "ShaderLiterals.h"
 #include "lookuptables.h"
+#include "shader_literals.h"
 #include <chrono>
 #include <functional>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 #include <gl_utils.h>
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
-#include <glm/glm.hpp>
 #include <glm/vec4.hpp>
 #include <logger.h>
 #include <now.h>
@@ -72,10 +73,14 @@ struct Compute {
   std::chrono::milliseconds CStime = 0s;
   std::chrono::milliseconds rendertime = 0s;
   int cntComp = 0, cntRender = 0;
+
+  FastChunkGen gen;
   Compute() {
-    generateChunks();
-    csShader = std::make_shared<ge::gl::Shader>(GL_COMPUTE_SHADER,
-                                                "mc_chunk.comp"_shader_file);
+
+
+
+    //generateChunks();
+    csShader = "mc_chunk"_comp;
     // csProgram = std::make_shared<ge::gl::Program>();
     csProgram = ge::gl::glCreateProgram();
     ge::gl::glAttachShader(csProgram, csShader->getId());
@@ -110,10 +115,8 @@ struct Compute {
 
     drawNormalsProgram = ge::gl::glCreateProgram();
 
-    gsNormalShader = std::make_shared<ge::gl::Shader>(
-        GL_GEOMETRY_SHADER, "normal_to_line.geom"_shader_file);
-    vsNormalShader = std::make_shared<ge::gl::Shader>(
-        GL_VERTEX_SHADER, "normal_to_line.vert"_shader_file);
+    gsNormalShader = "normal_to_line"_geom;
+    vsNormalShader = "normal_to_line"_vert;
     ge::gl::glAttachShader(drawNormalsProgram, gsNormalShader->getId());
     ge::gl::glAttachShader(drawNormalsProgram, vsNormalShader->getId());
     ge::gl::glAttachShader(drawNormalsProgram, fsShader->getId());
@@ -173,7 +176,7 @@ struct Compute {
   }
 
   void operator()() {
-
+    gen.test(drawNormalsProgram, bpDrawProgram, cameraController); return;
     auto startTime = now<std::chrono::milliseconds>();
     ge::gl::glEnable(GL_MULTISAMPLE);
     ge::gl::glEnable(GL_DEPTH_TEST);

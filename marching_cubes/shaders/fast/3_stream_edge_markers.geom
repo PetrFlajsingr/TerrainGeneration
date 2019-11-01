@@ -7,20 +7,26 @@ in uint caseMarker[];
 
 out uint edgeMarker;
 
+bool hasVertex(uint marker, uint edge1, uint edge2) {
+    return ((((marker & edge1) != 0) ^^ ((marker & edge2) != 0)));
+}
+
 void main() {
     uint xyz = caseMarker[0] & 0xFFFFFF00u;
 
-    if ((caseMarker[0] & 0x1u) != 0) {
+    if (hasVertex(caseMarker[0], 0x1u, 0x1u << 3)) {
         edgeMarker = xyz | 0x3u;
         EmitVertex();
         EndPrimitive();
     }
-    if ((caseMarker[0] & 0x2u) != 0) {
+
+    if (hasVertex(caseMarker[0], 0x1u, 0x1u << 1)) {
         edgeMarker = xyz | 0x0u;
         EmitVertex();
         EndPrimitive();
     }
-    if ((caseMarker[0] & 0x4u) != 0) {
+
+    if (hasVertex(caseMarker[0], 0x1u, 0x1u << 4)) {
         edgeMarker = xyz | 0x8u;
         EmitVertex();
         EndPrimitive();

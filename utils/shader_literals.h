@@ -2,8 +2,8 @@
 // Created by petr on 10/27/19.
 //
 
-#ifndef TERRAINGENERATION_SHADERLITERALS_H
-#define TERRAINGENERATION_SHADERLITERALS_H
+#ifndef TERRAINGENERATION_SHADER_LITERALS_H
+#define TERRAINGENERATION_SHADER_LITERALS_H
 
 #include "GlslShaderLoader.h"
 #include <geGL/geGL.h>
@@ -45,4 +45,4 @@ inline ShaderPtr operator""_tese(const char *name, std::size_t) {
 
 } // namespace ShaderLiterals
 
-#endif // TERRAINGENERATION_SHADERLITERALS_H
+#endif // TERRAINGENERATION_SHADER_LITERALS_H

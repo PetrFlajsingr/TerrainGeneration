@@ -6,15 +6,34 @@
 #define TERRAINGENERATION_GLSLSHADERLOADER_H
 
 #include <string>
+#include <utility>
 
 enum class ShaderType {
   Vertex, TesselationControl, TesselationEvaluation, Geometry, Fragment, Compute
 };
 
-ShaderType extensionToShaderType(std::string_view extension);
+namespace {
+std::string shaderLocation;
+}
+class LocationResetter {
+public:
+  explicit LocationResetter(std::string oldLocation);
+  LocationResetter(const LocationResetter &) = delete;
+  LocationResetter(LocationResetter &&other) noexcept;
+  ~LocationResetter();
+
+private:
+  bool moved = false;
+  std::string oldLocation;
+};
+
+
+std::string_view getShaderLocation();
+
+void setShaderLocation(std::string_view newShaderLocation);
+
+LocationResetter setTempShaderLocation(std::string_view newShaderLocation);
 
 std::string loadShaderFile(std::string_view name, ShaderType type);
-
-std::string operator"" _shader_file(const char* fileName, size_t size);
 
 #endif // TERRAINGENERATION_GLSLSHADERLOADER_H

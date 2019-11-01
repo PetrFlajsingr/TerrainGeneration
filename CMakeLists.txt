@@ -29,6 +29,6 @@ endif()
 include_directories(third_party)
 include_directories(utils)
 
-add_executable(TerrainGeneration main.cpp gui/CameraController.cpp marching_cubes/DensityGenerators.cpp utils/GlslShaderLoader.cpp marching_cubes/Chunk.cpp utils/FPSCounter.cpp utils/Geometry.cpp utils/Geometry.h utils/ShaderLiterals.h utils/now.h utils/meta.h utils/logger.h gui/Camera.cpp gui/Camera.h marching_cubes/FastChunkGen.cpp marching_cubes/FastChunkGen.h utils/geGL_utils.cpp utils/geGL_utils.h utils/gl_utils.cpp utils/gl_utils.h utils/exceptions.cpp utils/exceptions.h)
+add_executable(TerrainGeneration main.cpp gui/CameraController.cpp marching_cubes/DensityGenerators.cpp utils/GlslShaderLoader.cpp marching_cubes/Chunk.cpp utils/FPSCounter.cpp utils/Geometry.cpp utils/Geometry.h utils/shader_literals.h utils/now.h utils/meta.h utils/logger.h gui/Camera.cpp gui/Camera.h marching_cubes/FastChunkGen.cpp marching_cubes/FastChunkGen.h utils/geGL_utils.cpp utils/geGL_utils.h utils/gl_utils.cpp utils/gl_utils.h utils/exceptions.cpp utils/exceptions.h)
 
 target_link_libraries(TerrainGeneration geGL::geGL SDL2CPP::SDL2CPP glm)

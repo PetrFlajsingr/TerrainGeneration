@@ -100,6 +100,7 @@ int main(int, char *[]) {
   /*DensityBufferGenerator generator({{-1, 1, 0.1},
                                     {-1, 1, 0.1},
                                     {-1, 1, 0.1}});*/
+  setShaderLocation("/home/petr/CLionProjects/TerrainGeneration/marching_cubes/shaders");
 
   Compute compute;
 
@@ -111,11 +112,7 @@ int main(int, char *[]) {
   window->setEventCallback(SDL_MOUSEBUTTONUP,
                            compute.cameraController.getMouseUpCallback());
 
-  static_assert(is_vec_specialisation_v<glm::vec4>);
-  FastChunkGen gen;
-  gen.test();
 
-  return 0;
   FPSCounter fpsCounter;
   // draw loop
   int cnt = 0;

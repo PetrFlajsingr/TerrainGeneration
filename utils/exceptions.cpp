@@ -14,5 +14,15 @@ const char *exc::Throwable::what() const noexcept {
   return what_.data();
 }
 
-exc::ProgrammingError::ProgrammingError(std::string_view msg)
-    : Error("FIX THIS: "s + std::string(msg)) {}
+exc::Error::Error(std::string_view msg,
+                  std::experimental::source_location srcLoc)
+    : Throwable(msg, srcLoc) {}
+exc::Exception::Exception(std::string_view msg,
+                          std::experimental::source_location srcLoc)
+    : Throwable(msg, srcLoc) {}
+exc::ProgrammingError::ProgrammingError(
+    std::string_view msg, std::experimental::source_location srcLoc)
+    : Error("FIX THIS: "s + std::string(msg), srcLoc) {}
+exc::InternalError::InternalError(std::string_view msg,
+                                  std::experimental::source_location srcLoc)
+    : Error(msg, srcLoc) {}

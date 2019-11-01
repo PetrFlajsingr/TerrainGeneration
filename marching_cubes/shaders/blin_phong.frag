@@ -14,7 +14,7 @@ uniform vec3 specColor;
 
 uniform float shininess;
 
-in float yPos;
+in vec3 posi;
 
 out vec4 FragColor;
 
@@ -68,6 +68,6 @@ void main() {
     */
 
 
-    FragColor = vec4(colorForHeight(yPos, 0, 20)*colorLinear, 1.0);
-    FragColor = vec4(color.xyz *colorLinear, 1.0);
+    //FragColor = vec4(colorForHeight(posi.y, 0, 20)*colorLinear, 1.0);
+    FragColor = vec4(vec3(0.1 + posi.x * 0.9, 0.1 + posi.y * 0.9, 0.1 + posi.z * 0.9) *colorLinear, 1.0);
 }

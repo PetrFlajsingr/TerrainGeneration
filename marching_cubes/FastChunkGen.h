@@ -41,6 +41,7 @@ private:
   Buffer edgeToVertexLUTBuffer;
   Buffer densityBuffer;
   Buffer vertexBuffer;
+  Buffer normalBuffer;
   Buffer vertexIDsBuffer;
   Buffer indexBuffer;
   Buffer chunkCoordBuffer;
@@ -49,9 +50,11 @@ private:
 
   VertexArray chunkCoordVertexArray;
   VertexArray caseMarkersVertexArray;
+  VertexArray edgeMarkersVertexArray;
 
   GLuint transFeedbackName1;
   GLuint transFeedbackName2;
+  GLuint transFeedbackName3;
 
   void loadShaders();
   void createLUT();

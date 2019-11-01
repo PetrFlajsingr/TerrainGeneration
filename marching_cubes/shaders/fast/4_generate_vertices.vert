@@ -1,7 +1,7 @@
 #version 430
 
 layout(binding=0, std430)buffer EdgeToVertexIdsLUT{ uvec2 edgeToVertexIdsLUT[]; };
-layout(binding=0, std430)buffer Density{ float density[]; };
+layout(binding=1, std430)buffer Density{ float density[]; };
 
 in uint edgeMarker;
 
@@ -10,7 +10,6 @@ out vec3 Normal;
 
 uniform vec3 start;
 uniform float step;
-
 
 float hash(float n) { return fract(sin(n) * 1e4); }
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
@@ -102,7 +101,9 @@ void main() {
                     / abs(density[v0Index]
                     - density[v1Index]);
 
-    Position = vec4(v0 + diff * abs(perc), 1);
+    //Position = vec4(v0 + diff * abs(perc), 1);
+    Position = vec4(v0Index, v1Index, perc, 0);
+    Normal = vec3(density[v0Index], density[v1Index], 1);
 
     float d = 1.0/(256);
     vec3 grad;
@@ -110,5 +111,6 @@ void main() {
     grad.y = calculateDensity(Position.xyz + vec3(0, d, 0)) - calculateDensity(Position.xyz + vec3(0, -d, 0));
     grad.z = calculateDensity(Position.xyz + vec3(0, 0, d)) - calculateDensity(Position.xyz + vec3(0, 0, -d));
 
-    Normal = -normalize(grad);
+    //Normal = -normalize(grad);
+
 }

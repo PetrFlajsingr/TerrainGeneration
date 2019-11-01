@@ -6,9 +6,11 @@
 #include "ShaderLiterals.h"
 #include "geGL_utils.h"
 #include "lookuptables.h"
+#include <exceptions.h>
+#include <experimental/array>
 #include <geGL/StaticCalls.h>
 #include <gl_utils.h>
-#include <experimental/array>
+#include <logger.h>
 
 using namespace ShaderLiterals;
 
@@ -63,10 +65,11 @@ std::vector<glm::uvec3> generateChunkCoords() {
 void FastChunkGen::createBuffers() {
   const auto componentCount = std::pow(32, 3);
   densityBuffer = createBuffer<float>(componentCount, GL_DYNAMIC_DRAW);
-  vertexBuffer = createBuffer<glm::vec3>(componentCount * 15, GL_DYNAMIC_DRAW);
+  vertexBuffer = createBuffer<glm::vec4>(componentCount * 5, GL_DYNAMIC_DRAW);
+  normalBuffer = createBuffer<glm::vec3>(componentCount * 5, GL_DYNAMIC_DRAW);
   vertexIDsBuffer =
       createBuffer<glm::uvec3>(componentCount * 3, GL_DYNAMIC_DRAW);
-  indexBuffer = createBuffer<glm::uvec3>(componentCount * 15, GL_DYNAMIC_DRAW);
+  indexBuffer = createBuffer<glm::uvec3>(componentCount * 5, GL_DYNAMIC_DRAW);
   caseBuffer = createBuffer<uint>(componentCount, GL_DYNAMIC_DRAW);
   auto chunkCoords = generateChunkCoords();
   //chunkCoordBuffer = createBuffer<uint>(componentCount * 3, GL_STATIC_COPY,
@@ -85,8 +88,14 @@ void FastChunkGen::createBuffers() {
                                     sizeof(uint), 0, GL_FALSE, 0,
                                     ge::gl::VertexArray::I);
 
+  edgeMarkersVertexArray = std::make_shared<ge::gl::VertexArray>();
+  edgeMarkersVertexArray->addAttrib(edgeBuffer, 0, 1, GL_UNSIGNED_INT,
+                                    sizeof(uint), 0, GL_FALSE, 0,
+                                    ge::gl::VertexArray::I);
+
   ge::gl::glGenTransformFeedbacks(1, &transFeedbackName1);
   ge::gl::glGenTransformFeedbacks(1, &transFeedbackName2);
+  ge::gl::glGenTransformFeedbacks(1, &transFeedbackName3);
 
   ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName1);
   ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
@@ -96,6 +105,13 @@ void FastChunkGen::createBuffers() {
   ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName2);
   ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
                            edgeBuffer->getId());
+  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+
+  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName3);
+  ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
+                           vertexBuffer->getId());
+  ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1,
+                           normalBuffer->getId());
   ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
 }
 
@@ -168,6 +184,8 @@ void FastChunkGen::linkPrograms() {
 }
 
 void FastChunkGen::test() {
+  using namespace LoggerStreamModifiers;
+  Logger<true> logger;
   densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
   ge::gl::glUseProgram(generateDensityProgram);
   ge::gl::glUniform1f(
@@ -195,8 +213,8 @@ void FastChunkGen::test() {
 
   geometryQuery.end();
   ge::gl::glEndTransformFeedback();
-  std::cout << "Generated primitive count: " << geometryQuery.getui()
-            << std::endl;
+  logger << info() << "Generated primitive count(cases): " << geometryQuery.getui()
+            << "\n";
 
   ge::gl::glUseProgram(streamEdgeMarkersProgram);
   caseMarkersVertexArray->bind();
@@ -208,18 +226,41 @@ void FastChunkGen::test() {
 
   geometryQuery.end();
   ge::gl::glEndTransformFeedback();
-  std::cout << "Generated primitive count: " << geometryQuery.getui()
-            << std::endl;
+  logger << info() << "Generated primitive count(edges): " << geometryQuery.getui()
+            << "\n";
+
+
+  ge::gl::glUseProgram(generateVerticesProgram);
+  edgeMarkersVertexArray->bind();
+  edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+  densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(generateVerticesProgram, "step"), 0.1f);
+  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1, &start[0]);
+  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName3);
+  ge::gl::glBeginTransformFeedback(GL_POINTS);
+  geometryQuery.begin();
+
+  ge::gl::glDrawArrays(GL_POINTS, 0, geometryQuery.getui());
+
+  geometryQuery.end();
+  ge::gl::glEndTransformFeedback();
+  logger << info() << "Generated primitive count(vertices): " << geometryQuery.getui()
+            << "\n";
+
 
   ge::gl::glDisable(GL_RASTERIZER_DISCARD);
 
-  std::vector<uint> data;
+
+
+
+  std::vector<glm::vec3> data;
   data.resize(geometryQuery.getui());
-  caseBuffer->getData(data);
+  normalBuffer->getData(data);
 
-  std::vector<uint> data2;
+  std::vector<glm::vec4> data2;
   data2.resize(32 * 32 * 32 * 3);
-  edgeBuffer->getData(data2);
+  vertexBuffer->getData(data2);
 
+  logger << debug() << "LUT: " << mc::LUT::edges[102] << "\n";
   std::cout << "Done";
 }

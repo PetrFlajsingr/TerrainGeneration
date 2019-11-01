@@ -8,12 +8,9 @@ in uint caseMarker[];
 out uint edgeMarker;
 
 void main() {
-  //  uint xyz = caseMarker[0] & 0xFFFFFF00u;
+    uint xyz = caseMarker[0] & 0xFFFFFF00u;
 
-    edgeMarker = caseMarker[0];
-    EmitVertex();
-    EndPrimitive();
-   /* if ((caseMarker[0] & 0x1u) != 0) {
+    if ((caseMarker[0] & 0x1u) != 0) {
         edgeMarker = xyz | 0x3u;
         EmitVertex();
         EndPrimitive();
@@ -27,5 +24,5 @@ void main() {
         edgeMarker = xyz | 0x8u;
         EmitVertex();
         EndPrimitive();
-    }*/
+    }
 }

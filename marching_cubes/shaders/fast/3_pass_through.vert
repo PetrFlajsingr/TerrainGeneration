@@ -2,8 +2,8 @@
 
 in uint inCaseMarker;
 
-out uint edgeMarker;
+out uint caseMarker;
 
 void main() {
-    edgeMarker = inCaseMarker;
+    caseMarker = inCaseMarker;
 }

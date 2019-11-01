@@ -17,6 +17,7 @@
 #include <gl_utils.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
+#include <glm/glm.hpp>
 #include <glm/vec4.hpp>
 #include <logger.h>
 #include <now.h>

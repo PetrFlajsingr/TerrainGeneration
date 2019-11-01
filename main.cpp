@@ -7,6 +7,7 @@
 #include <geGL/geGL.h>
 
 #include <FPSCounter.h>
+#include <exceptions.h>
 #include <glm/glm.hpp>
 
 #include "gui/CameraController.h"
@@ -110,6 +111,7 @@ int main(int, char *[]) {
   window->setEventCallback(SDL_MOUSEBUTTONUP,
                            compute.cameraController.getMouseUpCallback());
 
+  static_assert(is_vec_specialisation_v<glm::vec4>);
   FastChunkGen gen;
   gen.test();
 

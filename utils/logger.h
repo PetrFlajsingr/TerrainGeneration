@@ -94,6 +94,40 @@ private:
 
   LogLevel defaultLevel = LogLevel::Verbose;
   bool defaultPrintTime = true;
+
+  [[nodiscard]] std::string indent(uint level) const {
+    auto cnt = level * 2;
+    return std::string(cnt, ' ');
+  }
+
+  template <typename T>
+  void print(T&& value, uint indentLevel = 0) const {
+    using namespace std::string_literals;
+    if constexpr (is_iterable_v<std::decay_t<T>> && !std::is_same_v<std::string, std::decay_t<T>>) {
+      print(indent(indentLevel));
+      print("Container, size: "s + std::to_string(value.size()));
+      print(" {\n");
+      for (const auto &val : value) {
+        print(val, indentLevel + 1);
+      }
+      print("\n");
+      print(indent(indentLevel));
+      print("},\n");
+    } else if constexpr (is_vec_specialisation_v<T>) {
+      print(indent(indentLevel));
+      print("glm::vec type, size: "s + std::to_string(value.length()));
+      print(" {\n");
+      for (auto i = 0; i < value.length(); ++i) {
+        print(indent(indentLevel + 1));
+        print(value[i]);
+        print(",\n");
+      }
+      print(indent(indentLevel));
+      print("},\n");
+    } else {
+      std::cout << value;
+    }
+  }
 public:
   template <LogLevel Level, bool PrintTime = false, bool PrintNewLine = true, typename... T> void log(T &&... message) const {
     if constexpr (!Debug && Level == LogLevel::Debug) {
@@ -106,7 +140,7 @@ public:
         std::cout << levelToString(Level) + ": ";
       }
     }
-    (std::cout << ... << message);
+    (print(message), ...);
     if (PrintNewLine) {
       std::cout << std::endl;
     }
@@ -138,7 +172,7 @@ private:
   template <LogLevel logLevel>
   struct OutOperator {
     Logger &logger;
-    OutOperator(Logger &logger) :logger(logger) {}
+    explicit OutOperator(Logger &logger) :logger(logger) {}
 
     template <typename T>
     auto operator<<(const T &rhs) {

@@ -26,6 +26,9 @@ struct status{};
 struct debug{};
 struct warning{};
 struct error{};
+struct flush{};
+struct out{};
+struct err{};
 
 template <typename T>
 constexpr LogLevel modifierToLogLevel() {
@@ -50,7 +53,11 @@ constexpr LogLevel modifierToLogLevel() {
 }
 
 template <typename T>
-static inline constexpr bool is_logger_stream_modifier_v = is_one_of_v<T, verbose, info, status, debug, warning, error>;
+constexpr bool is_logger_stream_modifier_v = is_one_of_v<T, verbose, info, status, debug, warning, error>;
+template<typename T>
+constexpr bool is_logger_flusher_v = std::is_same_v<flush, T>;
+template<typename T>
+constexpr bool is_stream_v = is_one_of_v<T, out, err>;
 }
 
 template <bool Debug> class Logger {
@@ -176,10 +183,13 @@ private:
 
     template <typename T>
     auto operator<<(const T &rhs) {
-      logger.log<logLevel, false, false>(rhs);
-      if constexpr (logLevel == LogLevel::Verbose) {
+      if constexpr (LoggerStreamModifiers::is_logger_flusher_v<T>) {
+        std::cout.flush();
+      } else if constexpr (logLevel == LogLevel::Verbose) {
+        logger.log<logLevel, false, false>(rhs);
         return *this;
       } else {
+        logger.log<logLevel, false, false>(rhs);
         return OutOperator<LogLevel::Verbose>(logger);
       }
     }
@@ -191,6 +201,9 @@ public:
   auto operator<<(const T &rhs) {
     if constexpr(LoggerStreamModifiers::is_logger_stream_modifier_v<T>) {
       return OutOperator<LoggerStreamModifiers::modifierToLogLevel<T>()>(*this);
+    } else if constexpr (LoggerStreamModifiers::is_logger_flusher_v<T>) {
+      std::cout.flush();
+      return *this;
     } else {
       log<LogLevel::Info, true, false>(rhs);
       return OutOperator<LogLevel::Verbose>(*this);

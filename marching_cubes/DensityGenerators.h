@@ -76,9 +76,6 @@ struct Compute {
 
   FastChunkGen gen;
   Compute() {
-
-
-
     //generateChunks();
     csShader = "mc_chunk"_comp;
     // csProgram = std::make_shared<ge::gl::Program>();

@@ -71,7 +71,7 @@ void FastChunkGen::createBuffers() {
   vertexBuffer = createBuffer<glm::vec4>(componentCount * 5, GL_DYNAMIC_DRAW);
   normalBuffer = createBuffer<glm::vec3>(componentCount * 5, GL_DYNAMIC_DRAW);
   vertexIDsBuffer =
-      createBuffer<uint>(componentCount, GL_DYNAMIC_DRAW);
+      createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
   indexBuffer = createBuffer<glm::uvec3>(componentCount * 5, GL_DYNAMIC_DRAW);
   caseBuffer = createBuffer<uint>(componentCount, GL_DYNAMIC_DRAW);
   auto chunkCoords = generateChunkCoords();
@@ -79,7 +79,7 @@ void FastChunkGen::createBuffers() {
   //                                      chunkCoords.data());
   chunkCoordBuffer = createBuffer(chunkCoords, GL_STATIC_COPY);
   edgeBuffer =
-      createBuffer<uint>(componentCount, GL_DYNAMIC_DRAW);
+      createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
 
   chunkCoordVertexArray = std::make_shared<ge::gl::VertexArray>();
   chunkCoordVertexArray->addAttrib(chunkCoordBuffer, 0, 1, GL_UNSIGNED_INT,

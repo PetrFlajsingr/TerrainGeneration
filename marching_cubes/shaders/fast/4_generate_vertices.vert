@@ -90,15 +90,13 @@ void main() {
 
     vec3 vecCoordInChunk = start + chunkCoord * vec3(step);
 
-
     vec3 v0 = vertexForIndex(edgeToVertexIdsLUT[edge].x, vecCoordInChunk, step);
     vec3 v1 = vertexForIndex(edgeToVertexIdsLUT[edge].y, vecCoordInChunk, step);
 
     vec3 diff = (v1 - v0);
     uint v0Index = computeVertexIndex(chunkCoord, edgeToVertexIdsLUT[edge].x);
     uint v1Index = computeVertexIndex(chunkCoord, edgeToVertexIdsLUT[edge].y);
-    float perc = density[v0Index]
-                    / abs(density[v0Index] - density[v1Index]);
+    float perc = density[v0Index] / abs(density[v0Index] - density[v1Index]);
 
     Position = vec4(v0 + diff * abs(perc), 1);
 
@@ -109,5 +107,4 @@ void main() {
     grad.z = calculateDensity(Position.xyz + vec3(0, 0, d)) - calculateDensity(Position.xyz + vec3(0, 0, -d));
 
     Normal = -normalize(grad);
-
 }

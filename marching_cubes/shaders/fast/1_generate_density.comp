@@ -52,6 +52,8 @@ uint getIndex() {
 float calculateDensity() {
     vec3 vertex = getPosition();
 
+    return -vertex.y + sin(vertex.x*2) + 10;
+
     float hard_floor_y = 0.1;
     float rad = 3;
     float result = rad - length(vertex - vec3(0, 0, 0));

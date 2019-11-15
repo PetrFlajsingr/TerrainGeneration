@@ -42,12 +42,12 @@ void main() {
     if (cubeIndex != 0 && cubeIndex != 255) {
         uint dim = 32;
         uint result = cubeIndex;
-        uint z = uint(gl_PrimitiveIDIn / pow(dim, 2));
-        uint y = uint(gl_PrimitiveIDIn % (dim * dim) / dim);
+        uint z = uint(gl_PrimitiveIDIn / pow(dim, 2)) % dim;
+        uint y = uint(gl_PrimitiveIDIn / dim % dim);
         uint x = uint(gl_PrimitiveIDIn % dim);
-        result |= x << 8;
-        result |= y << 16;
-        result |= z << 24;
+        result |= (x << 8);
+        result |= (y << 16);
+        result |= (z << 24);
         marker = result;
 
         EmitVertex();

@@ -13,26 +13,6 @@ in uint cubeMarker[];
 out uvec3 indices;
 
 uvec3 inChunkOffset(uint edge) {
-  /*  switch (edge) {
-        case 3: return uvec3(0, 0, 0);
-        case 0: return uvec3(1, 0, 0);
-        case 8: return uvec3(2, 0, 0);
-
-        case 1: return uvec3(0, 1, 0);
-        case 9: return uvec3(2, 1, 0);
-
-        case 4: return uvec3(1, 0, 1);
-        case 7: return uvec3(0, 0, 1);
-
-        case 11: return uvec3(1 + 2, 0, 0);
-        case 2: return uvec3(1 + 1, 0, 0);
-
-        case 5: return uvec3(0, 1, 1);
-
-        case 6: return uvec3(1 + 1, 0, 1);
-
-        case 10: return uvec3(1 + 2, 1, 0);
-    }*/
     switch (edge) {
         case 3: //fallthrough
         case 0: //fallthrough
@@ -85,31 +65,35 @@ void main() {
     uint caseIndex = cubeMarker[0] & 0xFFu;
     uint polyCount = polyCountLUT[caseIndex];
     uvec3 chunkCoord = uvec3(((cubeMarker[0] >> 8u) & 0xFFu),
-    (cubeMarker[0] >> 16u) & 0xFFu,
-    (cubeMarker[0] >> 24u) & 0xFFu);
-    if (chunkCoord.x > 29 || chunkCoord.y > 29 || chunkCoord.z > 29) {return;}
+        (cubeMarker[0] >> 16u) & 0xFFu,
+        (cubeMarker[0] >> 24u) & 0xFFu);
+    if (max(max(chunkCoord.x, chunkCoord.y), chunkCoord.z) >= 31)
+        polyCount = 0;
 
     for (uint i = 0; i < polyCount; ++i) {
         uvec3 edgesForPoly = uvec3(polyEdgesLUT[caseIndex * 15 + i*3], polyEdgesLUT[caseIndex * 15 + i*3 + 1], polyEdgesLUT[caseIndex * 15 + i*3 + 2]);
+
+        uvec3 tmp;
 
         uvec3 vertexIDCoord = chunkCoord;
         vertexIDCoord += inChunkOffset(edgesForPoly.x);
         vertexIDCoord.x *= 3;
         vertexIDCoord.x += offsetForEdge(edgesForPoly.x);
-        indices.x = vertexIDs[vertexIDCoord.x + vertexIDCoord.y * dim + vertexIDCoord.z * dim * dim];
+        tmp.x = vertexIDs[vertexIDCoord.x + vertexIDCoord.y * dim + vertexIDCoord.z * dim * dim];
 
         vertexIDCoord = chunkCoord;
         vertexIDCoord += inChunkOffset(edgesForPoly.y);
         vertexIDCoord.x *= 3;
         vertexIDCoord.x += offsetForEdge(edgesForPoly.y);
-        indices.y = vertexIDs[vertexIDCoord.x + vertexIDCoord.y * dim + vertexIDCoord.z * dim * dim];
+        tmp.y = vertexIDs[vertexIDCoord.x + vertexIDCoord.y * dim + vertexIDCoord.z * dim * dim];
 
         vertexIDCoord = chunkCoord;
         vertexIDCoord += inChunkOffset(edgesForPoly.z);
         vertexIDCoord.x *= 3;
         vertexIDCoord.x += offsetForEdge(edgesForPoly.z);
-        indices.z = vertexIDs[vertexIDCoord.x + vertexIDCoord.y * dim + vertexIDCoord.z * dim * dim];
+        tmp.z = vertexIDs[vertexIDCoord.x + vertexIDCoord.y * dim + vertexIDCoord.z * dim * dim];
 
+        indices = tmp;
         EmitVertex();
         EndPrimitive();
     }

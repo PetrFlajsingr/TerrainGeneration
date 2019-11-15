@@ -54,9 +54,10 @@ float calculateDensity() {
 
     float hard_floor_y = 0.1;
     float rad = 3;
-    float result = rad - length(vertex - vec3(0, -rad, 0));
+    float result = rad - length(vertex - vec3(0, 0, 0));
     result += fbm(vertex.xyz, 5);
-    return -vertex.y + 0.1;
+    //return (+ vertex.y - vertex.x);
+    return -(sqrt(pow(10-vertex.x, 2) + pow(10-vertex.y, 2) + pow(10-vertex.z, 2)) - 5);//-vertex.y + 0.1;
 }
 
 void main() {

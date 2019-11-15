@@ -2,9 +2,9 @@
 // Created by petr on 10/26/19.
 //
 
-#include "Chunk.h"
+#include "OldChunk.h"
 #include <glm/vec4.hpp>
-mc::Chunk::Chunk(Chunk::Size size, float width, glm::vec3 position,
+mc::OldChunk::OldChunk(OldChunk::Size size, float width, glm::vec3 position,
                  glm::vec4 color)
     : componentCount([this] { return std::pow(this->size, 3); }),
       position(position), size(size), id(idCounter), color(color),
@@ -16,17 +16,17 @@ mc::Chunk::Chunk(Chunk::Size size, float width, glm::vec3 position,
   boundingBox = calcBB();
 }
 
-bool mc::Chunk::isComputed() const { return computed; }
+bool mc::OldChunk::isComputed() const { return computed; }
 
-bool mc::Chunk::shouldBeDrawn() const {
+bool mc::OldChunk::shouldBeDrawn() const {
   return hasDataToDraw; }
 
-bool mc::Chunk::shouldBeDrawn(const geo::ViewFrustum &viewFrustum) {
+bool mc::OldChunk::shouldBeDrawn(const geo::ViewFrustum &viewFrustum) {
   //return hasDataToDraw && geo::isBoundingSphereInViewFrustum(boundingSphere, viewFrustum);
   return hasDataToDraw && viewFrustum.contains(boundingBox) != geo::FrustumPosition::Outside;
 }
 
-void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
+void mc::OldChunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
 
   vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
   densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
@@ -45,7 +45,7 @@ void mc::Chunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
   cubeIndexBuffer->unbindBase(GL_SHADER_STORAGE_BUFFER, 2);
 }
 
-void mc::Chunk::dispatchCubeIndicesComputation(GLuint program,
+void mc::OldChunk::dispatchCubeIndicesComputation(GLuint program,
                                                Blocking blocking) {
   vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
   densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
@@ -59,7 +59,7 @@ void mc::Chunk::dispatchCubeIndicesComputation(GLuint program,
   cubeIndexBuffer->unbindBase(GL_SHADER_STORAGE_BUFFER, 2);
 }
 
-void mc::Chunk::calculateVertices(GLuint program) {
+void mc::OldChunk::calculateVertices(GLuint program) {
   assert(componentCount.value() == std::pow(size, 3));
   ge::gl::AsynchronousQuery geometryQuery{
       GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
@@ -91,7 +91,7 @@ void mc::Chunk::calculateVertices(GLuint program) {
   hasDataToDraw = primitiveCount != 0;
 }
 
-void mc::Chunk::render(RenderType renderType, GLuint program) {
+void mc::OldChunk::render(RenderType renderType, GLuint program) {
 
   if (!isComputed()) {
     throw std::logic_error("Chunk::render(...): Attempting to draw a chunk "
@@ -133,7 +133,7 @@ void mc::Chunk::render(RenderType renderType, GLuint program) {
   }
 }
 
-void mc::Chunk::initBuffers() {
+void mc::OldChunk::initBuffers() {
   const Size chunkComponentCount = componentCount;
   vertexBuffer = std::make_shared<ge::gl::Buffer>(
       chunkComponentCount * sizeof(float) * 4, nullptr, GL_DYNAMIC_DRAW);
@@ -190,15 +190,15 @@ void mc::Chunk::initBuffers() {
                              static_cast<GLsizei>(sizeof(float) * 4), 0);
 }
 
-std::ostream &mc::operator<<(std::ostream &stream, mc::Chunk &chunk) {
+std::ostream &mc::operator<<(std::ostream &stream, mc::OldChunk &chunk) {
  stream << "Chunk #" << chunk.id << ", size: " << chunk.size << "x"
         << chunk.size << "x" << chunk.size;
   return stream;
 }
 
-uint mc::Chunk::getId() const { return id; }
+uint mc::OldChunk::getId() const { return id; }
 
-void mc::Chunk::invalidate() {
+void mc::OldChunk::invalidate() {
   computed = false;
   hasDataToDraw = false;
 }

@@ -2,8 +2,8 @@
 // Created by petr on 10/26/19.
 //
 
-#ifndef TERRAINGENERATION_CHUNK_H
-#define TERRAINGENERATION_CHUNK_H
+#ifndef TERRAINGENERATION_OLDCHUNK_H
+#define TERRAINGENERATION_OLDCHUNK_H
 
 #include <Geometry.h>
 #include <geGL/StaticCalls.h>
@@ -14,13 +14,13 @@
 #include <valarray>
 
 namespace mc {
-class Chunk {
+class OldChunk {
   static inline uint idCounter = 0;
 public:
   enum RenderType {Mesh, MeshLines, Normals};
 
   using Size = uint32_t;
-  Chunk(Size size, float width, glm::vec3 position, glm::vec4 color);
+  OldChunk(Size size, float width, glm::vec3 position, glm::vec4 color);
 
   [[nodiscard]] bool isComputed() const;
 
@@ -41,7 +41,7 @@ public:
 
   void invalidate();
 
-  friend std::ostream &operator<<(std::ostream &stream, Chunk &chunk);
+  friend std::ostream &operator<<(std::ostream &stream, OldChunk &chunk);
 
   [[nodiscard]] uint getId() const;
 
@@ -103,4 +103,4 @@ public:
   }
 };
 }
-#endif // TERRAINGENERATION_CHUNK_H
+#endif // TERRAINGENERATION_OLDCHUNK_H

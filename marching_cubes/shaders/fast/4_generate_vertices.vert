@@ -79,7 +79,7 @@ float calculateDensity(vec3 vertex) {
     float rad = 3;
     float result = rad - length(vertex - vec3(0, -rad, 0));
     result += fbm(vertex.xyz, 5);
-    return -vertex.y + 0.1;
+    return -(sqrt(pow(10-vertex.x, 2) + pow(10-vertex.y, 2) + pow(10-vertex.z, 2)) - 5);//-vertex.y + 0.1;
 }
 
 void main() {
@@ -98,8 +98,7 @@ void main() {
     uint v0Index = computeVertexIndex(chunkCoord, edgeToVertexIdsLUT[edge].x);
     uint v1Index = computeVertexIndex(chunkCoord, edgeToVertexIdsLUT[edge].y);
     float perc = density[v0Index]
-                    / abs(density[v0Index]
-                    - density[v1Index]);
+                    / abs(density[v0Index] - density[v1Index]);
 
     Position = vec4(v0 + diff * abs(perc), 1);
 

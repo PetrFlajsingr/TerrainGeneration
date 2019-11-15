@@ -6,9 +6,9 @@
 #define TERRAINGENERATION_DENSITYGENERATORS_H
 
 #include "../gui/CameraController.h"
-#include "Chunk.h"
 #include "FastChunkGen.h"
 #include "GlslShaderLoader.h"
+#include "OldChunk.h"
 #include "lookuptables.h"
 #include "shader_literals.h"
 #include <chrono>
@@ -37,7 +37,7 @@ constexpr uint skeletonStep = 31;
 struct Compute {
   const float d = 1 / 1.f;
   const float w = 1 / (d * 32.0);
-  std::vector<mc::Chunk> chunks;
+  std::vector<mc::OldChunk> chunks;
 
   glm::vec3 gravityCenter{0, -3, 0};
 
@@ -322,7 +322,7 @@ struct Compute {
       for (auto &chunk : chunks) {
         if (chunk.shouldBeDrawn(viewFrustum)) {
           ++cnt;
-          chunk.render(mc::Chunk::Mesh, bpDrawProgram);
+          chunk.render(mc::OldChunk::Mesh, bpDrawProgram);
         }
       }
 #endif

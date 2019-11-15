@@ -3,31 +3,25 @@
 layout(points) in;
 layout(points, max_vertices = 3) out;
 
-in uint caseMarker[];
+in uint edgeFlags[];
 
 out uint edgeMarker;
 
-bool hasVertex(uint marker, uint edge1, uint edge2) {
-    return ((((marker & edge1) != 0) ^^ ((marker & edge2) != 0)));
-}
-
 void main() {
-    uint xyz = caseMarker[0] & 0xFFFFFF00u;
+    uint xyz = edgeFlags[0] & 0xFFFFFF00u;
 
-    if (hasVertex(caseMarker[0], 0x1u, 0x1u << 3)) {
-        edgeMarker = xyz | 0x3u;
+    if ((edgeFlags[0] & 1u) != 0u) {
+        edgeMarker = xyz | 3u;
         EmitVertex();
         EndPrimitive();
     }
-
-    if (hasVertex(caseMarker[0], 0x1u, 0x1u << 1)) {
-        edgeMarker = xyz | 0x0u;
+    if ((edgeFlags[0] & 2u) != 0u) {
+        edgeMarker = xyz | 0u;
         EmitVertex();
         EndPrimitive();
     }
-
-    if (hasVertex(caseMarker[0], 0x1u, 0x1u << 4)) {
-        edgeMarker = xyz | 0x8u;
+    if ((edgeFlags[0] & 4u) != 0u) {
+        edgeMarker = xyz | 8u;
         EmitVertex();
         EndPrimitive();
     }

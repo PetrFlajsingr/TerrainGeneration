@@ -32,9 +32,10 @@ void FastChunkGen::loadShaders() {
   splatVertices = "fast/5_splat_vertices"_vert;
   genIndices = "fast/6_gen_indices"_geom;
   passThrough2 = "fast/2_pass_through"_vert;
-  //passThrough3 = "fast/3_pass_through"_vert;
   passThrough3 = "fast/3_stream_edge_markers"_vert;
   passThrough6 = "fast/6_pass_through"_vert;
+  drawCube = "fast/cube"_geom;
+  simpleFrag = "uniform_color"_frag;
 }
 
 void FastChunkGen::createLUT() {
@@ -167,6 +168,10 @@ void FastChunkGen::createPrograms()
   ge::gl::glAttachShader(generateIndicesProgram, passThrough6->getId());
   setVaryings(generateIndicesProgram, make_array("indices"));
 
+  drawCubeBoundariesProgram = ge::gl::glCreateProgram();
+  ge::gl::glAttachShader(drawCubeBoundariesProgram, drawCube->getId());
+  ge::gl::glAttachShader(drawCubeBoundariesProgram, simpleFrag->getId());
+
   ge::gl::glProgramParameteri(generateDensityProgram, GL_PROGRAM_SEPARABLE,
                               GL_TRUE);
   ge::gl::glProgramParameteri(streamCasesProgram, GL_PROGRAM_SEPARABLE,
@@ -180,6 +185,8 @@ void FastChunkGen::createPrograms()
   ge::gl::glProgramParameteri(splatVerticesProgram, GL_PROGRAM_SEPARABLE,
                               GL_TRUE);
   ge::gl::glProgramParameteri(generateIndicesProgram, GL_PROGRAM_SEPARABLE,
+                              GL_TRUE);
+  ge::gl::glProgramParameteri(drawCubeBoundariesProgram, GL_PROGRAM_SEPARABLE,
                               GL_TRUE);
 }
 
@@ -198,110 +205,131 @@ void FastChunkGen::linkPrograms() {
   linkAndCheck(clearVertexIDsProgram);
   linkAndCheck(splatVerticesProgram);
   linkAndCheck(generateIndicesProgram);
+  linkAndCheck(drawCubeBoundariesProgram);
 }
 
+bool isComputed = false;
+uint vertexCount;
+uint whatever;
 void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &cameraController) {
   using namespace LoggerStreamModifiers;
-  Logger<true> logger;
+
+  Logger logger{std::cout};
+
   logger.startTime();
-  float step = 1.f;
-  densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-  ge::gl::glUseProgram(generateDensityProgram);
-  ge::gl::glUniform1f(
-      ge::gl::glGetUniformLocation(generateDensityProgram, "step"), step);
-  glm::vec3 start{-15, -15, -15};
-  ge::gl::glUniform3fv(
-      ge::gl::glGetUniformLocation(generateDensityProgram, "start"), 0,
-      &start[0]);
-  ge::gl::glDispatchCompute(4, 4, 4);
-  ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+  constexpr float step = 5.f;
+  constexpr glm::vec3 start{0, 0, 0};
+  ge::gl::glEnable(GL_DEPTH_TEST);
+  if (!isComputed) {
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    ge::gl::glUseProgram(generateDensityProgram);
+    ge::gl::glUniform1f(
+        ge::gl::glGetUniformLocation(generateDensityProgram, "step"), step);
 
-  ge::gl::glUseProgram(streamCasesProgram);
-  densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-  ge::gl::glEnable(GL_RASTERIZER_DISCARD);
-  ge::gl::AsynchronousQuery geometryQuery{
-      GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
-      ge::gl::AsynchronousQuery::UINT32};
+    ge::gl::glUniform3fv(
+        ge::gl::glGetUniformLocation(generateDensityProgram, "start"), 0,
+        &start[0]);
+    ge::gl::glDispatchCompute(4, 4, 4);
+    ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-  chunkCoordVertexArray->bind();
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName1);
-  ge::gl::glBeginTransformFeedback(GL_POINTS);
-  geometryQuery.begin();
+    ge::gl::glUseProgram(streamCasesProgram);
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    ge::gl::glEnable(GL_RASTERIZER_DISCARD);
+    ge::gl::AsynchronousQuery geometryQuery{
+        GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
+        ge::gl::AsynchronousQuery::UINT32};
 
-  ge::gl::glDrawArrays(GL_POINTS, 0, 32 * 32 * 32);
+    chunkCoordVertexArray->bind();
+    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName1);
+    ge::gl::glBeginTransformFeedback(GL_POINTS);
+    geometryQuery.begin();
 
-  geometryQuery.end();
-  ge::gl::glEndTransformFeedback();
-  logger << info() << "Generated primitive count(cases): " << geometryQuery.getui()
-            << "\n";
-  const auto caseCount = geometryQuery.getui();
+    ge::gl::glDrawArrays(GL_POINTS, 0, 32 * 32 * 32);
 
-  ge::gl::glUseProgram(streamEdgeMarkersProgram);
-  caseMarkersVertexArray->bind();
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName2);
-  ge::gl::glBeginTransformFeedback(GL_POINTS);
-  geometryQuery.begin();
+    geometryQuery.end();
+    ge::gl::glEndTransformFeedback();
+    logger << info()
+           << "Generated primitive count(cases): " << geometryQuery.getui()
+           << "\n";
+    const auto caseCount = geometryQuery.getui();
 
-  ge::gl::glDrawArrays(GL_POINTS, 0, geometryQuery.getui());
+    ge::gl::glUseProgram(streamEdgeMarkersProgram);
+    caseMarkersVertexArray->bind();
+    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName2);
+    ge::gl::glBeginTransformFeedback(GL_POINTS);
+    geometryQuery.begin();
 
-  geometryQuery.end();
-  ge::gl::glEndTransformFeedback();
-  logger << info() << "Generated primitive count(edges): " << geometryQuery.getui()
-            << "\n";
-  const auto edgeCount = geometryQuery.getui();
+    ge::gl::glDrawArrays(GL_POINTS, 0, geometryQuery.getui());
 
+    geometryQuery.end();
+    ge::gl::glEndTransformFeedback();
+    logger << info()
+           << "Generated primitive count(edges): " << geometryQuery.getui()
+           << "\n";
+    const auto edgeCount = geometryQuery.getui();
 
-  ge::gl::glUseProgram(generateVerticesProgram);
-  edgeMarkersVertexArray->bind();
-  edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-  densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
-  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(generateVerticesProgram, "step"), step);
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1, &start[0]);
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName3);
-  ge::gl::glBeginTransformFeedback(GL_POINTS);
-  geometryQuery.begin();
+    ge::gl::glUseProgram(generateVerticesProgram);
+    edgeMarkersVertexArray->bind();
+    edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+    ge::gl::glUniform1f(
+        ge::gl::glGetUniformLocation(generateVerticesProgram, "step"), step);
+    ge::gl::glUniform3fv(
+        ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1,
+        &start[0]);
+    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName3);
+    ge::gl::glBeginTransformFeedback(GL_POINTS);
+    geometryQuery.begin();
 
-  ge::gl::glDrawArrays(GL_POINTS, 0, geometryQuery.getui());
+    ge::gl::glDrawArrays(GL_POINTS, 0, geometryQuery.getui());
 
-  geometryQuery.end();
-  ge::gl::glEndTransformFeedback();
-  logger << info() << "Generated primitive count(vertices): " << geometryQuery.getui()
-            << "\n";
-  const auto vertexCount = geometryQuery.getui();
+    geometryQuery.end();
+    ge::gl::glEndTransformFeedback();
+    logger << info()
+           << "Generated primitive count(vertices): " << geometryQuery.getui()
+           << "\n";
+    vertexCount = geometryQuery.getui();
 
-  ge::gl::glUseProgram(clearVertexIDsProgram);
-  vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(clearVertexIDsProgram, "step"), step);
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(clearVertexIDsProgram, "start"), 1, &start[0]);
-  ge::gl::glDispatchCompute(4, 4, 4);
+    ge::gl::glUseProgram(clearVertexIDsProgram);
+    vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    ge::gl::glUniform1f(
+        ge::gl::glGetUniformLocation(clearVertexIDsProgram, "step"), step);
+    ge::gl::glUniform3fv(
+        ge::gl::glGetUniformLocation(clearVertexIDsProgram, "start"), 1,
+        &start[0]);
+    ge::gl::glDispatchCompute(4, 4, 4);
 
-  ge::gl::glUseProgram(splatVerticesProgram);
-  vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-  edgeMarkersVertexArray->bind();
+    ge::gl::glUseProgram(splatVerticesProgram);
+    vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    edgeMarkersVertexArray->bind();
 
-  ge::gl::glDrawArrays(GL_POINTS, 0, edgeCount);
+    ge::gl::glDrawArrays(GL_POINTS, 0, edgeCount);
 
+    ge::gl::glUseProgram(generateIndicesProgram);
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    polyCountLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+    edgeLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
+    edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 3);
+    vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 4);
 
-  ge::gl::glUseProgram(generateIndicesProgram);
-  densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-  polyCountLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
-  edgeLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
-  edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 3);
-  vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 4);
+    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName4);
+    caseMarkersVertexArray->bind();
+    ge::gl::glBeginTransformFeedback(GL_POINTS);
+    geometryQuery.begin();
 
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName4);
-  caseMarkersVertexArray->bind();
-  ge::gl::glBeginTransformFeedback(GL_POINTS);
-  geometryQuery.begin();
+    ge::gl::glDrawArrays(GL_POINTS, 0, caseCount);
 
-  ge::gl::glDrawArrays(GL_POINTS, 0, caseCount);
+    geometryQuery.end();
+    ge::gl::glEndTransformFeedback();
+    logger << info()
+           << "Generated primitive count(indices): " << geometryQuery.getui()
+           << "\n";
+    isComputed = true;
 
-  geometryQuery.end();
-  ge::gl::glEndTransformFeedback();
-  logger << info() << "Generated primitive count(indices): " << geometryQuery.getui()
-         << "\n";
+    ge::gl::glDisable(GL_RASTERIZER_DISCARD);
+    whatever = geometryQuery.getui()*3;
+  }
 
-  ge::gl::glDisable(GL_RASTERIZER_DISCARD);
   ge::gl::glUseProgram(program);
   auto projection =
       glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 100.0f);
@@ -340,7 +368,7 @@ void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &ca
                        &color[0]);
   ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   drawVertexArray->bind();
-  ge::gl::glDrawElements(GL_TRIANGLES, geometryQuery.getui()*3, GL_UNSIGNED_INT, nullptr);
+  ge::gl::glDrawElements(GL_TRIANGLES, whatever, GL_UNSIGNED_INT, nullptr);
 
   ge::gl::glUseProgram(normalProgram);
   glm::vec4 normalColor{1, 0, 1, 0.6};
@@ -356,8 +384,23 @@ void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &ca
   ge::gl::glDrawArrays(GL_POINTS, 0, vertexCount);
 
 
+  ge::gl::glUseProgram(drawCubeBoundariesProgram);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "step"), step);
+  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "start"), 1, &start[0]);
+  ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "mvpUniform"), 1, GL_FALSE, &MVPmatrix[0][0]);
+
+  auto colorUni =
+      ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "color");
+  glm::vec4 red{1, 0, 0, 1};
+
+  ge::gl::glLineWidth(0.05f);
+  ge::gl::glUniform4fv(colorUni, 1, &red[0]);
+
+  ge::gl::glDrawArrays(GL_POINTS, 0, 32*32*32);
+
+
   logger.endTime();
-  logger.printElapsedTime();
+  //logger.printElapsedTime();
  // exit(0);
 
  std::vector<glm::uvec3> data;
@@ -372,7 +415,5 @@ void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &ca
 
  ////logger << debug() << "lut: " << mc::LUT::edges[187] << "\n" << flush();
  logger << debug() << "indices: " << data2 << "\n" << flush();
- ////logger << debug() << "buff: " << data << "\n" << flush();
-
- logger << "emd";
+ //logger << debug() << "buff: " << data << "\n" << flush();
 }

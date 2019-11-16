@@ -23,7 +23,7 @@ static inline constexpr bool is_duration_v =
     is_specialization<T, std::chrono::duration>::value;
 
 template <typename T, typename... Types>
-static inline constexpr bool is_one_of_v = (std::is_same_v<T, Types> || ... ||
+constexpr bool is_one_of_v = (std::is_same_v<T, Types> || ... ||
                                             false);
 
 template <typename T, typename = void> struct is_iterable : std::false_type {};
@@ -46,5 +46,6 @@ constexpr bool is_vec_specialisation_v =
     is_vec_specialization<std::decay_t<T>, glm::tvec4>::value ||
     is_vec_specialization<std::decay_t<T>, glm::tvec3>::value ||
     is_vec_specialization<std::decay_t<T>, glm::tvec2>::value;
+
 
 #endif // TERRAINGENERATION_META_H

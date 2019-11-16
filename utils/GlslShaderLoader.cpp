@@ -66,3 +66,8 @@ LocationResetter::~LocationResetter() {
     setShaderLocation(oldLocation);
   }
 }
+ShaderLoadingFailureException::ShaderLoadingFailureException(
+    std::string_view shaderName,
+    std::string_view msg,
+    std::experimental::source_location srcLoc = std::experimental::source_location::current())
+    : Exception(msg, srcLoc) {}

@@ -24,6 +24,7 @@
 #include <now.h>
 #include <optional>
 #include <string>
+#include<iostream>
 using namespace ShaderLiterals;
 using namespace LoggerStreamModifiers;
 
@@ -41,7 +42,7 @@ struct Compute {
 
   glm::vec3 gravityCenter{0, -3, 0};
 
-  Logger<true> logger;
+  decltype(Logger{std::cout}) logger = Logger{std::cout};
 
   glm::mat4 projection =
       glm::perspective(glm::radians(45.f), 1920.f / 1080, 0.1f, 100.0f);

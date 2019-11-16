@@ -30,6 +30,8 @@ private:
   Shader passThrough2;
   Shader passThrough3;
   Shader passThrough6;
+  Shader drawCube;
+  Shader simpleFrag;
 
   Program generateDensityProgram;
   Program streamCasesProgram;
@@ -38,6 +40,7 @@ private:
   Program clearVertexIDsProgram;
   Program splatVerticesProgram;
   Program generateIndicesProgram;
+  Program drawCubeBoundariesProgram;
 
   Buffer polyCountLUTBuffer;
   Buffer edgeLUTBuffer;

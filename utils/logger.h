@@ -4,8 +4,8 @@
 // Created by Petr Flajsingr on 2019-01-25.
 //
 
-#ifndef CSV_READER_LOGGER_H
-#define CSV_READER_LOGGER_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
 #include <chrono>
 #include <iomanip>
@@ -60,7 +60,7 @@ template<typename T>
 constexpr bool is_stream_v = is_one_of_v<T, out, err>;
 }
 
-template <bool EnableDebug> class Logger {
+template <typename OutStream> class Logger {
 private:
   /**
    *
@@ -102,6 +102,8 @@ private:
   LogLevel defaultLevel = LogLevel::Verbose;
   bool defaultPrintTime = true;
 
+  OutStream &outputStream;
+
   [[nodiscard]] std::string indent(uint level) const {
     auto cnt = level * 2;
     return std::string(cnt, ' ');
@@ -133,24 +135,23 @@ private:
       }
       print("}");
     } else {
-      std::cout << value;
+      outputStream << value;
     }
   }
 public:
+  explicit Logger(OutStream &outputStream) : outputStream(outputStream) {}
+
   template <LogLevel Level, bool PrintTime = false, bool PrintNewLine = true, typename... T> void log(T &&... message) const {
-    if constexpr (!EnableDebug && Level == LogLevel::Debug) {
-      return;
-    }
     if constexpr (Level != LogLevel::Verbose) {
       if constexpr (PrintTime) {
-        std::cout << levelToString(Level) + " " + getTime() + ": ";
+        outputStream << levelToString(Level) + " " + getTime() + ": ";
       } else {
-        std::cout << levelToString(Level) + ": ";
+        outputStream << levelToString(Level) + ": ";
       }
     }
     (print(message), ...);
     if (PrintNewLine) {
-      std::cout << std::endl;
+      outputStream << std::endl;
     }
   }
   void startTime() {
@@ -185,7 +186,7 @@ private:
     template <typename T>
     auto operator<<(const T &rhs) {
       if constexpr (LoggerStreamModifiers::is_logger_flusher_v<T>) {
-        std::cout.flush();
+        logger.outputStream.flush();
       } else if constexpr (logLevel == LogLevel::Verbose) {
         logger.log<logLevel, false, false>(rhs);
         return *this;
@@ -203,14 +204,13 @@ public:
     if constexpr(LoggerStreamModifiers::is_logger_stream_modifier_v<T>) {
       return OutOperator<LoggerStreamModifiers::modifierToLogLevel<T>()>(*this);
     } else if constexpr (LoggerStreamModifiers::is_logger_flusher_v<T>) {
-      std::cout.flush();
+      outputStream.flush();
       return *this;
     } else {
       log<LogLevel::Info, true, false>(rhs);
       return OutOperator<LogLevel::Verbose>(*this);
     }
   }
-
 
 };
 

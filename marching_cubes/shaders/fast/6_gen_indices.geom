@@ -44,8 +44,8 @@ uint offsetForEdge(uint edge) {
 
         case 8: //fallthrough
         case 9: //fallthrough
-        case 11: //fallthrough
-        case 10: return 2;
+        case 10: //fallthrough
+        case 11: return 2;
     }
     return 0;
 }
@@ -65,7 +65,7 @@ void main() {
     uvec3 chunkCoord = uvec3(((cubeMarker[0] >> 8u) & 0xFFu),
         (cubeMarker[0] >> 16u) & 0xFFu,
         (cubeMarker[0] >> 24u) & 0xFFu);
-    if (max(max(chunkCoord.x, chunkCoord.y), chunkCoord.z) >= 31) {
+    if (max(max(chunkCoord.x, chunkCoord.y), chunkCoord.z) >= 5) {
         polyCount = 0;
     }
 
@@ -77,7 +77,7 @@ void main() {
         indices.z = getIndex(edgesForPoly.z, chunkCoord);
 
 
-        if (false || indices.x * indices.y * indices.z != 0) {
+        if (true || indices.x * indices.y * indices.z != 0) {
             EmitVertex();
             EndPrimitive();
         }

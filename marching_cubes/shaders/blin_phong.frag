@@ -68,6 +68,7 @@ void main() {
     */
 
 
-    FragColor = /*vec4(1,1,1,1);*/ vec4(colorForHeight(posi.y+15, 0, 20)*colorLinear, 1.0);
-    //FragColor = vec4(vec3(0.1 + posi.x * 0.9, 0.1 + posi.y * 0.9, 0.1 + posi.z * 0.9) *colorLinear, 1.0);
+    //FragColor = /*vec4(1,1,1,1);*/ vec4(colorForHeight(posi.y+15, 0, 20)*colorLinear, 1.0);
+    float a = 0.03;
+    FragColor = vec4(vec3(0.1 + posi.x * a, 0.1 + posi.y * a, 0.1 + posi.z * a), 1.0);
 }

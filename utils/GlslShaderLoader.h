@@ -5,6 +5,7 @@
 #ifndef TERRAINGENERATION_GLSLSHADERLOADER_H
 #define TERRAINGENERATION_GLSLSHADERLOADER_H
 
+#include "exceptions.h"
 #include <string>
 #include <utility>
 
@@ -33,6 +34,14 @@ std::string_view getShaderLocation();
 void setShaderLocation(std::string_view newShaderLocation);
 
 LocationResetter setTempShaderLocation(std::string_view newShaderLocation);
+
+class ShaderLoadingFailureException : public exc::Exception {
+public:
+  ShaderLoadingFailureException(
+      std::string_view shaderName,
+      std::string_view msg,
+      std::experimental::source_location srcLoc);
+};
 
 std::string loadShaderFile(std::string_view name, ShaderType type);
 

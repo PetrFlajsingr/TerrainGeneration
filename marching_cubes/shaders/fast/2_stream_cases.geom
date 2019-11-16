@@ -27,9 +27,9 @@ uint getCubeIndex(uint index) {
     result |= getVertexStateFlag(density[index + dim * dim + dim + 1] > limit, 7);
 
 
-    result &= 255 * uint((index % dim) < dim - 1);
-    result &= 255 * uint((index % (dim * dim)) < dim * (dim - 1));
-    result &= 255 * uint((index % (dim * dim * dim)) < dim * dim * (dim - 1));
+    result &= 0xFF * uint((index % dim) < dim - 1);
+    result &= 0xFF * uint((index % (dim * dim)) < dim * (dim - 1));
+    result &= 0xFF * uint((index % (dim * dim * dim)) < dim * dim * (dim - 1));
 
    /* if ((index % dim) >= dim - 1 || (index % (dim * dim)) >= dim * (dim - 1) || (index % (dim * dim * dim)) >= dim * dim * (dim - 1)) {
         result &= 1;

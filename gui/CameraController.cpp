@@ -33,6 +33,7 @@ CameraController::EventCallback CameraController::getMouseDownCallback() {
   return [this](const SDL_Event &event) {
     if (event.button.button == SDL_BUTTON_RIGHT) {
       lockedToCamera = true;
+      SDL_SetRelativeMouseMode(SDL_TRUE);
     }
     return true;
   };
@@ -40,7 +41,7 @@ CameraController::EventCallback CameraController::getMouseDownCallback() {
 CameraController::EventCallback CameraController::getMouseMoveCallback() {
   return [this](const SDL_Event &event) {
     if (lockedToCamera) {
-      camera.ProcessMouseMovement(event.motion.xrel, event.motion.yrel, true);
+      camera.ProcessMouseMovement(event.motion.xrel, -event.motion.yrel, true);
       return true;
     }
     return false;
@@ -50,6 +51,7 @@ CameraController::EventCallback CameraController::getMouseUpCallback() {
   return [this](const SDL_Event &event) {
     if (event.button.button == SDL_BUTTON_RIGHT) {
       lockedToCamera = false;
+      SDL_SetRelativeMouseMode(SDL_FALSE);
     }
     return true;
   };

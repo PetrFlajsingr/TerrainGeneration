@@ -28,6 +28,7 @@ public:
       std::experimental::source_location::current());
 };
 class Exception : public Throwable {
+public:
   explicit Exception(std::string_view msg,
   std::experimental::source_location srcLoc =
       std::experimental::source_location::current());;

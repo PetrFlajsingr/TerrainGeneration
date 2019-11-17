@@ -17,7 +17,8 @@
 
 using namespace ShaderLiterals;
 
-ChunkManager::ChunkManager(CameraController &cameraController) : cameraController(cameraController) {
+ChunkManager::ChunkManager(CameraController &cameraController)
+    : cameraController(cameraController) {
   loadShaders();
   createPrograms();
   linkPrograms();
@@ -98,7 +99,6 @@ void ChunkManager::createBuffers() {
                                     sizeof(uint), 0, GL_FALSE, 0,
                                     ge::gl::VertexArray::I);
 
-
   transformFeedback1.setBuffers(caseBuffer);
   transformFeedback2.setBuffers(edgeBuffer);
 }
@@ -158,8 +158,7 @@ void ChunkManager::linkPrograms() {
   auto linkAndCheck = [](const auto &program) {
     ge::gl::glLinkProgram(program);
     if (!checkProgramLinkStatus(program)) {
-      throw std::runtime_error(
-          "Program could not be linked");
+      throw std::runtime_error("Program could not be linked");
     }
   };
   linkAndCheck(generateDensityProgram);
@@ -179,7 +178,8 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   auto projection =
       glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 1000.0f);
   auto view = cameraController.getViewMatrix();
-  glm::vec3 lightPos = cameraController.camera.Position; // {2,5,2};
+  glm::vec3 lightPos =
+      glm::vec3{5, 5, 5}; // cameraController.camera.Position; // {2,5,2};
   auto model = glm::mat4();
   auto MVPmatrix = projection * view * model;
 
@@ -197,7 +197,8 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 
   std::vector<Chunk *> visibleChunks;
   for (auto &chunk : chunks) {
-    if (viewFrustum.contains(chunk.boundingBox) != geo::FrustumPosition::Outside) {
+    if (viewFrustum.contains(chunk.boundingBox) !=
+        geo::FrustumPosition::Outside) {
       visibleChunks.emplace_back(&chunk);
     }
   }
@@ -212,34 +213,43 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection,
-                             glm::mat4 modelView, glm::vec3 lightPos) {
+void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
+                             glm::mat4 projection, glm::mat4 modelView,
+                             glm::vec3 lightPos) {
+  static auto modelViewLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "modelView");
+  static auto projectionLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "projection");
+  static auto lightColorLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "lightColor");
+  static auto lightPosLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "lightPos");
+  static auto lightPowerLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "lightPower");
+  static auto ambientColorLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "ambientColor");
+  static auto diffuseColorLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "diffuseColor");
+  static auto specColorLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "specColor");
+  static auto shininessLoc =
+      ge::gl::glGetUniformLocation(bpDrawProgram, "shininess");
+  static auto colorLoc = ge::gl::glGetUniformLocation(bpDrawProgram, "color");
   ge::gl::glUseProgram(bpDrawProgram);
   glm::vec3 white{1, 1, 1};
 
-  ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(bpDrawProgram, "modelView"),
-                             1, GL_FALSE, &modelView[0][0]);
-  ge::gl::glUniformMatrix4fv(
-      ge::gl::glGetUniformLocation(bpDrawProgram, "projection"), 1, GL_FALSE,
-      &projection[0][0]);
+  ge::gl::glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, &modelView[0][0]);
+  ge::gl::glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
 
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "lightColor"), 1,
-                       &white[0]);
+  ge::gl::glUniform3fv(lightColorLoc, 1, &light.color[0]);
 
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "lightPos"), 1,
-                       &lightPos[0]);
-  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(bpDrawProgram, "lightPower"),
-                      100.f);
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "ambientColor"), 1,
-                       &white[0]);
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "diffuseColor"), 1,
-                       &white[0]);
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(bpDrawProgram, "specColor"), 1,
-                       &white[0]);
-  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(bpDrawProgram, "shininess"), 16.f);
-  glm::vec4 color{1, 1, 1, 1};
-  ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(bpDrawProgram, "color"), 1,
-                       &color[0]);
+  ge::gl::glUniform3fv(lightPosLoc, 1, &light.position[0]);
+  ge::gl::glUniform1f(lightPowerLoc, light.power);
+  ge::gl::glUniform3fv(ambientColorLoc, 1, &light.ambientColor[0]);
+  ge::gl::glUniform3fv(diffuseColorLoc, 1, &light.diffuseColor[0]);
+  ge::gl::glUniform3fv(specColorLoc, 1, &light.specColor[0]);
+  ge::gl::glUniform1f(shininessLoc, material.shininess);
+  ge::gl::glUniform4fv(colorLoc, 1, &material.color[0]);
   for (auto &chunk : chunks) {
     chunk->getVA()->bind();
     ge::gl::glDrawElements(GL_TRIANGLES, chunk->indexCount, GL_UNSIGNED_INT,
@@ -247,22 +257,25 @@ void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 proje
   }
 }
 
-void ChunkManager::drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix) {
+void ChunkManager::drawNormals(const std::vector<Chunk *> &chunks,
+                               glm::mat4 MVPmatrix) {
   ge::gl::glUseProgram(drawNormalsProgram);
   glm::vec4 normalColor{1, 0, 1, 0.6};
-  ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(drawNormalsProgram, "color"), 1,
-                       &normalColor[0]);
+  ge::gl::glUniform4fv(
+      ge::gl::glGetUniformLocation(drawNormalsProgram, "color"), 1,
+      &normalColor[0]);
 
   ge::gl::glUniformMatrix4fv(
-      ge::gl::glGetUniformLocation(drawNormalsProgram, "mvpUniform"), 1, GL_FALSE,
-      &MVPmatrix[0][0]);
+      ge::gl::glGetUniformLocation(drawNormalsProgram, "mvpUniform"), 1,
+      GL_FALSE, &MVPmatrix[0][0]);
   for (auto &chunk : chunks) {
     chunk->getVA()->bind();
     ge::gl::glDrawArrays(GL_POINTS, 0, chunk->vertexCount);
   }
 }
 
-void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step) {
+void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks,
+                                  glm::mat4 MVPmatrix, uint step) {
   ge::gl::glUseProgram(drawCubeBoundariesProgram);
   for (auto &chunk : chunks) {
     ge::gl::glUniform1f(
@@ -332,12 +345,14 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
     edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
     chunk->getBuffer(Chunk::Density)->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
     ge::gl::glUniform1f(
-        ge::gl::glGetUniformLocation(generateVerticesProgram, "step"), chunk->step);
+        ge::gl::glGetUniformLocation(generateVerticesProgram, "step"),
+        chunk->step);
     ge::gl::glUniform3fv(
         ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1,
         &chunk->startPosition[0]);
 
-    transformFeedback3.setBuffers(chunk->getBuffer(Chunk::Vertex), chunk->getBuffer(Chunk::Normal));
+    transformFeedback3.setBuffers(chunk->getBuffer(Chunk::Vertex),
+                                  chunk->getBuffer(Chunk::Normal));
     transformFeedback3.begin(GL_POINTS);
     query.begin();
 
@@ -379,10 +394,8 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
 }
 
 void ChunkManager::generateChunks() {
-  auto predicate = [] (const Chunk &chunk) {
-    return !chunk.isComputed();
-  };
-  std::vector<Chunk*> ptrs;
+  auto predicate = [](const Chunk &chunk) { return !chunk.isComputed(); };
+  std::vector<Chunk *> ptrs;
   for (auto &chunk : chunks) {
     if (predicate(chunk)) {
       ptrs.emplace_back(&chunk);
@@ -395,9 +408,9 @@ void ChunkManager::generateChunks() {
   ge::gl::glEnable(GL_RASTERIZER_DISCARD);
   calculateDensity(ptrs);
 
-  ge::gl::AsynchronousQuery query{
-      GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_QUERY_RESULT,
-      ge::gl::AsynchronousQuery::UINT32};
+  ge::gl::AsynchronousQuery query{GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN,
+                                  GL_QUERY_RESULT,
+                                  ge::gl::AsynchronousQuery::UINT32};
 
   streamIdxVert(ptrs, query);
   ge::gl::glDisable(GL_RASTERIZER_DISCARD);

@@ -51,7 +51,7 @@ int main(int, char *[]) {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     chunks.generateChunks();
-    chunks.draw(DrawMode::Polygon, {false, true, 16});
+    chunks.draw(DrawMode::Polygon, {false, false, 16});
 
     window->swap();
 

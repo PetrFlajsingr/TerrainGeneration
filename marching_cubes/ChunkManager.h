@@ -15,6 +15,7 @@
 #include <geGL_utils.h>
 #include <print.h>
 
+#include "Light.h"
 #include "types.h"
 
 namespace {
@@ -30,17 +31,45 @@ struct DrawOptions {
   const uint chunkAreaStep;
 };
 
-constexpr float step = 0.5;
+constexpr float step = 2;
 constexpr uint size = 32;
 class ChunkManager {
   std::vector<Chunk> chunks;
   CameraController &cameraController;
+
+  BlinnPhongLight light {
+      {1, 1, 1},
+      {5, 5, 5},
+      100,
+      {1, 1, 1},
+      {1, 0, 1},
+      {1, 1, 1},
+  };
+  BlinnPhongMaterial material {
+    2,
+    {1, 1, 1}
+  };
 
   void bah() {
     uint cnt = 10;
     for (int x = 0; x < cnt; ++x) {
       for (int y = 0; y < cnt; ++y) {
         chunks.push_back({{x * (size - 2) * step, 0, y * (size - 2) * step}, step, size});
+      }
+    }
+    for (int x = 0; x < cnt; ++x) {
+      for (int y = 0; y < cnt; ++y) {
+        chunks.push_back({{x * (size - 2) * step, (size - 2) * step, y * (size - 2) * step}, step, size});
+      }
+    }
+    for (int x = 0; x < cnt; ++x) {
+      for (int y = 0; y < cnt; ++y) {
+        chunks.push_back({{x * (size - 2) * step, (size - 2) * -step, y * (size - 2) * step}, step, size});
+      }
+    }
+    for (int x = 0; x < cnt; ++x) {
+      for (int y = 0; y < cnt; ++y) {
+        chunks.push_back({{x * (size - 2) * step, (size - 2) * 2*-step, y * (size - 2) * step}, step, size});
       }
     }
   }

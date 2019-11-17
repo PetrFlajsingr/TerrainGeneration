@@ -5,11 +5,11 @@
 #ifndef TERRAINGENERATION_DENSITYGENERATORS_H
 #define TERRAINGENERATION_DENSITYGENERATORS_H
 
-#include "../gui/CameraController.h"
-#include "FastChunkGen.h"
+#include "../../gui/CameraController.h"
+#include "../ChunkManager.h"
+#include "../lookuptables.h"
 #include "GlslShaderLoader.h"
 #include "OldChunk.h"
-#include "lookuptables.h"
 #include "shader_literals.h"
 #include <chrono>
 #include <functional>
@@ -20,11 +20,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <iostream>
 #include <logger.h>
 #include <now.h>
 #include <optional>
 #include <string>
-#include<iostream>
 using namespace ShaderLiterals;
 using namespace LoggerStreamModifiers;
 
@@ -75,7 +75,7 @@ struct Compute {
   std::chrono::milliseconds rendertime = 0s;
   int cntComp = 0, cntRender = 0;
 
-  FastChunkGen gen;
+  ChunkManager gen{cameraController};
   Compute() {
     //generateChunks();
     csShader = "mc_chunk"_comp;
@@ -174,7 +174,6 @@ struct Compute {
   }
 
   void operator()() {
-    gen.test(drawNormalsProgram, bpDrawProgram, cameraController); return;
     auto startTime = now<std::chrono::milliseconds>();
     ge::gl::glEnable(GL_MULTISAMPLE);
     ge::gl::glEnable(GL_DEPTH_TEST);

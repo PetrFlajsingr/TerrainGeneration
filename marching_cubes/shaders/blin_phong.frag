@@ -34,6 +34,17 @@ vec3 colorForHeight(float height, float minHeight, float maxHeight) {
     }
     return color;
 }
+
+vec3 chessBoard(vec3 pos) {
+    uint x = uint(floor(pos.x));
+    uint y = uint(floor(pos.z));
+
+    if (x % 2 == 0 ^^ y % 2 == 0) {
+        return vec3(0.8, 0.8, 0.8);
+    }
+    return vec3(0.4, 0.4, 0.4);
+}
+
 void main() {
 
     vec3 normal = normalize(NormalInterp);
@@ -57,6 +68,6 @@ void main() {
     diffuseColor * lambertian * lightColor * lightPower / distance +
     specColor * specular * lightColor * lightPower / distance;
 
-    FragColor = vec4(vec3(1, 0.5, 0) * colorLinear, 1.0);
+    FragColor = vec4(chessBoard(posi) * colorLinear, 1.0);
     //FragColor = /*vec4(1,1,1,1);*/ vec4(colorForHeight(posi.y -5, 0, 30)*colorLinear, 1.0);
 }

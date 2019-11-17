@@ -26,15 +26,6 @@ vec3 offsetForEdge(uint edge) {
 
 void main() {
     uint dim = 32;
-    /*if ((gl_PrimitiveIDIn % dim) == dim - 1 ||
-    (gl_PrimitiveIDIn % (dim * dim)) >= dim * (dim - 1) ||
-    (gl_PrimitiveIDIn % (dim * dim * dim)) >= dim * dim * (dim - 1)) return;
-
-    if (
-    (gl_PrimitiveIDIn % step) != 0
-    || gl_PrimitiveIDIn / dim % step != 0
-    || gl_PrimitiveIDIn / (dim * dim) % step != 0
-    ) return;*/
 
     uint z = uint(gl_PrimitiveIDIn / (dim * dim) % dim);
     uint y = uint(gl_PrimitiveIDIn / dim % dim);

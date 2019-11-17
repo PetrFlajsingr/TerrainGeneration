@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <type_traits>
+#include <glm/glm.hpp>
 
 template <class T, template <class...> class Template>
 struct is_specialization : std::false_type {};

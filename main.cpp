@@ -7,16 +7,10 @@
 #include <geGL/geGL.h>
 
 #include <FPSCounter.h>
-#include <exceptions.h>
-#include <experimental/array>
-#include <fstream>
-#include <glm/glm.hpp>
 #include <print.h>
 
 #include "gui/CameraController.h"
-#include "marching_cubes/DensityGenerators.h"
-#include "marching_cubes/FastChunkGen.h"
-#include "marching_cubes/lookuptables.h"
+#include "marching_cubes/ChunkManager.h"
 #include "third_party/Camera.h"
 
 using namespace std::string_literals;
@@ -38,15 +32,15 @@ int main(int, char *[]) {
 
   setShaderLocation("/home/petr/CLionProjects/TerrainGeneration/marching_cubes/shaders");
 
-  Compute compute;
-
-  window->setEventCallback(SDL_KEYDOWN, compute.cameraController.getKeyboardCallback());
+  CameraController cameraController;
+  ChunkManager chunks{cameraController};
+  window->setEventCallback(SDL_KEYDOWN, cameraController.getKeyboardCallback());
   window->setEventCallback(SDL_MOUSEMOTION,
-                           compute.cameraController.getMouseMoveCallback());
+                           cameraController.getMouseMoveCallback());
   window->setEventCallback(SDL_MOUSEBUTTONDOWN,
-                           compute.cameraController.getMouseDownCallback());
+                           cameraController.getMouseDownCallback());
   window->setEventCallback(SDL_MOUSEBUTTONUP,
-                           compute.cameraController.getMouseUpCallback());
+                           cameraController.getMouseUpCallback());
 
 
   FPSCounter fpsCounter;
@@ -56,13 +50,15 @@ int main(int, char *[]) {
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    compute();
+    chunks.generateChunks();
+    chunks.draw(DrawMode::Polygon, {false, true});
+
     window->swap();
 
     fpsCounter.step();
 
-    if (cnt % 1000 == 0)
-      std::cout << fpsCounter << '\n';
+    if (cnt % 360 == 0)
+      print(fpsCounter);
 
     ++cnt;
   });

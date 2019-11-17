@@ -13,7 +13,7 @@ template <typename OutStream, typename ...Args>
 void printImpl(OutStream &stream, Args... args) {
   using namespace LoggerStreamModifiers;
   static auto logger = Logger{stream};
-  ((logger << verbose()) << ... << args);
+  ((logger << verbose()) << ... << args) << "\n";
 }
 
 template<typename OutStream>

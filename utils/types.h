@@ -9,5 +9,9 @@ enum class Blocking {
   Yes, No
 };
 
+enum class DrawMode {
+  Polygon, Line
+};
+
 
 #endif // TERRAINGENERATION_TYPES_H

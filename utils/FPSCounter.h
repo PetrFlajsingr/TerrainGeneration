@@ -11,15 +11,15 @@
 using namespace std::chrono_literals;
 class FPSCounter {
 public:
-  float average();
+  float average() const;
 
-  float current();
+  float current() const;
 
   void step();
 
   void restart();
 
-  friend std::ostream&operator<<(std::ostream& stream, FPSCounter &fpsCounter);
+  friend std::ostream&operator<<(std::ostream& stream, const FPSCounter &fpsCounter);
 
 private:
   uint64_t totalFrameCount = 0;

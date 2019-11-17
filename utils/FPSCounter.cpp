@@ -3,16 +3,16 @@
 //
 
 #include "FPSCounter.h"
-float FPSCounter::average() {
+float FPSCounter::average() const {
   return static_cast<float>(totalFrameCount) / totalTimeSum.count() * std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count();
 }
 
-float FPSCounter::current() {
+float FPSCounter::current() const {
   return 1.f / lastFrameDuration.count() * std::chrono::duration_cast<std::chrono::nanoseconds>(1s).count();
 }
 
 
-void FPSCounter::step() {
+void FPSCounter::step()  {
   ++totalFrameCount;
   auto timeStamp = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch());
   lastFrameDuration = timeStamp - lastTimeStamp;
@@ -26,7 +26,7 @@ void FPSCounter::restart() {
   lastTimeStamp = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch());
 }
 
-std::ostream &operator<<(std::ostream &stream, FPSCounter &fpsCounter) {
+std::ostream &operator<<(std::ostream &stream, const FPSCounter &fpsCounter) {
   stream << "[FPS]: average: " << fpsCounter.average() << " immediate: " << fpsCounter.current();
   return stream;
 }

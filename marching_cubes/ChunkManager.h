@@ -36,8 +36,9 @@ class ChunkManager {
   CameraController &cameraController;
 
   void bah() {
-    for (int x = 0; x < 2; ++x) {
-      for (int y = 0; y < 2; ++y) {
+    uint cnt = 10;
+    for (int x = 0; x < cnt; ++x) {
+      for (int y = 0; y < cnt; ++y) {
         chunks.push_back({{x * (size - 2) * step, 0, y * (size - 2) * step}, step, size});
       }
     }
@@ -50,9 +51,9 @@ public:
   void draw(DrawMode mode, DrawOptions = {false, false});
 
 private:
-  void drawChunk(glm::mat4 projection, glm::mat4 modelView, glm::vec3 lightPos);
-  void drawNormals(glm::mat4 MVPmatrix);
-  void drawChunkCubes(glm::mat4 MVPmatrix);
+  void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection, glm::mat4 modelView, glm::vec3 lightPos);
+  void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
+  void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
 
   void calculateDensity(const std::vector<Chunk*> &chunks);
 

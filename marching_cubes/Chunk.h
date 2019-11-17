@@ -29,6 +29,10 @@ public:
   };
   Chunk(glm::vec3 startPosition, float step, uint size);
 
+  const glm::vec3 startPosition;
+  const float step;
+  const uint size;
+
   const geo::AABB boundingBox;
   const geo::BoundingSphere boundingSphere;
 
@@ -39,10 +43,6 @@ public:
   [[nodiscard]] bool isComputed() const;
 
   void setComputed(bool val);
-
-  const glm::vec3 startPosition;
-  const float step;
-  const uint size;
 
   /* DEBUG */
   uint vertexCount;

@@ -39,6 +39,12 @@ void ChunkManager::loadShaders() {
   passThrough6 = "fast/6_pass_through"_vert;
   drawCube = "fast/cube"_geom;
   simpleFrag = "uniform_color"_frag;
+  cubePass = "fast/cube_pass_through"_vert;
+  gsNormalShader = "normal_to_line"_geom;
+  vsNormalShader = "normal_to_line"_vert;
+  fsShader = "uniform_color"_frag;
+  fsBlinPhongShader = "blin_phong"_frag;
+  vsBlinPhongShader = "blin_phong"_vert;
 }
 
 void ChunkManager::createLUT() {
@@ -133,22 +139,15 @@ void ChunkManager::createPrograms() {
   ge::gl::glAttachShader(generateIndicesProgram, passThrough6->getId());
   setVaryings(generateIndicesProgram, make_array("indices"));
 
-  cubePass = "fast/cube_pass_through"_vert;
   drawCubeBoundariesProgram = ge::gl::glCreateProgram();
   ge::gl::glAttachShader(drawCubeBoundariesProgram, cubePass->getId());
   ge::gl::glAttachShader(drawCubeBoundariesProgram, drawCube->getId());
   ge::gl::glAttachShader(drawCubeBoundariesProgram, simpleFrag->getId());
 
   drawNormalsProgram = ge::gl::glCreateProgram();
-  gsNormalShader = "normal_to_line"_geom;
-  vsNormalShader = "normal_to_line"_vert;
-  fsShader = "uniform_color"_frag;
   ge::gl::glAttachShader(drawNormalsProgram, gsNormalShader->getId());
   ge::gl::glAttachShader(drawNormalsProgram, vsNormalShader->getId());
   ge::gl::glAttachShader(drawNormalsProgram, fsShader->getId());
-
-  fsBlinPhongShader = "blin_phong"_frag;
-  vsBlinPhongShader = "blin_phong"_vert;
 
   bpDrawProgram = ge::gl::glCreateProgram();
   ge::gl::glAttachShader(bpDrawProgram, fsBlinPhongShader->getId());
@@ -193,18 +192,27 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
     break;
   }
 
-  drawChunk(projection, view, lightPos);
+  geo::ViewFrustum viewFrustum =
+      geo::ViewFrustum::FromProjectionView(view, projection);
 
+  std::vector<Chunk *> visibleChunks;
+  for (auto &chunk : chunks) {
+    if (viewFrustum.contains(chunk.boundingBox) != geo::FrustumPosition::Outside) {
+      visibleChunks.emplace_back(&chunk);
+    }
+  }
+
+  drawChunk(visibleChunks, projection, view, lightPos);
   if (drawOptions.drawNormals) {
-    drawNormals(MVPmatrix);
+    drawNormals(visibleChunks, MVPmatrix);
   }
   if (drawOptions.drawChunkArea) {
-    drawChunkCubes(MVPmatrix);
+    drawChunkCubes(visibleChunks, MVPmatrix);
   }
   ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void ChunkManager::drawChunk(glm::mat4 projection,
+void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection,
                              glm::mat4 modelView, glm::vec3 lightPos) {
   ge::gl::glUseProgram(bpDrawProgram);
   glm::vec3 white{1, 1, 1};
@@ -233,13 +241,13 @@ void ChunkManager::drawChunk(glm::mat4 projection,
   ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(bpDrawProgram, "color"), 1,
                        &color[0]);
   for (auto &chunk : chunks) {
-    chunk.getVA()->bind();
-    ge::gl::glDrawElements(GL_TRIANGLES, chunk.indexCount, GL_UNSIGNED_INT,
+    chunk->getVA()->bind();
+    ge::gl::glDrawElements(GL_TRIANGLES, chunk->indexCount, GL_UNSIGNED_INT,
                            nullptr);
   }
 }
 
-void ChunkManager::drawNormals(glm::mat4 MVPmatrix) {
+void ChunkManager::drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix) {
   ge::gl::glUseProgram(drawNormalsProgram);
   glm::vec4 normalColor{1, 0, 1, 0.6};
   ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(drawNormalsProgram, "color"), 1,
@@ -249,20 +257,20 @@ void ChunkManager::drawNormals(glm::mat4 MVPmatrix) {
       ge::gl::glGetUniformLocation(drawNormalsProgram, "mvpUniform"), 1, GL_FALSE,
       &MVPmatrix[0][0]);
   for (auto &chunk : chunks) {
-    chunk.getBuffer(Chunk::Normal)->bind(GL_ARRAY_BUFFER);
-    ge::gl::glDrawArrays(GL_POINTS, 0, chunk.vertexCount);
+    chunk->getBuffer(Chunk::Normal)->bind(GL_ARRAY_BUFFER);
+    ge::gl::glDrawArrays(GL_POINTS, 0, chunk->vertexCount);
   }
 }
 
-void ChunkManager::drawChunkCubes(glm::mat4 MVPmatrix) {
+void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix) {
   ge::gl::glUseProgram(drawCubeBoundariesProgram);
   for (auto &chunk : chunks) {
     ge::gl::glUniform1f(
         ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "step"),
-        chunk.step);
+        chunk->step);
     ge::gl::glUniform3fv(
         ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "start"), 1,
-        &chunk.startPosition[0]);
+        &chunk->startPosition[0]);
     ge::gl::glUniformMatrix4fv(
         ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "mvpUniform"),
         1, GL_FALSE, &MVPmatrix[0][0]);

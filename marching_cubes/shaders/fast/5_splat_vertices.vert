@@ -2,12 +2,12 @@
 
 layout(binding=0, std430)buffer VertexIDs{ uint vertexIDs[]; };
 
-
 in uint edgeMarker;
 
 void setVertexID(uvec3 index, uint vertexID) {
-    uint dim = 32;
-    uint arrayIndex = index.x + index.y * dim + index.z * dim * dim;
+    const uint xDim = 32 * 3;
+    const uint dim = 32;
+    const uint arrayIndex = index.x + index.y * xDim + index.z * xDim * dim;
     vertexIDs[arrayIndex] = vertexID;
 }
 

@@ -6,7 +6,7 @@ layout(line_strip, max_vertices = 6) out;
 uniform mat4 mvpUniform;
 uniform vec3 start;
 uniform float step;
-
+uniform uint cubeStep;
 out gl_PerVertex
 {
     vec4 gl_Position;
@@ -31,6 +31,9 @@ void main() {
     uint y = uint(gl_PrimitiveIDIn / dim % dim);
     uint x = uint(gl_PrimitiveIDIn % dim);
     vec3 chunkCoord = vec3(x, y, z);
+    if (x % cubeStep != 0 && y % cubeStep != 0 && z % cubeStep != 0) {
+        return;
+    }
 
     vec3 coord = start + chunkCoord * step;
 

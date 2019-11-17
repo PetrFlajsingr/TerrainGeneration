@@ -20,6 +20,7 @@ Chunk::Chunk(glm::vec3 startPosition, float step, uint size)
   drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT, sizeof(float) * 3, 0,
                              GL_FALSE);
   drawVertexArray->addElementBuffer(indexBuffer);
+
 }
 
 Buffer Chunk::getBuffer(Chunk::Buffers bufferType) {

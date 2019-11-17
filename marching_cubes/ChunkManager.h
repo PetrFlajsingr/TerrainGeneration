@@ -27,6 +27,7 @@ using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
 struct DrawOptions {
   const bool drawChunkArea;
   const bool drawNormals;
+  const uint chunkAreaStep;
 };
 
 constexpr float step = 0.5;
@@ -53,7 +54,7 @@ public:
 private:
   void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection, glm::mat4 modelView, glm::vec3 lightPos);
   void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
-  void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
+  void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step);
 
   void calculateDensity(const std::vector<Chunk*> &chunks);
 

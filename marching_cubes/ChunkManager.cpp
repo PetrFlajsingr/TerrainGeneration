@@ -207,7 +207,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
     drawNormals(visibleChunks, MVPmatrix);
   }
   if (drawOptions.drawChunkArea) {
-    drawChunkCubes(visibleChunks, MVPmatrix);
+    drawChunkCubes(visibleChunks, MVPmatrix, drawOptions.chunkAreaStep);
   }
   ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -257,12 +257,12 @@ void ChunkManager::drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVP
       ge::gl::glGetUniformLocation(drawNormalsProgram, "mvpUniform"), 1, GL_FALSE,
       &MVPmatrix[0][0]);
   for (auto &chunk : chunks) {
-    chunk->getBuffer(Chunk::Normal)->bind(GL_ARRAY_BUFFER);
+    chunk->getVA()->bind();
     ge::gl::glDrawArrays(GL_POINTS, 0, chunk->vertexCount);
   }
 }
 
-void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix) {
+void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step) {
   ge::gl::glUseProgram(drawCubeBoundariesProgram);
   for (auto &chunk : chunks) {
     ge::gl::glUniform1f(
@@ -277,6 +277,9 @@ void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 
 
     auto colorUni =
         ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "color");
+    auto cubeStep =
+        ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "cubeStep");
+    ge::gl::glUniform1ui(cubeStep, step);
     glm::vec4 red{1, 0, 0, 1};
 
     ge::gl::glLineWidth(0.05f);

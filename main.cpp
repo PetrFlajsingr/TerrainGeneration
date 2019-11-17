@@ -10,14 +10,13 @@
 #include <print.h>
 
 #include "gui/CameraController.h"
-#include "marching_cubes/ChunkManager.h"
+#include "rendering/ChunkManager.h"
 #include "third_party/Camera.h"
 
 using namespace std::string_literals;
 
 int main(int, char *[]) {
   // create window
-  const float aspectRatio = 1920.f / 1080;
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
   auto window = std::make_shared<sdl2cpp::Window>(1920, 1080);
   window->createContext("rendering", 430);
@@ -30,7 +29,7 @@ int main(int, char *[]) {
   ge::gl::glClearColor(0, 0, 0, 1);
 
 
-  setShaderLocation("/home/petr/CLionProjects/TerrainGeneration/marching_cubes/shaders");
+  setShaderLocation("/home/petr/CLionProjects/TerrainGeneration/rendering/shaders");
 
   CameraController cameraController;
   ChunkManager chunks{cameraController};

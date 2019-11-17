@@ -12,14 +12,15 @@ out gl_PerVertex
 
 void main() {
     //return;
-    vec4 p2 = vec4(gl_in[0].gl_Position.xyz + 0.05 * normal[0], 1);
+    const float normalLength = 0.5;
+    vec4 p2 = vec4(gl_in[0].gl_Position.xyz + normalLength * normal[0], 1);
     gl_Position = mvpUniform * gl_in[0].gl_Position;
     EmitVertex();
     gl_Position = mvpUniform * p2;
     EmitVertex();
     EndPrimitive();
 
-    float normTargetSize = 0.01;
+    const float normTargetSize = 0.25 * normalLength;
 
     gl_Position = mvpUniform * (p2 + vec4(normTargetSize, 0, 0, 0));
     EmitVertex();

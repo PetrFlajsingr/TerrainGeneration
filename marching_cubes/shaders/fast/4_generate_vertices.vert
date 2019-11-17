@@ -74,12 +74,19 @@ uint computeVertexIndex(uvec3 chunkCoord, uint vertexNumber) {
     return 0;
 }
 
+float distToSphere(vec3 vertex, vec3 center, float radius) {
+    return -(sqrt(pow(center.x-vertex.x, 2) + pow(center.y-vertex.y, 2) + pow(center.z-vertex.z, 2)) - radius);
+}
+
 float calculateDensity(vec3 vertex) {
     float hard_floor_y = 0.1;
     float rad = 3;
     float result = rad - length(vertex - vec3(0, -rad, 0));
     result += fbm(vertex.xyz, 5);
-    return -(sqrt(pow(10-vertex.x, 2) + pow(10-vertex.y, 2) + pow(10-vertex.z, 2)) - 5);//-vertex.y + 0.1;
+
+    vec3 mid = vec3(50, 50, 50);
+    float radius = 40;
+    return distToSphere(vertex, mid, radius);
 }
 
 void main() {

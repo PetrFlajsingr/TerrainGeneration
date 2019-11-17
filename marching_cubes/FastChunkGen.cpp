@@ -8,10 +8,12 @@
 #include "shader_literals.h"
 #include <exceptions.h>
 #include <experimental/array>
+#include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
 #include <gl_utils.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <logger.h>
+#include <print.h>
 
 using namespace ShaderLiterals;
 
@@ -71,16 +73,14 @@ void FastChunkGen::createBuffers() {
   densityBuffer = createBuffer<float>(componentCount, GL_DYNAMIC_DRAW);
   vertexBuffer = createBuffer<glm::vec4>(componentCount * 5, GL_DYNAMIC_DRAW);
   normalBuffer = createBuffer<glm::vec3>(componentCount * 5, GL_DYNAMIC_DRAW);
-  vertexIDsBuffer =
-      createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
+  vertexIDsBuffer = createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
   indexBuffer = createBuffer<glm::uvec3>(componentCount * 5, GL_DYNAMIC_DRAW);
   caseBuffer = createBuffer<uint>(componentCount, GL_DYNAMIC_DRAW);
   auto chunkCoords = generateChunkCoords();
-  //chunkCoordBuffer = createBuffer<uint>(componentCount * 3, GL_STATIC_COPY,
+  // chunkCoordBuffer = createBuffer<uint>(componentCount * 3, GL_STATIC_COPY,
   //                                      chunkCoords.data());
   chunkCoordBuffer = createBuffer(chunkCoords, GL_STATIC_COPY);
-  edgeBuffer =
-      createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
+  edgeBuffer = createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
 
   chunkCoordVertexArray = std::make_shared<ge::gl::VertexArray>();
   chunkCoordVertexArray->addAttrib(chunkCoordBuffer, 0, 1, GL_UNSIGNED_INT,
@@ -98,10 +98,10 @@ void FastChunkGen::createBuffers() {
                                     ge::gl::VertexArray::I);
 
   drawVertexArray = std::make_shared<ge::gl::VertexArray>();
-  drawVertexArray->addAttrib(vertexBuffer, 0, 4, GL_FLOAT,
-                                    sizeof(float) * 4, 0, GL_FALSE);
-  drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT,
-                                    sizeof(float) * 3, 0, GL_FALSE);
+  drawVertexArray->addAttrib(vertexBuffer, 0, 4, GL_FLOAT, sizeof(float) * 4, 0,
+                             GL_FALSE);
+  drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT, sizeof(float) * 3, 0,
+                             GL_FALSE);
   drawVertexArray->addElementBuffer(indexBuffer);
 
   ge::gl::glGenTransformFeedbacks(1, &transFeedbackName1);
@@ -132,10 +132,10 @@ void FastChunkGen::createBuffers() {
   ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
 }
 
-void FastChunkGen::createPrograms()
-{
+void FastChunkGen::createPrograms() {
   using namespace std::experimental;
-  auto setVaryings = [](const auto &program, auto &&names, GLenum bufferMode = GL_SEPARATE_ATTRIBS) {
+  auto setVaryings = [](const auto &program, auto &&names,
+                        GLenum bufferMode = GL_SEPARATE_ATTRIBS) {
     ge::gl::glTransformFeedbackVaryings(program, names.size(), names.data(),
                                         bufferMode);
   };
@@ -211,8 +211,21 @@ void FastChunkGen::linkPrograms() {
 bool isComputed = false;
 uint vertexCount;
 uint whatever;
-void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &cameraController) {
+glm::vec3 offset{0, 0, 0};
+int cnt = 0;
+void FastChunkGen::test(GLint normalProgram, GLint program,
+                        CameraController &cameraController) {
   using namespace LoggerStreamModifiers;
+
+  float s = 0.1;
+  if (cnt % 3 == 0) {
+    offset.x += s;
+  } else if (cnt % 3 == 1) {
+    offset.y += s;
+  } else if (cnt % 3 == 2) {
+    offset.z += s;
+  }
+  ++cnt;
 
   Logger logger{std::cout};
 
@@ -220,15 +233,20 @@ void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &ca
   constexpr float step = 5.f;
   constexpr glm::vec3 start{0, 0, 0};
   ge::gl::glEnable(GL_DEPTH_TEST);
+
+  isComputed = false;
   if (!isComputed) {
-    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
     ge::gl::glUseProgram(generateDensityProgram);
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
     ge::gl::glUniform1f(
         ge::gl::glGetUniformLocation(generateDensityProgram, "step"), step);
 
     ge::gl::glUniform3fv(
-        ge::gl::glGetUniformLocation(generateDensityProgram, "start"), 0,
+        ge::gl::glGetUniformLocation(generateDensityProgram, "start"), 1,
         &start[0]);
+    ge::gl::glUniform3fv(
+        ge::gl::glGetUniformLocation(generateDensityProgram, "offset"), 1,
+        &offset[0]);
     ge::gl::glDispatchCompute(4, 4, 4);
     ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
@@ -292,11 +310,6 @@ void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &ca
 
     ge::gl::glUseProgram(clearVertexIDsProgram);
     vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-    ge::gl::glUniform1f(
-        ge::gl::glGetUniformLocation(clearVertexIDsProgram, "step"), step);
-    ge::gl::glUniform3fv(
-        ge::gl::glGetUniformLocation(clearVertexIDsProgram, "start"), 1,
-        &start[0]);
     ge::gl::glDispatchCompute(4, 4, 4);
 
     ge::gl::glUseProgram(splatVerticesProgram);
@@ -327,43 +340,36 @@ void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &ca
     isComputed = true;
 
     ge::gl::glDisable(GL_RASTERIZER_DISCARD);
-    whatever = geometryQuery.getui()*3;
+    whatever = geometryQuery.getui() * 3;
   }
 
   ge::gl::glUseProgram(program);
   auto projection =
       glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 100.0f);
   auto view = cameraController.getViewMatrix();
+  ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(program, "modelView"),
+                             1, GL_FALSE, &view[0][0]);
   ge::gl::glUniformMatrix4fv(
-      ge::gl::glGetUniformLocation(program, "modelView"), 1, GL_FALSE,
-      &view[0][0]);
-  ge::gl::glUniformMatrix4fv(
-      ge::gl::glGetUniformLocation(program, "projection"), 1,
-      GL_FALSE, &projection[0][0]);
+      ge::gl::glGetUniformLocation(program, "projection"), 1, GL_FALSE,
+      &projection[0][0]);
 
   glm::vec3 white{1, 1, 1};
-  ge::gl::glUniform3fv(
-      ge::gl::glGetUniformLocation(program, "lightColor"), 1,
-      &white[0]);
+  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "lightColor"), 1,
+                       &white[0]);
 
   glm::vec3 lightPos = cameraController.camera.Position; // {2,5,2};
-  ge::gl::glUniform3fv(
-      ge::gl::glGetUniformLocation(program, "lightPos"), 1,
-      &lightPos[0]);
-  ge::gl::glUniform1f(
-      ge::gl::glGetUniformLocation(program, "lightPower"), 40.f);
-  ge::gl::glUniform3fv(
-      ge::gl::glGetUniformLocation(program, "ambientColor"), 1,
-      &white[0]);
-  ge::gl::glUniform3fv(
-      ge::gl::glGetUniformLocation(program, "diffuseColor"), 1,
-      &white[0]);
-  ge::gl::glUniform3fv(
-      ge::gl::glGetUniformLocation(program, "specColor"), 1,
-      &white[0]);
-  ge::gl::glUniform1f(
-      ge::gl::glGetUniformLocation(program, "shininess"), 16.f);
-  glm::vec4 color {1, 1, 1, 1};
+  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "lightPos"), 1,
+                       &lightPos[0]);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "lightPower"),
+                      40.f);
+  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "ambientColor"), 1,
+                       &white[0]);
+  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "diffuseColor"), 1,
+                       &white[0]);
+  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "specColor"), 1,
+                       &white[0]);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "shininess"), 16.f);
+  glm::vec4 color{1, 1, 1, 1};
   ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(program, "color"), 1,
                        &color[0]);
   ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -372,22 +378,25 @@ void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &ca
 
   ge::gl::glUseProgram(normalProgram);
   glm::vec4 normalColor{1, 0, 1, 0.6};
-  ge::gl::glUniform4fv(
-      ge::gl::glGetUniformLocation(normalProgram, "color"), 1,
-      &normalColor[0]);
+  ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(normalProgram, "color"), 1,
+                       &normalColor[0]);
   auto model = glm::mat4();
   auto MVPmatrix = projection * view * model;
   ge::gl::glUniformMatrix4fv(
-      ge::gl::glGetUniformLocation(normalProgram, "mvpUniform"), 1,
-      GL_FALSE, &MVPmatrix[0][0]);
+      ge::gl::glGetUniformLocation(normalProgram, "mvpUniform"), 1, GL_FALSE,
+      &MVPmatrix[0][0]);
   normalBuffer->bind(GL_ARRAY_BUFFER);
   ge::gl::glDrawArrays(GL_POINTS, 0, vertexCount);
 
-
   ge::gl::glUseProgram(drawCubeBoundariesProgram);
-  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "step"), step);
-  ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "start"), 1, &start[0]);
-  ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "mvpUniform"), 1, GL_FALSE, &MVPmatrix[0][0]);
+  ge::gl::glUniform1f(
+      ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "step"), step);
+  ge::gl::glUniform3fv(
+      ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "start"), 1,
+      &start[0]);
+  ge::gl::glUniformMatrix4fv(
+      ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "mvpUniform"), 1,
+      GL_FALSE, &MVPmatrix[0][0]);
 
   auto colorUni =
       ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "color");
@@ -396,24 +405,32 @@ void FastChunkGen::test(GLint normalProgram, GLint program, CameraController &ca
   ge::gl::glLineWidth(0.05f);
   ge::gl::glUniform4fv(colorUni, 1, &red[0]);
 
-  ge::gl::glDrawArrays(GL_POINTS, 0, 32*32*32);
-
+  ge::gl::glDrawArrays(GL_POINTS, 0, 32 * 32 * 32);
 
   logger.endTime();
-  //logger.printElapsedTime();
- // exit(0);
+  // logger.printElapsedTime();
+  // exit(0);
 
- std::vector<glm::uvec3> data;
- data.resize(vertexIDsBuffer->getSize());
- vertexIDsBuffer->getData(data);
+/*  std::vector<uint> data;
+  vertexIDsBuffer->getData(data);
 
+  std::vector<glm::uvec3> data2;
+  indexBuffer->getData(data2);
 
- std::vector<glm::uvec3> data2;
- data2.resize(32 * 32 * 32 * 3);
- indexBuffer->getData(data2);
- data2.resize(50);
+  std::ofstream stream{"/home/petr/Desktop/log.out"};
+  auto tmp = Logger{stream};
+  tmp << data2 << flush();
 
- ////logger << debug() << "lut: " << mc::LUT::edges[187] << "\n" << flush();
- logger << debug() << "indices: " << data2 << "\n" << flush();
- //logger << debug() << "buff: " << data << "\n" << flush();
+  auto pred = [] (const auto &val) {
+    return val > 999999;
+  };
+  auto modif = [pred] (const auto &val) {
+    return val;
+    return fplus::keep_if(pred, val);
+  };
+
+  std::ofstream wa{"/home/petr/Desktop/log2.out"};
+  auto t = Logger{wa};
+  t << modif(data) << flush();
+  exit(0);*/
 }

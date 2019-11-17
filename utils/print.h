@@ -47,7 +47,7 @@ auto make_print(OutStream &stream) {
 template <typename OutStream>
 auto make_print(OutStream &stream) {
   return [&stream]<typename ...Args> (Args... args) {
-    detail::printImpl<decltype(stream), Args...>(stream, std::forward<Args>(args)...);
+    detail::printImpl(stream, std::forward<Args>(args)...);
   };
 }
 */

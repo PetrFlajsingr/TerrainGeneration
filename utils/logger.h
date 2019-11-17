@@ -116,6 +116,7 @@ private:
       print(indent(indentLevel));
       print("Container, size: "s + std::to_string(value.size()));
       print(" {\n");
+
       for (const auto &val : value) {
         print(indent(indentLevel + 1));
         print(val, indentLevel + 1);

@@ -7,30 +7,33 @@ layout(binding=3, std430)buffer EdgeToVertexIdsLUT{ uvec2 edgeToVertexIdsLUT[]; 
 layout(binding=4, std430)buffer VertexIDs{ uint vertexIDs[]; };
 
 layout(points) in;
-layout(points, max_vertices = 15) out;
+layout(points, max_vertices = 30) out;
 
 in uint cubeMarker[];
 out uvec3 indices;
 
-uvec3 inChunkOffset(uint edge) {
+ivec3 inChunkOffset(uint edge) {
+    const int x = 1;
+    const int y = -1;
+    const int z = 1;
     switch (edge) {
         case 3: //fallthrough
         case 0: //fallthrough
-        case 8: return uvec3(0, 0, 0);
+        case 8: return ivec3(0, 0, 0);
         case 4: //fallthrough
-        case 7: return uvec3(0, 0, 1);
+        case 7: return ivec3(0, 0, z);
         case 1: //fallthrough
-        case 9: return uvec3(0, 1, 0);
-        case 5: return uvec3(0, 1, 1);
+        case 9: return ivec3(0, y, 0);
+        case 5: return ivec3(0, y, z);
         case 11: //fallthrough
-        case 2: return uvec3(1, 0, 0);
-        case 6: return uvec3(1, 0, 1);
-        case 10: return uvec3(1, 1, 0);
+        case 2: return ivec3(x, 0, 0);
+        case 6: return ivec3(x, 0, z);
+        case 10: return ivec3(x, y, 0);
     }
-    return uvec3(54645654, 456456456, 456456);
+    return ivec3(0, 0, 0);
 }
 
-uint offsetForEdge(uint edge) {
+int offsetForEdge(uint edge) {
     switch (edge) {
         case 1: //fallthrough
         case 3: //fallthrough
@@ -51,11 +54,13 @@ uint offsetForEdge(uint edge) {
 }
 
 uint getIndex(uint edge, uvec3 coord) {
-    uint dim = 32;
-    coord += inChunkOffset(edge);
-    coord.x *= 3;
-    coord.x += offsetForEdge(edge);
-    return vertexIDs[coord.x + coord.y * dim + coord.z * dim * dim];
+    const uint xDim = 32 * 3;
+    const uint dim = 32;
+    ivec3 tmp = ivec3(coord);
+    tmp += inChunkOffset(edge);
+    tmp.x *= 3;
+    tmp.x += offsetForEdge(edge);
+    return vertexIDs[tmp.x + tmp.y * xDim + tmp.z * xDim * dim];
 }
 
 void main() {
@@ -65,8 +70,8 @@ void main() {
     uvec3 chunkCoord = uvec3(((cubeMarker[0] >> 8u) & 0xFFu),
         (cubeMarker[0] >> 16u) & 0xFFu,
         (cubeMarker[0] >> 24u) & 0xFFu);
-    if (max(max(chunkCoord.x, chunkCoord.y), chunkCoord.z) >= 5) {
-        polyCount = 0;
+    if (chunkCoord.x > 29 || chunkCoord.y < 1 || chunkCoord.z > 29) {
+       polyCount = 0;
     }
 
     for (uint i = 0; i < polyCount; ++i) {
@@ -75,7 +80,6 @@ void main() {
         indices.x = getIndex(edgesForPoly.x, chunkCoord);
         indices.y = getIndex(edgesForPoly.y, chunkCoord);
         indices.z = getIndex(edgesForPoly.z, chunkCoord);
-
 
         if (true || indices.x * indices.y * indices.z != 0) {
             EmitVertex();

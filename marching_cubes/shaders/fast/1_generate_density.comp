@@ -7,6 +7,8 @@ layout(binding=0, std430)buffer Density{ float density[]; };
 uniform vec3 start;
 uniform float step;
 
+uniform vec3 offset;
+
 float hash(float n) { return fract(sin(n) * 1e4); }
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
@@ -49,10 +51,14 @@ uint getIndex() {
     gl_GlobalInvocationID.x;
 }
 
+float distToSphere(vec3 vertex, vec3 center, float radius) {
+    return -(sqrt(pow(center.x-vertex.x, 2) + pow(center.y-vertex.y, 2) + pow(center.z-vertex.z, 2)) - radius);
+}
+
 float calculateDensity() {
     vec3 vertex = getPosition();
 
-    return -vertex.x + vertex.y*2.3 + 5;
+   // return -vertex.z + vertex.y*2.3 + 15;
 
     //return -vertex.y + sin(vertex.x*2)*5 + 10;
 
@@ -63,10 +69,38 @@ float calculateDensity() {
     result += fbm(vertex.xyz, 5);
     return result;*/
 
-    //return (+ vertex.y - vertex.x);
-    return -(sqrt(pow(20-vertex.x, 2) + pow(10-vertex.y, 2) + pow(20-vertex.z, 2)) - 20);//-vertex.y + 0.1;
+     //return (+ vertex.y - vertex.x);
+    vec3 mid = vec3(40, 40, 40);
+    float radius = 0;
+    return distToSphere(vertex, mid, radius + offset.x);
 }
 
 void main() {
     density[getIndex()] = calculateDensity();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

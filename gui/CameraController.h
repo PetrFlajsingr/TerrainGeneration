@@ -15,7 +15,7 @@ public:
 
   explicit CameraController(glm::vec3 startingPosition = {0.f, 0.f, 0.f},
       glm::vec3 direction = {0.f, 0.f, -1.f}) : camera(startingPosition) {
-    camera.MovementSpeed = 0.1f;
+    camera.MovementSpeed = 0.7f;
   }
 
   EventCallback getKeyboardCallback();

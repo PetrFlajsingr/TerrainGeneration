@@ -104,32 +104,11 @@ void FastChunkGen::createBuffers() {
                              GL_FALSE);
   drawVertexArray->addElementBuffer(indexBuffer);
 
-  ge::gl::glGenTransformFeedbacks(1, &transFeedbackName1);
-  ge::gl::glGenTransformFeedbacks(1, &transFeedbackName2);
-  ge::gl::glGenTransformFeedbacks(1, &transFeedbackName3);
-  ge::gl::glGenTransformFeedbacks(1, &transFeedbackName4);
 
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName1);
-  ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
-                           caseBuffer->getId());
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
-
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName2);
-  ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
-                           edgeBuffer->getId());
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
-
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName3);
-  ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
-                           vertexBuffer->getId());
-  ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1,
-                           normalBuffer->getId());
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
-
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName4);
-  ge::gl::glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
-                           indexBuffer->getId());
-  ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+  transformFeedback1.setBuffers(caseBuffer);
+  transformFeedback2.setBuffers(edgeBuffer);
+  transformFeedback3.setBuffers(vertexBuffer, normalBuffer);
+  transformFeedback4.setBuffers(indexBuffer);
 }
 
 void FastChunkGen::createPrograms() {
@@ -230,11 +209,9 @@ void FastChunkGen::test(GLint normalProgram, GLint program,
   Logger logger{std::cout};
 
   logger.startTime();
-  constexpr float step = 5.f;
+  constexpr float step = 0.5f;
   constexpr glm::vec3 start{0, 0, 0};
   ge::gl::glEnable(GL_DEPTH_TEST);
-
-  isComputed = false;
   if (!isComputed) {
     ge::gl::glUseProgram(generateDensityProgram);
     densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
@@ -258,14 +235,13 @@ void FastChunkGen::test(GLint normalProgram, GLint program,
         ge::gl::AsynchronousQuery::UINT32};
 
     chunkCoordVertexArray->bind();
-    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName1);
-    ge::gl::glBeginTransformFeedback(GL_POINTS);
+    transformFeedback1.begin(GL_POINTS);
     geometryQuery.begin();
 
     ge::gl::glDrawArrays(GL_POINTS, 0, 32 * 32 * 32);
 
     geometryQuery.end();
-    ge::gl::glEndTransformFeedback();
+    transformFeedback1.end();
     logger << info()
            << "Generated primitive count(cases): " << geometryQuery.getui()
            << "\n";
@@ -273,14 +249,13 @@ void FastChunkGen::test(GLint normalProgram, GLint program,
 
     ge::gl::glUseProgram(streamEdgeMarkersProgram);
     caseMarkersVertexArray->bind();
-    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName2);
-    ge::gl::glBeginTransformFeedback(GL_POINTS);
+    transformFeedback2.begin(GL_POINTS);
     geometryQuery.begin();
 
     ge::gl::glDrawArrays(GL_POINTS, 0, geometryQuery.getui());
 
     geometryQuery.end();
-    ge::gl::glEndTransformFeedback();
+    transformFeedback2.end();
     logger << info()
            << "Generated primitive count(edges): " << geometryQuery.getui()
            << "\n";
@@ -295,14 +270,13 @@ void FastChunkGen::test(GLint normalProgram, GLint program,
     ge::gl::glUniform3fv(
         ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1,
         &start[0]);
-    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName3);
-    ge::gl::glBeginTransformFeedback(GL_POINTS);
+    transformFeedback3.begin(GL_POINTS);
     geometryQuery.begin();
 
     ge::gl::glDrawArrays(GL_POINTS, 0, geometryQuery.getui());
 
     geometryQuery.end();
-    ge::gl::glEndTransformFeedback();
+    transformFeedback3.end();
     logger << info()
            << "Generated primitive count(vertices): " << geometryQuery.getui()
            << "\n";
@@ -325,15 +299,14 @@ void FastChunkGen::test(GLint normalProgram, GLint program,
     edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 3);
     vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 4);
 
-    ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, transFeedbackName4);
+    transformFeedback4.begin(GL_POINTS);
     caseMarkersVertexArray->bind();
-    ge::gl::glBeginTransformFeedback(GL_POINTS);
     geometryQuery.begin();
 
     ge::gl::glDrawArrays(GL_POINTS, 0, caseCount);
 
     geometryQuery.end();
-    ge::gl::glEndTransformFeedback();
+    transformFeedback4.end();
     logger << info()
            << "Generated primitive count(indices): " << geometryQuery.getui()
            << "\n";
@@ -361,7 +334,7 @@ void FastChunkGen::test(GLint normalProgram, GLint program,
   ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "lightPos"), 1,
                        &lightPos[0]);
   ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "lightPower"),
-                      40.f);
+                      100.f);
   ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "ambientColor"), 1,
                        &white[0]);
   ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(program, "diffuseColor"), 1,
@@ -372,7 +345,7 @@ void FastChunkGen::test(GLint normalProgram, GLint program,
   glm::vec4 color{1, 1, 1, 1};
   ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(program, "color"), 1,
                        &color[0]);
-  ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  //ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   drawVertexArray->bind();
   ge::gl::glDrawElements(GL_TRIANGLES, whatever, GL_UNSIGNED_INT, nullptr);
 
@@ -405,32 +378,8 @@ void FastChunkGen::test(GLint normalProgram, GLint program,
   ge::gl::glLineWidth(0.05f);
   ge::gl::glUniform4fv(colorUni, 1, &red[0]);
 
-  ge::gl::glDrawArrays(GL_POINTS, 0, 32 * 32 * 32);
+  //ge::gl::glDrawArrays(GL_POINTS, 0, 32 * 32 * 32);
 
   logger.endTime();
   // logger.printElapsedTime();
-  // exit(0);
-
-/*  std::vector<uint> data;
-  vertexIDsBuffer->getData(data);
-
-  std::vector<glm::uvec3> data2;
-  indexBuffer->getData(data2);
-
-  std::ofstream stream{"/home/petr/Desktop/log.out"};
-  auto tmp = Logger{stream};
-  tmp << data2 << flush();
-
-  auto pred = [] (const auto &val) {
-    return val > 999999;
-  };
-  auto modif = [pred] (const auto &val) {
-    return val;
-    return fplus::keep_if(pred, val);
-  };
-
-  std::ofstream wa{"/home/petr/Desktop/log2.out"};
-  auto t = Logger{wa};
-  t << modif(data) << flush();
-  exit(0);*/
 }

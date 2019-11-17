@@ -6,6 +6,7 @@
 #define TERRAINGENERATION_FASTCHUNKGEN_H
 
 #include "../gui/CameraController.h"
+#include <TransformFeedback.h>
 #include <geGL/geGL.h>
 
 class FastChunkGen {
@@ -59,10 +60,12 @@ private:
   VertexArray edgeMarkersVertexArray;
   VertexArray drawVertexArray;
 
-  GLuint transFeedbackName1;
-  GLuint transFeedbackName2;
-  GLuint transFeedbackName3;
-  GLuint transFeedbackName4;
+
+  TransformFeedback transformFeedback1;
+  TransformFeedback transformFeedback2;
+  TransformFeedback transformFeedback3;
+  TransformFeedback transformFeedback4;
+
 
   void loadShaders();
   void createLUT();

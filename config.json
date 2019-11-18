@@ -1,0 +1,35 @@
+{
+  "gl" : {
+    "depthTest" : true,
+    "msaa" : false,
+    "backfaceCulling" : true,
+    "shadingModel" : "blinn"
+  },
+  "paths" : {
+    "shaderLocation" : "/home/petr/CLionProjects/TerrainGeneration/rendering/shaders",
+    "assetsLocation" : "/home/petr/CLionProjects/TerrainGeneration/assets"
+  },
+  "debug" : {
+    "drawNormals" : false,
+    "drawChunkBorder" : {
+      "enabled" : true,
+      "step" : 32
+    }
+  },
+  "render" : {
+    "viewDistance" : 100,
+    "levelOfDetail" : 0,
+    "viewFrustumCulling" : true
+  },
+  "marching_cubes" : {
+    "chunkSize" : 1,
+    "surroundingSize" : 5,
+    "chunkPoolSize" : 256
+  },
+  "device" : {
+    "screen" : {
+      "width" : 1920,
+      "height" : 1080
+    }
+  }
+}

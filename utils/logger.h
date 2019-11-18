@@ -7,12 +7,13 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include <any>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <now.h>
 #include <sstream>
 #include <string>
-#include <now.h>
 
 /**
  * Types of log messages
@@ -176,6 +177,21 @@ public:
 
   void setDefaultPrintTime(bool printTime) {
     defaultPrintTime = printTime;
+  }
+
+  std::map<std::string, std::any> memory;
+  template <typename T>
+  void remember(std::string_view key, const T &value) {
+    memory[std::string(key)] = value;
+  }
+
+  template <typename T>
+  T recall(std::string_view key) {
+    if (memory.count(std::string(key)) == 0) {
+      return T{};
+    } else {
+      return std::any_cast<T>(memory[std::string(key)]);
+    }
   }
 
 private:

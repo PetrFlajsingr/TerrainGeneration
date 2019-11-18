@@ -27,6 +27,9 @@ struct AABB {
 struct BoundingSphere {
   glm::vec3 center;
   float radius;
+  [[nodiscard]] float distance(glm::vec3 point) const {
+    return glm::distance(center, point);
+  }
 };
 
 struct ViewFrustum {

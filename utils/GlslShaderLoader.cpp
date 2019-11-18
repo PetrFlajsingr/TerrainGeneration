@@ -3,7 +3,7 @@
 //
 
 #include "GlslShaderLoader.h"
-#include <exceptions.h>
+#include "error_handling/exceptions.h"
 #include <fstream>
 #include <iostream>
 #define SHADER_FOLDER std::string("/home/petr/CLionProjects/TerrainGeneration/marching_cubes/shaders")
@@ -66,8 +66,3 @@ LocationResetter::~LocationResetter() {
     setShaderLocation(oldLocation);
   }
 }
-ShaderLoadingFailureException::ShaderLoadingFailureException(
-    std::string_view shaderName,
-    std::string_view msg,
-    std::experimental::source_location srcLoc = std::experimental::source_location::current())
-    : Exception(msg, srcLoc) {}

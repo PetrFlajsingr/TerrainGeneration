@@ -6,7 +6,7 @@
 #include "geGL_utils.h"
 #include "lookuptables.h"
 #include "shader_literals.h"
-#include <exceptions.h>
+#include "error_handling/exceptions.h"
 #include <experimental/array>
 #include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
@@ -17,14 +17,18 @@
 
 using namespace ShaderLiterals;
 
-ChunkManager::ChunkManager(CameraController &cameraController)
-    : cameraController(cameraController) {
+ChunkManager::ChunkManager(CameraController &cameraController, JsonConfig<true> config)
+    : cameraController(cameraController), config(config), surr({
+                                                                   config.get<float>("render", "viewDistance").value(),
+                                                                   glm::uvec3{config.get<uint>("marching_cubes", "surroundingSize").value()},
+                                                                   config.get<uint>("marching_cubes", "chunkPoolSize").value(),
+                                                                   config.get<float>("marching_cubes", "chunkSize").value()}) {
   loadShaders();
   createPrograms();
   linkPrograms();
   createLUT();
   createBuffers();
-  bah();
+//  bah();
 }
 
 void ChunkManager::loadShaders() {
@@ -197,9 +201,16 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 
   std::vector<Chunk *> visibleChunks;
   for (auto &chunk : chunks) {
-    if (viewFrustum.contains(chunk.boundingBox) !=
+    if (config.get<bool>("render", "viewFrustumCulling").value() ||
+        viewFrustum.contains(chunk->boundingBox) !=
         geo::FrustumPosition::Outside) {
-      visibleChunks.emplace_back(&chunk);
+      if (chunk->boundingSphere.distance(cameraController.camera.Position) < 500) {
+        visibleChunks.emplace_back(chunk);
+      } else {
+        chunk->setComputed(false);
+        chunk->startPosition = cameraController.camera.Position;
+        chunk->recalc();
+      }
     }
   }
 
@@ -390,15 +401,26 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
     chunk->indexCount = query.getui() * 3;
 
     chunk->setComputed(true);
+    if (chunk->indexCount != 0) {
+      print("Filled chunk: ", chunk->startPosition, " ", chunk->indexCount);
+      surr.setFilled(chunk);
+    } else {
+      surr.setEmpty(chunk);
+    }
   }
 }
 
 void ChunkManager::generateChunks() {
-  auto predicate = [](const Chunk &chunk) { return !chunk.isComputed(); };
   std::vector<Chunk *> ptrs;
-  for (auto &chunk : chunks) {
-    if (predicate(chunk)) {
+  /*for (auto &chunk : chunks) {
+    if (!chunk.isComputed() && chunk.boundingSphere.distance(cameraController.camera.Position) < 500) {
       ptrs.emplace_back(&chunk);
+    }
+  }*/
+  chunks = surr.getForCompute(cameraController.camera.Position);
+  for (auto chunk : chunks) {
+    if (!chunk->isComputed()) {
+      ptrs.emplace_back(chunk);
     }
   }
   if (ptrs.empty()) {

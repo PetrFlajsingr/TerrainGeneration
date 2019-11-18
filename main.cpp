@@ -1,6 +1,3 @@
-#include <cstdlib>
-#include <iostream>
-
 #include <SDL2CPP/MainLoop.h>
 #include <SDL2CPP/Window.h>
 #include <geGL/StaticCalls.h>
@@ -12,13 +9,21 @@
 #include "gui/CameraController.h"
 #include "rendering/ChunkManager.h"
 #include "third_party/Camera.h"
+#include "utils/config/JsonConfig.h"
 
 using namespace std::string_literals;
 
-int main(int, char *[]) {
+// TODO: custom types for config
+using Conf = JsonConfig<true>;
+
+int main(int argc, char *argv[]) {
+  loc_assert(argc != 1, "Provide path for config");
+  Conf config{argv[1]};
   // create window
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
-  auto window = std::make_shared<sdl2cpp::Window>(1920, 1080);
+  auto window = std::make_shared<sdl2cpp::Window>(
+      config.get<uint>("device", "screen", "width").value(),
+      config.get<uint>("device", "screen", "height").value());
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);
 
@@ -28,11 +33,10 @@ int main(int, char *[]) {
 
   ge::gl::glClearColor(0, 0, 0, 1);
 
-
-  setShaderLocation("/home/petr/CLionProjects/TerrainGeneration/rendering/shaders");
+  setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
 
   CameraController cameraController;
-  ChunkManager chunks{cameraController};
+
   window->setEventCallback(SDL_KEYDOWN, cameraController.getKeyboardCallback());
   window->setEventCallback(SDL_MOUSEMOTION,
                            cameraController.getMouseMoveCallback());
@@ -41,16 +45,19 @@ int main(int, char *[]) {
   window->setEventCallback(SDL_MOUSEBUTTONUP,
                            cameraController.getMouseUpCallback());
 
-
   FPSCounter fpsCounter;
-  // draw loop
+
   int cnt = 0;
 
+  ChunkManager chunks{cameraController, config};
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     chunks.generateChunks();
-    chunks.draw(DrawMode::Polygon, {false, false, 16});
+    chunks.draw(DrawMode::Polygon,
+        {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
+         config.get<bool>("debug", "drawNormals").value(),
+         config.get<uint>("debug", "drawChunkBorder", "step").value()});
 
     window->swap();
 

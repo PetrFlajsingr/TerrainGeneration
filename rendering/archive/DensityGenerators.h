@@ -75,7 +75,6 @@ struct Compute {
   std::chrono::milliseconds rendertime = 0s;
   int cntComp = 0, cntRender = 0;
 
-  ChunkManager gen{cameraController};
   Compute() {
     //generateChunks();
     csShader = "mc_chunk"_comp;

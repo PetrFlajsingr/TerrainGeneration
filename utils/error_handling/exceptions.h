@@ -2,8 +2,8 @@
 // Created by petr on 10/31/19.
 //
 
-#ifndef TERRAINGENERATION_EXCEPTIONS_H
-#define TERRAINGENERATION_EXCEPTIONS_H
+#ifndef EXCEPTIONS_H
+#define EXCEPTIONS_H
 
 #include <exception>
 #include <experimental/source_location>
@@ -16,7 +16,6 @@ public:
                std::experimental::source_location srcLoc =
                    std::experimental::source_location::current());
   [[nodiscard]] const char *what() const noexcept override;
-
 protected:
   std::string what_;
 };
@@ -49,4 +48,4 @@ class InternalError : public Error {
 
 }
 
-#endif // TERRAINGENERATION_EXCEPTIONS_H
+#endif // EXCEPTIONS_H

@@ -29,12 +29,12 @@ public:
   };
   Chunk(glm::vec3 startPosition, float step, uint size);
 
-  const glm::vec3 startPosition;
-  const float step;
-  const uint size;
+  glm::vec3 startPosition;
+  float step;
+  uint size;
 
-  const geo::AABB boundingBox;
-  const geo::BoundingSphere boundingSphere;
+  geo::AABB boundingBox;
+  geo::BoundingSphere boundingSphere;
 
   Buffer getBuffer(Buffers bufferType);
 
@@ -43,6 +43,11 @@ public:
   [[nodiscard]] bool isComputed() const;
 
   void setComputed(bool val);
+
+  void recalc() {
+    boundingSphere = calcBS();
+    boundingBox = calcAABB();
+  }
 
   /* DEBUG */
   uint vertexCount;

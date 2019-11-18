@@ -9,7 +9,7 @@
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 #include <glm/glm.hpp>
-#include <lazy.h>
+#include "types/Lazy.h"
 #include <types.h>
 #include <valarray>
 

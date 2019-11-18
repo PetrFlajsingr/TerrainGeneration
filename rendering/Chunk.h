@@ -29,6 +29,9 @@ public:
   };
   Chunk(glm::vec3 startPosition, float step, uint size);
 
+  Chunk(const Chunk &other) = delete;
+  Chunk(Chunk &&other) = default;
+
   glm::vec3 startPosition;
   float step;
   uint size;

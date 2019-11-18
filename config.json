@@ -10,21 +10,22 @@
     "assetsLocation" : "/home/petr/CLionProjects/TerrainGeneration/assets"
   },
   "debug" : {
+    "drawMesh" : true,
     "drawNormals" : false,
     "drawChunkBorder" : {
-      "enabled" : true,
+      "enabled" : false,
       "step" : 32
     }
   },
   "render" : {
-    "viewDistance" : 100,
+    "viewDistance" : 50,
     "levelOfDetail" : 0,
     "viewFrustumCulling" : true
   },
   "marching_cubes" : {
-    "chunkSize" : 1,
-    "surroundingSize" : 5,
-    "chunkPoolSize" : 256
+    "chunkSize" : 0.6,
+    "surroundingSize" : 10,
+    "chunkPoolSize" : 512
   },
   "device" : {
     "screen" : {

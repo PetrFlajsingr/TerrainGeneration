@@ -8,6 +8,7 @@
 
 #include "gui/CameraController.h"
 #include "rendering/ChunkManager.h"
+#include "rendering/Data.h"
 #include "third_party/Camera.h"
 #include "utils/config/JsonConfig.h"
 
@@ -21,9 +22,11 @@ int main(int argc, char *argv[]) {
   Conf config{argv[1]};
   // create window
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
+
+  const auto deviceData = config.get<DeviceData>("device").value();
   auto window = std::make_shared<sdl2cpp::Window>(
-      config.get<uint>("device", "screen", "width").value(),
-      config.get<uint>("device", "screen", "height").value());
+      deviceData.screen.width,
+      deviceData.screen.height);
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);
 
@@ -54,7 +57,7 @@ int main(int argc, char *argv[]) {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     chunks.generateChunks();
-    chunks.draw(DrawMode::Polygon,
+    chunks.draw(DrawMode::Line,
         {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
          config.get<bool>("debug", "drawNormals").value(),
          config.get<uint>("debug", "drawChunkBorder", "step").value()});
@@ -63,7 +66,7 @@ int main(int argc, char *argv[]) {
 
     fpsCounter.step();
 
-    if (cnt % 360 == 0)
+    if (cnt % 30 == 0)
       print(fpsCounter);
 
     ++cnt;

@@ -63,7 +63,7 @@ float calculateDensity() {
     float result =0;// rad - length(vertex - vec3(0, 0, 0));
 
     vertex.y += 10;
-    return -vertex.y
+    return -vertex.y +15
     + noise(vertex/20)*20
     + noise(vertex/10)*10
     + noise(vertex/2)*2

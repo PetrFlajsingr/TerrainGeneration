@@ -17,6 +17,7 @@
 #include <loc_assert.h>
 #include <print.h>
 
+#include "Data.h"
 #include "Light.h"
 #include "types.h"
 
@@ -40,16 +41,26 @@ enum class ChunkIn {
 };
 
 class Surroundings {
+  struct Tile {
+    ChunkIn state;
+    Chunk *ptr;
+    glm::vec3 pos;
+    glm::vec3 center;
+  };
 public:
   Surroundings(float loadDistance, glm::uvec3 size, uint chunkPoolSize, float step)
       : loadDistance(loadDistance), size(size), step(step) {
     map.resize(size.x * size.y * size.z);
-    chunkPool.resize(chunkPoolSize, {{0, 0, 0}, step, 32});
+    chunkPool = fplus::generate<std::vector<Chunk>>([step] () {return Chunk {{-30, -30, -30}, step, 32};}, chunkPoolSize);
+
+    const auto halfDist = 16.f * glm::vec3{step};
     for (uint i = 0; i < map.size(); ++i) {
       uint x = i % size.x;
       uint y = i / size.x % size.y;
       uint z = i / (size.x * size.y) % size.z;
-      map[i] = {ChunkIn::NotLoaded, nullptr, glm::vec3{x, y, z} * step * 32.f};
+      const auto start = glm::vec3{x, y, z} * step * 30.f;
+      const auto center = start + halfDist;
+      map[i] = {ChunkIn::NotLoaded, nullptr, start, center};
     }
     for (auto &chunk : chunkPool) {
       available.emplace_back(&chunk);
@@ -63,66 +74,66 @@ public:
     uint filledCount = 0;
     uint notLoadedCount = 0;
     constexpr uint availableThreshold = 30;
-    for (auto &[state, ptr, pos] : map) {
-      if (state == ChunkIn::NotLoaded && availableCount != 0) {;
-        if (glm::distance(pos + 16.f * glm::vec3{step}, position) <= loadDistance) {
+    for (auto &tile : map) {
+      if (tile.state == ChunkIn::NotLoaded && availableCount != 0) {;
+        if (glm::distance(tile.center, position) <= loadDistance) {
           auto chunk = available.front();
           available.remove(chunk);
           --availableCount;
-          chunk->startPosition = pos;
+          chunk->startPosition = tile.pos;
           chunk->recalc();
           used.emplace_back(chunk);
-          state = ChunkIn::Setup;
-          ptr = chunk;
+          tile.state = ChunkIn::Setup;
+          tile.ptr = chunk;
           ++setupCount;
         } else {
           ++notLoadedCount;
         }
-      } else if (state == ChunkIn::Filled) {
-        if (ptr->boundingSphere.distance(position) > loadDistance && availableCount < availableThreshold) {
-          ptr->setComputed(false);
+      } else if (tile.state == ChunkIn::Filled) {
+        if (tile.ptr->boundingSphere.distance(position) > loadDistance && availableCount < availableThreshold) {
+          tile.ptr->setComputed(false);
           const auto tmp = used.size();
-          used.remove(ptr);
-          available.emplace_back(ptr);
+          used.remove(tile.ptr);
+          available.emplace_back(tile.ptr);
           ++availableCount;
-          state = ChunkIn::NotLoaded;
-          ptr = nullptr;
+          tile.state = ChunkIn::NotLoaded;
+          tile.ptr = nullptr;
         }
         ++filledCount;
-      } else if (state == ChunkIn::Empty) {
-        if (ptr != nullptr) {
-          available.emplace_back(ptr);
-          used.remove(ptr);
+      } else if (tile.state == ChunkIn::Empty) {
+        if (tile.ptr != nullptr) {
+          available.emplace_back(tile.ptr);
+          used.remove(tile.ptr);
           ++availableCount;
-          ptr = nullptr;
+          tile.ptr = nullptr;
         }
         ++emptyCount;
       }
     }
     const uint usedCount = used.size();
-    if (usedCount != logger.recall<uint>("Used_chuk_count")) {
+   // if (usedCount != logger.recall<uint>("Used_chunk_count")) {
       print("Used: ", usedCount);
-      logger.remember<uint>("Used_chuk_count", usedCount);
+      logger.remember<uint>("Used_chunk_count", usedCount);
       print("Available count: ", available.size());
       print("emptyCount: ", emptyCount);
       print("setupCount: ", setupCount);
       print("filledCount: ", filledCount);
       print("notLoadedCount: ", notLoadedCount);
-    }
+   // }
     return used;
   }
 
   void setEmpty(Chunk *chunk) {
-    auto tmp = [chunk] (auto &val){return std::get<1>(val) == chunk; };
+    auto tmp = [chunk] (auto &val){return val.ptr == chunk; };
     if (auto iter = std::find_if(map.begin(), map.end(), tmp); iter != map.end()) {
-      std::get<0>(*iter) = ChunkIn::Empty;
+      iter->state = ChunkIn::Empty;
     }
   }
 
   void setFilled(Chunk *chunk) {
-    auto tmp = [chunk] (auto &val){return std::get<1>(val) == chunk; };
+    auto tmp = [chunk] (auto &val){return val.ptr == chunk; };
     if (auto iter = std::find_if(map.begin(), map.end(), tmp); iter != map.end()) {
-      std::get<0>(*iter) = ChunkIn::Filled;
+      iter->state = ChunkIn::Filled;
     }
   }
 
@@ -130,7 +141,7 @@ public:
   const glm::uvec3 size;
   const float step;
 private:
-  std::vector<std::tuple<ChunkIn, Chunk*, glm::vec3>> map;
+  std::vector<Tile> map;
   std::vector<Chunk> chunkPool;
   std::list<Chunk*> available;
   std::list<Chunk*> used;
@@ -148,6 +159,7 @@ class ChunkManager {
   };
   BlinnPhongMaterial material{10, {1, 1, 1}};
 
+  RenderData renderData;
 public:
   explicit ChunkManager(CameraController &cameraController, JsonConfig<true> config);
 

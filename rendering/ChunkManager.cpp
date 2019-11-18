@@ -28,6 +28,7 @@ ChunkManager::ChunkManager(CameraController &cameraController, JsonConfig<true> 
   linkPrograms();
   createLUT();
   createBuffers();
+  renderData = config.get<RenderData>("render").value();
 //  bah();
 }
 
@@ -201,7 +202,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 
   std::vector<Chunk *> visibleChunks;
   for (auto &chunk : chunks) {
-    if (config.get<bool>("render", "viewFrustumCulling").value() ||
+    if (renderData.viewFrustumCulling ||
         viewFrustum.contains(chunk->boundingBox) !=
         geo::FrustumPosition::Outside) {
       if (chunk->boundingSphere.distance(cameraController.camera.Position) < 500) {
@@ -402,7 +403,6 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
 
     chunk->setComputed(true);
     if (chunk->indexCount != 0) {
-      print("Filled chunk: ", chunk->startPosition, " ", chunk->indexCount);
       surr.setFilled(chunk);
     } else {
       surr.setEmpty(chunk);
@@ -411,12 +411,8 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
 }
 
 void ChunkManager::generateChunks() {
+
   std::vector<Chunk *> ptrs;
-  /*for (auto &chunk : chunks) {
-    if (!chunk.isComputed() && chunk.boundingSphere.distance(cameraController.camera.Position) < 500) {
-      ptrs.emplace_back(&chunk);
-    }
-  }*/
   chunks = surr.getForCompute(cameraController.camera.Position);
   for (auto chunk : chunks) {
     if (!chunk->isComputed()) {

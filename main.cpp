@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 
     fpsCounter.step();
 
-    if (cnt % 30 == 0)
+    if (cnt % 120 == 0)
       print(fpsCounter);
 
     ++cnt;

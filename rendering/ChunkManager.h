@@ -80,6 +80,7 @@ public:
           auto chunk = available.front();
           available.remove(chunk);
           --availableCount;
+          chunk->setComputed(false);
           chunk->startPosition = tile.pos;
           chunk->recalc();
           used.emplace_back(chunk);
@@ -91,7 +92,6 @@ public:
         }
       } else if (tile.state == ChunkIn::Filled) {
         if (tile.ptr->boundingSphere.distance(position) > loadDistance && availableCount < availableThreshold) {
-          tile.ptr->setComputed(false);
           const auto tmp = used.size();
           used.remove(tile.ptr);
           available.emplace_back(tile.ptr);
@@ -108,18 +108,20 @@ public:
           tile.ptr = nullptr;
         }
         ++emptyCount;
+      }else if (tile.state == ChunkIn::Setup) {
+        ++setupCount;
       }
     }
     const uint usedCount = used.size();
-   // if (usedCount != logger.recall<uint>("Used_chunk_count")) {
+    if (setupCount != logger.recall<uint>("Used_chunk_count")) {
       print("Used: ", usedCount);
-      logger.remember<uint>("Used_chunk_count", usedCount);
+      logger.remember<uint>("Used_chunk_count", setupCount);
       print("Available count: ", available.size());
       print("emptyCount: ", emptyCount);
       print("setupCount: ", setupCount);
       print("filledCount: ", filledCount);
       print("notLoadedCount: ", notLoadedCount);
-   // }
+    }
     return used;
   }
 

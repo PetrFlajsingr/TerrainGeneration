@@ -154,7 +154,7 @@ constexpr uint size = 32;
 class ChunkManager {
   Surroundings surr;
   std::list<Chunk*> chunks;
-  CameraController &cameraController;
+  std::shared_ptr<CameraController> cameraController;
 
   BlinnPhongLight light{
       {1, 1, 1}, {50, 50, 50}, 10000, {1, 1, 1}, {1, 0, 1}, {1, 1, 1},
@@ -163,7 +163,7 @@ class ChunkManager {
 
   RenderData renderData;
 public:
-  explicit ChunkManager(CameraController &cameraController, JsonConfig<true> config);
+  explicit ChunkManager(std::shared_ptr<CameraController> cameraController, JsonConfig<true> config);
 
   void generateChunks();
 

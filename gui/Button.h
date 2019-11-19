@@ -9,9 +9,9 @@
 #include <SDL2CPP/Window.h>
 #include <SDL.h>
 
-#include "Types.h"
-#include "UserInteractionInterfaces.h"
 #include "GUIObject.h"
+#include "Types.h"
+#include "UserInteraction.h"
 #include <set>
 
 namespace sdl2cpp::gui {

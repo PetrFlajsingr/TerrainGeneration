@@ -3,7 +3,7 @@
 //
 
 #include "EventDispatcher.h"
-#include "UserInteractionInterfaces.h"
+#include "UserInteraction.h"
 
 sdl2cpp::gui::EventDispatcher::EventDispatcher(
     std::shared_ptr<sdl2cpp::Window> window)
@@ -66,7 +66,9 @@ bool sdl2cpp::gui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
 }
 bool sdl2cpp::gui::EventDispatcher::keyboardEventHandler(
     const SDL_Event &event) {
-  return false;
+  if (auto element = getFocusedKeyboardInteractible(); element.has_value()) {
+    element.value()->onKeyDown(event);
+  }
 }
 
 bool isIn(SDL_Point point, SDL_Rect rect) {
@@ -80,7 +82,7 @@ sdl2cpp::gui::EventDispatcher::findMouseInteractibleOnPosition(int x, int y) {
       mouseEventListeners.erase(iter);
     }
     auto ptr = iter->lock();
-    if (isIn(SDL_Point{x, y}, ptr->getArea())) {
+    if (isIn(SDL_Point{x, y}, ptr->getArea()) && ptr->isMouseInputEnabled()) {
       return ptr;
     }
   }
@@ -93,7 +95,11 @@ sdl2cpp::gui::EventDispatcher::getFocusedKeyboardInteractible() {
       keyboardEventListeners.erase(iter);
       return std::nullopt;
     }
-    return iter->lock();
+    auto ptr = iter->lock();
+    if (ptr->isKeyboardInputEnabled()) {
+      return ptr;
+    }
+    return std::nullopt;
   }
   return std::nullopt;
 }

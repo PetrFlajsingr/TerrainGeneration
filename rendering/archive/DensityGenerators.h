@@ -4,7 +4,7 @@
 
 #ifndef TERRAINGENERATION_DENSITYGENERATORS_H
 #define TERRAINGENERATION_DENSITYGENERATORS_H
-
+/*
 #include "../../gui/CameraController.h"
 #include "../ChunkManager.h"
 #include "../lookuptables.h"
@@ -382,5 +382,5 @@ struct Compute {
 
   CameraController cameraController;
 };
-
+*/
 #endif // TERRAINGENERATION_DENSITYGENERATORS_H

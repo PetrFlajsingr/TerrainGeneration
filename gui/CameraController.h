@@ -5,32 +5,38 @@
 #ifndef TERRAINGENERATION_CAMERACONTROLLER_H
 #define TERRAINGENERATION_CAMERACONTROLLER_H
 
+#include "UserInteraction.h"
+#include <Camera.h>
 #include <SDL_events.h>
 #include <functional>
-#include <Camera.h>
 
-class CameraController {
+class CameraController : public sdl2cpp::gui::MouseInteractable, public sdl2cpp::gui::KeyboardInteractable {
 public:
-  using EventCallback = std::function<bool(const SDL_Event &)>;
+  explicit CameraController(SDL_Rect area, glm::vec3 startingPosition = {0.f, 0.f, 0.f},
+      glm::vec3 direction = {0.f, 0.f, -1.f});
 
-  explicit CameraController(glm::vec3 startingPosition = {0.f, 0.f, 0.f},
-      glm::vec3 direction = {0.f, 0.f, -1.f}) : camera(startingPosition) {
-    camera.MovementSpeed = 0.7f;
-  }
-
-  EventCallback getKeyboardCallback();
-  EventCallback getMouseDownCallback();
-  EventCallback getMouseUpCallback();
-  EventCallback getMouseMoveCallback();
-
-  glm::mat4 getViewMatrix() {
-    return camera.GetViewMatrix();
-  }
-
-  float movementSpeed = 0.1f;
-//private:
-  bool lockedToCamera = false;
+  [[nodiscard]] glm::vec3 getPosition() const;
+  [[nodiscard]] glm::mat4 getViewMatrix();
   Camera camera;
+
+protected:
+  void draw() override;
+  void onVisibilityChanged(sdl2cpp::gui::Visibility visibility) override;
+  void onFocusChanged(sdl2cpp::gui::Focus focus) override;
+  void onEnabledChanged(bool enabled) override;
+  void onMouseDown(const SDL_Event &event) override;
+  void onMouseUp(const SDL_Event &event) override;
+  void onMouseMove(const SDL_Event &event) override;
+  void onMouseClicked(const SDL_Event &event) override;
+  void onMouseDblClicked(const SDL_Event &event) override;
+  void onMouseOver(const SDL_Event &event) override;
+  void onMouseOut(const SDL_Event &event) override;
+  void onKeyPressed(const SDL_Event &event) override;
+  void onKeyDown(const SDL_Event &event) override;
+  void onKeyUp(const SDL_Event &event) override;
+
+private:
+  bool lockedToCamera = false;
 };
 
 #endif // TERRAINGENERATION_CAMERACONTROLLER_H

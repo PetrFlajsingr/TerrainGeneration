@@ -5,8 +5,10 @@
 
 #include <FPSCounter.h>
 #include <print.h>
+#include <types.h>
 
 #include "gui/CameraController.h"
+#include "gui/GUIManager.h"
 #include "rendering/ChunkManager.h"
 #include "rendering/Data.h"
 #include "third_party/Camera.h"
@@ -24,9 +26,8 @@ int main(int argc, char *argv[]) {
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
 
   const auto deviceData = config.get<DeviceData>("device").value();
-  auto window = std::make_shared<sdl2cpp::Window>(
-      deviceData.screen.width,
-      deviceData.screen.height);
+  auto window = std::make_shared<sdl2cpp::Window>(deviceData.screen.width,
+                                                  deviceData.screen.height);
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);
 
@@ -38,15 +39,22 @@ int main(int argc, char *argv[]) {
 
   setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
 
-  CameraController cameraController;
+  // CameraController cameraController;
 
-  window->setEventCallback(SDL_KEYDOWN, cameraController.getKeyboardCallback());
+  sdl2cpp::gui::GUIManager guiManager{window};
+
+  /*window->setEventCallback(SDL_KEYDOWN,
+  cameraController.getKeyboardCallback());
   window->setEventCallback(SDL_MOUSEMOTION,
                            cameraController.getMouseMoveCallback());
   window->setEventCallback(SDL_MOUSEBUTTONDOWN,
                            cameraController.getMouseDownCallback());
   window->setEventCallback(SDL_MOUSEBUTTONUP,
-                           cameraController.getMouseUpCallback());
+                           cameraController.getMouseUpCallback());*/
+
+  auto cameraController = guiManager.createGUIObject<CameraController>(
+      SDL_Rect{0, 0, static_cast<int>(deviceData.screen.width),
+               static_cast<int>(deviceData.screen.height)});
 
   FPSCounter fpsCounter;
 
@@ -57,7 +65,8 @@ int main(int argc, char *argv[]) {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     chunks.generateChunks();
-    chunks.draw(DrawMode::Line,
+    chunks.draw(
+        DrawMode::Line,
         {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
          config.get<bool>("debug", "drawNormals").value(),
          config.get<uint>("debug", "drawChunkBorder", "step").value()});
@@ -66,7 +75,7 @@ int main(int argc, char *argv[]) {
 
     fpsCounter.step();
 
-    if (cnt % 120 == 0)
+    if (cnt % 360 == 0)
       print(fpsCounter);
 
     ++cnt;

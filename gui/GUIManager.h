@@ -35,7 +35,7 @@ public:
 
 private:
   EventDispatcher eventDispatcher;
-  FocusManager focusManager;
+  //FocusManager focusManager;
 
   std::shared_ptr<Window> window;
 

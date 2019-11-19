@@ -14,7 +14,7 @@ namespace sdl2cpp::gui {
 class EventDispatcher {
   friend class GUIManager;
 public:
-  explicit EventDispatcher(std::shared_ptr<Window> window);;
+  explicit EventDispatcher(std::shared_ptr<Window> window);
 
 private:
   void addMouseEventListener(std::weak_ptr<MouseInteractable> mouseInteractable);
@@ -47,7 +47,6 @@ private:
                                            SDL_MOUSEBUTTONUP,
                                            SDL_MOUSEWHEEL};
 };
-
 
 }
 

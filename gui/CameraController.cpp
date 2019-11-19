@@ -3,56 +3,65 @@
 //
 
 #include "CameraController.h"
+#include <print.h>
 
-CameraController::EventCallback CameraController::getKeyboardCallback() {
-  return [this](const SDL_Event &event) {
-    if (lockedToCamera) {
-      auto key = event.key.keysym.sym;
-      switch (key) {
-      case SDLK_w:
-        camera.ProcessKeyboard(FORWARD, 1);
-        break;
-      case SDLK_s:
-        camera.ProcessKeyboard(BACKWARD, 1);
-        break;
-      case SDLK_a:
-        camera.ProcessKeyboard(LEFT, 1);
-        break;
-      case SDLK_d:
-        camera.ProcessKeyboard(RIGHT, 1);
-        break;
-      default:
-        break;
-      }
-      return true;
-    }
-    return false;
-  };
+CameraController::CameraController(SDL_Rect area, glm::vec3 startingPosition,
+                             glm::vec3 direction)
+    : GUIObject(area), camera(startingPosition) {
+  camera.MovementSpeed = 0.7f;
 }
-CameraController::EventCallback CameraController::getMouseDownCallback() {
-  return [this](const SDL_Event &event) {
-    if (event.button.button == SDL_BUTTON_RIGHT) {
-      lockedToCamera = true;
-      SDL_SetRelativeMouseMode(SDL_TRUE);
-    }
-    return true;
-  };
+
+void CameraController::draw() {}
+void CameraController::onVisibilityChanged(sdl2cpp::gui::Visibility visibility) {}
+void CameraController::onFocusChanged(sdl2cpp::gui::Focus focus) {}
+void CameraController::onEnabledChanged(bool enabled) {}
+void CameraController::onMouseDown(const SDL_Event &event) {
+  if (event.button.button == SDL_BUTTON_RIGHT) {
+    lockedToCamera = true;
+    enableKeyboardInput();
+    print("enabled keyboard input");
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+  }
 }
-CameraController::EventCallback CameraController::getMouseMoveCallback() {
-  return [this](const SDL_Event &event) {
-    if (lockedToCamera) {
-      camera.ProcessMouseMovement(event.motion.xrel, -event.motion.yrel, true);
-      return true;
-    }
-    return false;
-  };
+void CameraController::onMouseUp(const SDL_Event &event) {
+  if (event.button.button == SDL_BUTTON_RIGHT) {
+    lockedToCamera = false;
+    disableKeyboardInput();
+    print("disabled keyboard input");
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+  }
 }
-CameraController::EventCallback CameraController::getMouseUpCallback() {
-  return [this](const SDL_Event &event) {
-    if (event.button.button == SDL_BUTTON_RIGHT) {
-      lockedToCamera = false;
-      SDL_SetRelativeMouseMode(SDL_FALSE);
-    }
-    return true;
-  };
+void CameraController::onMouseMove(const SDL_Event &event) {
+  if (lockedToCamera) {
+    camera.ProcessMouseMovement(event.motion.xrel, -event.motion.yrel, true);
+  }
 }
+void CameraController::onMouseClicked(const SDL_Event &event) {}
+void CameraController::onMouseDblClicked(const SDL_Event &event) {}
+void CameraController::onMouseOver(const SDL_Event &event) {}
+void CameraController::onMouseOut(const SDL_Event &event) {}
+void CameraController::onKeyPressed(const SDL_Event &event) {}
+void CameraController::onKeyDown(const SDL_Event &event) {
+  auto key = event.key.keysym.sym;
+  switch (key) {
+  case SDLK_w:
+    camera.ProcessKeyboard(FORWARD, 1);
+    break;
+  case SDLK_s:
+    camera.ProcessKeyboard(BACKWARD, 1);
+    break;
+  case SDLK_a:
+    camera.ProcessKeyboard(LEFT, 1);
+    break;
+  case SDLK_d:
+    camera.ProcessKeyboard(RIGHT, 1);
+    break;
+  default:
+    break;
+  }
+}
+
+void CameraController::onKeyUp(const SDL_Event &event) {}
+glm::vec3 CameraController::getPosition() const { return camera.Position; }
+
+glm::mat4 CameraController::getViewMatrix() { return camera.GetViewMatrix(); }

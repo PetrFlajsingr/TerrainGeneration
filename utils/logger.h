@@ -11,6 +11,7 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <unordered_map>
 #include <now.h>
 #include <sstream>
 #include <string>
@@ -179,7 +180,7 @@ public:
     defaultPrintTime = printTime;
   }
 
-  std::map<std::string, std::any> memory;
+  std::unordered_map<std::string, std::any> memory;
   template <typename T>
   void remember(std::string_view key, const T &value) {
     memory[std::string(key)] = value;

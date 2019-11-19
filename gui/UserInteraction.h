@@ -2,11 +2,12 @@
 // Created by petr on 10/11/19.
 //
 
-#ifndef TERRAINGENERATION_USERINTERACTIONINTERFACES_H
-#define TERRAINGENERATION_USERINTERACTIONINTERFACES_H
+#ifndef TERRAINGENERATION_USERINTERACTION_H
+#define TERRAINGENERATION_USERINTERACTION_H
 
 #include "Fwd.h"
 #include "GUIObject.h"
+#include <SDL_events.h>
 
 namespace sdl2cpp::gui {
 
@@ -22,6 +23,13 @@ protected:
   virtual void onMouseDblClicked(const SDL_Event &event) = 0;
   virtual void onMouseOver(const SDL_Event &event) = 0;
   virtual void onMouseOut(const SDL_Event &event) = 0;
+
+  [[nodiscard]] bool isMouseInputEnabled() const;
+  void enableMouseInput();
+  void disableMouseInput();
+
+private:
+  bool mouseInputEnabled = true;
 };
 
 class KeyboardInteractable : public virtual Interactable {
@@ -30,7 +38,14 @@ protected:
   virtual void onKeyPressed(const SDL_Event &event) = 0;
   virtual void onKeyDown(const SDL_Event &event) = 0;
   virtual void onKeyUp(const SDL_Event &event) = 0;
+
+  [[nodiscard]] bool isKeyboardInputEnabled() const;
+  void enableKeyboardInput();
+  void disableKeyboardInput();
+
+private:
+  bool keyboardInputEnabled = true;
 };
 }
 
-#endif // TERRAINGENERATION_USERINTERACTIONINTERFACES_H
+#endif // TERRAINGENERATION_USERINTERACTION_H

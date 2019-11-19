@@ -17,8 +17,8 @@
 
 using namespace ShaderLiterals;
 
-ChunkManager::ChunkManager(CameraController &cameraController, JsonConfig<true> config)
-    : cameraController(cameraController), config(config), surr({
+ChunkManager::ChunkManager(std::shared_ptr<CameraController> cameraController, JsonConfig<true> config)
+    : cameraController(std::move(cameraController)), config(config), surr({
                                                                    config.get<float>("render", "viewDistance").value(),
                                                                    glm::uvec3{config.get<uint>("marching_cubes", "surroundingSize").value()},
                                                                    config.get<uint>("marching_cubes", "chunkPoolSize").value(),
@@ -181,8 +181,8 @@ void ChunkManager::linkPrograms() {
 void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_DEPTH_TEST);
   auto projection =
-      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 1000.0f);
-  auto view = cameraController.getViewMatrix();
+      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 100.0f);
+  auto view = cameraController->getViewMatrix();
   glm::vec3 lightPos =
       glm::vec3{5, 5, 5}; // cameraController.camera.Position; // {2,5,2};
   auto model = glm::mat4();
@@ -205,11 +205,11 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
     if (renderData.viewFrustumCulling ||
         viewFrustum.contains(chunk->boundingBox) !=
         geo::FrustumPosition::Outside) {
-      if (chunk->boundingSphere.distance(cameraController.camera.Position) < 500) {
+      if (chunk->boundingSphere.distance(cameraController->camera.Position) < 500) {
         visibleChunks.emplace_back(chunk);
       } else {
         chunk->setComputed(false);
-        chunk->startPosition = cameraController.camera.Position;
+        chunk->startPosition = cameraController->camera.Position;
         chunk->recalc();
       }
     }
@@ -413,7 +413,7 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
 void ChunkManager::generateChunks() {
 
   std::vector<Chunk *> ptrs;
-  chunks = surr.getForCompute(cameraController.camera.Position);
+  chunks = surr.getForCompute(cameraController->camera.Position);
   for (auto chunk : chunks) {
     if (!chunk->isComputed()) {
       ptrs.emplace_back(chunk);

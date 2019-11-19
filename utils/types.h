@@ -2,8 +2,8 @@
 // Created by petr on 10/26/19.
 //
 
-#ifndef TERRAINGENERATION_TYPES_H
-#define TERRAINGENERATION_TYPES_H
+#ifndef TTYPES_H
+#define TTYPES_H
 
 enum class Blocking {
   Yes, No
@@ -14,4 +14,4 @@ enum class DrawMode {
 };
 
 
-#endif // TERRAINGENERATION_TYPES_H
+#endif // TTYPES_H

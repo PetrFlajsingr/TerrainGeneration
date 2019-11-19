@@ -51,6 +51,6 @@ private:
   std::vector<std::weak_ptr<UIObject>> guiObjects;
 };
 
-} // namespace sdl2cpp::gui
+} // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_GUIMANAGER_H

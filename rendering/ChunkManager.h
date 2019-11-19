@@ -6,7 +6,7 @@
 #define TERRAINGENERATION_CHUNKMANAGER_H
 
 #include "Chunk.h"
-#include "gui/elements/CameraController.h"
+#include "ui/elements/CameraController.h"
 #include <Geometry.h>
 #include <TransformFeedback.h>
 #include <config/JsonConfig.h>

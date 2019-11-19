@@ -8,13 +8,13 @@
 #include <print.h>
 #include <types.h>
 
-#include "gui/GUIManager.h"
-#include "gui/elements/Button.h"
-#include "gui/elements/CameraController.h"
-#include "gui/elements/KeyAction.h"
 #include "rendering/ChunkManager.h"
 #include "rendering/Data.h"
 #include "third_party/Camera.h"
+#include "ui/GUIManager.h"
+#include "ui/elements/Button.h"
+#include "ui/elements/CameraController.h"
+#include "ui/elements/KeyAction.h"
 #include "utils/config/JsonConfig.h"
 
 using namespace std::string_literals;

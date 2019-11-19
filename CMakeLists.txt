@@ -31,9 +31,9 @@ include_directories(third_party)
 include_directories(utils)
 include_directories(.)
 
-file(GLOB_RECURSE ui_src "gui/*.cpp")
+file(GLOB_RECURSE ui_src "ui/*.cpp")
 
 add_executable(TerrainGeneration main.cpp ${ui_src}
-        utils/error_handling/exceptions.cpp gui/elements/CameraController.cpp rendering/archive/DensityGenerators.cpp utils/GlslShaderLoader.cpp rendering/archive/OldChunk.cpp utils/FPSCounter.cpp utils/Geometry.cpp utils/Geometry.h utils/shader_literals.h utils/now.h utils/meta.h utils/logger.h rendering/ChunkManager.cpp rendering/ChunkManager.h utils/geGL_utils.cpp utils/geGL_utils.h utils/gl_utils.cpp utils/gl_utils.h utils/print.h utils/TransformFeedback.cpp utils/TransformFeedback.h rendering/Chunk.cpp rendering/Chunk.h rendering/Light.cpp rendering/Light.h utils/loc_assert.h rendering/Data.h rendering/Data.cpp gui/KeyboardInteractable.cpp gui/elements/KeyAction.cpp gui/elements/KeyAction.h gui/MouseInteractable.cpp gui/MouseInteractable.h)
+        utils/error_handling/exceptions.cpp ui/elements/CameraController.cpp rendering/archive/DensityGenerators.cpp utils/GlslShaderLoader.cpp rendering/archive/OldChunk.cpp utils/FPSCounter.cpp utils/Geometry.cpp utils/Geometry.h utils/shader_literals.h utils/now.h utils/meta.h utils/logger.h rendering/ChunkManager.cpp rendering/ChunkManager.h utils/geGL_utils.cpp utils/geGL_utils.h utils/gl_utils.cpp utils/gl_utils.h utils/print.h utils/TransformFeedback.cpp utils/TransformFeedback.h rendering/Chunk.cpp rendering/Chunk.h rendering/Light.cpp rendering/Light.h utils/loc_assert.h rendering/Data.h rendering/Data.cpp ui/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/MouseInteractable.cpp ui/MouseInteractable.h)
 
 target_link_libraries(TerrainGeneration SDL2_image geGL::geGL SDL2CPP::SDL2CPP glm)

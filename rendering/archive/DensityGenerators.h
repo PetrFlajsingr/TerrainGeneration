@@ -5,7 +5,7 @@
 #ifndef TERRAINGENERATION_DENSITYGENERATORS_H
 #define TERRAINGENERATION_DENSITYGENERATORS_H
 /*
-#include "../../gui/CameraController.h"
+#include "../../ui/CameraController.h"
 #include "../ChunkManager.h"
 #include "../lookuptables.h"
 #include "GlslShaderLoader.h"

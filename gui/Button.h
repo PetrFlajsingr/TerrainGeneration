@@ -9,25 +9,16 @@
 #include <SDL2CPP/Window.h>
 #include <SDL.h>
 
+#include "MouseInteractable.h"
 #include "UIObject.h"
-#include "UserInteraction.h"
 #include "ui_types.h"
 #include <set>
 
-namespace sdl2cpp::gui {
+namespace sdl2cpp::ui {
 class Button : public MouseInteractable {
 public:
   // Initialize the variables
-  Button(int x, int y, int w, int h);
-
-protected:
-  void onMouseDown(const SDL_Event &event) override;
-  void onMouseUp(const SDL_Event &event) override;
-  void onMouseMove(const SDL_Event &event) override;
-  void onMouseClicked(const SDL_Event &event) override;
-  void onMouseDblClicked(const SDL_Event &event) override;
-  void onMouseOver(const SDL_Event &event) override;
-  void onMouseOut(const SDL_Event &event) override;
+  Button(int x, int y, int w, int h, int zPosition = 0);
 
 protected:
   void draw() override;

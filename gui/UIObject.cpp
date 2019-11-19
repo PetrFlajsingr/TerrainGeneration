@@ -45,5 +45,9 @@ bool sdl2cpp::ui::UIVisible::isVisible() const {
 SDL_Rect sdl2cpp::ui::UIVisible::getArea() const {
   return area;
 }
-sdl2cpp::ui::UIVisible::UIVisible(SDL_Rect area) : area{area} {}
-sdl2cpp::ui::UIVisible::UIVisible(int x, int y, int width, int height) : area{x, y, width, height} {}
+sdl2cpp::ui::UIVisible::UIVisible(SDL_Rect area, int zPosition)
+    : area{area}, zPosition(zPosition) {}
+sdl2cpp::ui::UIVisible::UIVisible(int x, int y, int width, int height,
+                                  int zPosition)
+    : area{x, y, width, height}, zPosition(zPosition) {}
+int sdl2cpp::ui::UIVisible::getZPosition() const { return zPosition; }

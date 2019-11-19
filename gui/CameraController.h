@@ -5,12 +5,14 @@
 #ifndef TERRAINGENERATION_CAMERACONTROLLER_H
 #define TERRAINGENERATION_CAMERACONTROLLER_H
 
-#include "UserInteraction.h"
+#include "KeyboardInteractable.h"
+#include "MouseInteractable.h"
 #include <Camera.h>
 #include <SDL_events.h>
 #include <functional>
 
-class CameraController : public sdl2cpp::ui::MouseInteractable, public sdl2cpp::ui::KeyboardInteractable {
+class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
+                         public sdl2cpp::ui::CustomKeyboardInteractable {
 public:
   explicit CameraController(SDL_Rect area, glm::vec3 startingPosition = {0.f, 0.f, 0.f},
       glm::vec3 direction = {0.f, 0.f, -1.f});

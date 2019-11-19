@@ -26,7 +26,6 @@ public:
 protected:
   void setFocus(Focus focus);
 
-  virtual void draw() = 0;
   virtual void onFocusChanged(Focus focus) = 0;
   virtual void onEnabledChanged(bool enabled) = 0;
 
@@ -38,8 +37,8 @@ private:
 
 class UIVisible : public virtual UIObject {
 public:
-  explicit UIVisible(SDL_Rect area);
-  UIVisible(int x, int y, int width, int height);
+  explicit UIVisible(SDL_Rect area, int zPosition = 0);
+  UIVisible(int x, int y, int width, int height, int zPosition = 0);
 
   UIVisible(UIVisible &&) = delete;
   UIVisible &operator=(UIVisible &&) = delete;
@@ -49,6 +48,8 @@ public:
 
   [[nodiscard]] bool isVisible() const;
 
+  [[nodiscard]] int getZPosition() const;
+
 protected:
   virtual void draw() = 0;
   virtual void onVisibilityChanged(Visibility visibility) = 0;
@@ -56,6 +57,8 @@ protected:
   SDL_Rect area;
 private:
   Visibility visiblity = Visibility::Visible;
+
+  int zPosition;
 };
 
 }

@@ -5,37 +5,42 @@
 #ifndef TERRAINGENERATION_EVENTDISPATCHER_H
 #define TERRAINGENERATION_EVENTDISPATCHER_H
 
+#include "Fwd.h"
+#include "KeyboardInteractable.h"
+#include "MouseInteractable.h"
 #include <SDL2CPP/Window.h>
 #include <set>
-#include "Fwd.h"
 
 namespace sdl2cpp::ui {
 
 class EventDispatcher {
   friend class GUIManager;
+
 public:
   explicit EventDispatcher(std::shared_ptr<Window> window);
 
 private:
-  void addMouseEventListener(std::weak_ptr<MouseInteractable> mouseInteractable);
-  void addKeyboardEventListener(std::weak_ptr<KeyboardInteractable> keyboardInteractable);
+  void addMouseEventListener(
+      std::weak_ptr<CustomMouseInteractable> mouseInteractable);
+  void addKeyboardEventListener(
+      std::weak_ptr<CustomKeyboardInteractable> keyboardInteractable);
 
   bool mouseEventHandler(const SDL_Event &event);
 
   bool keyboardEventHandler(const SDL_Event &event);
 
-  MouseInteractable *mouseDownIn = nullptr;
-  MouseInteractable *mouseIn = nullptr;
+  CustomMouseInteractable *mouseDownIn = nullptr;
+  CustomMouseInteractable *mouseIn = nullptr;
 
+  std::optional<std::shared_ptr<CustomMouseInteractable>>
+  findMouseInteractibleOnPosition(int x, int y);
 
-  std::optional<std::shared_ptr<MouseInteractable>> findMouseInteractibleOnPosition(int x, int y);
-
-  std::optional<std::shared_ptr<KeyboardInteractable>>
+  std::optional<std::shared_ptr<CustomKeyboardInteractable>>
   getFocusedKeyboardInteractible();
 
   std::shared_ptr<Window> window;
-  std::vector<std::weak_ptr<MouseInteractable>> mouseEventListeners;
-  std::vector<std::weak_ptr<KeyboardInteractable>> keyboardEventListeners;
+  std::vector<std::weak_ptr<CustomMouseInteractable>> mouseEventListeners;
+  std::vector<std::weak_ptr<CustomKeyboardInteractable>> keyboardEventListeners;
 
   std::set<Window::EventType> keyboardEvents {SDL_KEYDOWN,
                                               SDL_KEYUP,

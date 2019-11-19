@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "UserInteraction.h"
+#include "KeyboardInteractable.h"
 
 class KeyAction : public sdl2cpp::ui::KeyboardInteractable {
   using Action = std::function<void()>;
@@ -17,7 +17,6 @@ protected:
   void onKeyPressed(const SDL_Event &event) override;
   void onKeyDown(const SDL_Event &event) override;
   void onKeyUp(const SDL_Event &event) override;
-  void draw() override;
   void onFocusChanged(sdl2cpp::ui::Focus focus) override;
   void onEnabledChanged(bool enabled) override;
 

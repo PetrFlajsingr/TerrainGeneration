@@ -41,6 +41,7 @@ public:
 };
 
 class InternalError : public Error {
+public:
   explicit InternalError(std::string_view msg,
   std::experimental::source_location srcLoc =
       std::experimental::source_location::current());;

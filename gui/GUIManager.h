@@ -24,7 +24,7 @@ public:
                                  std::shared_ptr<T>>
   createGUIObject(Args &&... args) {
     auto result = std::make_shared<T>(std::forward<Args>(args)...);
-    if constexpr (std::is_base_of_v<MouseInteractable, T>) {
+    if constexpr (std::is_base_of_v<CustomMouseInteractable, T>) {
       eventDispatcher.addMouseEventListener(result);
     }
     if constexpr (std::is_base_of_v<KeyboardInteractable, T>) {

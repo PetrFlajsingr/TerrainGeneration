@@ -7,6 +7,7 @@
 #include <print.h>
 #include <types.h>
 
+#include "gui/Button.h"
 #include "gui/CameraController.h"
 #include "gui/GUIManager.h"
 #include "gui/KeyAction.h"
@@ -40,24 +41,41 @@ int main(int argc, char *argv[]) {
 
   setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
 
-  // CameraController cameraController;
-
   sdl2cpp::ui::GUIManager guiManager{window};
-
-  /*window->setEventCallback(SDL_KEYDOWN,
-  cameraController.getKeyboardCallback());
-  window->setEventCallback(SDL_MOUSEMOTION,
-                           cameraController.getMouseMoveCallback());
-  window->setEventCallback(SDL_MOUSEBUTTONDOWN,
-                           cameraController.getMouseDownCallback());
-  window->setEventCallback(SDL_MOUSEBUTTONUP,
-                           cameraController.getMouseUpCallback());*/
 
   auto cameraController = guiManager.createGUIObject<CameraController>(
       SDL_Rect{0, 0, static_cast<int>(deviceData.screen.width),
                static_cast<int>(deviceData.screen.height)});
 
   auto testAction = guiManager.createGUIObject<KeyAction>(SDLK_r, [] {print("test mman");});
+
+  auto testBtn =
+      guiManager.createGUIObject<sdl2cpp::ui::Button>(0, 0, 300, 300, 1);
+
+  testBtn->setMouseOut([](sdl2cpp::ui::EventInfo info) { print("MouseOut"); })
+      .setMouseOver([](sdl2cpp::ui::EventInfo info) { print("MouseOver"); })
+      .setMouseClicked([](sdl2cpp::ui::EventInfo info,
+                          sdl2cpp::ui::MouseButton button, SDL_Point pos) {
+        print("Mouse clicked");
+        std::string btn;
+        switch (button) {
+        case sdl2cpp::ui::MouseButton::Left:
+          btn = "Left";
+          break;
+        case sdl2cpp::ui::MouseButton::Right:
+          btn = "Right";
+          break;
+        case sdl2cpp::ui::MouseButton::Middle:
+          btn = "Middle";
+          break;
+        }
+        print("Button: ", btn);
+      })
+      .setMouseMove(
+          [](sdl2cpp::ui::EventInfo info, SDL_Point posOld, SDL_Point posNew) {
+            // print("Move, location: ", posOld.x, " ", posOld.y);
+            // print("Move, location to: ", posNew.x, " ", posNew.y);
+          });
 
   FPSCounter fpsCounter;
 

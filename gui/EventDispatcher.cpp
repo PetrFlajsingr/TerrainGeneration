@@ -99,7 +99,6 @@ sdl2cpp::gui::EventDispatcher::getFocusedKeyboardInteractible() {
     if (ptr->isKeyboardInputEnabled()) {
       return ptr;
     }
-    return std::nullopt;
   }
   return std::nullopt;
 }

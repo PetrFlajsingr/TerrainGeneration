@@ -20,20 +20,20 @@ public:
   Camera camera;
 
 protected:
+  void onMouseDown(const SDL_Event &event) override;
   void draw() override;
   void onVisibilityChanged(sdl2cpp::gui::Visibility visibility) override;
   void onFocusChanged(sdl2cpp::gui::Focus focus) override;
-  void onEnabledChanged(bool enabled) override;
-  void onMouseDown(const SDL_Event &event) override;
-  void onMouseUp(const SDL_Event &event) override;
-  void onMouseMove(const SDL_Event &event) override;
   void onMouseClicked(const SDL_Event &event) override;
   void onMouseDblClicked(const SDL_Event &event) override;
   void onMouseOver(const SDL_Event &event) override;
+  void onKeyUp(const SDL_Event &event) override;
   void onMouseOut(const SDL_Event &event) override;
+  void onEnabledChanged(bool enabled) override;
+  void onMouseUp(const SDL_Event &event) override;
+  void onMouseMove(const SDL_Event &event) override;
   void onKeyPressed(const SDL_Event &event) override;
   void onKeyDown(const SDL_Event &event) override;
-  void onKeyUp(const SDL_Event &event) override;
 
 private:
   bool lockedToCamera = false;

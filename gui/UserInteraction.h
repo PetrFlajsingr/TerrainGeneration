@@ -23,6 +23,7 @@ protected:
   virtual void onMouseDblClicked(const SDL_Event &event) = 0;
   virtual void onMouseOver(const SDL_Event &event) = 0;
   virtual void onMouseOut(const SDL_Event &event) = 0;
+  void onEnabledChanged(bool enabled) override;
 
   [[nodiscard]] bool isMouseInputEnabled() const;
   void enableMouseInput();
@@ -42,6 +43,7 @@ protected:
   [[nodiscard]] bool isKeyboardInputEnabled() const;
   void enableKeyboardInput();
   void disableKeyboardInput();
+ // void onEnabledChanged(bool enabled) override;
 
 private:
   bool keyboardInputEnabled = true;

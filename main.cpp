@@ -9,6 +9,7 @@
 
 #include "gui/CameraController.h"
 #include "gui/GUIManager.h"
+#include "gui/KeyAction.h"
 #include "rendering/ChunkManager.h"
 #include "rendering/Data.h"
 #include "third_party/Camera.h"
@@ -55,6 +56,8 @@ int main(int argc, char *argv[]) {
   auto cameraController = guiManager.createGUIObject<CameraController>(
       SDL_Rect{0, 0, static_cast<int>(deviceData.screen.width),
                static_cast<int>(deviceData.screen.height)});
+
+  auto testAction = guiManager.createGUIObject<KeyAction>(SDLK_r, [] {print("test mman");});
 
   FPSCounter fpsCounter;
 

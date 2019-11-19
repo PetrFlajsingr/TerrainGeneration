@@ -11,15 +11,10 @@ CameraController::CameraController(SDL_Rect area, glm::vec3 startingPosition,
   camera.MovementSpeed = 0.7f;
 }
 
-void CameraController::draw() {}
-void CameraController::onVisibilityChanged(sdl2cpp::gui::Visibility visibility) {}
-void CameraController::onFocusChanged(sdl2cpp::gui::Focus focus) {}
-void CameraController::onEnabledChanged(bool enabled) {}
 void CameraController::onMouseDown(const SDL_Event &event) {
   if (event.button.button == SDL_BUTTON_RIGHT) {
     lockedToCamera = true;
     enableKeyboardInput();
-    print("enabled keyboard input");
     SDL_SetRelativeMouseMode(SDL_TRUE);
   }
 }
@@ -27,7 +22,6 @@ void CameraController::onMouseUp(const SDL_Event &event) {
   if (event.button.button == SDL_BUTTON_RIGHT) {
     lockedToCamera = false;
     disableKeyboardInput();
-    print("disabled keyboard input");
     SDL_SetRelativeMouseMode(SDL_FALSE);
   }
 }
@@ -36,10 +30,6 @@ void CameraController::onMouseMove(const SDL_Event &event) {
     camera.ProcessMouseMovement(event.motion.xrel, -event.motion.yrel, true);
   }
 }
-void CameraController::onMouseClicked(const SDL_Event &event) {}
-void CameraController::onMouseDblClicked(const SDL_Event &event) {}
-void CameraController::onMouseOver(const SDL_Event &event) {}
-void CameraController::onMouseOut(const SDL_Event &event) {}
 void CameraController::onKeyPressed(const SDL_Event &event) {}
 void CameraController::onKeyDown(const SDL_Event &event) {
   auto key = event.key.keysym.sym;
@@ -60,8 +50,16 @@ void CameraController::onKeyDown(const SDL_Event &event) {
     break;
   }
 }
-
-void CameraController::onKeyUp(const SDL_Event &event) {}
 glm::vec3 CameraController::getPosition() const { return camera.Position; }
 
 glm::mat4 CameraController::getViewMatrix() { return camera.GetViewMatrix(); }
+void CameraController::draw() {}
+void CameraController::onVisibilityChanged(
+    sdl2cpp::gui::Visibility visibility) {}
+void CameraController::onFocusChanged(sdl2cpp::gui::Focus focus) {}
+void CameraController::onEnabledChanged(bool enabled) {}
+void CameraController::onMouseClicked(const SDL_Event &event) {}
+void CameraController::onMouseDblClicked(const SDL_Event &event) {}
+void CameraController::onMouseOver(const SDL_Event &event) {}
+void CameraController::onMouseOut(const SDL_Event &event) {}
+void CameraController::onKeyUp(const SDL_Event &event) {}

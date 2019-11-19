@@ -12,7 +12,7 @@
 #include <functional>
 
 class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
-                         public sdl2cpp::ui::CustomKeyboardInteractable {
+                         public sdl2cpp::ui::KeyboardInteractable {
 public:
   explicit CameraController(SDL_Rect area, glm::vec3 startingPosition = {0.f, 0.f, 0.f},
       glm::vec3 direction = {0.f, 0.f, -1.f});

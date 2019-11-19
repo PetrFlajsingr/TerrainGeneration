@@ -17,9 +17,26 @@ void sdl2cpp::ui::CustomKeyboardInteractable::disableKeyboardInput() {
 void sdl2cpp::gui::KeyboardInteractable::onEnabledChanged(bool enabled) {
   enabled ? enableKeyboardInput() : disableKeyboardInput();
 }*/
-void sdl2cpp::ui::KeyboardInteractable::onKeyPressed(const SDL_Event &event) {}
-void sdl2cpp::ui::KeyboardInteractable::onKeyDown(const SDL_Event &event) {}
-void sdl2cpp::ui::KeyboardInteractable::onKeyUp(const SDL_Event &event) {}
+void sdl2cpp::ui::KeyboardInteractable::onKeyPressed(const SDL_Event &event) {
+  if (!e_keyPressed.has_value()) {
+    return;
+  }
+  e_keyPressed.value()(EventInfo{*this, Event::Type::KeyPressed},
+                       event.key.keysym.sym);
+}
+void sdl2cpp::ui::KeyboardInteractable::onKeyDown(const SDL_Event &event) {
+  if (!e_keyDown.has_value()) {
+    return;
+  }
+  e_keyDown.value()(EventInfo{*this, Event::Type::KeyDown},
+                    event.key.keysym.sym);
+}
+void sdl2cpp::ui::KeyboardInteractable::onKeyUp(const SDL_Event &event) {
+  if (!e_keyUp.has_value()) {
+    return;
+  }
+  e_keyUp.value()(EventInfo{*this, Event::Type::KeyUp}, event.key.keysym.sym);
+}
 sdl2cpp::ui::KeyboardInteractable &
 sdl2cpp::ui::KeyboardInteractable::setOnKeyUp(
     sdl2cpp::ui::Event::KeyUpFnc onUp) {

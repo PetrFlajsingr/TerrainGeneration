@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_CHUNKMANAGER_H
 #define TERRAINGENERATION_CHUNKMANAGER_H
 
-#include "../gui/CameraController.h"
 #include "Chunk.h"
+#include "gui/elements/CameraController.h"
 #include <Geometry.h>
 #include <TransformFeedback.h>
 #include <config/JsonConfig.h>
@@ -113,7 +113,9 @@ public:
       }
     }
     const uint usedCount = used.size();
-    if (setupCount != logger.recall<uint>("Used_chunk_count")) {
+    static int a = 0;
+    ++a;
+    if (a % 200 == 0) {
       print("Used: ", usedCount);
       logger.remember<uint>("Used_chunk_count", setupCount);
       print("Available count: ", available.size());

@@ -9,12 +9,13 @@
 #include <SDL2CPP/Window.h>
 #include <SDL.h>
 
-#include "MouseInteractable.h"
-#include "UIObject.h"
-#include "ui_types.h"
+#include "gui/MouseInteractable.h"
+#include "gui/UIObject.h"
+#include "gui/ui_types.h"
 #include <set>
 
 namespace sdl2cpp::ui {
+
 class Button : public MouseInteractable {
 public:
   // Initialize the variables

@@ -30,10 +30,19 @@ public:
     if constexpr (std::is_base_of_v<KeyboardInteractable, T>) {
       eventDispatcher.addKeyboardEventListener(result);
     }
+    if constexpr (std::is_base_of_v<UIVisible, T>) {
+      drawable.emplace_back(result);
+    }
     return result;
   }
 
+  void render() {
+    for (auto element : drawable) {
+    }
+  }
+
 private:
+  std::vector<std::weak_ptr<UIVisible>> drawable;
   EventDispatcher eventDispatcher;
   //FocusManager focusManager;
 

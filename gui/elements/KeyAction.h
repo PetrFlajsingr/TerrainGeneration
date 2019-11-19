@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "KeyboardInteractable.h"
+#include "gui/KeyboardInteractable.h"
 
 class KeyAction : public sdl2cpp::ui::KeyboardInteractable {
   using Action = std::function<void()>;

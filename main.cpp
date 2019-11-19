@@ -1,3 +1,4 @@
+#include <SDL2/SDL_image.h>
 #include <SDL2CPP/MainLoop.h>
 #include <SDL2CPP/Window.h>
 #include <geGL/StaticCalls.h>
@@ -7,10 +8,10 @@
 #include <print.h>
 #include <types.h>
 
-#include "gui/Button.h"
-#include "gui/CameraController.h"
 #include "gui/GUIManager.h"
-#include "gui/KeyAction.h"
+#include "gui/elements/Button.h"
+#include "gui/elements/CameraController.h"
+#include "gui/elements/KeyAction.h"
 #include "rendering/ChunkManager.h"
 #include "rendering/Data.h"
 #include "third_party/Camera.h"
@@ -41,6 +42,9 @@ int main(int argc, char *argv[]) {
 
   setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
 
+  const auto assetPath =
+      config.get<std::string>("paths", "assetsLocation").value();
+
   sdl2cpp::ui::GUIManager guiManager{window};
 
   auto cameraController = guiManager.createGUIObject<CameraController>(
@@ -70,12 +74,7 @@ int main(int argc, char *argv[]) {
           break;
         }
         print("Button: ", btn);
-      })
-      .setMouseMove(
-          [](sdl2cpp::ui::EventInfo info, SDL_Point posOld, SDL_Point posNew) {
-            // print("Move, location: ", posOld.x, " ", posOld.y);
-            // print("Move, location to: ", posNew.x, " ", posNew.y);
-          });
+      });
 
   FPSCounter fpsCounter;
 
@@ -85,9 +84,11 @@ int main(int argc, char *argv[]) {
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    guiManager.render();
+
     chunks.generateChunks();
     chunks.draw(
-        DrawMode::Line,
+        DrawMode::Polygon,
         {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
          config.get<bool>("debug", "drawNormals").value(),
          config.get<uint>("debug", "drawChunkBorder", "step").value()});

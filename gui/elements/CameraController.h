@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_CAMERACONTROLLER_H
 #define TERRAINGENERATION_CAMERACONTROLLER_H
 
-#include "KeyboardInteractable.h"
-#include "MouseInteractable.h"
+#include "gui/KeyboardInteractable.h"
+#include "gui/MouseInteractable.h"
 #include <Camera.h>
 #include <SDL_events.h>
 #include <functional>

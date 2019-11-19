@@ -6,6 +6,7 @@
 #define TERRAINGENERATION_UIOBJECT_H
 
 #include "ui_types.h"
+#include <SDL_render.h>
 #include <SDL_surface.h>
 namespace sdl2cpp::ui {
 
@@ -36,6 +37,8 @@ private:
 };
 
 class UIVisible : public virtual UIObject {
+  friend class GUIManager;
+
 public:
   explicit UIVisible(SDL_Rect area, int zPosition = 0);
   UIVisible(int x, int y, int width, int height, int zPosition = 0);

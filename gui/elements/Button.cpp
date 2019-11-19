@@ -15,6 +15,9 @@ sdl2cpp::ui::Button::Button(int x, int y, int w, int h, int zPosition)
 
 }
 void sdl2cpp::ui::Button::draw() {}
+
 void sdl2cpp::ui::Button::onVisibilityChanged(Visibility visibility) {}
+
 void sdl2cpp::ui::Button::onFocusChanged(Focus focus) {}
+
 void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {}

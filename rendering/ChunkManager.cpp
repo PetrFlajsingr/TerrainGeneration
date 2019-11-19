@@ -422,7 +422,6 @@ void ChunkManager::generateChunks() {
   if (ptrs.empty()) {
     return;
   }
-  print("Computing");
   ge::gl::glEnable(GL_RASTERIZER_DISCARD);
   calculateDensity(ptrs);
 

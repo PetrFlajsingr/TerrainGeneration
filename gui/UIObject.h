@@ -5,7 +5,7 @@
 #ifndef TERRAINGENERATION_UIOBJECT_H
 #define TERRAINGENERATION_UIOBJECT_H
 
-#include "Types.h"
+#include "ui_types.h"
 #include <SDL_surface.h>
 namespace sdl2cpp::ui {
 

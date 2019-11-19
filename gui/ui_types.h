@@ -2,8 +2,8 @@
 // Created by petr on 10/11/19.
 //
 
-#ifndef TERRAINGENERATION_TYPES_H
-#define TERRAINGENERATION_TYPES_H
+#ifndef TERRAINGENERATION_UI_TYPES_H
+#define TERRAINGENERATION_UI_TYPES_H
 
 #include "Fwd.h"
 #include <SDL_keycode.h>
@@ -49,4 +49,4 @@ struct EventInfo {
 };
 }
 
-#endif // TERRAINGENERATION_TYPES_H
+#endif // TERRAINGENERATION_UI_TYPES_H

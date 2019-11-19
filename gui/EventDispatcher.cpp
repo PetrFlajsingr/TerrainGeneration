@@ -5,7 +5,7 @@
 #include "EventDispatcher.h"
 #include "UserInteraction.h"
 
-sdl2cpp::gui::EventDispatcher::EventDispatcher(
+sdl2cpp::ui::EventDispatcher::EventDispatcher(
     std::shared_ptr<sdl2cpp::Window> window)
     : window(std::move(window)){
   for (auto event : keyboardEvents) {
@@ -16,15 +16,15 @@ sdl2cpp::gui::EventDispatcher::EventDispatcher(
   }
 }
 
-void sdl2cpp::gui::EventDispatcher::addMouseEventListener(
-    std::weak_ptr<sdl2cpp::gui::MouseInteractable> mouseInteractable) {
+void sdl2cpp::ui::EventDispatcher::addMouseEventListener(
+    std::weak_ptr<sdl2cpp::ui::MouseInteractable> mouseInteractable) {
   mouseEventListeners.emplace_back(mouseInteractable);
 }
-void sdl2cpp::gui::EventDispatcher::addKeyboardEventListener(
-    std::weak_ptr<sdl2cpp::gui::KeyboardInteractable> keyboardInteractable) {
+void sdl2cpp::ui::EventDispatcher::addKeyboardEventListener(
+    std::weak_ptr<sdl2cpp::ui::KeyboardInteractable> keyboardInteractable) {
   keyboardEventListeners.emplace_back(keyboardInteractable);
 }
-bool sdl2cpp::gui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
+bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   if (auto element = findMouseInteractibleOnPosition(event.motion.x, event.motion.y); element.has_value()) {
     switch (event.type) {
     case SDL_MOUSEMOTION:
@@ -64,7 +64,7 @@ bool sdl2cpp::gui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   }
   return false;
 }
-bool sdl2cpp::gui::EventDispatcher::keyboardEventHandler(
+bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(
     const SDL_Event &event) {
   if (auto element = getFocusedKeyboardInteractible(); element.has_value()) {
     element.value()->onKeyDown(event);
@@ -75,8 +75,8 @@ bool isIn(SDL_Point point, SDL_Rect rect) {
   return rect.x <= point.x && point.x <= (rect.x + rect.w) && rect.y <= point.y && point.y <= (rect.y + rect.h);
 }
 
-std::optional<std::shared_ptr<sdl2cpp::gui::MouseInteractable>>
-sdl2cpp::gui::EventDispatcher::findMouseInteractibleOnPosition(int x, int y) {
+std::optional<std::shared_ptr<sdl2cpp::ui::MouseInteractable>>
+sdl2cpp::ui::EventDispatcher::findMouseInteractibleOnPosition(int x, int y) {
   for (auto iter = mouseEventListeners.begin(); iter != mouseEventListeners.end(); ++iter) {
     if (iter->expired()) {
       mouseEventListeners.erase(iter);
@@ -88,8 +88,8 @@ sdl2cpp::gui::EventDispatcher::findMouseInteractibleOnPosition(int x, int y) {
   }
   return std::nullopt;
 }
-std::optional<std::shared_ptr<sdl2cpp::gui::KeyboardInteractable>>
-sdl2cpp::gui::EventDispatcher::getFocusedKeyboardInteractible() {
+std::optional<std::shared_ptr<sdl2cpp::ui::KeyboardInteractable>>
+sdl2cpp::ui::EventDispatcher::getFocusedKeyboardInteractible() {
   for (auto iter = keyboardEventListeners.begin(); iter != keyboardEventListeners.end(); ++iter) {
     if (iter->expired()) {
       keyboardEventListeners.erase(iter);

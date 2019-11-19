@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
   // CameraController cameraController;
 
-  sdl2cpp::gui::GUIManager guiManager{window};
+  sdl2cpp::ui::GUIManager guiManager{window};
 
   /*window->setEventCallback(SDL_KEYDOWN,
   cameraController.getKeyboardCallback());

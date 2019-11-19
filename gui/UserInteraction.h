@@ -6,14 +6,12 @@
 #define TERRAINGENERATION_USERINTERACTION_H
 
 #include "Fwd.h"
-#include "GUIObject.h"
+#include "UIObject.h"
 #include <SDL_events.h>
 
-namespace sdl2cpp::gui {
+namespace sdl2cpp::ui {
 
-class Interactable : public virtual GUIObject {};
-
-class MouseInteractable : public virtual Interactable {
+class MouseInteractable : public virtual UIVisible {
 protected:
   friend class EventDispatcher;
   virtual void onMouseDown(const SDL_Event &event) = 0;
@@ -33,7 +31,7 @@ private:
   bool mouseInputEnabled = true;
 };
 
-class KeyboardInteractable : public virtual Interactable {
+class KeyboardInteractable : public virtual UIObject {
 protected:
   friend class EventDispatcher;
   virtual void onKeyPressed(const SDL_Event &event) = 0;

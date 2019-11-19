@@ -10,7 +10,7 @@
 #include <SDL_rect.h>
 #include <functional>
 
-namespace sdl2cpp::gui {
+namespace sdl2cpp::ui {
 enum class Visibility : bool { Visible, Invisible };
 
 enum class Focus : bool { Focused, NotFocused };
@@ -44,7 +44,7 @@ enum class Type { Draw, VisibilityChanged, FocusChanged, EnabledChanged,
 } // namespace Event
 
 struct EventInfo {
-  GUIObject &sender;
+  UIObject &sender;
   Event::Type eventType;
 };
 }

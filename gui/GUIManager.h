@@ -10,7 +10,7 @@
 #include "EventDispatcher.h"
 #include "FocusManager.h"
 
-namespace sdl2cpp::gui {
+namespace sdl2cpp::ui {
 class GUIManager {
 public:
   explicit GUIManager(std::shared_ptr<Window> window)
@@ -19,7 +19,7 @@ public:
   GUIManager &operator=(const GUIManager &) = delete;
 
   template <typename T, typename... Args>
-  [[nodiscard]] std::enable_if_t<std::is_base_of_v<GUIObject, T> &&
+  [[nodiscard]] std::enable_if_t<std::is_base_of_v<UIObject, T> &&
                                      std::is_constructible_v<T, Args...>,
                                  std::shared_ptr<T>>
   createGUIObject(Args &&... args) {
@@ -39,7 +39,7 @@ private:
 
   std::shared_ptr<Window> window;
 
-  std::vector<std::weak_ptr<GUIObject>> guiObjects;
+  std::vector<std::weak_ptr<UIObject>> guiObjects;
 };
 
 } // namespace sdl2cpp::gui

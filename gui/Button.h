@@ -9,8 +9,8 @@
 #include <SDL2CPP/Window.h>
 #include <SDL.h>
 
-#include "GUIObject.h"
 #include "Types.h"
+#include "UIObject.h"
 #include "UserInteraction.h"
 #include <set>
 

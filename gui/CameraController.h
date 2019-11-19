@@ -10,7 +10,7 @@
 #include <SDL_events.h>
 #include <functional>
 
-class CameraController : public sdl2cpp::gui::MouseInteractable, public sdl2cpp::gui::KeyboardInteractable {
+class CameraController : public sdl2cpp::ui::MouseInteractable, public sdl2cpp::ui::KeyboardInteractable {
 public:
   explicit CameraController(SDL_Rect area, glm::vec3 startingPosition = {0.f, 0.f, 0.f},
       glm::vec3 direction = {0.f, 0.f, -1.f});
@@ -22,8 +22,8 @@ public:
 protected:
   void onMouseDown(const SDL_Event &event) override;
   void draw() override;
-  void onVisibilityChanged(sdl2cpp::gui::Visibility visibility) override;
-  void onFocusChanged(sdl2cpp::gui::Focus focus) override;
+  void onVisibilityChanged(sdl2cpp::ui::Visibility visibility) override;
+  void onFocusChanged(sdl2cpp::ui::Focus focus) override;
   void onMouseClicked(const SDL_Event &event) override;
   void onMouseDblClicked(const SDL_Event &event) override;
   void onMouseOver(const SDL_Event &event) override;

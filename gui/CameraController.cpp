@@ -7,7 +7,7 @@
 
 CameraController::CameraController(SDL_Rect area, glm::vec3 startingPosition,
                              glm::vec3 direction)
-    : GUIObject(area), camera(startingPosition) {
+    : UIVisible(area), camera(startingPosition) {
   camera.MovementSpeed = 0.7f;
 }
 
@@ -55,8 +55,8 @@ glm::vec3 CameraController::getPosition() const { return camera.Position; }
 glm::mat4 CameraController::getViewMatrix() { return camera.GetViewMatrix(); }
 void CameraController::draw() {}
 void CameraController::onVisibilityChanged(
-    sdl2cpp::gui::Visibility visibility) {}
-void CameraController::onFocusChanged(sdl2cpp::gui::Focus focus) {}
+    sdl2cpp::ui::Visibility visibility) {}
+void CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 void CameraController::onEnabledChanged(bool enabled) {}
 void CameraController::onMouseClicked(const SDL_Event &event) {}
 void CameraController::onMouseDblClicked(const SDL_Event &event) {}

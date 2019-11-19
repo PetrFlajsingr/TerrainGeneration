@@ -9,7 +9,7 @@
 #include <set>
 #include "Fwd.h"
 
-namespace sdl2cpp::gui {
+namespace sdl2cpp::ui {
 
 class EventDispatcher {
   friend class GUIManager;

@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_FWD_H
 #define TERRAINGENERATION_FWD_H
 
-namespace sdl2cpp::gui {
-class GUIObject;
+namespace sdl2cpp::ui {
+class UIObject;
 struct EventInfo;
 
 class Interactable;

@@ -5,19 +5,19 @@
 #ifndef TERRAINGENERATION_FOCUSMANAGER_H
 #define TERRAINGENERATION_FOCUSMANAGER_H
 
-#include "GUIObject.h"
+#include "Fwd.h"
+#include "UIObject.h"
 #include <memory>
 #include <vector>
-#include "Fwd.h"
 
-namespace sdl2cpp::gui {
+namespace sdl2cpp::ui {
 class FocusManager {
 public:
-  explicit FocusManager(std::vector<std::shared_ptr<GUIObject>> &guiObjects) : guiObjects(guiObjects) {
+  explicit FocusManager(std::vector<std::shared_ptr<UIObject>> &guiObjects) : guiObjects(guiObjects) {
 
   }
 
-  void changeFocusTo(std::shared_ptr<GUIObject> &guiObject) {
+  void changeFocusTo(std::shared_ptr<UIObject> &guiObject) {
     if (guiObject->isFocused()) {
       return;
     }
@@ -31,8 +31,8 @@ public:
   }
 
 private:
-  std::weak_ptr<GUIObject> focusedObject;
-  std::vector<std::shared_ptr<GUIObject>> &guiObjects;
+  std::weak_ptr<UIObject> focusedObject;
+  std::vector<std::shared_ptr<UIObject>> &guiObjects;
 };
 }
 

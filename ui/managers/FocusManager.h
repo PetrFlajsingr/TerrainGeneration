@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_FOCUSMANAGER_H
 #define TERRAINGENERATION_FOCUSMANAGER_H
 
-#include "Fwd.h"
-#include "UIObject.h"
+#include "ui/Fwd.h"
+#include "ui/interface/UIObject.h"
 #include <memory>
 #include <vector>
 

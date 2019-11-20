@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_MOUSEINTERACTABLE_H
 #define TERRAINGENERATION_MOUSEINTERACTABLE_H
 
-#include "Fwd.h"
 #include "UIObject.h"
+#include "ui/Fwd.h"
 #include <SDL_events.h>
 
 namespace sdl2cpp::ui {

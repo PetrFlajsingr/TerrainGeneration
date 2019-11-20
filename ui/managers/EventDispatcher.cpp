@@ -3,8 +3,8 @@
 //
 
 #include "EventDispatcher.h"
-#include "KeyboardInteractable.h"
 #include "time/now.h"
+#include "ui/interface/KeyboardInteractable.h"
 #include <chrono>
 
 sdl2cpp::ui::EventDispatcher::EventDispatcher(

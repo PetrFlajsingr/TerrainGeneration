@@ -38,6 +38,6 @@ add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src}
         ui/elements/CameraController.cpp rendering/archive/DensityGenerators.cpp
         rendering/archive/OldChunk.cpp rendering/ChunkManager.cpp rendering/ChunkManager.h
         rendering/Chunk.cpp rendering/Chunk.h rendering/Light.cpp rendering/Light.h rendering/Data.h rendering/Data.cpp
-        ui/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/MouseInteractable.cpp ui/MouseInteractable.h utils/various/StringUtils.cpp)
+        ui/interface/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/interface/MouseInteractable.cpp ui/interface/MouseInteractable.h utils/various/StringUtils.cpp)
 
 target_link_libraries(TerrainGeneration SDL2_image geGL::geGL SDL2CPP::SDL2CPP glm)

@@ -5,9 +5,9 @@
 #ifndef TERRAINGENERATION_EVENTDISPATCHER_H
 #define TERRAINGENERATION_EVENTDISPATCHER_H
 
-#include "Fwd.h"
-#include "KeyboardInteractable.h"
-#include "MouseInteractable.h"
+#include "ui/Fwd.h"
+#include "ui/interface/KeyboardInteractable.h"
+#include "ui/interface/MouseInteractable.h"
 #include <SDL2CPP/Window.h>
 #include <set>
 

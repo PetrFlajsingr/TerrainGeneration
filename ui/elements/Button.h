@@ -9,8 +9,8 @@
 #include <SDL2CPP/Window.h>
 #include <SDL.h>
 
-#include "ui/MouseInteractable.h"
-#include "ui/UIObject.h"
+#include "ui/interface/MouseInteractable.h"
+#include "ui/interface/UIObject.h"
 #include "ui/ui_types.h"
 #include <set>
 

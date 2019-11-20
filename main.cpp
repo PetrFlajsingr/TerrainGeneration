@@ -11,10 +11,10 @@
 #include "rendering/ChunkManager.h"
 #include "rendering/Data.h"
 #include "time/FPSCounter.h"
-#include "ui/GUIManager.h"
 #include "ui/elements/Button.h"
 #include "ui/elements/CameraController.h"
 #include "ui/elements/KeyAction.h"
+#include "ui/managers/GUIManager.h"
 #include "utils/config/JsonConfig.h"
 
 using namespace std::string_literals;

@@ -14,7 +14,7 @@ sdl2cpp::ui::Button::Button(int x, int y, int w, int h, int zPosition)
   box.h = h;
 
 }
-void sdl2cpp::ui::Button::draw() {}
+void sdl2cpp::ui::Button::draw(GUIRenderer &renderer) {}
 
 void sdl2cpp::ui::Button::onVisibilityChanged(Visibility visibility) {}
 

@@ -5,6 +5,7 @@
 #ifndef TERRAINGENERATION_CAMERACONTROLLER_H
 #define TERRAINGENERATION_CAMERACONTROLLER_H
 
+#include "ui/GUIRenderer.h"
 #include "ui/interface/KeyboardInteractable.h"
 #include "ui/interface/MouseInteractable.h"
 #include <Camera.h>
@@ -23,7 +24,7 @@ public:
 
 protected:
   void onMouseDown(const SDL_Event &event) override;
-  void draw() override;
+  void draw(sdl2cpp::ui::GUIRenderer &renderer) override;
   void onVisibilityChanged(sdl2cpp::ui::Visibility visibility) override;
   void onFocusChanged(sdl2cpp::ui::Focus focus) override;
   void onMouseClicked(const SDL_Event &event) override;

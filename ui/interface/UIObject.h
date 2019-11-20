@@ -5,9 +5,11 @@
 #ifndef TERRAINGENERATION_UIOBJECT_H
 #define TERRAINGENERATION_UIOBJECT_H
 
+#include "ui/GUIRenderer.h"
 #include "ui/ui_types.h"
 #include <SDL_render.h>
 #include <SDL_surface.h>
+
 namespace sdl2cpp::ui {
 
 class UIObject {
@@ -54,7 +56,7 @@ public:
   [[nodiscard]] int getZPosition() const;
 
 protected:
-  virtual void draw() = 0;
+  virtual void draw(GUIRenderer &renderer) = 0;
   virtual void onVisibilityChanged(Visibility visibility) = 0;
 
   SDL_Rect area;

@@ -22,7 +22,7 @@ public:
   Button(int x, int y, int w, int h, int zPosition = 0);
 
 protected:
-  void draw() override;
+  void draw(GUIRenderer &renderer) override;
   void onVisibilityChanged(Visibility visibility) override;
   void onFocusChanged(Focus focus) override;
   void onEnabledChanged(bool enabled) override;

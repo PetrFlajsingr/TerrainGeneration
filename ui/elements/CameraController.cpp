@@ -53,7 +53,7 @@ void CameraController::onKeyDown(const SDL_Event &event) {
 glm::vec3 CameraController::getPosition() const { return camera.Position; }
 
 glm::mat4 CameraController::getViewMatrix() { return camera.GetViewMatrix(); }
-void CameraController::draw() {}
+void CameraController::draw(sdl2cpp::ui::GUIRenderer &renderer) {}
 void CameraController::onVisibilityChanged(
     sdl2cpp::ui::Visibility visibility) {}
 void CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}

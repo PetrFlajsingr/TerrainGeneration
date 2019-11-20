@@ -36,10 +36,7 @@ public:
     return result;
   }
 
-  void render() {
-    for (auto element : drawable) {
-    }
-  }
+  void render();
 
 private:
   std::vector<std::weak_ptr<UIVisible>> drawable;
@@ -48,7 +45,7 @@ private:
 
   std::shared_ptr<Window> window;
 
-  std::vector<std::weak_ptr<UIObject>> guiObjects;
+  GUIRenderer renderer;
 };
 
 } // namespace sdl2cpp::ui

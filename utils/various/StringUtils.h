@@ -424,6 +424,8 @@ public:
   template <template <class> typename ContainerOut = std::vector>
   inline ContainerOut<std::string> split(const StringType &delimiter);
 
+  inline const CharT *c_str() const { return _data.c_str(); }
+
   template <typename To> inline std::optional<To> to();
 
   inline bool starts_with(const StringType &str);
@@ -437,7 +439,7 @@ public:
   inline const StringType &string() const;
 
   template <typename... Args>
-  constexpr inline StringDecorator format(Args &&... args);
+  constexpr inline StringDecorator format(Args &&... args) const;
 
   template <typename... Args>
   constexpr static inline StringDecorator Format(const StringType &str,

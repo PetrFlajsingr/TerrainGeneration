@@ -14,14 +14,14 @@ CameraController::CameraController(SDL_Rect area, glm::vec3 startingPosition,
 void CameraController::onMouseDown(const SDL_Event &event) {
   if (event.button.button == SDL_BUTTON_RIGHT) {
     lockedToCamera = true;
-    enableKeyboardInput();
+    // enableControls();
     SDL_SetRelativeMouseMode(SDL_TRUE);
   }
 }
 void CameraController::onMouseUp(const SDL_Event &event) {
   if (event.button.button == SDL_BUTTON_RIGHT) {
     lockedToCamera = false;
-    disableKeyboardInput();
+    // disableControls();
     SDL_SetRelativeMouseMode(SDL_FALSE);
   }
 }

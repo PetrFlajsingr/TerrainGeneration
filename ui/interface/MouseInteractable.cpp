@@ -4,20 +4,6 @@
 
 #include "MouseInteractable.h"
 #include <error_handling/exceptions.h>
-
-bool sdl2cpp::ui::CustomMouseInteractable::isMouseInputEnabled() const {
-  return mouseInputEnabled;
-}
-
-void sdl2cpp::ui::CustomMouseInteractable::enableMouseInput() {
-  mouseInputEnabled = true;
-}
-void sdl2cpp::ui::CustomMouseInteractable::disableMouseInput() {
-  mouseInputEnabled = false;
-}
-void sdl2cpp::ui::CustomMouseInteractable::onEnabledChanged(bool enabled) {
-  enabled ? enableMouseInput() : disableMouseInput();
-}
 void sdl2cpp::ui::MouseInteractable::onMouseDown(const SDL_Event &event) {
   if (!e_onMouseDown.has_value()) {
     return;

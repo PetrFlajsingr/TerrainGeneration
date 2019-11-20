@@ -7,10 +7,12 @@
 
 namespace sdl2cpp::ui {
 class UIObject;
+class UIVisible;
 struct EventInfo;
 
-class Interactable;
+class CustomMouseInteractable;
 class MouseInteractable;
+class CustomKeyboardInteractable;
 class KeyboardInteractable;
 
 class GUIManager;

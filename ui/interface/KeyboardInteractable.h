@@ -5,26 +5,18 @@
 #ifndef TERRAINGENERATION_KEYBOARDINTERACTABLE_H
 #define TERRAINGENERATION_KEYBOARDINTERACTABLE_H
 
-#include "UIObject.h"
+#include "Interactable.h"
 #include "ui/Fwd.h"
 #include <SDL_events.h>
 
 namespace sdl2cpp::ui {
 
-class CustomKeyboardInteractable : public virtual UIObject {
+class CustomKeyboardInteractable : public virtual Interactable {
 protected:
   friend class EventDispatcher;
   virtual void onKeyPressed(const SDL_Event &event) = 0;
   virtual void onKeyDown(const SDL_Event &event) = 0;
   virtual void onKeyUp(const SDL_Event &event) = 0;
-
-  [[nodiscard]] bool isKeyboardInputEnabled() const;
-  void enableKeyboardInput();
-  void disableKeyboardInput();
-  // void onEnabledChanged(bool enabled) override;
-
-private:
-  bool keyboardInputEnabled = true;
 };
 
 class KeyboardInteractable : public virtual CustomKeyboardInteractable {

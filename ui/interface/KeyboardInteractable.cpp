@@ -5,18 +5,6 @@
 #include "KeyboardInteractable.h"
 #include <error_handling/exceptions.h>
 
-bool sdl2cpp::ui::CustomKeyboardInteractable::isKeyboardInputEnabled() const {
-  return keyboardInputEnabled;
-}
-void sdl2cpp::ui::CustomKeyboardInteractable::enableKeyboardInput() {
-  keyboardInputEnabled = true;
-}
-void sdl2cpp::ui::CustomKeyboardInteractable::disableKeyboardInput() {
-  keyboardInputEnabled = false;
-} /*
- void sdl2cpp::ui::KeyboardInteractable::onEnabledChanged(bool enabled) {
-   enabled ? enableKeyboardInput() : disableKeyboardInput();
- }*/
 void sdl2cpp::ui::KeyboardInteractable::onKeyPressed(const SDL_Event &event) {
   if (!e_keyPressed.has_value()) {
     return;

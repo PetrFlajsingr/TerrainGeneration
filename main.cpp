@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
   auto testAction = guiManager.createGUIObject<KeyAction>(SDLK_r, [] {print("test mman");});
 
   auto testBtn =
-      guiManager.createGUIObject<sdl2cpp::ui::Button>(0, 0, 300, 300, 1);
+      guiManager.createGUIObject<sdl2cpp::ui::Button>(0, 0, 300, 100, 1);
 
   testBtn->setMouseOut([](sdl2cpp::ui::EventInfo info) { print("MouseOut"); })
       .setMouseOver([](sdl2cpp::ui::EventInfo info) { print("MouseOver"); })
@@ -85,7 +85,6 @@ int main(int argc, char *argv[]) {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     guiManager.render();
-
     chunks.generateChunks();
     chunks.draw(
         DrawMode::Polygon,

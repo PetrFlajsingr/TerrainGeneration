@@ -926,7 +926,7 @@ const StringType &StringDecorator<StringType>::string() const {
 template <typename StringType>
 template <typename... Args>
 constexpr StringDecorator<StringType>
-StringDecorator<StringType>::format(Args &&... args) {
+StringDecorator<StringType>::format(Args &&... args) const {
   return StringDecorator{fmt::format(_data, args...)};
 }
 

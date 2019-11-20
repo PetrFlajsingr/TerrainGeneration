@@ -5,13 +5,14 @@
 #ifndef TERRAINGENERATION_MOUSEINTERACTABLE_H
 #define TERRAINGENERATION_MOUSEINTERACTABLE_H
 
-#include "UIObject.h"
+#include "Interactable.h"
 #include "ui/Fwd.h"
 #include <SDL_events.h>
 
 namespace sdl2cpp::ui {
 
-class CustomMouseInteractable : public virtual UIVisible {
+class CustomMouseInteractable : public virtual Interactable,
+                                public virtual UIVisible {
   friend class EventDispatcher;
 
 protected:
@@ -23,15 +24,6 @@ protected:
   virtual void onMouseDblClicked(const SDL_Event &event) = 0;
   virtual void onMouseOver(const SDL_Event &event) = 0;
   virtual void onMouseOut(const SDL_Event &event) = 0;
-
-  [[nodiscard]] bool isMouseInputEnabled() const;
-  void enableMouseInput();
-  void disableMouseInput();
-
-  void onEnabledChanged(bool enabled) override;
-
-private:
-  bool mouseInputEnabled = true;
 };
 
 class MouseInteractable : public virtual CustomMouseInteractable {

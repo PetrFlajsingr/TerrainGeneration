@@ -47,6 +47,9 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   y = event.motion.y;
   if (auto element = findMouseInteractibleOnPosition(x, y);
       element.has_value()) {
+    if (!element.value()->areControlsEnabled()) {
+      return true;
+    }
     switch (event.type) {
     case SDL_MOUSEMOTION:
       if (mouseIn == nullptr) {
@@ -91,6 +94,9 @@ bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(
     const SDL_Event &event) {
   static auto wasKeyDown = false;
   if (auto element = getFocusedKeyboardInteractible(); element.has_value()) {
+    if (!element.value()->areControlsEnabled()) {
+      return true;
+    }
     switch (event.key.type) {
     case SDL_KEYDOWN:
       element.value()->onKeyDown(event);
@@ -104,7 +110,9 @@ bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(
       }
       break;
     }
+    return true;
   }
+  return false;
 }
 
 bool isIn(SDL_Point point, SDL_Rect rect) {
@@ -118,7 +126,7 @@ sdl2cpp::ui::EventDispatcher::findMouseInteractibleOnPosition(int x, int y) {
       mouseEventListeners.erase(iter);
     }
     auto ptr = iter->lock();
-    if (isIn(SDL_Point{x, y}, ptr->getArea()) && ptr->isMouseInputEnabled()) {
+    if (isIn(SDL_Point{x, y}, ptr->getArea())) {
       return ptr;
     }
   }
@@ -131,10 +139,7 @@ sdl2cpp::ui::EventDispatcher::getFocusedKeyboardInteractible() {
       keyboardEventListeners.erase(iter);
       return std::nullopt;
     }
-    auto ptr = iter->lock();
-    if (ptr->isKeyboardInputEnabled()) {
-      return ptr;
-    }
+    return iter->lock();
   }
   return std::nullopt;
 }

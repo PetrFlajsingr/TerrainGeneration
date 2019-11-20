@@ -4,7 +4,7 @@
 
 #include "EventDispatcher.h"
 #include "KeyboardInteractable.h"
-#include "now.h"
+#include "time/now.h"
 #include <chrono>
 
 sdl2cpp::ui::EventDispatcher::EventDispatcher(

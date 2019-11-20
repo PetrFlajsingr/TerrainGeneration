@@ -6,16 +6,16 @@
 #define TERRAINGENERATION_CHUNKMANAGER_H
 
 #include "Chunk.h"
+#include "graphics/Geometry.h"
+#include "io/print.h"
 #include "ui/elements/CameraController.h"
-#include <Geometry.h>
+#include "various/loc_assert.h"
 #include <TransformFeedback.h>
 #include <config/JsonConfig.h>
 #include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 #include <geGL_utils.h>
-#include <loc_assert.h>
-#include <print.h>
 
 #include "Data.h"
 #include "Light.h"

@@ -38,15 +38,15 @@ Buffer Chunk::getBuffer(Chunk::Buffers bufferType) {
 
 VertexArray Chunk::getVA() { return drawVertexArray; }
 
-geo::AABB Chunk::calcAABB() {
-  geo::AABB result;
+geo::BoundingBox<3> Chunk::calcAABB() {
+  geo::BoundingBox<3> result;
   result.p1 = startPosition;
   result.p2 = result.p1 + size * step;
   return result;
 }
 
-geo::BoundingSphere Chunk::calcBS() {
-  geo::BoundingSphere result;
+geo::BoundingSphere<3> Chunk::calcBS() {
+  geo::BoundingSphere<3> result;
   glm::vec3 p1 = startPosition;
   glm::vec3 p2 = startPosition + size * step;
   result.center = geo::midPoint(p1, p2);

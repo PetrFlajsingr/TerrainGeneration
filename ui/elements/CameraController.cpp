@@ -3,7 +3,7 @@
 //
 
 #include "CameraController.h"
-#include <print.h>
+#include "io/print.h"
 
 CameraController::CameraController(SDL_Rect area, glm::vec3 startingPosition,
                              glm::vec3 direction)

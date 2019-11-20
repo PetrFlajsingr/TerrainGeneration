@@ -6,40 +6,69 @@
 #define UTILITIES_JSONCONFIG_H
 
 #include "Config.h"
+#include "io/print.h"
 #include "types/Range.h"
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include <print.h>
 
-template <>
-struct ConfigContainerTraits<nlohmann::json> {
-    template <typename T, typename ...Keys>
-    static std::optional<T> find(nlohmann::json &container, const Keys &...keys) {
-      using namespace MakeRange;
-      std::vector<std::string> tmpKeys{keys...};
-      nlohmann::json::iterator iter;
-      for (uint i : until(tmpKeys.size())) {
-        if (i == 0) {
-          if (iter = container.find(tmpKeys[i]); iter == container.end()) {
-            return std::nullopt;
-          }
-        } else {
-          const auto tmpEnd = iter->end();
-          if (iter = iter->find(tmpKeys[i]); iter == tmpEnd) {
-            return std::nullopt;
-          }
-        }
+namespace {
+using namespace MakeRange;
+
+template <typename... Keys>
+std::optional<nlohmann::json::iterator> findJsonNode(nlohmann::json &container,
+                                                     const Keys &... keys) {
+  std::vector<std::string> tmpKeys{keys...};
+  nlohmann::json::iterator iter;
+  for (unsigned int i : until(0, tmpKeys.size())) {
+    if (i == 0) {
+      if (iter = container.find(tmpKeys[i]); iter == container.end()) {
+        return std::nullopt;
       }
-      return static_cast<T>(*iter);
+    } else {
+      const auto tmpEnd = iter->end();
+      if (iter = iter->find(tmpKeys[i]); iter == tmpEnd) {
+        return std::nullopt;
+      }
     }
-    template <typename T, typename Key>
-    static bool contains(nlohmann::json &container, const Key &key) {
-        return container.contains(key);
+  }
+  return iter;
+}
+
+template <typename T, typename... Keys>
+void setJsonNode(nlohmann::json &container, const T &value,
+                 const Keys &... keys) {
+  std::vector<std::string> tmpKeys{keys...};
+  auto tmp = container;
+  for (unsigned int i : until(0, tmpKeys.size() - 1)) {
+    if (!tmp.contains(tmpKeys[i])) {
+      tmp[tmpKeys[i]] = nlohmann::json::object();
     }
-    template <typename T, typename Key>
-    static void set(nlohmann::json &container, const Key &key, T &&value) {
-        container[key] = value;
+    tmp = tmp[tmpKeys[i]];
+  }
+  tmp[tmpKeys.back()] = value;
+}
+} // namespace
+
+template <> struct ConfigContainerTraits<nlohmann::json> {
+  template <typename T, typename... Keys>
+  static std::optional<T> find(nlohmann::json &container,
+                               const Keys &... keys) {
+    if (auto iter = findJsonNode(container, keys...); iter.has_value()) {
+      return **iter;
     }
+    return std::nullopt;
+  }
+
+  template <typename T, typename... Keys>
+  static bool contains(nlohmann::json &container, const T &value,
+                       const Keys &... keys) {
+    return findJsonNode(container, value, keys...).has_value();
+  }
+
+  template <typename T, typename... Keys>
+  static void set(nlohmann::json &container, T &&value, const Keys &... keys) {
+    setJsonNode(container, value, keys...);
+  }
 };
 
 

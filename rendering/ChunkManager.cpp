@@ -3,17 +3,15 @@
 //
 
 #include "ChunkManager.h"
+#include "error_handling/exceptions.h"
 #include "geGL_utils.h"
 #include "lookuptables.h"
 #include "shader_literals.h"
-#include "error_handling/exceptions.h"
 #include <experimental/array>
-#include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
 #include <gl_utils.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <logger.h>
-#include <print.h>
+#include <graphics/ViewFrustum.h>
 
 using namespace ShaderLiterals;
 
@@ -29,7 +27,6 @@ ChunkManager::ChunkManager(std::shared_ptr<CameraController> cameraController, J
   createLUT();
   createBuffers();
   renderData = config.get<RenderData>("render").value();
-//  bah();
 }
 
 void ChunkManager::loadShaders() {

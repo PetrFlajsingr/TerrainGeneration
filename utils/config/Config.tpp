@@ -11,19 +11,22 @@ std::optional<T> Config<DataContainer, ReadOnly, Key>::get(const Keys &...keys) 
 }
 
 template<typename DataContainer, bool ReadOnly, typename Key>
-template<typename T>
-T Config<DataContainer, ReadOnly, Key>::getDefault(const Key &key, const T &defaultValue) {
-    if (auto found = get<T>(key); found.has_value()) {
-        return found.value();
+template <typename T, typename... Keys>
+T Config<DataContainer, ReadOnly, Key>::getDefault(const T &defaultValue,
+                                                   const Keys &... keys) {
+  if (auto found = get<T>(keys...); found.has_value()) {
+    return found.value();
     }
     return defaultValue;
 }
 
 template<typename DataContainer, bool ReadOnly, typename Key>
-template<typename T, typename>
-Config<DataContainer, ReadOnly, Key> &Config<DataContainer, ReadOnly, Key>::set(const Key &key, const T &value) {
-    container_traits::set(data, key, value);
-    return *this;
+template <typename T, typename, typename... Keys>
+Config<DataContainer, ReadOnly, Key> &
+Config<DataContainer, ReadOnly, Key>::set(const T &value,
+                                          const Keys &... keys) {
+  container_traits::set(data, value, keys...);
+  return *this;
 }
 
 template<typename DataContainer, bool ReadOnly, typename Key>
@@ -37,4 +40,11 @@ template<typename DataContainer, bool ReadOnly, typename Key>
 void Config<DataContainer, ReadOnly, Key>::reload() {
     ConfigLoader<DataContainer> loader;
     data = loader.load(path);
+}
+
+template <typename DataContainer, bool ReadOnly, typename Key>
+template <typename T, typename... Keys>
+bool Config<DataContainer, ReadOnly, Key>::contains(const T &value,
+                                                    const Keys &... keys) {
+  return container_traits::contains(data, value, keys...);
 }

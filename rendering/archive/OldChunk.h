@@ -5,11 +5,14 @@
 #ifndef TERRAINGENERATION_OLDCHUNK_H
 #define TERRAINGENERATION_OLDCHUNK_H
 
-#include <Geometry.h>
+#include "graphics/BoundingBox.h"
+#include "graphics/BoundingSphere.h"
+#include "graphics/Geometry.h"
+#include "graphics/ViewFrustum.h"
+#include "types/Lazy.h"
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 #include <glm/glm.hpp>
-#include "types/Lazy.h"
 #include <types.h>
 #include <valarray>
 
@@ -82,19 +85,18 @@ private:
 public:
   Lazy<Size> componentCount;
 
+  geo::BoundingSphere<3> boundingSphere;
+  geo::BoundingBox<3> boundingBox;
 
-  geo::BoundingSphere boundingSphere;
-  geo::AABB boundingBox;
-
-  geo::AABB calcBB() {
-    geo::AABB result;
+  geo::BoundingBox<3> calcBB() {
+    geo::BoundingBox<3> result;
     result.p1 = position;
     result.p2 = position + width;
     return result;
   }
 
-  geo::BoundingSphere calcBS() {
-    geo::BoundingSphere result;
+  geo::BoundingSphere<3> calcBS() {
+    geo::BoundingSphere<3> result;
     glm::vec3 p1 = position;
     glm::vec3 p2 = position + width;
     result.center = geo::midPoint(p1, p2);

@@ -10,7 +10,7 @@
 
 namespace detail {
 template <typename OutStream, typename ...Args>
-void printImpl(OutStream &stream, Args... args) {
+void printImpl(OutStream &stream, const Args &... args) {
   using namespace LoggerStreamModifiers;
   static auto logger = Logger{stream};
   ((logger << verbose()) << ... << args) << "\n";
@@ -28,14 +28,12 @@ class CustomPrint {
     }
   };
 }
-template <typename ...Args>
-void print(Args... args) {
-  detail::printImpl(std::cout, std::forward<Args>(args)...);
+template <typename ...Args> void print(const Args &... args) {
+  detail::printImpl(std::cout, std::forward<const Args &>(args)...);
 }
 
-template <typename ...Args>
-void printErr(Args... args) {
-  detail::printImpl(std::cerr, std::forward<Args>(args)...);
+template <typename ...Args> void printErr(const Args &... args) {
+  detail::printImpl(std::cerr, std::forward<const Args &>(args)...);
 }
 
 template <typename OutStream>

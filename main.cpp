@@ -4,13 +4,13 @@
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 
-#include <FPSCounter.h>
-#include <print.h>
+#include "io/print.h"
+#include "time/FPSCounter.h"
 #include <types.h>
 
 #include "rendering/ChunkManager.h"
 #include "rendering/Data.h"
-#include "third_party/Camera.h"
+#include "time/FPSCounter.h"
 #include "ui/GUIManager.h"
 #include "ui/elements/Button.h"
 #include "ui/elements/CameraController.h"
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
 
     window->swap();
 
-    fpsCounter.step();
+    fpsCounter.frame();
 
     if (cnt % 360 == 0)
       print(fpsCounter);

@@ -5,14 +5,16 @@
 #ifndef TERRAINGENERATION_CHUNK_H
 #define TERRAINGENERATION_CHUNK_H
 
-#include <Geometry.h>
+#include "geGL_utils.h"
+#include "graphics/BoundingBox.h"
+#include "graphics/BoundingSphere.h"
+#include "graphics/Geometry.h"
 #include <cmath>
 #include <geGL/Buffer.h>
-#include <geGL/VertexArray.h>
 #include <geGL/Generated/OpenGLTypes.h>
+#include <geGL/VertexArray.h>
 #include <glm/vec3.hpp>
 #include <memory>
-#include "geGL_utils.h"
 
 namespace {
 using Shader = std::shared_ptr<ge::gl::Shader>;
@@ -36,8 +38,8 @@ public:
   float step;
   uint size;
 
-  geo::AABB boundingBox;
-  geo::BoundingSphere boundingSphere;
+  geo::BoundingBox<3> boundingBox;
+  geo::BoundingSphere<3> boundingSphere;
 
   Buffer getBuffer(Buffers bufferType);
 
@@ -64,9 +66,9 @@ private:
 
   VertexArray drawVertexArray;
 
-  geo::AABB calcAABB();
+  geo::BoundingBox<3> calcAABB();
   bool computed = false;
 
-  geo::BoundingSphere calcBS();
+  geo::BoundingSphere<3> calcBS();
 };
 #endif // TERRAINGENERATION_CHUNK_H

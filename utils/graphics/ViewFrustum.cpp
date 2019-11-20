@@ -1,9 +1,9 @@
 //
-// Created by petr on 10/27/19.
+// Created by Petr on 19.11.2019.
 //
 
+#include "ViewFrustum.h"
 #include "Geometry.h"
-#include <iostream>
 
 geo::ViewFrustum
 geo::ViewFrustum::FromProjectionView(const glm::mat4 &viewMatrix,
@@ -82,7 +82,9 @@ geo::ViewFrustum::FromProjectionView(const glm::mat4 &viewMatrix,
   }
   return result;
 }
-geo::FrustumPosition geo::ViewFrustum::contains(const geo::BoundingSphere &bs) const {
+
+geo::FrustumPosition
+geo::ViewFrustum::contains(const geo::BoundingSphere<3> &bs) const {
   auto center = glm::vec4{bs.center, 1.0};
   auto dist01 = std::min(distanceToPlane(planes[0], center),
                          distanceToPlane(planes[1], center));
@@ -97,8 +99,11 @@ geo::FrustumPosition geo::ViewFrustum::contains(const geo::BoundingSphere &bs) c
   if (dist45 > 0) {
     return FrustumPosition::Inside;
   }
+  return FrustumPosition::Intersection;
 }
-geo::FrustumPosition geo::ViewFrustum::contains(const geo::AABB &aabb) const {
+
+geo::FrustumPosition
+geo::ViewFrustum::contains(const geo::BoundingBox<3> &aabb) const {
   static auto createPoint = [](auto &first, auto &second, auto &normal) {
     glm::vec3 result = first;
 
@@ -124,24 +129,4 @@ geo::FrustumPosition geo::ViewFrustum::contains(const geo::AABB &aabb) const {
     }
   }
   return FrustumPosition::Inside;
-}
-
-std::ostream &geo::operator<<(std::ostream &stream, const geo::AABB &aabb) {
-  stream << "P1: [" << aabb.p1.x << ", " << aabb.p1.y << ", " << aabb.p1.z
-         << "], P2: [ "
-         << "]" << aabb.p2.x << ", " << aabb.p2.y << ", " << aabb.p2.z << "]";
-  return stream;
-}
-bool geo::AABB::operator==(const geo::AABB &rhs) const {
-  return p1 == rhs.p1 && p2 == rhs.p2;
-}
-bool geo::AABB::operator!=(const geo::AABB &rhs) const {
-  return !(rhs == *this);
-}
-
-glm::vec3 geo::midPoint(const glm::vec3 &p1, const glm::vec3 &p2) {
-  return glm::vec3{(p1.x + p2.x) / 2, (p1.y + p2.y) / 2, (p1.z + p2.z) / 2};
-}
-float geo::distanceToPlane(const glm::vec4 &plane, const glm::vec4 &point) {
-  return glm::dot(point, plane);
 }

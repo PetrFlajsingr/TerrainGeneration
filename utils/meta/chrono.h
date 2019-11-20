@@ -6,6 +6,7 @@
 #define UTILITIES_CHRONO_H
 
 #include "specializations.h"
+#include <chrono>
 
 template <typename T>
 static inline constexpr bool is_duration_v =

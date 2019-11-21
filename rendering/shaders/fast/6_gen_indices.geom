@@ -77,9 +77,10 @@ void main() {
     for (uint i = 0; i < polyCount; ++i) {
         uvec3 edgesForPoly = uvec3(polyEdgesLUT[caseIndex * 15 + i*3], polyEdgesLUT[caseIndex * 15 + i*3 + 1], polyEdgesLUT[caseIndex * 15 + i*3 + 2]);
 
-        indices.x = getIndex(edgesForPoly.x, chunkCoord);
+        // flip for correct face culling orientation
+        indices.z = getIndex(edgesForPoly.x, chunkCoord);
         indices.y = getIndex(edgesForPoly.y, chunkCoord);
-        indices.z = getIndex(edgesForPoly.z, chunkCoord);
+        indices.x = getIndex(edgesForPoly.z, chunkCoord);
 
         if (true || indices.x * indices.y * indices.z != 0) {
             EmitVertex();

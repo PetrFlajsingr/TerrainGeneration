@@ -47,6 +47,8 @@ class Surroundings {
     glm::vec3 pos;
     glm::vec3 center;
   };
+  bool aggressiveChunkUnloading = true;
+
 public:
   Surroundings(float loadDistance, glm::uvec3 size, uint chunkPoolSize, float step)
       : loadDistance(loadDistance), size(size), step(step) {
@@ -91,7 +93,8 @@ public:
           ++notLoadedCount;
         }
       } else if (tile.state == ChunkIn::Filled) {
-        if (tile.ptr->boundingSphere.distance(position) > loadDistance && availableCount < availableThreshold) {
+        if (tile.ptr->boundingSphere.distance(position) > loadDistance &&
+            (aggressiveChunkUnloading || availableCount < availableThreshold)) {
           const auto tmp = used.size();
           used.remove(tile.ptr);
           available.emplace_back(tile.ptr);

@@ -86,11 +86,14 @@ float calculateDensity(vec3 vertex) {
 
     vertex.y += 10;
     return -vertex.y
-    + noise(vertex/20)*20
+    + (noise(vertex/20)*20
     + noise(vertex/10)*10
-    + noise(vertex/2)*2
-    + noise(vertex/4)*4;
-   // return -vertex.y + (sin(vertex.x/5) + sin(vertex.z/5))*7 + 20;;
+    + noise(vertex/40)*40
+    + noise(vertex/80)*80
+    + noise(vertex/4)*4
+    );
+
+    // return -vertex.y + (sin(vertex.x/5) + sin(vertex.z/5))*7 + 20;;
 }
 
 void main() {

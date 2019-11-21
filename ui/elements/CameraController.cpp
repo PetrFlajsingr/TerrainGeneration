@@ -9,7 +9,7 @@ CameraController::CameraController(glm::vec3 position, glm::vec3 dimensions,
                                    glm::vec3 startingPosition,
                                    glm::vec3 direction)
     : UIVisible(position, dimensions), camera(startingPosition) {
-  camera.MovementSpeed = 0.7f;
+  camera.MovementSpeed = 3.7f;
 }
 
 void CameraController::onMouseDown(const SDL_Event &event) {

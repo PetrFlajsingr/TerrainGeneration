@@ -70,6 +70,7 @@ public:
   }
 
   std::list<Chunk*> getForCompute(glm::vec3 position) {
+    // TODO: move to GPU for speedup
     uint availableCount = available.size();
     uint emptyCount = 0;
     uint setupCount = 0;
@@ -131,6 +132,7 @@ public:
   }
 
   void setEmpty(Chunk *chunk) {
+    // FIXME: this is really slow
     auto tmp = [chunk] (auto &val){return val.ptr == chunk; };
     if (auto iter = std::find_if(map.begin(), map.end(), tmp); iter != map.end()) {
       iter->state = ChunkIn::Empty;
@@ -138,6 +140,7 @@ public:
   }
 
   void setFilled(Chunk *chunk) {
+    // FIXME: this is really slow
     auto tmp = [chunk] (auto &val){return val.ptr == chunk; };
     if (auto iter = std::find_if(map.begin(), map.end(), tmp); iter != map.end()) {
       iter->state = ChunkIn::Filled;

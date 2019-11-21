@@ -3,21 +3,18 @@
 //
 
 #include "UIObject.h"
+#include <glm/vec3.hpp>
 
 void sdl2cpp::ui::UIObject::setEnabled(bool enabled) {
-  if (this->enabled == enabled) {
+  if (this->enabled.get() == enabled) {
     return;
   }
   this->enabled = enabled;
   onEnabledChanged(enabled);
 }
 
-bool sdl2cpp::ui::UIObject::isEnabled() const { return enabled; }
-
-bool sdl2cpp::ui::UIObject::isDisabled() const { return !enabled; }
-
 void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
-  if (this->focus == focus) {
+  if (this->focus.get() == focus) {
     return;
   }
   this->focus = focus;
@@ -26,11 +23,11 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
 
 void sdl2cpp::ui::UIVisible::setVisibility(
     sdl2cpp::ui::Visibility visibility) {
-  if (this->visiblity == visibility) {
+  if (this->visibility.get() == visibility) {
     return;
   }
   this->visibility = visibility;
-  onVisibilityChanged(visiblity);
+  onVisibilityChanged(visibility);
 }
 
 sdl2cpp::ui::UIVisible::UIVisible(glm::vec3 position, glm::vec3 dimensions)

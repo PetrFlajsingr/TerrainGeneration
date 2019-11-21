@@ -29,7 +29,7 @@ void sdl2cpp::ui::EventDispatcher::addMouseEventListener(
               }
               auto lckA = a.lock();
               auto lckB = b.lock();
-              return lckA->getZPosition() > lckB->getZPosition();
+              return lckA->position.get().z > lckB->position.get().z;
             });
 }
 void sdl2cpp::ui::EventDispatcher::addKeyboardEventListener(
@@ -126,7 +126,11 @@ sdl2cpp::ui::EventDispatcher::findMouseInteractibleOnPosition(int x, int y) {
       mouseEventListeners.erase(iter);
     }
     auto ptr = iter->lock();
-    if (isIn(SDL_Point{x, y}, ptr->getArea())) {
+    SDL_Rect rect{static_cast<int>(ptr->position.get().x),
+                  static_cast<int>(ptr->position.get().y),
+                  static_cast<int>(ptr->dimensions.get().x),
+                  static_cast<int>(ptr->dimensions.get().y)};
+    if (isIn(SDL_Point{x, y}, rect)) {
       return ptr;
     }
   }

@@ -3,19 +3,20 @@
 //
 
 #include "Button.h"
+#include <FTGL/ftgl.h>
+#include <GL/glut.h>
 #include <SDL_events.h>
 #include <geGL/StaticCalls.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <io/print.h>
 #include <ui/utils.h>
 
-sdl2cpp::ui::Button::Button(int x, int y, int w, int h, int zPosition)
-    : CustomMouseInteractable(), UIVisible(x, y, w, h, zPosition) {
-  box.x = x;
-  box.y = y;
-  box.w = w;
-  box.h = h;
-  auto positions = sdlRectToGLCoordinates(getArea(), 1920, 1080);
+sdl2cpp::ui::Button::Button(glm::vec3 position, glm::vec3 dimensions)
+    : MouseInteractable(), UIVisible(position, dimensions) {
+  SDL_Rect rect{static_cast<int>(position.x), static_cast<int>(position.y),
+                static_cast<int>(dimensions.x), static_cast<int>(dimensions.y)};
+  auto positions = sdlRectToGLCoordinates(rect, 1920, 1080);
   buffer = createBuffer<glm::vec3>(4, GL_STATIC_DRAW, &positions[0]);
   vao = std::make_shared<ge::gl::VertexArray>();
   vao->addAttrib(buffer, 0, 3, GL_FLOAT, sizeof(float) * 3, 0, GL_FALSE);
@@ -27,6 +28,11 @@ void sdl2cpp::ui::Button::draw(GUIRenderer &renderer) {
 
   glm::vec2 textPosition{10, 10};
   glm::vec4 black = {0, 0, 0, 1};
+  /*
+    FTTextureFont
+    font("/home/petr/CLionProjects/TerrainGeneration/assets/gui/fonts/Mermaid1001.ttf");
+    font.FaceSize(72);
+    font.Render("Hello World!");*/
 }
 
 void sdl2cpp::ui::Button::onVisibilityChanged(Visibility visibility) {}

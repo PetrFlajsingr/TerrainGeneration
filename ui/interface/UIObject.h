@@ -5,11 +5,12 @@
 #ifndef TERRAINGENERATION_UIOBJECT_H
 #define TERRAINGENERATION_UIOBJECT_H
 
+#include "observable/observable.hpp"
 #include "ui/GUIRenderer.h"
 #include "ui/ui_types.h"
 #include <SDL_render.h>
 #include <SDL_surface.h>
-#include "observable/observable.hpp"
+#include <glm/vec3.hpp>
 
 namespace sdl2cpp::ui {
 
@@ -22,8 +23,8 @@ public:
 
   void setEnabled(bool enabled);
 
-  observable_property<bool> enabled = true;
-  observable_property<Focus> focus = Focus::NotFocused;
+  observable_property<bool> enabled;
+  observable_property<Focus> focus;
 
 protected:
   void setFocus(Focus focus);

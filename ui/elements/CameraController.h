@@ -15,8 +15,9 @@
 class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
                          public sdl2cpp::ui::KeyboardInteractable {
 public:
-  explicit CameraController(SDL_Rect area, glm::vec3 startingPosition = {0.f, 0.f, 0.f},
-      glm::vec3 direction = {0.f, 0.f, -1.f});
+  explicit CameraController(glm::vec3 position, glm::vec3 dimensions,
+                            glm::vec3 startingPosition = {0.f, 0.f, 0.f},
+                            glm::vec3 direction = {0.f, 0.f, -1.f});
 
   [[nodiscard]] glm::vec3 getPosition() const;
   [[nodiscard]] glm::mat4 getViewMatrix();

@@ -4,6 +4,8 @@
 
 #ifndef TERRAINGENERATION_BUTTON_H
 #define TERRAINGENERATION_BUTTON_H
+#include <geGL/StaticCalls.h>
+#include <geGL/geGL.h>
 
 #include <SDL.h>
 #include <SDL2CPP/Window.h>
@@ -22,7 +24,7 @@ namespace sdl2cpp::ui {
 
 class Button : public MouseInteractable {
 public:
-  Button(int x, int y, int w, int h, int zPosition = 0);
+  Button(glm::vec3 position, glm::vec3 dimensions);
 
   String text;
 
@@ -37,8 +39,6 @@ protected:
   void onMouseUp(const SDL_Event &event) override;
 
 private:
-  SDL_Rect box;
-
   glm::vec4 color{1, 0, 0, 1};
 
   std::shared_ptr<ge::gl::Buffer> buffer;

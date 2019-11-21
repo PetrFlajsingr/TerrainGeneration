@@ -18,7 +18,7 @@ public:
   }
 
   void changeFocusTo(std::shared_ptr<UIObject> &guiObject) {
-    if (guiObject->isFocused()) {
+    if (guiObject->focus.get() == Focus::Focused) {
       return;
     }
     for (auto &guiObj : guiObjects) {

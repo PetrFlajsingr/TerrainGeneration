@@ -5,9 +5,10 @@
 #include "CameraController.h"
 #include "io/print.h"
 
-CameraController::CameraController(SDL_Rect area, glm::vec3 startingPosition,
-                             glm::vec3 direction)
-    : UIVisible(area), camera(startingPosition) {
+CameraController::CameraController(glm::vec3 position, glm::vec3 dimensions,
+                                   glm::vec3 startingPosition,
+                                   glm::vec3 direction)
+    : UIVisible(position, dimensions), camera(startingPosition) {
   camera.MovementSpeed = 0.7f;
 }
 

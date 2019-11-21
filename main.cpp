@@ -54,24 +54,18 @@ int main(int argc, char *argv[]) {
       glm::vec3{0, 0, 1}, glm::vec3{300, 300, 0});
   testBtn->text = "TEST";
 
+  auto drawMode = DrawMode::Polygon;
   testBtn->setMouseOut([](sdl2cpp::ui::EventInfo info) { print("MouseOut"); })
       .setMouseOver([](sdl2cpp::ui::EventInfo info) { print("MouseOver"); })
-      .setMouseClicked([](sdl2cpp::ui::EventInfo info,
-                          sdl2cpp::ui::MouseButton button, SDL_Point pos) {
-        print("Mouse clicked");
-        std::string btn;
-        switch (button) {
-        case sdl2cpp::ui::MouseButton::Left:
-          btn = "Left";
-          break;
-        case sdl2cpp::ui::MouseButton::Right:
-          btn = "Right";
-          break;
-        case sdl2cpp::ui::MouseButton::Middle:
-          btn = "Middle";
-          break;
+      .setMouseClicked([&drawMode](sdl2cpp::ui::EventInfo info,
+                                   sdl2cpp::ui::MouseButton button, SDL_Point pos) {
+        static auto line = true;
+        if (line) {
+          drawMode = DrawMode::Line;
+        } else {
+          drawMode = DrawMode::Polygon;
         }
-        print("Button: ", btn);
+        line = !line;
       });
 
   FPSCounter fpsCounter;
@@ -84,7 +78,7 @@ int main(int argc, char *argv[]) {
 
     chunks.generateChunks();
     chunks.draw(
-        DrawMode::Polygon,
+        drawMode,
         {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
          config.get<bool>("debug", "drawNormals").value(),
          config.get<uint>("debug", "drawChunkBorder", "step").value()});

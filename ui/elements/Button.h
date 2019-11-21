@@ -22,7 +22,6 @@ namespace sdl2cpp::ui {
 
 class Button : public MouseInteractable {
 public:
-  // Initialize the variables
   Button(int x, int y, int w, int h, int zPosition = 0);
 
   String text;
@@ -46,17 +45,5 @@ private:
   std::shared_ptr<ge::gl::VertexArray> vao;
 };
 }
-/*
-class TextBox : public KeyboardInteractable, public MouseInteractable {};
-
-class TextArea : public KeyboardInteractable, public MouseInteractable {};
-
-class Menu : public MouseInteractable {};
-
-class RadioButton : public MouseInteractable {};
-
-class CheckBox : public MouseInteractable {};
-
-class Slider : public MouseInteractable {};*/
 
 #endif // TERRAINGENERATION_BUTTON_H

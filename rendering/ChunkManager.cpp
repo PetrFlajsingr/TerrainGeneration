@@ -201,10 +201,11 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 
   std::vector<Chunk *> visibleChunks;
   for (auto &chunk : chunks) {
-    if (renderData.viewFrustumCulling ||
+    if (renderData.viewFrustumCulling &&
         viewFrustum.contains(chunk->boundingBox) !=
         geo::FrustumPosition::Outside) {
-      if (chunk->boundingSphere.distance(cameraController->camera.Position) < 500) {
+      if (chunk->boundingSphere.distance(cameraController->camera.Position) <
+          200) {
         visibleChunks.emplace_back(chunk);
       } else {
         chunk->setComputed(false);

@@ -118,7 +118,7 @@ public:
     const uint usedCount = used.size();
     static int a = 0;
     ++a;
-    if (a % 200 == 0) {
+    if (a % 1 == 0) {
       print("Used: ", usedCount);
       logger.remember<uint>("Used_chunk_count", setupCount);
       print("Available count: ", available.size());

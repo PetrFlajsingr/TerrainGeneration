@@ -24,30 +24,22 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
   onFocusChanged(focus);
 }
 
-bool sdl2cpp::ui::UIObject::isFocused() const {
-  return focus == Focus::Focused;
-}
-
 void sdl2cpp::ui::UIVisible::setVisibility(
     sdl2cpp::ui::Visibility visibility) {
   if (this->visiblity == visibility) {
     return;
   }
-  this->visiblity = visibility;
+  this->visibility = visibility;
   onVisibilityChanged(visiblity);
 }
 
+sdl2cpp::ui::UIVisible::UIVisible(glm::vec3 position, glm::vec3 dimensions)
+    : position(position), dimensions(dimensions) {}
 
-bool sdl2cpp::ui::UIVisible::isVisible() const {
-  return visiblity == Visibility::Visible;
+void sdl2cpp::ui::UIVisible::setPosition(glm::vec3 position) {
+  this->position = position;
 }
 
-SDL_Rect sdl2cpp::ui::UIVisible::getArea() const {
-  return area;
+void sdl2cpp::ui::UIVisible::setDimensions(glm::vec3 dimensions) {
+  this->dimensions = dimensions;
 }
-sdl2cpp::ui::UIVisible::UIVisible(SDL_Rect area, int zPosition)
-    : area{area}, zPosition(zPosition) {}
-sdl2cpp::ui::UIVisible::UIVisible(int x, int y, int width, int height,
-                                  int zPosition)
-    : area{x, y, width, height}, zPosition(zPosition) {}
-int sdl2cpp::ui::UIVisible::getZPosition() const { return zPosition; }

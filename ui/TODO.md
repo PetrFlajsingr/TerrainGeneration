@@ -1,8 +1,10 @@
 # UI TODOs
 
+* observable
 * focus manager
 * Scrollable
 * Resizable
+* Movable
 * xml definition
 * assets
 * bindings

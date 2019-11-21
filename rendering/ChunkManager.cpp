@@ -177,8 +177,10 @@ void ChunkManager::linkPrograms() {
 
 void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_DEPTH_TEST);
+  ge::gl::glEnable(GL_CULL_FACE);
+  // ge::gl::glCullFace(GL_FRONT);
   auto projection =
-      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 100.0f);
+      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 1000.0f);
   auto view = cameraController->getViewMatrix();
   glm::vec3 lightPos =
       glm::vec3{5, 5, 5}; // cameraController.camera.Position; // {2,5,2};

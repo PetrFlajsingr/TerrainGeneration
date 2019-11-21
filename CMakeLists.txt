@@ -3,12 +3,16 @@ project(TerrainGeneration)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_compile_definitions(GLT_IMPORTS)
+
 include(FetchContent)
 
 set(SDL2_DIR /home/petr/Desktop/pgpa/install/lib/cmake/SDL2)
 
 find_package(glm  CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
+find_package(FTGL REQUIRED)
+find_package(Freetype REQUIRED)
 
 FetchContent_Declare(SDL2CPP GIT_REPOSITORY https://github.com/dormon/SDL2CPP.git)
 FetchContent_Declare(geGL    GIT_REPOSITORY https://github.com/dormon/geGL.git)
@@ -30,14 +34,18 @@ endif()
 include_directories(include)
 include_directories(utils)
 include_directories(.)
+include_directories(${FTGL_INCLUDE_DIR})
+include_directories(${FREETYPE_INCLUDE_DIRS})
 
 file(GLOB_RECURSE ui_src "ui/*.cpp")
 file(GLOB_RECURSE utils_src "utils/*.cpp")
 
 add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src}
+        include/gltext.cpp
         ui/elements/CameraController.cpp rendering/archive/DensityGenerators.cpp
         rendering/archive/OldChunk.cpp rendering/ChunkManager.cpp rendering/ChunkManager.h
         rendering/Chunk.cpp rendering/Chunk.h rendering/Light.cpp rendering/Light.h rendering/Data.h rendering/Data.cpp
-        ui/interface/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/interface/MouseInteractable.cpp ui/interface/MouseInteractable.h utils/various/StringUtils.cpp ui/GUIRenderer.cpp ui/GUIRenderer.h ui/utils.cpp ui/utils.h utils/String.h ui/interface/Interactable.cpp ui/interface/Interactable.h)
+        ui/interface/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/interface/MouseInteractable.cpp ui/interface/MouseInteractable.h utils/various/StringUtils.cpp ui/GUIRenderer.cpp ui/GUIRenderer.h ui/utils.cpp ui/utils.h utils/String.h ui/interface/Interactable.cpp ui/interface/Interactable.h include/gltext.cpp)
 
-target_link_libraries(TerrainGeneration SDL2_image geGL::geGL SDL2CPP::SDL2CPP glm)
+target_link_libraries(TerrainGeneration SDL2_image geGL::geGL SDL2CPP::SDL2CPP glm
+        ${FTGL_LIBRARIES} ${FREETYPE_LIBRARIES})

@@ -11,21 +11,22 @@
   },
   "debug" : {
     "drawMesh" : true,
-    "drawNormals" : false,
+    "drawNormals": true,
     "drawChunkBorder" : {
       "enabled" : false,
       "step" : 32
     }
   },
   "render" : {
-    "viewDistance" : 300,
+    "viewDistance": 400,
     "levelOfDetail" : 0,
     "viewFrustumCulling" : true
   },
   "marching_cubes" : {
-    "chunkSize": 10,
+    "chunkSize": 5,
     "surroundingSize": 20,
-    "chunkPoolSize": 256
+    "chunkPoolSize": 256,
+    "aggressiveChunkUnloading": true
   },
   "device" : {
     "screen" : {

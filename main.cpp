@@ -1,6 +1,3 @@
-#include <SDL2/SDL_image.h>
-#include <SDL2CPP/MainLoop.h>
-#include <SDL2CPP/Window.h>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 
@@ -10,16 +7,17 @@
 
 #include "rendering/ChunkManager.h"
 #include "rendering/Data.h"
-#include "time/FPSCounter.h"
 #include "ui/elements/Button.h"
 #include "ui/elements/CameraController.h"
 #include "ui/elements/KeyAction.h"
 #include "ui/managers/GUIManager.h"
 #include "utils/config/JsonConfig.h"
 
+#include <SDL2CPP/MainLoop.h>
+#include <SDL2CPP/Window.h>
+
 using namespace std::string_literals;
 
-// TODO: custom types for config
 using Conf = JsonConfig<true>;
 
 int main(int argc, char *argv[]) {
@@ -48,13 +46,13 @@ int main(int argc, char *argv[]) {
   sdl2cpp::ui::GUIManager guiManager{window};
 
   auto cameraController = guiManager.createGUIObject<CameraController>(
-      SDL_Rect{0, 0, static_cast<int>(deviceData.screen.width),
-               static_cast<int>(deviceData.screen.height)});
+      glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
   auto testAction = guiManager.createGUIObject<KeyAction>(SDLK_r, [] {print("test mman");});
 
-  auto testBtn =
-      guiManager.createGUIObject<sdl2cpp::ui::Button>(0, 0, 300, 100, 1);
+  auto testBtn = guiManager.createGUIObject<sdl2cpp::ui::Button>(
+      glm::vec3{0, 0, 1}, glm::vec3{300, 300, 0});
+  testBtn->text = "TEST";
 
   testBtn->setMouseOut([](sdl2cpp::ui::EventInfo info) { print("MouseOut"); })
       .setMouseOver([](sdl2cpp::ui::EventInfo info) { print("MouseOver"); })
@@ -84,13 +82,14 @@ int main(int argc, char *argv[]) {
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    guiManager.render();
     chunks.generateChunks();
     chunks.draw(
         DrawMode::Polygon,
         {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
          config.get<bool>("debug", "drawNormals").value(),
          config.get<uint>("debug", "drawChunkBorder", "step").value()});
+
+    guiManager.render();
 
     window->swap();
 

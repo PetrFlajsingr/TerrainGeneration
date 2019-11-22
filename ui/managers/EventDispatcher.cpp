@@ -47,7 +47,8 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   y = event.motion.y;
   if (auto element = findMouseInteractibleOnPosition(x, y);
       element.has_value()) {
-    if (!element.value()->areControlsEnabled()) {
+    if (!element.value()->areControlsEnabled() ||
+        !element.value()->areMouseControlsEnabled()) {
       return true;
     }
     switch (event.type) {
@@ -94,7 +95,8 @@ bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(
     const SDL_Event &event) {
   static auto wasKeyDown = false;
   if (auto element = getFocusedKeyboardInteractible(); element.has_value()) {
-    if (!element.value()->areControlsEnabled()) {
+    if (!element.value()->areControlsEnabled() ||
+        !element.value()->areKeyboardControlsEnabled()) {
       return true;
     }
     switch (event.key.type) {
@@ -141,9 +143,12 @@ sdl2cpp::ui::EventDispatcher::getFocusedKeyboardInteractible() {
   for (auto iter = keyboardEventListeners.begin(); iter != keyboardEventListeners.end(); ++iter) {
     if (iter->expired()) {
       keyboardEventListeners.erase(iter);
-      return std::nullopt;
+      continue;
     }
-    return iter->lock();
+    auto ptr = iter->lock();
+    if (ptr->focus.get() == Focus::Focused) {
+      return ptr;
+    }
   }
   return std::nullopt;
 }

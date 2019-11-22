@@ -52,7 +52,6 @@ private:
                                            SDL_MOUSEBUTTONUP,
                                            SDL_MOUSEWHEEL};
 };
-
 }
 
 

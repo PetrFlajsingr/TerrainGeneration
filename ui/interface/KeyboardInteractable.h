@@ -12,11 +12,20 @@
 namespace sdl2cpp::ui {
 
 class CustomKeyboardInteractable : public virtual Interactable {
+public:
+  void enableKeyboardControls();
+
+  void disableKeyboardControls();
+
+  bool areKeyboardControlsEnabled();
+
 protected:
   friend class EventDispatcher;
   virtual void onKeyPressed(const SDL_Event &event) = 0;
   virtual void onKeyDown(const SDL_Event &event) = 0;
   virtual void onKeyUp(const SDL_Event &event) = 0;
+
+  bool keyboardControlsEnabled = true;
 };
 
 class KeyboardInteractable : public virtual CustomKeyboardInteractable {

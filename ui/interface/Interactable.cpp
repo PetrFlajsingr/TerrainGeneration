@@ -11,3 +11,4 @@ void sdl2cpp::ui::Interactable::disableControls() { controlsEnabled = false; }
 void sdl2cpp::ui::Interactable::onEnabledChanged(bool enabled) {
   enabled ? enableControls() : disableControls();
 }
+

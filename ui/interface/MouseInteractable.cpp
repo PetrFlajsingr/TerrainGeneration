@@ -89,36 +89,40 @@ sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseDown(
     sdl2cpp::ui::Event::MouseDownFnc onDown) {
   e_onMouseClicked = std::move(onDown);
   return *this;
-  ;
 }
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseUp(
     sdl2cpp::ui::Event::MouseUpFnc onUp) {
   e_OnMouseUp = std::move(onUp);
   return *this;
-  ;
 }
 sdl2cpp::ui::MouseInteractable &
 sdl2cpp::ui::MouseInteractable::setMouseDblClicked(
     sdl2cpp::ui::Event::MouseDblClickedFnc onDblClicked) {
   e_onMouseDblClicked = std::move(onDblClicked);
   return *this;
-  ;
 }
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseOver(
     sdl2cpp::ui::Event::MouseOverFnc onOver) {
   e_onMouseOver = std::move(onOver);
   return *this;
-  ;
 }
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseOut(
     sdl2cpp::ui::Event::MouseOutFnc onOut) {
   e_onMouseOut = std::move(onOut);
   return *this;
-  ;
 }
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseMove(
     sdl2cpp::ui::Event::MouseMoveFnc onMove) {
   e_onMouseMove = std::move(onMove);
   return *this;
-  ;
+}
+
+void sdl2cpp::ui::CustomMouseInteractable::enableMouseControls() {
+  mouseControlsEnabled = true;
+}
+void sdl2cpp::ui::CustomMouseInteractable::disableMouseControls() {
+  mouseControlsEnabled = false;
+}
+bool sdl2cpp::ui::CustomMouseInteractable::areMouseControlsEnabled() {
+  return mouseControlsEnabled;
 }

@@ -43,3 +43,13 @@ sdl2cpp::ui::KeyboardInteractable::setOnKeyPressed(
   e_keyPressed = onUp;
   return *this;
 }
+
+void sdl2cpp::ui::CustomKeyboardInteractable::enableKeyboardControls() {
+  keyboardControlsEnabled = true;
+}
+void sdl2cpp::ui::CustomKeyboardInteractable::disableKeyboardControls() {
+  keyboardControlsEnabled = false;
+}
+bool sdl2cpp::ui::CustomKeyboardInteractable::areKeyboardControlsEnabled() {
+  return keyboardControlsEnabled;
+}

@@ -15,6 +15,11 @@ class CustomMouseInteractable : public virtual Interactable,
                                 public virtual UIVisible {
   friend class EventDispatcher;
 
+public:
+  void enableMouseControls();
+  void disableMouseControls();
+  bool areMouseControlsEnabled();
+
 protected:
   friend class EventDispatcher;
   virtual void onMouseDown(const SDL_Event &event) = 0;
@@ -24,6 +29,9 @@ protected:
   virtual void onMouseDblClicked(const SDL_Event &event) = 0;
   virtual void onMouseOver(const SDL_Event &event) = 0;
   virtual void onMouseOut(const SDL_Event &event) = 0;
+
+private:
+  bool mouseControlsEnabled = true;
 };
 
 class MouseInteractable : public virtual CustomMouseInteractable {

@@ -1,7 +1,4 @@
 #include "freetype-gl++/freetype-gl++.hpp"
-#include "freetype-gl++/texture-atlas+.hpp"
-#include "freetype-gl++/vertex-buffer+.hpp"
-#include <freetype-gl++/shader+.hpp>
 
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
@@ -62,11 +59,9 @@ int main(int argc, char *argv[]) {
   testBtn->text.setText(L"Line"_sw);
 
   auto drawMode = DrawMode::Polygon;
-  testBtn->setMouseOut([](sdl2cpp::ui::EventInfo info) { print("MouseOut"); })
-      .setMouseOver([](sdl2cpp::ui::EventInfo info) { print("MouseOver"); })
-      .setMouseClicked([&drawMode, &testBtn](sdl2cpp::ui::EventInfo info,
-                                             sdl2cpp::ui::MouseButton button,
-                                             SDL_Point pos) {
+  testBtn->setMouseClicked(
+      [&drawMode, &testBtn](sdl2cpp::ui::EventInfo info,
+                            sdl2cpp::ui::MouseButton button, SDL_Point pos) {
         static auto line = true;
         if (line) {
           drawMode = DrawMode::Line;
@@ -78,7 +73,7 @@ int main(int argc, char *argv[]) {
         line = !line;
       });
 
-  testBtn->text.setFont(guiManager.getFontManager().getFont("arialbd"));
+  testBtn->text.setFont(guiManager.getFontManager().getFont("Mermaid1001"));
   testBtn->text.setFontSize(60);
 
   FPSCounter fpsCounter;
@@ -97,12 +92,8 @@ int main(int argc, char *argv[]) {
          config.get<bool>("debug", "drawNormals").value(),
          config.get<uint>("debug", "drawChunkBorder", "step").value()});
 
-    auto projection =
-        glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 1000.0f);
-
     auto ortho = glm::ortho<float>(0, 1000, 0, 562.5, -1, 1);
-    auto view = cameraController->getViewMatrix();
-    guiManager.render(ortho /*, view*/);
+    guiManager.render(ortho);
 
     window->swap();
 

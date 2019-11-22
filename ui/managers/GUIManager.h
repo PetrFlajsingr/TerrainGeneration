@@ -13,8 +13,9 @@
 namespace sdl2cpp::ui {
 class GUIManager {
 public:
-  explicit GUIManager(std::shared_ptr<Window> window)
-      : window(std::move(window)), eventDispatcher(window) {}
+  explicit GUIManager(std::shared_ptr<Window> window, const String &fontPath)
+      : window(std::move(window)), eventDispatcher(window), renderer(fontPath) {
+  }
   GUIManager(const GUIManager &) = delete;
   GUIManager &operator=(const GUIManager &) = delete;
 
@@ -36,7 +37,8 @@ public:
     return result;
   }
 
-  void render();
+  void render(glm::mat4 projection = glm::mat4(1),
+              glm::mat4 view = glm::mat4(1), glm::mat4 model = glm::mat4(1));
 
 private:
   std::vector<std::weak_ptr<UIVisible>> drawable;

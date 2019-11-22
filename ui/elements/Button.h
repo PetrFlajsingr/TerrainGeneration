@@ -23,10 +23,16 @@
 namespace sdl2cpp::ui {
 
 class Button : public MouseInteractable {
+  OBSERVABLE_PROPERTIES(Button);
+
 public:
   Button(glm::vec3 position, glm::vec3 dimensions);
 
-  String text;
+  observable_property<WString> text;
+
+  void setText(const WString &text);
+
+  Text t;
 
 protected:
   void draw(GUIRenderer &renderer) override;
@@ -40,6 +46,8 @@ protected:
 
 private:
   glm::vec4 color{1, 0, 0, 1};
+
+  bool newTextSet = false;
 
   std::shared_ptr<ge::gl::Buffer> buffer;
   std::shared_ptr<ge::gl::VertexArray> vao;

@@ -28,7 +28,6 @@ using Program = GLuint;
 using Buffer = std::shared_ptr<ge::gl::Buffer>;
 using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
 
-Logger logger{std::cout};
 } // namespace
 
 struct DrawOptions {

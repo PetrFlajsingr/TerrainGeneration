@@ -80,7 +80,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   const uint usedCount = used.size();
   static int a = 0;
   ++a;
-  if (a % 1 == 0) {
+  if (a % 1000 == 0) {
     print("Used: ", usedCount);
     print("Available count: ", available.size());
     print("emptyCount: ", emptyCount);

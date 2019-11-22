@@ -5,23 +5,25 @@
 #ifndef TERRAINGENERATION_GUIRENDERER_H
 #define TERRAINGENERATION_GUIRENDERER_H
 
+#include "rendering/text/TextRenderer.h"
 #include "shader_literals.h"
 #include <String.h>
 #include <geGL/Program.h>
 
 namespace sdl2cpp::ui {
-const String tmpPath{
-    "/home/petr/CLionProjects/TerrainGeneration/assets/gui/fonts/{}"};
+
 class GUIRenderer {
   using Program = std::shared_ptr<ge::gl::Program>;
 
 public:
-  GUIRenderer();
+  GUIRenderer(const String &fontsPath);
 
   Program getProgram();
+  TextRenderer &getTextRenderer() { return textRenderer; }
 
 private:
   Program drawProgram;
+  TextRenderer textRenderer;
 };
 
 } // namespace sdl2cpp::ui

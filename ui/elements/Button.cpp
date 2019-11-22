@@ -20,19 +20,23 @@ sdl2cpp::ui::Button::Button(glm::vec3 position, glm::vec3 dimensions)
   buffer = createBuffer<glm::vec3>(4, GL_STATIC_DRAW, &positions[0]);
   vao = std::make_shared<ge::gl::VertexArray>();
   vao->addAttrib(buffer, 0, 3, GL_FLOAT, sizeof(float) * 3, 0, GL_FALSE);
+
+  text.subscribe([this](const WString &newText) { newTextSet = true; });
 }
 void sdl2cpp::ui::Button::draw(GUIRenderer &renderer) {
   renderer.getProgram()->set4fv("color", &color[0]);
   vao->bind();
   ge::gl::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  vao->unbind();
 
-  glm::vec2 textPosition{10, 10};
-  glm::vec4 black = {0, 0, 0, 1};
-  /*
-    FTTextureFont
-    font("/home/petr/CLionProjects/TerrainGeneration/assets/gui/fonts/Mermaid1001.ttf");
-    font.FaceSize(72);
-    font.Render("Hello World!");*/
+  if (newTextSet) {
+    glm::vec3 pen{0, 1000, 0};
+    glm::vec4 black = {0, 0, 1, 1};
+    t.setText(
+        renderer.getTextRenderer().getFontManager().getFont("arialbd"_s, 100),
+        text.get(), black, pen);
+    newTextSet = false;
+  }
 }
 
 void sdl2cpp::ui::Button::onVisibilityChanged(Visibility visibility) {}
@@ -56,3 +60,4 @@ void sdl2cpp::ui::Button::onMouseUp(const SDL_Event &event) {
   MouseInteractable::onMouseUp(event);
   color = {1, 0, 0, 1};
 }
+void sdl2cpp::ui::Button::setText(const WString &text) { this->text.set(text); }

@@ -54,23 +54,22 @@ vec3 colorForHeight(float height, float minHeight, float maxHeight) {
     return color;
 }
 
-// TODO: 3D chessboard
 vec3 chessBoard(vec3 pos) {
-    if (pos.y < 50) {
+    /*if (pos.y < 100) {
         float val = (pos.y) / 50;
-        return vec3(val);
+        return vec3(val, 0, 0);
     }
-    if (pos.y < 140) {
-        return vec3(0, (pos.y) / 80, 0);
-    }
+    if (pos.y < 220) {
+        return vec3(0, (pos.y) / 150, 0);
+    }*/
     uint x = uint(floor(pos.x));
     uint y = uint(floor(pos.y));
     uint z = uint(floor(pos.z));
 
-    if (x % 2 == 0 ^^ y % 2 == 0 ^^ z % 2 == 0) {
-        return vec3(0.8, 0.8, 0.8);
+    if (x/10 % 2 == 0 ^^ z/10 % 2 == 0) {
+        return vec3(0.5, 0, 0);
     }
-    return vec3(0.4, 0.4, 0.4);
+    return vec3(0, 0.5, 0);
 }
 
 void main() {

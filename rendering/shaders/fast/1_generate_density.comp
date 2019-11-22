@@ -58,6 +58,8 @@ float distToSphere(vec3 vertex, vec3 center, float radius) {
 float calculateDensity() {
     vec3 vertex = getPosition();
 
+    vertex /= 2;
+
     float hard_floor_y = 10;
     float rad = 3;
     float result =0;// rad - length(vertex - vec3(0, 0, 0));

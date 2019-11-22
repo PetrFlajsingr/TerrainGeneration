@@ -21,8 +21,7 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
   onFocusChanged(focus);
 }
 
-void sdl2cpp::ui::UIVisible::setVisibility(
-    sdl2cpp::ui::Visibility visibility) {
+void sdl2cpp::ui::UIVisible::setVisibility(sdl2cpp::ui::Visibility visibility) {
   if (this->visibility.get() == visibility) {
     return;
   }

@@ -8,37 +8,55 @@
 #include "observable/observable.hpp"
 #include "ui/GUIRenderer.h"
 #include "ui/ui_types.h"
-#include <SDL_render.h>
-#include <SDL_surface.h>
 #include <glm/vec3.hpp>
 
 namespace sdl2cpp::ui {
 
+/**
+ * Common class for all ui objects.
+ */
 class UIObject {
   friend class FocusManager;
   OBSERVABLE_PROPERTIES(UIObject);
+
 public:
   UIObject() = default;
   virtual ~UIObject() = default;
 
+  /**
+   * When a component is inabled it accepts events, but it doesn't propagate
+   * them into its behavior.
+   * @param enabled
+   */
   void setEnabled(bool enabled);
+  /**
+   * Focused component accepts keyboard events.
+   * @param focus
+   */
+  void setFocus(Focus focus);
 
   observable_property<bool> enabled;
   observable_property<Focus> focus;
 
 protected:
-  void setFocus(Focus focus);
-
   virtual void onFocusChanged(Focus focus) = 0;
   virtual void onEnabledChanged(bool enabled) = 0;
 };
 
+/**
+ * Common class for all ui objects which should be drawn to the screen.
+ */
 class UIVisible : public virtual UIObject {
   friend class GUIManager;
   OBSERVABLE_PROPERTIES(UIVisible);
+
 public:
   UIVisible(glm::vec3 position, glm::vec3 dimensions);
 
+  /**
+   * When a component is invisible it is not drawn and it doesn't accept any
+   * events.
+   */
   void setVisibility(Visibility visibility);
 
   void setPosition(glm::vec3 position);
@@ -54,6 +72,6 @@ protected:
   virtual void onVisibilityChanged(Visibility visibility) = 0;
 };
 
-}
+} // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_UIOBJECT_H

@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
   auto testBtn = guiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 0, 1}, glm::vec3{250, 100, 0});
-  testBtn->setText(L"Line"_sw);
+  testBtn->text.setText(L"Line"_sw);
 
   auto drawMode = DrawMode::Polygon;
   testBtn->setMouseOut([](sdl2cpp::ui::EventInfo info) { print("MouseOut"); })
@@ -70,13 +70,16 @@ int main(int argc, char *argv[]) {
         static auto line = true;
         if (line) {
           drawMode = DrawMode::Line;
-          testBtn->setText(L"Fill"_sw);
+          testBtn->text.setText(L"Fill"_sw);
         } else {
           drawMode = DrawMode::Polygon;
-          testBtn->setText(L"Line"_sw);
+          testBtn->text.setText(L"Line"_sw);
         }
         line = !line;
       });
+
+  testBtn->text.setFont(guiManager.getFontManager().getFont("arialbd"));
+  testBtn->text.setFontSize(60);
 
   FPSCounter fpsCounter;
 

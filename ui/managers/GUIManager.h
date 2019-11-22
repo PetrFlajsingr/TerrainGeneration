@@ -40,6 +40,10 @@ public:
   void render(glm::mat4 projection = glm::mat4(1),
               glm::mat4 view = glm::mat4(1), glm::mat4 model = glm::mat4(1));
 
+  FontManager &getFontManager() {
+    return renderer.getTextRenderer().getFontManager();
+  }
+
 private:
   std::vector<std::weak_ptr<UIVisible>> drawable;
   EventDispatcher eventDispatcher;

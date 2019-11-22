@@ -24,7 +24,7 @@ void sdl2cpp::ui::GUIManager::render(glm::mat4 projection, glm::mat4 view,
     auto ptr = element.lock();
     if (auto p = std::dynamic_pointer_cast<sdl2cpp::ui::Button>(ptr);
         p != nullptr) {
-      renderer.getTextRenderer().render(p->t);
+      renderer.getTextRenderer().render(p->text);
     }
   }
   renderer.getTextRenderer().end();

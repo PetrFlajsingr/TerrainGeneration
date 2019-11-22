@@ -23,7 +23,7 @@
     "viewFrustumCulling" : true
   },
   "marching_cubes" : {
-    "chunkSize": 3,
+    "chunkSize": 2,
     "surroundingSize": 40,
     "chunkPoolSize": 512,
     "aggressiveChunkUnloading": true

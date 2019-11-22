@@ -30,11 +30,10 @@ void sdl2cpp::ui::Button::draw(GUIRenderer &renderer) {
   vao->unbind();
 
   if (newTextSet) {
-    glm::vec3 pen{0, 1000, 0};
+    glm::vec3 pen{10, 515, 0};
     glm::vec4 black = {0, 0, 1, 1};
-    t.setText(
-        renderer.getTextRenderer().getFontManager().getFont("arialbd"_s, 100),
-        text.get(), black, pen);
+    t.setText(renderer.getTextRenderer().getFontManager().getFont("arialbd"_s),
+              text.get(), black, pen);
     newTextSet = false;
   }
 }

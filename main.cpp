@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
     auto projection =
         glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 1000.0f);
 
-    auto ortho = glm::ortho<float>(0, 1920, 0, 1080, -1, 1);
+    auto ortho = glm::ortho<float>(0, 1000, 0, 562.5, -1, 1);
     auto view = cameraController->getViewMatrix();
     guiManager.render(ortho /*, view*/);
 

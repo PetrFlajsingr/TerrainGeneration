@@ -23,8 +23,7 @@ struct Text {
       std::unique_ptr<freetypeglxx::VertexBuffer>(
           new freetypeglxx::VertexBuffer("vertex:3f,tex_coord:2f,color:4f"));
 
-  void setText(freetypeglxx::TextureFont *font, const WString &str,
-               glm::vec4 color, glm::vec3 pen) {
+  void setText(Font &font, const WString &str, glm::vec4 color, glm::vec3 pen) {
     buffer->Clear();
     size_t i;
     float r = color.r, g = color.g, b = color.b, a = color.a;
@@ -32,7 +31,8 @@ struct Text {
     std::vector<GLuint> indices(6);
     memcpy(indices.data(), indices_raw, sizeof(indices_raw));
     for (i = 0; i < wcslen(str.c_str()); ++i) {
-      freetypeglxx::TextureGlyph *glyph = font->GetGlyph(str.c_str()[i]);
+      freetypeglxx::TextureGlyph *glyph =
+          font.getData(50)->GetGlyph(str.c_str()[i]);
       if (glyph != NULL) {
         int kerning = 0;
         if (i > 0) {

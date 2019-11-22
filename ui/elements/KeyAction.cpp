@@ -10,7 +10,11 @@ void KeyAction::onKeyPressed(const SDL_Event &event) {
     action();
   }
 }
+
 void KeyAction::onKeyDown(const SDL_Event &event) {}
+
 void KeyAction::onKeyUp(const SDL_Event &event) {}
+
 void KeyAction::onFocusChanged(sdl2cpp::ui::Focus focus) {}
+
 void KeyAction::onEnabledChanged(bool enabled) {}

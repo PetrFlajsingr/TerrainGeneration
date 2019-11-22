@@ -17,9 +17,11 @@ class EventDispatcher {
   friend class GUIManager;
 
 public:
-  explicit EventDispatcher(std::shared_ptr<Window> window);
+  explicit EventDispatcher(std::shared_ptr<Window> window,
+                           FocusManager &focusManager);
 
 private:
+  FocusManager &focusManager;
   void addMouseEventListener(
       std::weak_ptr<CustomMouseInteractable> mouseInteractable);
   void addKeyboardEventListener(

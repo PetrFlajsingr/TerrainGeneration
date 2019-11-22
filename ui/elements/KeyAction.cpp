@@ -4,7 +4,10 @@
 
 #include "KeyAction.h"
 
-KeyAction::KeyAction(SDL_Keycode key, KeyAction::Action action) : key(key), action(std::move(action)) {}
+KeyAction::KeyAction(SDL_Keycode key, KeyAction::Action action)
+    : key(key), action(std::move(action)) {
+  setFocus(sdl2cpp::ui::Focus::Focused);
+}
 void KeyAction::onKeyPressed(const SDL_Event &event) {
   if (event.key.keysym.sym == key) {
     action();

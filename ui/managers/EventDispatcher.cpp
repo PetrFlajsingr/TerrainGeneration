@@ -3,13 +3,14 @@
 //
 
 #include "EventDispatcher.h"
+#include "FocusManager.h"
 #include "time/now.h"
 #include "ui/interface/KeyboardInteractable.h"
 #include <chrono>
 
 sdl2cpp::ui::EventDispatcher::EventDispatcher(
-    std::shared_ptr<sdl2cpp::Window> window)
-    : window(std::move(window)){
+    std::shared_ptr<sdl2cpp::Window> window, FocusManager &focusManager)
+    : window(std::move(window)), focusManager(focusManager) {
   for (auto event : keyboardEvents) {
     this->window->setEventCallback(event, [this](const auto &event) {return keyboardEventHandler(event);});
   }
@@ -45,33 +46,33 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   int y;
   x = event.motion.x;
   y = event.motion.y;
-  if (auto element = findMouseInteractibleOnPosition(x, y);
-      element.has_value()) {
-    if (!element.value()->areControlsEnabled() ||
-        !element.value()->areMouseControlsEnabled()) {
+  if (auto el = findMouseInteractibleOnPosition(x, y); el.has_value()) {
+    auto &element = el.value();
+    if (!element->areControlsEnabled() || !element->areMouseControlsEnabled()) {
       return true;
     }
     switch (event.type) {
     case SDL_MOUSEMOTION:
       if (mouseIn == nullptr) {
-        element.value()->onMouseOver(event);
-        mouseIn = element.value().get();
-      } else if (mouseIn != element.value().get()) {
+        element->onMouseOver(event);
+        mouseIn = element.get();
+      } else if (mouseIn != element.get()) {
         mouseIn->onMouseOut(event);
-        element.value()->onMouseOver(event);
-        mouseIn = element.value().get();
+        element->onMouseOver(event);
+        mouseIn = element.get();
       }
-      element.value()->onMouseMove(event);
+      element->onMouseMove(event);
       break;
     case SDL_MOUSEBUTTONDOWN:
-      mouseDownIn = element.value().get();
-      element.value()->onMouseDown(event);
+      mouseDownIn = element.get();
+      element->onMouseDown(event);
       break;
     case SDL_MOUSEBUTTONUP:
-      element.value()->onMouseUp(event);
-      if (mouseDownIn == element.value().get()) {
+      element->onMouseUp(event);
+      if (mouseDownIn == element.get()) {
         const auto clickTime = now<milliseconds>();
-        element.value()->onMouseClicked(event);
+        element->onMouseClicked(event);
+        focusManager.changeFocusTo(element);
       }
       mouseDownIn = nullptr;
       break;
@@ -94,20 +95,21 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
 bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(
     const SDL_Event &event) {
   static auto wasKeyDown = false;
-  if (auto element = getFocusedKeyboardInteractible(); element.has_value()) {
-    if (!element.value()->areControlsEnabled() ||
-        !element.value()->areKeyboardControlsEnabled()) {
+  if (auto el = getFocusedKeyboardInteractible(); el.has_value()) {
+    auto &element = el.value();
+    if (!element->areControlsEnabled() ||
+        !element->areKeyboardControlsEnabled()) {
       return true;
     }
     switch (event.key.type) {
     case SDL_KEYDOWN:
-      element.value()->onKeyDown(event);
+      element->onKeyDown(event);
       wasKeyDown = true;
       break;
     case SDL_KEYUP:
-      element.value()->onKeyUp(event);
+      element->onKeyUp(event);
       if (wasKeyDown) {
-        element.value()->onKeyPressed(event);
+        element->onKeyPressed(event);
         wasKeyDown = false;
       }
       break;

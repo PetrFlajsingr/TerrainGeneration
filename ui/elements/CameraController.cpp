@@ -10,13 +10,11 @@ CameraController::CameraController(glm::vec3 position, glm::vec3 dimensions,
                                    glm::vec3 direction)
     : UIVisible(position, dimensions), camera(startingPosition) {
   camera.MovementSpeed = 5.f;
-  disableKeyboardControls();
 }
 
 void CameraController::onMouseDown(const SDL_Event &event) {
   if (event.button.button == SDL_BUTTON_RIGHT) {
     lockedToCamera = true;
-    enableKeyboardControls();
     setFocus(sdl2cpp::ui::Focus::Focused);
     SDL_SetRelativeMouseMode(SDL_TRUE);
   }
@@ -25,7 +23,6 @@ void CameraController::onMouseDown(const SDL_Event &event) {
 void CameraController::onMouseUp(const SDL_Event &event) {
   if (event.button.button == SDL_BUTTON_RIGHT) {
     lockedToCamera = false;
-    disableKeyboardControls();
     setFocus(sdl2cpp::ui::Focus::NotFocused);
     SDL_SetRelativeMouseMode(SDL_FALSE);
   }

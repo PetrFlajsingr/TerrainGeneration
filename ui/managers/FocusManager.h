@@ -13,26 +13,29 @@
 namespace sdl2cpp::ui {
 class FocusManager {
 public:
-  explicit FocusManager(std::vector<std::shared_ptr<UIObject>> &guiObjects) : guiObjects(guiObjects) {
+  explicit FocusManager(std::vector<std::weak_ptr<UIObject>> &guiObjects)
+      : guiObjects(guiObjects) {}
 
-  }
-
-  void changeFocusTo(std::shared_ptr<UIObject> &guiObject) {
+  void changeFocusTo(const std::shared_ptr<UIObject> &guiObject) {
     if (guiObject->focus.get() == Focus::Focused) {
       return;
     }
     for (auto &guiObj : guiObjects) {
-      if (guiObj == guiObject) {
+      if (guiObj.expired()) {
         continue;
       }
-      guiObj->setFocus(Focus::NotFocused);
+      auto ptr = guiObj.lock();
+      if (ptr == guiObject) {
+        continue;
+      }
+      ptr->setFocus(Focus::NotFocused);
     }
     guiObject->setFocus(Focus::Focused);
   }
 
 private:
   std::weak_ptr<UIObject> focusedObject;
-  std::vector<std::shared_ptr<UIObject>> &guiObjects;
+  std::vector<std::weak_ptr<UIObject>> &guiObjects;
 };
 }
 

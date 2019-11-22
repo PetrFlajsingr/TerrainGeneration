@@ -16,7 +16,6 @@ namespace sdl2cpp::ui {
  * Common class for all ui objects.
  */
 class UIObject {
-  friend class FocusManager;
   OBSERVABLE_PROPERTIES(UIObject);
 
 public:
@@ -35,8 +34,8 @@ public:
    */
   void setFocus(Focus focus);
 
-  observable_property<bool> enabled;
-  observable_property<Focus> focus;
+  observable_property<bool> enabled{true};
+  observable_property<Focus> focus{Focus::NotFocused};
 
 protected:
   virtual void onFocusChanged(Focus focus) = 0;

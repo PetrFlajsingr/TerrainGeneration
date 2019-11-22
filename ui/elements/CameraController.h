@@ -12,6 +12,10 @@
 #include <SDL_events.h>
 #include <functional>
 
+/**
+ * Camera controls. Steals mouse on right click and accepts other events while
+ * the right mouse button is pressed.
+ */
 class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
                          public sdl2cpp::ui::KeyboardInteractable {
 public:
@@ -19,6 +23,9 @@ public:
                             glm::vec3 startingPosition = {0.f, 0.f, 0.f},
                             glm::vec3 direction = {0.f, 0.f, -1.f});
 
+  /**
+   * @return camera position
+   */
   [[nodiscard]] glm::vec3 getPosition() const;
   [[nodiscard]] glm::mat4 getViewMatrix();
   Camera camera;

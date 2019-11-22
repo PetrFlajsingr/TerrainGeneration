@@ -11,14 +11,23 @@
 
 namespace sdl2cpp::ui {
 
+/**
+ * Interface for custom mouse event behavior.
+ */
 class CustomMouseInteractable : public virtual Interactable,
                                 public virtual UIVisible {
   friend class EventDispatcher;
 
 public:
+  /**
+   * Allow component to accept mouse events from event dispatch
+   */
   void enableMouseControls();
+  /**
+   * Forbid component to accept mouse events from event dispatch
+   */
   void disableMouseControls();
-  bool areMouseControlsEnabled();
+  [[nodiscard]] bool areMouseControlsEnabled();
 
 protected:
   friend class EventDispatcher;
@@ -34,6 +43,9 @@ private:
   bool mouseControlsEnabled = true;
 };
 
+/**
+ * Common mouse interaction interface providing callbacks for events.
+ */
 class MouseInteractable : public virtual CustomMouseInteractable {
 public:
   MouseInteractable &setMouseDown(Event::MouseDownFnc onDown);

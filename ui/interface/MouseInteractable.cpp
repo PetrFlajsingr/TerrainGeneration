@@ -4,6 +4,7 @@
 
 #include "MouseInteractable.h"
 #include <error_handling/exceptions.h>
+
 void sdl2cpp::ui::MouseInteractable::onMouseDown(const SDL_Event &event) {
   if (!e_onMouseDown.has_value()) {
     return;
@@ -13,6 +14,7 @@ void sdl2cpp::ui::MouseInteractable::onMouseDown(const SDL_Event &event) {
   e_onMouseDown.value()(EventInfo{*this, Event::Type::MouseDown}, button,
                         position);
 }
+
 void sdl2cpp::ui::MouseInteractable::onMouseUp(const SDL_Event &event) {
   if (!e_OnMouseUp.has_value()) {
     return;
@@ -21,6 +23,7 @@ void sdl2cpp::ui::MouseInteractable::onMouseUp(const SDL_Event &event) {
   SDL_Point position = positionFromEvent(event);
   e_OnMouseUp.value()(EventInfo{*this, Event::Type::MouseUp}, button, position);
 }
+
 void sdl2cpp::ui::MouseInteractable::onMouseMove(const SDL_Event &event) {
   if (!e_onMouseMove.has_value()) {
     return;
@@ -32,6 +35,7 @@ void sdl2cpp::ui::MouseInteractable::onMouseMove(const SDL_Event &event) {
   e_onMouseMove.value()(EventInfo{*this, Event::Type::MouseMove}, newPosition,
                         oldPosition);
 }
+
 void sdl2cpp::ui::MouseInteractable::onMouseDblClicked(const SDL_Event &event) {
   if (!e_onMouseDblClicked.has_value()) {
     return;
@@ -41,18 +45,21 @@ void sdl2cpp::ui::MouseInteractable::onMouseDblClicked(const SDL_Event &event) {
   e_onMouseDblClicked.value()(EventInfo{*this, Event::Type::MouseDblClicked},
                               button, position);
 }
+
 void sdl2cpp::ui::MouseInteractable::onMouseOver(const SDL_Event &event) {
   if (!e_onMouseOver.has_value()) {
     return;
   }
   e_onMouseOver.value()(EventInfo{*this, Event::Type::MouseOver});
 }
+
 void sdl2cpp::ui::MouseInteractable::onMouseOut(const SDL_Event &event) {
   if (!e_onMouseOut.has_value()) {
     return;
   }
   e_onMouseOut.value()(EventInfo{*this, Event::Type::MouseOut});
 }
+
 void sdl2cpp::ui::MouseInteractable::onMouseClicked(const SDL_Event &event) {
   if (!e_onMouseClicked.has_value()) {
     return;
@@ -62,6 +69,7 @@ void sdl2cpp::ui::MouseInteractable::onMouseClicked(const SDL_Event &event) {
   e_onMouseClicked.value()(EventInfo{*this, Event::Type::MouseClicked}, button,
                            position);
 }
+
 sdl2cpp::ui::MouseButton
 sdl2cpp::ui::MouseInteractable::buttonFromEvent(const SDL_Event &event) const {
   switch (event.button.button) {
@@ -85,32 +93,38 @@ SDL_Point sdl2cpp::ui::MouseInteractable::positionFromEvent(
     const SDL_Event &event) const {
   return {event.button.x, event.button.y};
 }
+
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseDown(
     sdl2cpp::ui::Event::MouseDownFnc onDown) {
   e_onMouseClicked = std::move(onDown);
   return *this;
 }
+
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseUp(
     sdl2cpp::ui::Event::MouseUpFnc onUp) {
   e_OnMouseUp = std::move(onUp);
   return *this;
 }
+
 sdl2cpp::ui::MouseInteractable &
 sdl2cpp::ui::MouseInteractable::setMouseDblClicked(
     sdl2cpp::ui::Event::MouseDblClickedFnc onDblClicked) {
   e_onMouseDblClicked = std::move(onDblClicked);
   return *this;
 }
+
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseOver(
     sdl2cpp::ui::Event::MouseOverFnc onOver) {
   e_onMouseOver = std::move(onOver);
   return *this;
 }
+
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseOut(
     sdl2cpp::ui::Event::MouseOutFnc onOut) {
   e_onMouseOut = std::move(onOut);
   return *this;
 }
+
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseMove(
     sdl2cpp::ui::Event::MouseMoveFnc onMove) {
   e_onMouseMove = std::move(onMove);
@@ -120,9 +134,11 @@ sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseMove(
 void sdl2cpp::ui::CustomMouseInteractable::enableMouseControls() {
   mouseControlsEnabled = true;
 }
+
 void sdl2cpp::ui::CustomMouseInteractable::disableMouseControls() {
   mouseControlsEnabled = false;
 }
+
 bool sdl2cpp::ui::CustomMouseInteractable::areMouseControlsEnabled() {
   return mouseControlsEnabled;
 }

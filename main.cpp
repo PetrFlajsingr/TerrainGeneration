@@ -17,6 +17,7 @@
 
 #include <SDL2CPP/MainLoop.h>
 #include <SDL2CPP/Window.h>
+#include <ui/elements/Label.h>
 
 using namespace std::string_literals;
 using namespace ShaderLiterals;
@@ -75,6 +76,16 @@ int main(int argc, char *argv[]) {
         line = !line;
       });
 
+  auto lbl = guiManager.createGUIObject<Label>(glm::vec3{260, 0, 1},
+                                               glm::vec3{300, 50, 0});
+  lbl->text.setFont("arialbd", 20);
+  lbl->text.setText(L"TEST LBL"_sw);
+
+  auto fpsLbl = guiManager.createGUIObject<Label>(glm::vec3{1600, 0, 1},
+                                                  glm::vec3{220, 20, 0});
+  fpsLbl->text.setFont("arialbd", 10);
+  fpsLbl->text.setText(L"FPS"_sw);
+
   FPSCounter fpsCounter;
 
   int cnt = 0;
@@ -97,9 +108,9 @@ int main(int argc, char *argv[]) {
     window->swap();
 
     fpsCounter.frame();
-
-    if (cnt % 360 == 0)
-      print(fpsCounter);
+    fpsLbl->text.setText(
+        WString(L"FPS: " + std::to_wstring(fpsCounter.current()) + L" Avg: " +
+                std::to_wstring(fpsCounter.average())));
 
     ++cnt;
   });

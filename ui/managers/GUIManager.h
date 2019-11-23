@@ -30,6 +30,7 @@ public:
               glm::mat4 view = glm::mat4(1), glm::mat4 model = glm::mat4(1));
 
   FontManager &getFontManager();
+  FocusManager &getFocusManager();
 
 private:
   std::vector<std::weak_ptr<UIVisible>> drawable;

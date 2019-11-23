@@ -37,6 +37,9 @@ void Text::setFontSize(float fontSize) {
 }
 
 void Text::setText(const WString &text) {
+  if (text == Text::text.get()) {
+    return;
+  }
   Text::text.set(text);
   calcText(text, color, position);
 }

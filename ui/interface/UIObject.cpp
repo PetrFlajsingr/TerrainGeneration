@@ -3,6 +3,7 @@
 //
 
 #include "UIObject.h"
+#include "ui/managers/GUIManager.h"
 #include <glm/vec3.hpp>
 
 sdl2cpp::ui::UIObject::UIObject(sdl2cpp::ui::GUIManager &guiManager)

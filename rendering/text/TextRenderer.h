@@ -20,6 +20,7 @@ struct vertex_t {
   float r, g, b, a; // color
 };
 class TextRenderer;
+
 class Text {
   std::unique_ptr<freetypeglxx::VertexBuffer> buffer =
       std::unique_ptr<freetypeglxx::VertexBuffer>(
@@ -28,8 +29,8 @@ class Text {
   friend class TextRenderer;
 
 public:
-  Text(const std::wstring &initialValue = L"", Font *font = nullptr,
-       float fontSize = 10);
+  Text(FontManager &fontManager, const std::wstring &initialValue = L"",
+       Font *font = nullptr, float fontSize = 10);
 
   [[nodiscard]] Font &getFont() const;
   void setFont(Font &font);
@@ -50,6 +51,8 @@ private:
   float fontSize;
   glm::vec4 color;
   glm::vec3 position;
+
+  FontManager &fontManager;
 
   void calcText(const WString &str, glm::vec4 color, glm::vec3 pen);
 };

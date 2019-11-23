@@ -4,32 +4,43 @@
 
 #include "TextRenderer.h"
 
+Text::Text(FontManager &fontManager, const std::wstring &initialValue,
+           Font *font, float fontSize)
+    : fontManager(fontManager), font(font), fontSize(fontSize) {}
+
 const glm::vec4 &Text::getColor() const { return color; }
+
 void Text::setColor(const glm::vec4 &color) {
   Text::color = color;
   calcText(text.get(), color, position);
 }
+
 const glm::vec3 &Text::getPosition() const { return position; }
+
 void Text::setPosition(const glm::vec3 &position) {
   Text::position = position;
   calcText(text.get(), color, position);
 }
-Text::Text(const std::wstring &initialValue, Font *font, float fontSize)
-    : font(font), fontSize(fontSize) {}
+
 Font &Text::getFont() const { return *font; }
+
 void Text::setFont(Font &font) {
   Text::font = &font;
   calcText(text.get(), color, position);
 }
+
 float Text::getFontSize() const { return fontSize; }
+
 void Text::setFontSize(float fontSize) {
   Text::fontSize = fontSize;
   calcText(text.get(), color, position);
 }
+
 void Text::setText(const WString &text) {
   Text::text.set(text);
   calcText(text, color, position);
 }
+
 void Text::calcText(const WString &str, glm::vec4 color, glm::vec3 pen) {
   if (font == nullptr) {
     return;
@@ -74,6 +85,7 @@ TextRenderer::TextRenderer(const String &fontPath, glm::uvec3 atlasSize)
       "/home/petr/CLionProjects/TerrainGeneration/shaders/v3f-t2f-c4f.vert",
       "/home/petr/CLionProjects/TerrainGeneration/shaders/v3f-t2f-c4f.frag");
 }
+
 void TextRenderer::begin(glm::mat4 projection, glm::mat4 view,
                          glm::mat4 model) {
   ge::gl::glUseProgram(shader);
@@ -90,6 +102,9 @@ void TextRenderer::begin(glm::mat4 projection, glm::mat4 view,
   ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(shader, "projection"),
                              1, 0, &projection[0][0]);
 }
+
 void TextRenderer::render(Text &text) { text.buffer->Render(GL_TRIANGLES); }
+
 void TextRenderer::end() { ge::gl::glDisable(GL_BLEND); }
+
 FontManager &TextRenderer::getFontManager() { return fontManager; }

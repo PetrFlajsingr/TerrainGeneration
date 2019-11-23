@@ -14,7 +14,9 @@ void sdl2cpp::ui::GUIManager::render(glm::mat4 projection, glm::mat4 view,
       continue;
     }
     auto ptr = element.lock();
-    ptr->draw(renderer);
+    if (ptr->visibility.get() == Visibility::Visible) {
+      ptr->draw(renderer);
+    }
   }
 
   renderer.getTextRenderer().begin(projection, view, model);
@@ -23,12 +25,14 @@ void sdl2cpp::ui::GUIManager::render(glm::mat4 projection, glm::mat4 view,
       continue;
     }
     auto ptr = element.lock();
-    if (auto p = std::dynamic_pointer_cast<sdl2cpp::ui::Button>(ptr);
-        p != nullptr) {
-      renderer.getTextRenderer().render(p->text);
-    } else if (auto p = std::dynamic_pointer_cast<sdl2cpp::ui::Label>(ptr);
-               p != nullptr) {
-      renderer.getTextRenderer().render(p->text);
+    if (ptr->visibility.get() == Visibility::Visible) {
+      if (auto p = std::dynamic_pointer_cast<sdl2cpp::ui::Button>(ptr);
+          p != nullptr) {
+        renderer.getTextRenderer().render(p->text);
+      } else if (auto p = std::dynamic_pointer_cast<sdl2cpp::ui::Label>(ptr);
+                 p != nullptr) {
+        renderer.getTextRenderer().render(p->text);
+      }
     }
   }
   renderer.getTextRenderer().end();

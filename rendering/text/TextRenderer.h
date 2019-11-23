@@ -34,6 +34,8 @@ public:
 
   [[nodiscard]] Font &getFont() const;
   void setFont(Font &font);
+  void setFont(const std::string &name);
+  void setFont(const std::string &name, float size);
   [[nodiscard]] float getFontSize() const;
   void setFontSize(float fontSize);
 

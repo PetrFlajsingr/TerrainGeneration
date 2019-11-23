@@ -78,6 +78,15 @@ void Text::calcText(const WString &str, glm::vec4 color, glm::vec3 pen) {
     }
   }
 }
+void Text::setFont(const std::string &name) {
+  font = &fontManager.getFont(name);
+  calcText(text.get(), color, position);
+}
+void Text::setFont(const std::string &name, float size) {
+  font = &fontManager.getFont(name);
+  fontSize = size;
+  calcText(text.get(), color, position);
+}
 
 TextRenderer::TextRenderer(const String &fontPath, glm::uvec3 atlasSize)
     : fontManager(fontPath, atlasSize) {

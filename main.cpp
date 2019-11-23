@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
 
   auto testBtn = guiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 0, 1}, glm::vec3{250, 100, 0});
+  testBtn->text.setFont("Mermaid1001", 60);
   testBtn->text.setText(L"Line"_sw);
 
   auto drawMode = DrawMode::Polygon;
@@ -73,9 +74,6 @@ int main(int argc, char *argv[]) {
         }
         line = !line;
       });
-
-  testBtn->text.setFont(guiManager.getFontManager().getFont("Mermaid1001"));
-  testBtn->text.setFontSize(60);
 
   FPSCounter fpsCounter;
 

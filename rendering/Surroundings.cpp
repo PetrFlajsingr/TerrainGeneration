@@ -38,9 +38,9 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   uint notLoadedCount = 0;
   constexpr uint availableThreshold = 30;
   for (auto &tile : map) {
-    if (tile.state == ChunkIn::NotLoaded && availableCount != 0) {
-      ;
-      if (glm::distance(tile.center, position) <= loadDistance) {
+    if (tile.state == ChunkIn::NotLoaded) {
+      if (availableCount != 0 &&
+          glm::distance(tile.center, position) <= loadDistance) {
         auto chunk = available.front();
         available.remove(chunk);
         --availableCount;
@@ -80,14 +80,10 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   const uint usedCount = used.size();
   static int a = 0;
   ++a;
-  if (a % 1000 == 0) {
-    print("Used: ", usedCount);
-    print("Available count: ", available.size());
-    print("emptyCount: ", emptyCount);
-    print("setupCount: ", setupCount);
-    print("filledCount: ", filledCount);
-    print("notLoadedCount: ", notLoadedCount);
-  }
+  info = WString::Format(L"Chunks: available {}, used {}, empty {}, setup {}, "
+                         L"filled {}, notLoaded {}",
+                         available.size(), usedCount, emptyCount, setupCount,
+                         filledCount, notLoadedCount);
   return used;
 }
 void Surroundings::setEmpty(Chunk *chunk) {

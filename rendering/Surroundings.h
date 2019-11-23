@@ -6,8 +6,10 @@
 #define TERRAINGENERATION_SURROUNDINGS_H
 
 #include "Chunk.h"
+#include <String.h>
 #include <glm/glm.hpp>
 #include <list>
+#include <observable/value.hpp>
 #include <vector>
 
 enum class ChunkIn { NotLoaded, Setup, Empty, Filled };
@@ -24,6 +26,8 @@ class Surroundings {
 public:
   Surroundings(float loadDistance, glm::uvec3 size, uint chunkPoolSize,
                float step);
+
+  observable::value<WString> info;
 
   std::list<Chunk *> getForCompute(glm::vec3 position);
 

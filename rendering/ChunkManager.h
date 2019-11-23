@@ -40,7 +40,7 @@ struct DrawOptions {
 constexpr float step = 2;
 constexpr uint size = 32;
 class ChunkManager {
-  Surroundings surr;
+
   std::list<Chunk*> chunks;
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 
@@ -51,6 +51,7 @@ class ChunkManager {
 
   RenderData renderData;
 public:
+  Surroundings surr;
   explicit ChunkManager(
       std::shared_ptr<sdl2cpp::ui::CameraController> cameraController,
       JsonConfig<true> config);

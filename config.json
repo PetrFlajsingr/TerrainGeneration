@@ -18,12 +18,12 @@
     }
   },
   "render" : {
-    "viewDistance": 500,
+    "viewDistance": 1000,
     "levelOfDetail" : 0,
     "viewFrustumCulling" : true
   },
   "marching_cubes" : {
-    "chunkSize": 3,
+    "chunkSize": 5,
     "surroundingSize": 40,
     "chunkPoolSize": 256,
     "aggressiveChunkUnloading": false

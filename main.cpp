@@ -85,6 +85,13 @@ int main(int argc, char *argv[]) {
                                                         glm::vec3{500, 20, 0});
   chunkInfoLbl->text.setFont("arialbd", 10);
 
+  auto chunkDrawnLbl = guiManager.createGUIObject<Label>(glm::vec3{0, 950, 1},
+                                                         glm::vec3{500, 20, 0});
+  chunkDrawnLbl->text.setFont("arialbd", 10);
+  auto chunkCompLbl = guiManager.createGUIObject<Label>(glm::vec3{0, 900, 1},
+                                                        glm::vec3{500, 20, 0});
+  chunkCompLbl->text.setFont("arialbd", 10);
+
   FPSCounter fpsCounter;
 
   int cnt = 0;
@@ -92,6 +99,12 @@ int main(int argc, char *argv[]) {
   ChunkManager chunks{cameraController, config};
   chunks.surr.info.subscribe(
       [&chunkInfoLbl](auto &val) { chunkInfoLbl->text.setText(val); });
+  chunks.drawnCount.subscribe([&chunkDrawnLbl](auto &val) {
+    chunkDrawnLbl->text.setText(L"Drawing: {}"_sw.format(val));
+  });
+  chunks.computeCount.subscribe([&chunkCompLbl](auto &val) {
+    chunkCompLbl->text.setText(L"Computing: {}"_sw.format(val));
+  });
 
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

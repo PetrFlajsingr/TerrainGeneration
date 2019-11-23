@@ -52,6 +52,9 @@ class ChunkManager {
   RenderData renderData;
 public:
   Surroundings surr;
+
+  observable::value<int> drawnCount;
+  observable::value<int> computeCount;
   explicit ChunkManager(
       std::shared_ptr<sdl2cpp::ui::CameraController> cameraController,
       JsonConfig<true> config);

@@ -216,11 +216,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
       }
     }
   }
-  static auto last = 0;
-  if (last != visibleChunks.size()) {
-    print("Drawing {} chunks"_s.format(visibleChunks.size()));
-    last = visibleChunks.size();
-  }
+  drawnCount = visibleChunks.size();
 
   drawChunk(visibleChunks, projection, view, lightPos);
   if (drawOptions.drawNormals) {
@@ -435,11 +431,7 @@ void ChunkManager::generateChunks() {
   if (ptrs.empty()) {
     return;
   }
-  static auto last = 0;
-  if (last != ptrs.size()) {
-    print("Generating {} chunks"_s.format(ptrs.size()));
-    last = ptrs.size();
-  }
+  computeCount = ptrs.size();
   ge::gl::glEnable(GL_RASTERIZER_DISCARD);
   calculateDensity(ptrs);
 

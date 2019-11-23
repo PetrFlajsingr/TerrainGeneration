@@ -4,20 +4,21 @@
 
 #include "KeyAction.h"
 
-KeyAction::KeyAction(SDL_Keycode key, KeyAction::Action action)
-    : key(key), action(std::move(action)) {
+sdl2cpp::ui::KeyAction::KeyAction(GUIManager &guiManager, SDL_Keycode key,
+                                  KeyAction::Action action)
+    : UIObject(guiManager), key(key), action(std::move(action)) {
   setFocus(sdl2cpp::ui::Focus::Focused);
 }
-void KeyAction::onKeyPressed(const SDL_Event &event) {
+void sdl2cpp::ui::KeyAction::onKeyPressed(const SDL_Event &event) {
   if (event.key.keysym.sym == key) {
     action();
   }
 }
 
-void KeyAction::onKeyDown(const SDL_Event &event) {}
+void sdl2cpp::ui::KeyAction::onKeyDown(const SDL_Event &event) {}
 
-void KeyAction::onKeyUp(const SDL_Event &event) {}
+void sdl2cpp::ui::KeyAction::onKeyUp(const SDL_Event &event) {}
 
-void KeyAction::onFocusChanged(sdl2cpp::ui::Focus focus) {}
+void sdl2cpp::ui::KeyAction::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 
-void KeyAction::onEnabledChanged(bool enabled) {}
+void sdl2cpp::ui::KeyAction::onEnabledChanged(bool enabled) {}

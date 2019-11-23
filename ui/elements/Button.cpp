@@ -9,8 +9,10 @@
 #include <io/print.h>
 #include <ui/utils.h>
 
-sdl2cpp::ui::Button::Button(glm::vec3 position, glm::vec3 dimensions)
-    : MouseInteractable(), UIVisible(position, dimensions) {
+sdl2cpp::ui::Button::Button(GUIManager &guiManager, glm::vec3 position,
+                            glm::vec3 dimensions)
+    : UIObject(guiManager), MouseInteractable(),
+      UIVisible(position, dimensions) {
   SDL_Rect rect{static_cast<int>(position.x), static_cast<int>(position.y),
                 static_cast<int>(dimensions.x), static_cast<int>(dimensions.y)};
   auto positions = sdlRectToGLCoordinates(rect, 1920, 1080);

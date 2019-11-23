@@ -20,6 +20,7 @@
 
 using namespace std::string_literals;
 using namespace ShaderLiterals;
+using namespace sdl2cpp::ui;
 
 using Conf = JsonConfig<true>;
 

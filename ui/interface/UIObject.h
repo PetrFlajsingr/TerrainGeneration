@@ -17,13 +17,12 @@ namespace sdl2cpp::ui {
  */
 class UIObject {
   OBSERVABLE_PROPERTIES(UIObject);
-
 public:
-  UIObject() = default;
+  UIObject(GUIManager &guiManager);
   virtual ~UIObject() = default;
 
   /**
-   * When a component is inabled it accepts events, but it doesn't propagate
+   * When a component is enabled it accepts events, but it doesn't propagate
    * them into its behavior.
    * @param enabled
    */
@@ -37,9 +36,14 @@ public:
   observable_property<bool> enabled{true};
   observable_property<Focus> focus{Focus::NotFocused};
 
+  GUIManager &getGUIManager();
+
 protected:
   virtual void onFocusChanged(Focus focus) = 0;
   virtual void onEnabledChanged(bool enabled) = 0;
+
+private:
+  GUIManager &guiManager;
 };
 
 /**

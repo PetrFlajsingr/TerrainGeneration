@@ -5,6 +5,9 @@
 #include "UIObject.h"
 #include <glm/vec3.hpp>
 
+sdl2cpp::ui::UIObject::UIObject(sdl2cpp::ui::GUIManager &guiManager)
+    : guiManager(guiManager) {}
+
 void sdl2cpp::ui::UIObject::setEnabled(bool enabled) {
   if (this->enabled.get() == enabled) {
     return;
@@ -19,6 +22,9 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
   }
   this->focus = focus;
   onFocusChanged(focus);
+}
+sdl2cpp::ui::GUIManager &sdl2cpp::ui::UIObject::getGUIManager() {
+  return guiManager;
 }
 
 void sdl2cpp::ui::UIVisible::setVisibility(sdl2cpp::ui::Visibility visibility) {

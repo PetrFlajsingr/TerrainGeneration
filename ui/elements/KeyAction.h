@@ -9,13 +9,15 @@
 
 #include "ui/interface/KeyboardInteractable.h"
 
+namespace sdl2cpp::ui {
 /**
  * Action called when no other object is focused and selected key is pressed.
  */
 class KeyAction : public sdl2cpp::ui::KeyboardInteractable {
   using Action = std::function<void()>;
 public:
-  explicit KeyAction(SDL_Keycode key, Action action);
+  explicit KeyAction(GUIManager &guiManager, SDL_Keycode key, Action action);
+
 protected:
   void onKeyPressed(const SDL_Event &event) override;
   void onKeyDown(const SDL_Event &event) override;
@@ -27,5 +29,5 @@ private:
   SDL_Keycode key;
   Action action;
 };
-
+} // namespace sdl2cpp::ui
 #endif // TERRAINGENERATION_KEYACTION_H

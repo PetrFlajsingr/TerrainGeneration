@@ -29,3 +29,6 @@ void sdl2cpp::ui::GUIManager::render(glm::mat4 projection, glm::mat4 view,
   }
   renderer.getTextRenderer().end();
 }
+FontManager &sdl2cpp::ui::GUIManager::getFontManager() {
+  return renderer.getTextRenderer().getFontManager();
+}

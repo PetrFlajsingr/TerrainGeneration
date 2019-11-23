@@ -29,7 +29,7 @@ class Button : public MouseInteractable {
   OBSERVABLE_PROPERTIES(Button);
 
 public:
-  Button(glm::vec3 position, glm::vec3 dimensions);
+  Button(GUIManager &guiManager, glm::vec3 position, glm::vec3 dimensions);
 
   Text text;
 

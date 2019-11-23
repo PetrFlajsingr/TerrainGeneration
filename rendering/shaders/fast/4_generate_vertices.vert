@@ -91,7 +91,7 @@ float calculateDensity(vec3 vertex) {
     + noise(vertex/40)*40
     + noise(vertex/80)*80
     + noise(vertex/4)*4
-    );
+    ) * 3;
 
     // return -vertex.y + (sin(vertex.x/5) + sin(vertex.z/5))*7 + 20;;
 }

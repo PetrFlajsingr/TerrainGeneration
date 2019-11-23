@@ -5,14 +5,17 @@
 #include "CameraController.h"
 #include "io/print.h"
 
-CameraController::CameraController(glm::vec3 position, glm::vec3 dimensions,
-                                   glm::vec3 startingPosition,
-                                   glm::vec3 direction)
-    : UIVisible(position, dimensions), camera(startingPosition) {
+sdl2cpp::ui::CameraController::CameraController(GUIManager &guiManager,
+                                                glm::vec3 position,
+                                                glm::vec3 dimensions,
+                                                glm::vec3 startingPosition,
+                                                glm::vec3 direction)
+    : UIObject(guiManager), UIVisible(position, dimensions),
+      camera(startingPosition) {
   camera.MovementSpeed = 5.f;
 }
 
-void CameraController::onMouseDown(const SDL_Event &event) {
+void sdl2cpp::ui::CameraController::onMouseDown(const SDL_Event &event) {
   if (event.button.button == SDL_BUTTON_RIGHT) {
     lockedToCamera = true;
     setFocus(sdl2cpp::ui::Focus::Focused);
@@ -20,7 +23,7 @@ void CameraController::onMouseDown(const SDL_Event &event) {
   }
 }
 
-void CameraController::onMouseUp(const SDL_Event &event) {
+void sdl2cpp::ui::CameraController::onMouseUp(const SDL_Event &event) {
   if (event.button.button == SDL_BUTTON_RIGHT) {
     lockedToCamera = false;
     setFocus(sdl2cpp::ui::Focus::NotFocused);
@@ -28,15 +31,15 @@ void CameraController::onMouseUp(const SDL_Event &event) {
   }
 }
 
-void CameraController::onMouseMove(const SDL_Event &event) {
+void sdl2cpp::ui::CameraController::onMouseMove(const SDL_Event &event) {
   if (lockedToCamera) {
     camera.ProcessMouseMovement(event.motion.xrel, -event.motion.yrel, true);
   }
 }
 
-void CameraController::onKeyPressed(const SDL_Event &event) {}
+void sdl2cpp::ui::CameraController::onKeyPressed(const SDL_Event &event) {}
 
-void CameraController::onKeyDown(const SDL_Event &event) {
+void sdl2cpp::ui::CameraController::onKeyDown(const SDL_Event &event) {
   auto key = event.key.keysym.sym;
   switch (key) {
   case SDLK_w:
@@ -56,25 +59,29 @@ void CameraController::onKeyDown(const SDL_Event &event) {
   }
 }
 
-glm::vec3 CameraController::getPosition() const { return camera.Position; }
-
-glm::mat4 CameraController::getViewMatrix() { return camera.GetViewMatrix(); }
-
-void CameraController::draw(sdl2cpp::ui::GUIRenderer &renderer) {}
-
-void CameraController::onVisibilityChanged(sdl2cpp::ui::Visibility visibility) {
+glm::vec3 sdl2cpp::ui::CameraController::getPosition() const {
+  return camera.Position;
 }
 
-void CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}
+glm::mat4 sdl2cpp::ui::CameraController::getViewMatrix() {
+  return camera.GetViewMatrix();
+}
 
-void CameraController::onEnabledChanged(bool enabled) {}
+void sdl2cpp::ui::CameraController::draw(sdl2cpp::ui::GUIRenderer &renderer) {}
 
-void CameraController::onMouseClicked(const SDL_Event &event) {}
+void sdl2cpp::ui::CameraController::onVisibilityChanged(
+    sdl2cpp::ui::Visibility visibility) {}
 
-void CameraController::onMouseDblClicked(const SDL_Event &event) {}
+void sdl2cpp::ui::CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 
-void CameraController::onMouseOver(const SDL_Event &event) {}
+void sdl2cpp::ui::CameraController::onEnabledChanged(bool enabled) {}
 
-void CameraController::onMouseOut(const SDL_Event &event) {}
+void sdl2cpp::ui::CameraController::onMouseClicked(const SDL_Event &event) {}
 
-void CameraController::onKeyUp(const SDL_Event &event) {}
+void sdl2cpp::ui::CameraController::onMouseDblClicked(const SDL_Event &event) {}
+
+void sdl2cpp::ui::CameraController::onMouseOver(const SDL_Event &event) {}
+
+void sdl2cpp::ui::CameraController::onMouseOut(const SDL_Event &event) {}
+
+void sdl2cpp::ui::CameraController::onKeyUp(const SDL_Event &event) {}

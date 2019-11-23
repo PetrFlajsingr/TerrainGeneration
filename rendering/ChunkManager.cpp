@@ -15,7 +15,9 @@
 
 using namespace ShaderLiterals;
 
-ChunkManager::ChunkManager(std::shared_ptr<CameraController> cameraController, JsonConfig<true> config)
+ChunkManager::ChunkManager(
+    std::shared_ptr<sdl2cpp::ui::CameraController> cameraController,
+    JsonConfig<true> config)
     : cameraController(std::move(cameraController)), config(config), surr({
                                                                    config.get<float>("render", "viewDistance").value(),
                                                                    glm::uvec3{config.get<uint>("marching_cubes", "surroundingSize").value()},

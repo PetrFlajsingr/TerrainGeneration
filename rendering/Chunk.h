@@ -55,9 +55,10 @@ public:
   }
 
   /* DEBUG */
-  uint vertexCount;
+  uint vertexCount = 0;
   /* \DEBUG */
-  uint indexCount;
+  uint indexCount = 0;
+
 private:
   Buffer densityBuffer;
   Buffer vertexBuffer;

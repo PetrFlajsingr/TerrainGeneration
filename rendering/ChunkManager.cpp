@@ -202,6 +202,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
       geo::ViewFrustum::FromProjectionView(view, projection);
 
   std::vector<Chunk *> visibleChunks;
+  ;
   for (auto &chunk : chunks) {
     if (renderData.viewFrustumCulling &&
         viewFrustum.contains(chunk->boundingBox) !=

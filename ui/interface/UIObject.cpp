@@ -21,7 +21,12 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
   if (this->focus.get() == focus) {
     return;
   }
-  this->focus = focus;
+  if (focus == Focus::Focused) {
+    this->focus = focus;
+    guiManager.getFocusManager().changeFocusTo(this);
+  } else {
+    this->focus = focus;
+  }
   onFocusChanged(focus);
 }
 sdl2cpp::ui::GUIManager &sdl2cpp::ui::UIObject::getGUIManager() {

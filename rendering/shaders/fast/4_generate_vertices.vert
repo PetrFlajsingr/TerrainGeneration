@@ -84,6 +84,8 @@ float calculateDensity(vec3 vertex) {
     float result = rad - length(vertex - vec3(0, -rad, 0));
     result += fbm(vertex.xyz, 5);
 
+    vertex /= 2;
+
     vertex.y += 10;
     return -vertex.y
     + (noise(vertex/20)*20

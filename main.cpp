@@ -91,6 +91,9 @@ int main(int argc, char *argv[]) {
   auto chunkCompLbl = guiManager.createGUIObject<Label>(glm::vec3{0, 900, 1},
                                                         glm::vec3{500, 20, 0});
   chunkCompLbl->text.setFont("arialbd", 10);
+  chunkCompLbl->text.setColor({1, 1, 1, 1});
+  chunkInfoLbl->text.setColor({1, 1, 1, 1});
+  chunkDrawnLbl->text.setColor({1, 1, 1, 1});
 
   FPSCounter fpsCounter;
 

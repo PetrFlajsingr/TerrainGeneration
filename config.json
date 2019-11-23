@@ -11,7 +11,7 @@
   },
   "debug" : {
     "drawMesh" : true,
-    "drawNormals": true,
+    "drawNormals": false,
     "drawChunkBorder" : {
       "enabled" : false,
       "step" : 32
@@ -23,9 +23,9 @@
     "viewFrustumCulling" : true
   },
   "marching_cubes" : {
-    "chunkSize": 5,
-    "surroundingSize": 40,
-    "chunkPoolSize": 256,
+    "chunkSize": 2,
+    "surroundingSize": 50,
+    "chunkPoolSize": 4096,
     "aggressiveChunkUnloading": false
   },
   "device" : {

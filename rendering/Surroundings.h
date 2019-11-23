@@ -44,6 +44,8 @@ private:
   std::vector<Chunk> chunkPool;
   std::list<Chunk *> available;
   std::list<Chunk *> used;
+
+  std::unordered_map<Chunk *, Tile *> usedChunks;
 };
 
 #endif // TERRAINGENERATION_SURROUNDINGS_H

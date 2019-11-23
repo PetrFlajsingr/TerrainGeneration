@@ -48,6 +48,9 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
         chunk->startPosition = tile.pos;
         chunk->recalc();
         used.emplace_back(chunk);
+
+        usedChunks[chunk] = &tile;
+
         tile.state = ChunkIn::Setup;
         tile.ptr = chunk;
         ++setupCount;
@@ -59,6 +62,9 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
           (aggressiveChunkUnloading || availableCount < availableThreshold)) {
         const auto tmp = used.size();
         used.remove(tile.ptr);
+
+        usedChunks[tile.ptr] = nullptr;
+
         available.emplace_back(tile.ptr);
         ++availableCount;
         tile.state = ChunkIn::NotLoaded;
@@ -69,6 +75,9 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
       if (tile.ptr != nullptr) {
         available.emplace_back(tile.ptr);
         used.remove(tile.ptr);
+
+        usedChunks[tile.ptr] = nullptr;
+
         ++availableCount;
         tile.ptr = nullptr;
       }
@@ -87,18 +96,12 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   return used;
 }
 void Surroundings::setEmpty(Chunk *chunk) {
-  // FIXME: this is really slow
-  auto tmp = [chunk](auto &val) { return val.ptr == chunk; };
-  if (auto iter = std::find_if(map.begin(), map.end(), tmp);
-      iter != map.end()) {
-    iter->state = ChunkIn::Empty;
+  if (auto iter = usedChunks.find(chunk); iter != usedChunks.end()) {
+    iter->second->state = ChunkIn::Empty;
   }
 }
 void Surroundings::setFilled(Chunk *chunk) {
-  // FIXME: this is really slow
-  auto tmp = [chunk](auto &val) { return val.ptr == chunk; };
-  if (auto iter = std::find_if(map.begin(), map.end(), tmp);
-      iter != map.end()) {
-    iter->state = ChunkIn::Filled;
+  if (auto iter = usedChunks.find(chunk); iter != usedChunks.end()) {
+    iter->second->state = ChunkIn::Filled;
   }
 }

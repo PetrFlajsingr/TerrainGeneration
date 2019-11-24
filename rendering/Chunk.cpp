@@ -5,13 +5,10 @@
 #include "Chunk.h"
 
 Chunk::Chunk(glm::vec3 startPosition, float step, uint size)
-    : densityBuffer(createBuffer<float>(std::pow(size, 3), GL_DYNAMIC_DRAW)),
-      vertexBuffer(
-          createBuffer<glm::vec4>(std::pow(size, 3) * 5, GL_DYNAMIC_DRAW)),
-      normalBuffer(
-          createBuffer<glm::vec3>(std::pow(size, 3) * 5, GL_DYNAMIC_DRAW)),
-      indexBuffer(
-          createBuffer<glm::uvec3>(std::pow(size, 3) * 5, GL_DYNAMIC_DRAW)),
+    : densityBuffer(createSparseBuffer<float>(std::pow(size, 3))),
+      vertexBuffer(createSparseBuffer<glm::vec4>(std::pow(size, 3) * 5)),
+      normalBuffer(createSparseBuffer<glm::vec3>(std::pow(size, 3) * 5)),
+      indexBuffer(createSparseBuffer<glm::uvec3>(std::pow(size, 3) * 5)),
       drawVertexArray(std::make_shared<ge::gl::VertexArray>()),
       startPosition(startPosition), step(step), size(size), boundingBox(calcAABB()),
       boundingSphere(calcBS()) {
@@ -21,9 +18,13 @@ Chunk::Chunk(glm::vec3 startPosition, float step, uint size)
                              GL_FALSE);
   drawVertexArray->addElementBuffer(indexBuffer);
 
+  // densityBuffer->pageCommitment(0, densityBuffer->getSize(), true);
+  // vertexBuffer->pageCommitment(0, vertexBuffer->getSize(), true);
+  // normalBuffer->pageCommitment(0, normalBuffer->getSize(), true);
+  // indexBuffer->pageCommitment(0, indexBuffer->getSize(), true);
 }
 
-Buffer Chunk::getBuffer(Chunk::Buffers bufferType) {
+SBuffer Chunk::getBuffer(Chunk::Buffers bufferType) {
   switch (bufferType) {
   case Density:
     return densityBuffer;

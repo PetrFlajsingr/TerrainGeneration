@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 
   auto testBtn = guiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 0, 1}, glm::vec3{250, 100, 0});
-  testBtn->text.setFont("Mermaid1001", 60);
+  testBtn->text.setFont("arialbd", 60);
   testBtn->text.setText(L"Line"_sw);
 
   auto drawMode = DrawMode::Polygon;
@@ -76,10 +76,9 @@ int main(int argc, char *argv[]) {
         line = !line;
       });
 
-  auto fpsLbl = guiManager.createGUIObject<Label>(glm::vec3{1600, 0, 1},
+  auto fpsLbl = guiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1},
                                                   glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);
-  fpsLbl->text.setText(L"FPS"_sw);
 
   auto chunkInfoLbl = guiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1},
                                                         glm::vec3{500, 20, 0});
@@ -124,11 +123,21 @@ int main(int argc, char *argv[]) {
 
     window->swap();
 
+#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+    GLint total_mem_kb = 0;
+    ge::gl::glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX,
+                          &total_mem_kb);
+
+    GLint cur_avail_mem_kb = 0;
+    ge::gl::glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX,
+                          &cur_avail_mem_kb);
+
     fpsCounter.frame();
     fpsLbl->text.setText(
         WString(L"FPS: " + std::to_wstring(fpsCounter.current()) + L" Avg: " +
-                std::to_wstring(fpsCounter.average())));
-
+                std::to_wstring(fpsCounter.average()) + L" memory unused: " +
+                std::to_wstring(cur_avail_mem_kb)));
     ++cnt;
   });
 

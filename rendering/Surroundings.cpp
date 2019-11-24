@@ -60,7 +60,6 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
     } else if (tile.state == ChunkIn::Filled) {
       if (tile.ptr->boundingSphere.distance(position) > loadDistance &&
           (aggressiveChunkUnloading || availableCount < availableThreshold)) {
-        const auto tmp = used.size();
         used.remove(tile.ptr);
 
         usedChunks[tile.ptr] = nullptr;

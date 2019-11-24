@@ -179,8 +179,7 @@ void ChunkManager::linkPrograms() {
 
 void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_DEPTH_TEST);
-  // ge::gl::glEnable(GL_CULL_FACE);
-  // ge::gl::glCullFace(GL_FRONT);
+  ge::gl::glEnable(GL_CULL_FACE);
   auto projection =
       glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 1000.0f);
   auto view = cameraController->getViewMatrix();
@@ -202,13 +201,13 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
       geo::ViewFrustum::FromProjectionView(view, projection);
 
   std::vector<Chunk *> visibleChunks;
-  ;
   for (auto &chunk : chunks) {
     if (renderData.viewFrustumCulling &&
         viewFrustum.contains(chunk->boundingBox) !=
         geo::FrustumPosition::Outside) {
       if (chunk->boundingSphere.distance(cameraController->camera.Position) <
-          renderData.viewDistance) {
+              renderData.viewDistance &&
+          chunk->indexCount != 0) {
         visibleChunks.emplace_back(chunk);
       } else {
         chunk->setComputed(false);
@@ -325,8 +324,11 @@ void ChunkManager::calculateDensity(const std::vector<Chunk *> &chunks) {
   static auto startLocation =
       ge::gl::glGetUniformLocation(generateDensityProgram, "start");
   ge::gl::glUseProgram(generateDensityProgram);
+
   for (auto &chunk : chunks) {
-    chunk->getBuffer(Chunk::Density)->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    auto densityBuffer = chunk->getBuffer(Chunk::Density);
+    densityBuffer->pageCommitment(0, densityBuffer->getSize(), true);
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
     ge::gl::glUniform1f(stepLocation, chunk->step);
     ge::gl::glUniform3fv(startLocation, 1, &chunk->startPosition[0]);
     ge::gl::glDispatchCompute(4, 4, 4);
@@ -338,7 +340,8 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
                                  ge::gl::AsynchronousQuery &query) {
   for (auto chunk : chunks) {
     ge::gl::glUseProgram(streamCasesProgram);
-    chunk->getBuffer(Chunk::Density)->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    auto densityBuffer = chunk->getBuffer(Chunk::Density);
+    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
     chunkCoordVertexArray->bind();
     transformFeedback1.begin(GL_POINTS);
     query.begin();
@@ -358,58 +361,85 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
       transformFeedback2.end();
       const auto edgeCount = query.getui();
 
-      ge::gl::glUseProgram(generateVerticesProgram);
-      edgeMarkersVertexArray->bind();
-      edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-      chunk->getBuffer(Chunk::Density)->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
-      ge::gl::glUniform1f(
-          ge::gl::glGetUniformLocation(generateVerticesProgram, "step"),
-          chunk->step);
-      ge::gl::glUniform3fv(
-          ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1,
-          &chunk->startPosition[0]);
+      if (edgeCount != 0) {
 
-      transformFeedback3.setBuffers(chunk->getBuffer(Chunk::Vertex),
-                                    chunk->getBuffer(Chunk::Normal));
-      transformFeedback3.begin(GL_POINTS);
-      query.begin();
+        ge::gl::glUseProgram(generateVerticesProgram);
+        edgeMarkersVertexArray->bind();
+        edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+        densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+        ge::gl::glUniform1f(
+            ge::gl::glGetUniformLocation(generateVerticesProgram, "step"),
+            chunk->step);
+        ge::gl::glUniform3fv(
+            ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1,
+            &chunk->startPosition[0]);
 
-      ge::gl::glDrawArrays(GL_POINTS, 0, query.getui());
+        auto vertexBuffer = chunk->getBuffer(Chunk::Vertex);
+        auto normalBuffer = chunk->getBuffer(Chunk::Normal);
+        vertexBuffer->pageCommitment(
+            0, edgeCount * sizeof(float) * 4 /*vertexBuffer->getSize()*/, true);
+        normalBuffer->pageCommitment(
+            0, edgeCount * sizeof(float) * 3 /*normalBuffer->getSize()*/, true);
+        transformFeedback3.setBuffers(vertexBuffer, normalBuffer);
+        transformFeedback3.begin(GL_POINTS);
+        query.begin();
 
-      query.end();
-      transformFeedback3.end();
+        ge::gl::glDrawArrays(GL_POINTS, 0, query.getui());
 
-      chunk->vertexCount = query.getui();
+        query.end();
+        transformFeedback3.end();
 
-      ge::gl::glUseProgram(clearVertexIDsProgram);
-      vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-      ge::gl::glDispatchCompute(4, 4, 4);
+        chunk->vertexCount = query.getui();
 
-      ge::gl::glUseProgram(splatVerticesProgram);
-      vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-      edgeMarkersVertexArray->bind();
+        // vertexBuffer->pageCommitment(chunk->vertexCount,
+        // vertexBuffer->getSize() - chunk->vertexCount, false);
+        // normalBuffer->pageCommitment(chunk->vertexCount,
+        // normalBuffer->getSize() - chunk->vertexCount, false);
 
-      ge::gl::glDrawArrays(GL_POINTS, 0, edgeCount);
+        ge::gl::glUseProgram(clearVertexIDsProgram);
+        vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+        ge::gl::glDispatchCompute(4, 4, 4);
 
-      ge::gl::glUseProgram(generateIndicesProgram);
-      chunk->getBuffer(Chunk::Density)->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-      polyCountLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
-      edgeLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
-      edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 3);
-      vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 4);
+        ge::gl::glUseProgram(splatVerticesProgram);
+        vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+        edgeMarkersVertexArray->bind();
 
-      transformFeedback4.setBuffers(chunk->getBuffer(Chunk::Index));
-      transformFeedback4.begin(GL_POINTS);
-      caseMarkersVertexArray->bind();
-      query.begin();
-      ge::gl::glDrawArrays(GL_POINTS, 0, caseCount);
-      query.end();
-      transformFeedback4.end();
-      chunk->indexCount = query.getui() * 3;
+        ge::gl::glDrawArrays(GL_POINTS, 0, edgeCount);
+
+        ge::gl::glUseProgram(generateIndicesProgram);
+        densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+        polyCountLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+        edgeLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
+        edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 3);
+        vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 4);
+
+        auto indexBuffer = chunk->getBuffer(Chunk::Index);
+        const auto a = caseCount * 5 * 3 * sizeof(int);
+        indexBuffer->pageCommitment(0, a /*indexBuffer->getSize()*/, true);
+        transformFeedback4.setBuffers(indexBuffer);
+        transformFeedback4.begin(GL_POINTS);
+        caseMarkersVertexArray->bind();
+        query.begin();
+        ge::gl::glDrawArrays(GL_POINTS, 0, caseCount);
+        query.end();
+        transformFeedback4.end();
+        chunk->indexCount = query.getui() * 3;
+        // indexBuffer->pageCommitment(0, indexBuffer->getSize() -
+        // chunk->indexCount, false);
+        // const auto b = chunk->indexCount * 3 * sizeof(int);
+        // indexBuffer->pageCommitment(b, b + (a - b), false, true);
+      }
     } else {
       chunk->vertexCount = 0;
       chunk->indexCount = 0;
+      // auto vBuffer = chunk->getBuffer(Chunk::Vertex);
+      // auto nBuffer = chunk->getBuffer(Chunk::Normal);
+      // auto iBuffer = chunk->getBuffer(Chunk::Index);
+      // vBuffer->pageCommitment(chunk->vertexCount, vBuffer->getSize(), false);
+      // nBuffer->pageCommitment(chunk->vertexCount, nBuffer->getSize(), false);
+      // iBuffer->pageCommitment(chunk->vertexCount, iBuffer->getSize(), false);
     }
+    // densityBuffer->pageCommitment(0, densityBuffer->getSize(), false);
 
     chunk->setComputed(true);
     if (chunk->indexCount != 0) {

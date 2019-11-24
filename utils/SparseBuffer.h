@@ -18,11 +18,13 @@ public:
   SparseBuffer(const ge::gl::FunctionTablePointer &table);
   SparseBuffer(GLsizeiptr size, const void *data);
 
-  void pageCommitment(GLbitfield offset, GLbitfield size, bool commit);
+  void pageCommitment(GLbitfield offset, GLbitfield size, bool commit,
+                      bool alignOffsetUp = false, bool alignSizeDown = false);
 
 private:
   int sparsePageSize;
-  std::pair<int, int> alignToPageSize(int offset, int size);
+  std::pair<int, int> alignToPageSize(int offset, int size, bool alignOffsetUp,
+                                      bool alignSizeDown);
 };
 
 #endif // TERRAINGENERATION_SPARSEBUFFER_H

@@ -51,7 +51,7 @@ add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src} ${ft_src} ${ft_
         ui/elements/CameraController.cpp rendering/archive/DensityGenerators.cpp
         rendering/archive/OldChunk.cpp rendering/ChunkManager.cpp rendering/ChunkManager.h
         rendering/Chunk.cpp rendering/Chunk.h rendering/Light.cpp rendering/Light.h rendering/Data.h rendering/Data.cpp
-        ui/interface/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/interface/MouseInteractable.cpp ui/interface/MouseInteractable.h utils/various/StringUtils.cpp ui/GUIRenderer.cpp ui/GUIRenderer.h ui/utils.cpp ui/utils.h utils/String.h ui/interface/Interactable.cpp ui/interface/Interactable.h include/gltext.cpp rendering/Surroundings.cpp rendering/Surroundings.h rendering/text/TextRenderer.cpp rendering/text/TextRenderer.h rendering/text/FontManager.cpp rendering/text/FontManager.h ui/Font.cpp ui/Font.h ui/interface/ui_traits.h ui/elements/Label.cpp ui/elements/Label.h)
+        ui/interface/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/interface/MouseInteractable.cpp ui/interface/MouseInteractable.h utils/various/StringUtils.cpp ui/GUIRenderer.cpp ui/GUIRenderer.h ui/utils.cpp ui/utils.h utils/String.h ui/interface/Interactable.cpp ui/interface/Interactable.h include/gltext.cpp rendering/Surroundings.cpp rendering/Surroundings.h rendering/text/TextRenderer.cpp rendering/text/TextRenderer.h rendering/text/FontManager.cpp rendering/text/FontManager.h ui/Font.cpp ui/Font.h ui/interface/ui_traits.h ui/elements/Label.cpp ui/elements/Label.h utils/SparseBuffer.cpp utils/SparseBuffer.h)
 
 target_link_libraries(TerrainGeneration SDL2_image geGL::geGL SDL2CPP::SDL2CPP glm
         glfw

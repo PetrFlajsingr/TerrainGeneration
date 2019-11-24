@@ -33,18 +33,22 @@ SparseBuffer::SparseBuffer(const ge::gl::FunctionTablePointer &table,
 }
 
 void SparseBuffer::pageCommitment(GLbitfield offset, GLbitfield size,
-                                  bool commit) {
-  auto [aOffset, aSize] = alignToPageSize(offset, size);
+                                  bool commit, bool alignOffsetUp,
+                                  bool alignSizeDown) {
+  auto [aOffset, aSize] =
+      alignToPageSize(offset, size, alignOffsetUp, alignSizeDown);
   getContext().glNamedBufferPageCommitmentEXT(getId(), aOffset, aSize, commit);
 }
 
-std::pair<int, int> SparseBuffer::alignToPageSize(int offset, int size) {
-  const auto offsetDiff = sparsePageSize - (offset % sparsePageSize);
-  const auto alignedOffset = offset + offsetDiff;
+std::pair<int, int> SparseBuffer::alignToPageSize(int offset, int size,
+                                                  bool alignOffsetUp,
+                                                  bool alignSizeDown) {
+  const auto alignedOffset =
+      alignOffsetUp ? offset + (sparsePageSize - offset % sparsePageSize)
+                    : offset - (offset % sparsePageSize);
   if (offset + size == getSize()) {
-    return {alignedOffset, size - offsetDiff};
+    return {alignedOffset, size};
   }
-  size -= offsetDiff;
-  const auto alignedSize = size - (alignedOffset + size) % sparsePageSize;
+  const auto alignedSize = size + (sparsePageSize - size % sparsePageSize);
   return {alignedOffset, alignedSize};
 }

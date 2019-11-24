@@ -19,7 +19,7 @@
 namespace {
 using Shader = std::shared_ptr<ge::gl::Shader>;
 using Program = GLuint;
-using Buffer = std::shared_ptr<ge::gl::Buffer>;
+using SBuffer = std::shared_ptr<SparseBuffer>;
 using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
 } // namespace
 
@@ -41,7 +41,7 @@ public:
   geo::BoundingBox<3> boundingBox;
   geo::BoundingSphere<3> boundingSphere;
 
-  Buffer getBuffer(Buffers bufferType);
+  SBuffer getBuffer(Buffers bufferType);
 
   VertexArray getVA();
 
@@ -60,10 +60,10 @@ public:
   uint indexCount = 0;
 
 private:
-  Buffer densityBuffer;
-  Buffer vertexBuffer;
-  Buffer normalBuffer;
-  Buffer indexBuffer;
+  SBuffer densityBuffer;
+  SBuffer vertexBuffer;
+  SBuffer normalBuffer;
+  SBuffer indexBuffer;
 
   VertexArray drawVertexArray;
 

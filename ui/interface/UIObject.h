@@ -17,6 +17,7 @@ namespace sdl2cpp::ui {
  */
 class UIObject {
   OBSERVABLE_PROPERTIES(UIObject);
+
 public:
   UIObject(GUIManager &guiManager);
   virtual ~UIObject() = default;

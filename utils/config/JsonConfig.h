@@ -71,26 +71,22 @@ template <> struct ConfigContainerTraits<nlohmann::json> {
   }
 };
 
-
-template <>
-struct ConfigLoader<nlohmann::json> {
-    nlohmann::json load(std::string_view path) {
-        std::ifstream stream{std::string(path)};
-        nlohmann::json result;
-        stream >> result;
-        return result;
-    }
+template <> struct ConfigLoader<nlohmann::json> {
+  nlohmann::json load(std::string_view path) {
+    std::ifstream stream{std::string(path)};
+    nlohmann::json result;
+    stream >> result;
+    return result;
+  }
 };
 
-template <>
-struct ConfigSaver<nlohmann::json> {
-    void save(nlohmann::json &config, std::string_view path) {
-        std::ofstream stream{std::string(path)};
-        stream << config;
-    }
+template <> struct ConfigSaver<nlohmann::json> {
+  void save(nlohmann::json &config, std::string_view path) {
+    std::ofstream stream{std::string(path)};
+    stream << config;
+  }
 };
 
-template <bool ReadOnly>
-using JsonConfig = Config<nlohmann::json, ReadOnly>;
+template <bool ReadOnly> using JsonConfig = Config<nlohmann::json, ReadOnly>;
 
-#endif //UTILITIES_JSONCONFIG_H
+#endif // UTILITIES_JSONCONFIG_H

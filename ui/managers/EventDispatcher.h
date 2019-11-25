@@ -44,17 +44,12 @@ private:
   std::vector<std::weak_ptr<CustomMouseInteractable>> mouseEventListeners;
   std::vector<std::weak_ptr<CustomKeyboardInteractable>> keyboardEventListeners;
 
-  std::set<Window::EventType> keyboardEvents {SDL_KEYDOWN,
-                                              SDL_KEYUP,
-                                              SDL_TEXTEDITING,
-                                              SDL_TEXTINPUT,
-                                              SDL_KEYMAPCHANGED};
-  std::set<Window::EventType> mouseEvents {SDL_MOUSEMOTION,
-                                           SDL_MOUSEBUTTONDOWN,
-                                           SDL_MOUSEBUTTONUP,
-                                           SDL_MOUSEWHEEL};
+  std::set<Window::EventType> keyboardEvents{SDL_KEYDOWN, SDL_KEYUP,
+                                             SDL_TEXTEDITING, SDL_TEXTINPUT,
+                                             SDL_KEYMAPCHANGED};
+  std::set<Window::EventType> mouseEvents{SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN,
+                                          SDL_MOUSEBUTTONUP, SDL_MOUSEWHEEL};
 };
-}
-
+} // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_EVENTDISPATCHER_H

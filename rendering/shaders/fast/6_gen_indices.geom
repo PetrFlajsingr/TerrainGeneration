@@ -17,15 +17,15 @@ ivec3 inChunkOffset(uint edge) {
     const int y = -1;
     const int z = 1;
     switch (edge) {
-        case 3: //fallthrough
-        case 0: //fallthrough
+        case 3://fallthrough
+        case 0://fallthrough
         case 8: return ivec3(0, 0, 0);
-        case 4: //fallthrough
+        case 4://fallthrough
         case 7: return ivec3(0, 0, z);
-        case 1: //fallthrough
+        case 1://fallthrough
         case 9: return ivec3(0, y, 0);
         case 5: return ivec3(0, y, z);
-        case 11: //fallthrough
+        case 11://fallthrough
         case 2: return ivec3(x, 0, 0);
         case 6: return ivec3(x, 0, z);
         case 10: return ivec3(x, y, 0);
@@ -35,19 +35,19 @@ ivec3 inChunkOffset(uint edge) {
 
 int offsetForEdge(uint edge) {
     switch (edge) {
-        case 1: //fallthrough
-        case 3: //fallthrough
-        case 5: //fallthrough
+        case 1://fallthrough
+        case 3://fallthrough
+        case 5://fallthrough
         case 7: return 0;
 
-        case 0: //fallthrough
-        case 2: //fallthrough
-        case 4: //fallthrough
+        case 0://fallthrough
+        case 2://fallthrough
+        case 4://fallthrough
         case 6: return 1;
 
-        case 8: //fallthrough
-        case 9: //fallthrough
-        case 10: //fallthrough
+        case 8://fallthrough
+        case 9://fallthrough
+        case 10://fallthrough
         case 11: return 2;
     }
     return 0;
@@ -68,10 +68,10 @@ void main() {
     uint caseIndex = cubeMarker[0] & 0xFFu;
     uint polyCount = polyCountLUT[caseIndex];
     uvec3 chunkCoord = uvec3(((cubeMarker[0] >> 8u) & 0xFFu),
-        (cubeMarker[0] >> 16u) & 0xFFu,
-        (cubeMarker[0] >> 24u) & 0xFFu);
+    (cubeMarker[0] >> 16u) & 0xFFu,
+    (cubeMarker[0] >> 24u) & 0xFFu);
     if (chunkCoord.x > 29 || chunkCoord.y < 1 || chunkCoord.z > 29) {
-       polyCount = 0;
+        polyCount = 0;
     }
 
     for (uint i = 0; i < polyCount; ++i) {

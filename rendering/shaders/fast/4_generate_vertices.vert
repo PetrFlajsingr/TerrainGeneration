@@ -23,10 +23,10 @@ float noise(vec3 x) {
     float n = dot(i, step);
 
     vec3 u = f * f * (3.0 - 2.0 * f);
-    return mix(mix(mix( hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
-    mix( hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
-    mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
-    mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
+    return mix(mix(mix(hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
+    mix(hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
+    mix(mix(hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
+    mix(hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
 }
 
 float fbm(vec3 x, uint numOctaves) {
@@ -100,8 +100,8 @@ float calculateDensity(vec3 vertex) {
 
 void main() {
     uvec3 chunkCoord = uvec3((edgeMarker >> 8u) & 0xFFu,
-                             (edgeMarker >> 16u) & 0xFFu,
-                             (edgeMarker >> 24u) & 0xFFu);
+    (edgeMarker >> 16u) & 0xFFu,
+    (edgeMarker >> 24u) & 0xFFu);
     uint edge = edgeMarker & 0xFFu;
 
     vec3 vecCoordInChunk = start + chunkCoord * vec3(step);

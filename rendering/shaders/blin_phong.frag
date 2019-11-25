@@ -41,12 +41,12 @@ vec3 colorForHeight(float height, float minHeight, float maxHeight) {
 
     float range = maxHeight/2 - minHeight;
     vec3 color;
-    if(height >= minHeight && height <= maxHeight/2) {
+    if (height >= minHeight && height <= maxHeight/2) {
         color.y = height / range;
         color.x = 1.0f - color.y;
         color.z = 0.0f;
 
-    } else if(height > maxHeight/2 && height <= maxHeight) {
+    } else if (height > maxHeight/2 && height <= maxHeight) {
         color.x = 0.0f;
         color.z = (height - maxHeight/2) / range;
         color.y = 1.0f - color.z;
@@ -80,10 +80,10 @@ void main() {
     distance = distance * distance;
     lightDir = normalize(lightDir);
 
-    float lambertian = max(dot(lightDir,normal), 0.0);
+    float lambertian = max(dot(lightDir, normal), 0.0);
     float specular = 0.0;
 
-    if(lambertian > 0.0) {
+    if (lambertian > 0.0) {
         vec3 viewDir = normalize(-Pos);
 
         vec3 halfDir = normalize(lightDir + viewDir);

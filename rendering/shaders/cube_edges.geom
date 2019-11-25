@@ -35,8 +35,8 @@ uniform uint step;
 void main() {
     uint dim = 32;
     if ((gl_PrimitiveIDIn % dim) == dim - 1 ||
-(gl_PrimitiveIDIn % (dim * dim)) >= dim * (dim - 1) ||
-(gl_PrimitiveIDIn % (dim * dim * dim)) >= dim * dim * (dim - 1)) return;
+    (gl_PrimitiveIDIn % (dim * dim)) >= dim * (dim - 1) ||
+    (gl_PrimitiveIDIn % (dim * dim * dim)) >= dim * dim * (dim - 1)) return;
 
     if (
     gl_PrimitiveIDIn % step != 0

@@ -9,7 +9,12 @@
 #include <utility>
 
 enum class ShaderType {
-  Vertex, TesselationControl, TesselationEvaluation, Geometry, Fragment, Compute
+  Vertex,
+  TesselationControl,
+  TesselationEvaluation,
+  Geometry,
+  Fragment,
+  Compute
 };
 
 namespace {
@@ -26,7 +31,6 @@ private:
   bool moved = false;
   std::string oldLocation;
 };
-
 
 std::string_view getShaderLocation();
 

@@ -5,7 +5,7 @@
 #include "OldChunk.h"
 #include <glm/vec4.hpp>
 mc::OldChunk::OldChunk(OldChunk::Size size, float width, glm::vec3 position,
-                 glm::vec4 color)
+                       glm::vec4 color)
     : componentCount([this] { return std::pow(this->size, 3); }),
       position(position), size(size), id(idCounter), color(color),
       width(width) {
@@ -18,15 +18,17 @@ mc::OldChunk::OldChunk(OldChunk::Size size, float width, glm::vec3 position,
 
 bool mc::OldChunk::isComputed() const { return computed; }
 
-bool mc::OldChunk::shouldBeDrawn() const {
-  return hasDataToDraw; }
+bool mc::OldChunk::shouldBeDrawn() const { return hasDataToDraw; }
 
 bool mc::OldChunk::shouldBeDrawn(const geo::ViewFrustum &viewFrustum) {
-  //return hasDataToDraw && geo::isBoundingSphereInViewFrustum(boundingSphere, viewFrustum);
-  return hasDataToDraw && viewFrustum.contains(boundingBox) != geo::FrustumPosition::Outside;
+  // return hasDataToDraw && geo::isBoundingSphereInViewFrustum(boundingSphere,
+  // viewFrustum);
+  return hasDataToDraw &&
+         viewFrustum.contains(boundingBox) != geo::FrustumPosition::Outside;
 }
 
-void mc::OldChunk::dispatchDensityComputation(GLuint program, Blocking blocking) {
+void mc::OldChunk::dispatchDensityComputation(GLuint program,
+                                              Blocking blocking) {
 
   vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
   densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
@@ -46,7 +48,7 @@ void mc::OldChunk::dispatchDensityComputation(GLuint program, Blocking blocking)
 }
 
 void mc::OldChunk::dispatchCubeIndicesComputation(GLuint program,
-                                               Blocking blocking) {
+                                                  Blocking blocking) {
   vertexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
   densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
   cubeIndexBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
@@ -86,7 +88,8 @@ void mc::OldChunk::calculateVertices(GLuint program) {
   vertexBuffer->unbindBase(GL_SHADER_STORAGE_BUFFER, 5);
 
   const auto primitiveCount = geometryQuery.getui();
- // std::cout << *this << "\t|: primitive count: " << primitiveCount << std::endl;
+  // std::cout << *this << "\t|: primitive count: " << primitiveCount <<
+  // std::endl;
   computed = true;
   hasDataToDraw = primitiveCount != 0;
 }
@@ -121,7 +124,7 @@ void mc::OldChunk::render(RenderType renderType, GLuint program) {
     ge::gl::glDrawTransformFeedback(primitiveType, feedbackName);
 
     if (drawBS) {
-      glm::vec4 white {1.f, 1.f, 1.f, 1.f};
+      glm::vec4 white{1.f, 1.f, 1.f, 1.f};
       ge::gl::glUniform4fv(ge::gl::glGetUniformLocation(program, "color"), 1,
                            &white[0]);
       bsVertexArray->bind();
@@ -166,33 +169,32 @@ void mc::OldChunk::initBuffers() {
                            normalFeedbackBuffer->getId());
   ge::gl::glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
 
-
   auto bs = calcBS();
   std::vector<glm::vec4> vals{
-    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
-    glm::vec4{bs.center.x + bs.radius, bs.center.y, bs.center.z, 1},
+      glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+      glm::vec4{bs.center.x + bs.radius, bs.center.y, bs.center.z, 1},
 
-    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
-    glm::vec4{bs.center.x, bs.center.y + bs.radius, bs.center.z, 1},
-    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
-    glm::vec4{bs.center.x , bs.center.y, bs.center.z + bs.radius, 1},
-    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
-    glm::vec4{bs.center.x - bs.radius, bs.center.y, bs.center.z, 1},
-    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
-    glm::vec4{bs.center.x, bs.center.y- bs.radius, bs.center.z, 1},
-    glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
-    glm::vec4{bs.center.x, bs.center.y, bs.center.z- bs.radius, 1},
+      glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+      glm::vec4{bs.center.x, bs.center.y + bs.radius, bs.center.z, 1},
+      glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+      glm::vec4{bs.center.x, bs.center.y, bs.center.z + bs.radius, 1},
+      glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+      glm::vec4{bs.center.x - bs.radius, bs.center.y, bs.center.z, 1},
+      glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+      glm::vec4{bs.center.x, bs.center.y - bs.radius, bs.center.z, 1},
+      glm::vec4{bs.center.x, bs.center.y, bs.center.z, 1},
+      glm::vec4{bs.center.x, bs.center.y, bs.center.z - bs.radius, 1},
   };
-  bsLines = std::make_shared<ge::gl::Buffer>(
-      vals.size() * sizeof(float) * 4, vals.data(), GL_DYNAMIC_DRAW);
+  bsLines = std::make_shared<ge::gl::Buffer>(vals.size() * sizeof(float) * 4,
+                                             vals.data(), GL_DYNAMIC_DRAW);
   bsVertexArray = std::make_shared<ge::gl::VertexArray>();
   bsVertexArray->addAttrib(bsLines, 0, 4, GL_FLOAT,
-                             static_cast<GLsizei>(sizeof(float) * 4), 0);
+                           static_cast<GLsizei>(sizeof(float) * 4), 0);
 }
 
 std::ostream &mc::operator<<(std::ostream &stream, mc::OldChunk &chunk) {
- stream << "Chunk #" << chunk.id << ", size: " << chunk.size << "x"
-        << chunk.size << "x" << chunk.size;
+  stream << "Chunk #" << chunk.id << ", size: " << chunk.size << "x"
+         << chunk.size << "x" << chunk.size;
   return stream;
 }
 
@@ -202,4 +204,3 @@ void mc::OldChunk::invalidate() {
   computed = false;
   hasDataToDraw = false;
 }
-

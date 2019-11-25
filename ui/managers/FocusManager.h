@@ -23,6 +23,6 @@ private:
   std::weak_ptr<UIObject> focusedObject;
   std::vector<std::weak_ptr<UIObject>> &guiObjects;
 };
-}
+} // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_FOCUSMANAGER_H

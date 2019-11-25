@@ -49,6 +49,6 @@ private:
   std::shared_ptr<ge::gl::Buffer> buffer;
   std::shared_ptr<ge::gl::VertexArray> vao;
 };
-}
+} // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_BUTTON_H

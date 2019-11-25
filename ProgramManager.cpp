@@ -16,7 +16,6 @@ ManagedProgram::ManagedProgram(std::string name,
                                const ge::gl::Program::ShaderPointers &shaders)
     : Program(table, shaders), name(std::move(name)) {}
 
-
 std::string_view ManagedProgram::getName() { return name; }
 
 ProgramManager &ProgramManager::GetInstance() {
@@ -37,8 +36,8 @@ void ProgramManager::registerProgram(
 
 ProgramManager::ProgramPtr ProgramManager::getProgram(std::string_view name) {
   if (auto iter = std::find_if(
-        programs.begin(), programs.end(),
-        [name](const auto &record) { return record.first == name; });
+          programs.begin(), programs.end(),
+          [name](const auto &record) { return record.first == name; });
       iter != programs.end()) {
     return iter->second;
   }
@@ -48,16 +47,16 @@ ProgramManager::ProgramPtr ProgramManager::getProgram(std::string_view name) {
 
 void ProgramManager::unregisterProgram(std::string_view name) {
   if (auto iter = std::find_if(
-        programs.begin(), programs.end(),
-        [name](const auto &record) { return record.first == name; });
+          programs.begin(), programs.end(),
+          [name](const auto &record) { return record.first == name; });
       iter != programs.end()) {
     programs.erase(iter);
   }
 }
 void ProgramManager::switchProgram(std::string_view name) {
   if (auto iter = std::find_if(
-        programs.begin(), programs.end(),
-        [name](const auto &record) { return record.first == name; });
+          programs.begin(), programs.end(),
+          [name](const auto &record) { return record.first == name; });
       iter != programs.end()) {
     iter->second->use();
   } else {

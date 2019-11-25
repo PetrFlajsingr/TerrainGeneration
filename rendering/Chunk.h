@@ -23,12 +23,9 @@ using SBuffer = std::shared_ptr<SparseBuffer>;
 using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
 } // namespace
 
-
 class Chunk {
 public:
-  enum Buffers {
-    Density, Vertex, Normal, Index
-  };
+  enum Buffers { Density, Vertex, Normal, Index };
   Chunk(glm::vec3 startPosition, float step, uint size);
 
   Chunk(const Chunk &other) = delete;

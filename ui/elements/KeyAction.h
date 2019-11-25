@@ -15,6 +15,7 @@ namespace sdl2cpp::ui {
  */
 class KeyAction : public sdl2cpp::ui::KeyboardInteractable {
   using Action = std::function<void()>;
+
 public:
   explicit KeyAction(GUIManager &guiManager, SDL_Keycode key, Action action);
 

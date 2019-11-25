@@ -12,10 +12,13 @@ sdl2cpp::ui::EventDispatcher::EventDispatcher(
     std::shared_ptr<sdl2cpp::Window> window, FocusManager &focusManager)
     : window(std::move(window)), focusManager(focusManager) {
   for (auto event : keyboardEvents) {
-    this->window->setEventCallback(event, [this](const auto &event) {return keyboardEventHandler(event);});
+    this->window->setEventCallback(event, [this](const auto &event) {
+      return keyboardEventHandler(event);
+    });
   }
   for (auto event : mouseEvents) {
-    this->window->setEventCallback(event, [this](const auto &event) {return mouseEventHandler(event);});
+    this->window->setEventCallback(
+        event, [this](const auto &event) { return mouseEventHandler(event); });
   }
 }
 
@@ -120,12 +123,14 @@ bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(
 }
 
 bool isIn(SDL_Point point, SDL_Rect rect) {
-  return rect.x <= point.x && point.x <= (rect.x + rect.w) && rect.y <= point.y && point.y <= (rect.y + rect.h);
+  return rect.x <= point.x && point.x <= (rect.x + rect.w) &&
+         rect.y <= point.y && point.y <= (rect.y + rect.h);
 }
 
 std::optional<std::shared_ptr<sdl2cpp::ui::CustomMouseInteractable>>
 sdl2cpp::ui::EventDispatcher::findMouseInteractibleOnPosition(int x, int y) {
-  for (auto iter = mouseEventListeners.begin(); iter != mouseEventListeners.end(); ++iter) {
+  for (auto iter = mouseEventListeners.begin();
+       iter != mouseEventListeners.end(); ++iter) {
     if (iter->expired()) {
       mouseEventListeners.erase(iter);
     }
@@ -143,7 +148,8 @@ sdl2cpp::ui::EventDispatcher::findMouseInteractibleOnPosition(int x, int y) {
 
 std::optional<std::shared_ptr<sdl2cpp::ui::CustomKeyboardInteractable>>
 sdl2cpp::ui::EventDispatcher::getFocusedKeyboardInteractible() {
-  for (auto iter = keyboardEventListeners.begin(); iter != keyboardEventListeners.end(); ++iter) {
+  for (auto iter = keyboardEventListeners.begin();
+       iter != keyboardEventListeners.end(); ++iter) {
     if (iter->expired()) {
       keyboardEventListeners.erase(iter);
       continue;

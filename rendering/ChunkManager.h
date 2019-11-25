@@ -36,12 +36,11 @@ struct DrawOptions {
   const uint chunkAreaStep;
 };
 
-
 constexpr float step = 2;
 constexpr uint size = 32;
 class ChunkManager {
 
-  std::list<Chunk*> chunks;
+  std::list<Chunk *> chunks;
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 
   BlinnPhongLight light{
@@ -50,6 +49,7 @@ class ChunkManager {
   BlinnPhongMaterial material{10, {1, 1, 1}};
 
   RenderData renderData;
+
 public:
   Surroundings surr;
 

@@ -13,8 +13,8 @@ void setVertexID(uvec3 index, uint vertexID) {
 
 void main() {
     uvec3 chunkCoord = uvec3(((edgeMarker >> 8u) & 0xFFu),
-                       (edgeMarker >> 16u) & 0xFFu,
-                       (edgeMarker >> 24u) & 0xFFu);
+    (edgeMarker >> 16u) & 0xFFu,
+    (edgeMarker >> 24u) & 0xFFu);
     uint edge = edgeMarker & 0xFFu;
     chunkCoord.x *= 3;
     if (edge == 3) {

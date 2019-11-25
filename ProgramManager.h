@@ -16,9 +16,9 @@ public:
   using ProgramPtr = std::shared_ptr<ge::gl::Program>;
 
   ProgramManager(const ProgramManager &) = delete;
-  ProgramManager&operator=(const ProgramManager&) = delete;
+  ProgramManager &operator=(const ProgramManager &) = delete;
 
-  void registerProgram(std::string_view name, const ProgramPtr& program);
+  void registerProgram(std::string_view name, const ProgramPtr &program);
 
   void unregisterProgram(std::string_view name);
 
@@ -27,6 +27,7 @@ public:
   void switchProgram(std::string_view name);
 
   static ProgramManager &GetInstance();
+
 private:
   ProgramManager() = default;
 
@@ -35,13 +36,16 @@ private:
 
 class ManagedProgram : public ge::gl::Program {
 public:
-  template <typename ...Args, typename = std::enable_if_t<std::is_constructible_v<ManagedProgram, Args...>>>
-  static std::shared_ptr<ManagedProgram> CreateShared(Args ...args);
+  template <typename... Args,
+            typename = std::enable_if_t<
+                std::is_constructible_v<ManagedProgram, Args...>>>
+  static std::shared_ptr<ManagedProgram> CreateShared(Args... args);
 
-  template<typename...ARGS>
+  template <typename... ARGS>
   explicit ManagedProgram(std::string name, ARGS... shaders);
 
   [[nodiscard]] std::string_view getName();
+
 private:
   std::string name;
 
@@ -49,8 +53,9 @@ private:
   ManagedProgram(std::string name, const ge::gl::FunctionTablePointer &table,
                  const ShaderPointers &shaders);
 
-  template<typename...ARGS>
-  ManagedProgram(std::string name, const ge::gl::FunctionTablePointer &table, ARGS... shaders);
+  template <typename... ARGS>
+  ManagedProgram(std::string name, const ge::gl::FunctionTablePointer &table,
+                 ARGS... shaders);
 };
 
 template <typename... ARGS>
@@ -63,14 +68,11 @@ ManagedProgram::ManagedProgram(std::string name,
                                ARGS... shaders)
     : Program(table, shaders...), name(std::move(name)) {}
 
-
 template <typename... Args, typename>
 std::shared_ptr<ManagedProgram> ManagedProgram::CreateShared(Args... args) {
   auto result = std::make_shared<ManagedProgram>(std::forward<Args>(args)...);
   ProgramManager::GetInstance().registerProgram(result->name, result);
   return result;
 }
-
-
 
 #endif // TERRAINGENERATION_PROGRAMMANAGER_H

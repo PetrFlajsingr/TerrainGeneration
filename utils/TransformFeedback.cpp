@@ -23,15 +23,11 @@ void TransformFeedback::begin(GLenum primitiveType) {
   getContext().glBeginTransformFeedback(primitiveType);
 }
 
-void TransformFeedback::end() {
-  getContext().glEndTransformFeedback();
-}
+void TransformFeedback::end() { getContext().glEndTransformFeedback(); }
 
-ge::gl::Buffer* TransformFeedback::getBuffer(uint index) {
+ge::gl::Buffer *TransformFeedback::getBuffer(uint index) {
   assert(index < buffers.size());
   return buffers[index].get();
 }
 
-uint TransformFeedback::bufferCount() const {
-  return buffers.size();
-}
+uint TransformFeedback::bufferCount() const { return buffers.size(); }

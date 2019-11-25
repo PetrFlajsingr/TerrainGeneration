@@ -5,13 +5,8 @@
 #ifndef TTYPES_H
 #define TTYPES_H
 
-enum class Blocking {
-  Yes, No
-};
+enum class Blocking { Yes, No };
 
-enum class DrawMode {
-  Polygon, Line
-};
-
+enum class DrawMode { Polygon, Line };
 
 #endif // TTYPES_H

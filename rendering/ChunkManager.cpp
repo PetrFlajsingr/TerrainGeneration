@@ -18,11 +18,12 @@ using namespace ShaderLiterals;
 ChunkManager::ChunkManager(
     std::shared_ptr<sdl2cpp::ui::CameraController> cameraController,
     JsonConfig<true> config)
-    : cameraController(std::move(cameraController)), config(config), surr({
-                                                                   config.get<float>("render", "viewDistance").value(),
-                                                                   glm::uvec3{config.get<uint>("marching_cubes", "surroundingSize").value()},
-                                                                   config.get<uint>("marching_cubes", "chunkPoolSize").value(),
-                                                                   config.get<float>("marching_cubes", "chunkSize").value()}) {
+    : cameraController(std::move(cameraController)), config(config),
+      surr({config.get<float>("render", "viewDistance").value(),
+            glm::uvec3{
+                config.get<uint>("marching_cubes", "surroundingSize").value()},
+            config.get<uint>("marching_cubes", "chunkPoolSize").value(),
+            config.get<float>("marching_cubes", "chunkSize").value()}) {
   loadShaders();
   createPrograms();
   linkPrograms();
@@ -204,7 +205,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   for (auto &chunk : chunks) {
     if (renderData.viewFrustumCulling &&
         viewFrustum.contains(chunk->boundingBox) !=
-        geo::FrustumPosition::Outside) {
+            geo::FrustumPosition::Outside) {
       if (chunk->boundingSphere.distance(cameraController->camera.Position) <
               renderData.viewDistance &&
           chunk->indexCount != 0) {

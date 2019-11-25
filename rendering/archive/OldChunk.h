@@ -19,8 +19,9 @@
 namespace mc {
 class OldChunk {
   static inline uint idCounter = 0;
+
 public:
-  enum RenderType {Mesh, MeshLines, Normals};
+  enum RenderType { Mesh, MeshLines, Normals };
 
   using Size = uint32_t;
   OldChunk(Size size, float width, glm::vec3 position, glm::vec4 color);
@@ -31,12 +32,11 @@ public:
 
   [[nodiscard]] bool shouldBeDrawn(const geo::ViewFrustum &viewFrustum);
 
- void
-  dispatchDensityComputation(GLuint program,
-                             Blocking blocking = Blocking::Yes);
+  void dispatchDensityComputation(GLuint program,
+                                  Blocking blocking = Blocking::Yes);
 
   void dispatchCubeIndicesComputation(GLuint program,
-      Blocking blocking = Blocking::Yes);
+                                      Blocking blocking = Blocking::Yes);
 
   void calculateVertices(GLuint program);
 
@@ -48,9 +48,8 @@ public:
 
   [[nodiscard]] uint getId() const;
 
-
   GLuint feedbackName;
-  std::shared_ptr<ge::gl::Buffer> vertexBuffer;         // vec3
+  std::shared_ptr<ge::gl::Buffer> vertexBuffer; // vec3
 private:
   uint id;
   static inline constexpr Size maxVerticesPerCube = 5;
@@ -71,16 +70,15 @@ private:
 
   std::shared_ptr<ge::gl::Buffer> bsLines; // vec3
 
-  std::shared_ptr<ge::gl::VertexArray>  drawVertexArray; // vertex vec3, normal vec3
-  std::shared_ptr<ge::gl::VertexArray>  geometryVertexArray; // vertex vec3, normal vec3
+  std::shared_ptr<ge::gl::VertexArray>
+      drawVertexArray; // vertex vec3, normal vec3
+  std::shared_ptr<ge::gl::VertexArray>
+      geometryVertexArray; // vertex vec3, normal vec3
 
-  std::shared_ptr<ge::gl::VertexArray>  bsVertexArray; // vertex vec3, normal vec3
-
-
+  std::shared_ptr<ge::gl::VertexArray>
+      bsVertexArray; // vertex vec3, normal vec3
 
   void initBuffers();
-
-
 
 public:
   Lazy<Size> componentCount;
@@ -104,5 +102,5 @@ public:
     return result;
   }
 };
-}
+} // namespace mc
 #endif // TERRAINGENERATION_OLDCHUNK_H

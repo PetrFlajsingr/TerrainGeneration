@@ -16,9 +16,9 @@ struct GLData {
   bool backfaceCulling;
 };
 
-void to_json(json& j, const GLData& data);
+void to_json(json &j, const GLData &data);
 
-void from_json(const json& j, GLData& data);
+void from_json(const json &j, GLData &data);
 
 struct DeviceData {
   struct {
@@ -27,9 +27,9 @@ struct DeviceData {
   } screen;
 };
 
-void to_json(json& j, const DeviceData& data);
+void to_json(json &j, const DeviceData &data);
 
-void from_json(const json& j, DeviceData& data);
+void from_json(const json &j, DeviceData &data);
 
 struct DebugData {
   bool drawNormals;
@@ -45,8 +45,8 @@ struct RenderData {
   bool viewFrustumCulling;
 };
 
-void to_json(json& j, const RenderData& data);
+void to_json(json &j, const RenderData &data);
 
-void from_json(const json& j, RenderData& data);
+void from_json(const json &j, RenderData &data);
 
 #endif // TERRAINGENERATION_DATA_H

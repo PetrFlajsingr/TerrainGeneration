@@ -15,7 +15,7 @@ out vec3 light;
 out float yPos;
 
 void main() {
-    yPos = length(Position.xyz - vec3(0,-3,0));
+    yPos = length(Position.xyz - vec3(0, -3, 0));
 
     gl_Position = mvpUniform * Position;
 

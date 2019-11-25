@@ -10,8 +10,8 @@ Chunk::Chunk(glm::vec3 startPosition, float step, uint size)
       normalBuffer(createSparseBuffer<glm::vec3>(std::pow(size, 3) * 5)),
       indexBuffer(createSparseBuffer<glm::uvec3>(std::pow(size, 3) * 5)),
       drawVertexArray(std::make_shared<ge::gl::VertexArray>()),
-      startPosition(startPosition), step(step), size(size), boundingBox(calcAABB()),
-      boundingSphere(calcBS()) {
+      startPosition(startPosition), step(step), size(size),
+      boundingBox(calcAABB()), boundingSphere(calcBS()) {
   drawVertexArray->addAttrib(vertexBuffer, 0, 4, GL_FLOAT, sizeof(float) * 4, 0,
                              GL_FALSE);
   drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT, sizeof(float) * 3, 0,

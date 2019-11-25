@@ -10,5 +10,4 @@
 
 bool checkProgramLinkStatus(GLuint program);
 
-
 #endif // TERRAINGENERATION_GL_UTILS_H

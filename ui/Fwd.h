@@ -18,6 +18,6 @@ class KeyboardInteractable;
 class GUIManager;
 class EventDispatcher;
 class FocusManager;
-}
+} // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_FWD_H

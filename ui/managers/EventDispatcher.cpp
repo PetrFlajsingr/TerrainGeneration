@@ -23,7 +23,8 @@ sdl2cpp::ui::EventDispatcher::EventDispatcher(
 }
 
 void sdl2cpp::ui::EventDispatcher::addMouseEventListener(
-    std::weak_ptr<sdl2cpp::ui::CustomMouseInteractable> mouseInteractable) {
+    const std::weak_ptr<sdl2cpp::ui::CustomMouseInteractable>
+        &mouseInteractable) {
   mouseEventListeners.emplace_back(mouseInteractable);
   std::sort(mouseEventListeners.begin(), mouseEventListeners.end(),
             [](std::weak_ptr<CustomMouseInteractable> &a,
@@ -37,8 +38,8 @@ void sdl2cpp::ui::EventDispatcher::addMouseEventListener(
             });
 }
 void sdl2cpp::ui::EventDispatcher::addKeyboardEventListener(
-    std::weak_ptr<sdl2cpp::ui::CustomKeyboardInteractable>
-        keyboardInteractable) {
+    const std::weak_ptr<sdl2cpp::ui::CustomKeyboardInteractable>
+        &keyboardInteractable) {
   keyboardEventListeners.emplace_back(keyboardInteractable);
 }
 bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {

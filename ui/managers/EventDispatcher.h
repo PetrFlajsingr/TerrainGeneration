@@ -23,9 +23,9 @@ public:
 private:
   FocusManager &focusManager;
   void addMouseEventListener(
-      std::weak_ptr<CustomMouseInteractable> mouseInteractable);
+      const std::weak_ptr<CustomMouseInteractable> &mouseInteractable);
   void addKeyboardEventListener(
-      std::weak_ptr<CustomKeyboardInteractable> keyboardInteractable);
+      const std::weak_ptr<CustomKeyboardInteractable> &keyboardInteractable);
 
   bool mouseEventHandler(const SDL_Event &event);
 

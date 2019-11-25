@@ -32,6 +32,34 @@ public:
   FontManager &getFontManager();
   FocusManager &getFocusManager();
 
+  template <typename T = UIObject,
+            typename = typename std::enable_if_t<is_ui_object<T>>>
+  std::optional<std::shared_ptr<T>> objectByName(std::string_view name) {
+    if (auto iter = std::find_if(objects.begin(), objects.end(),
+                                 [name](const auto &obj) {
+                                   if (obj.expired()) {
+                                     return false;
+                                   }
+                                   auto ptr = obj.lock();
+                                   if (ptr->getId() == name) {
+                                     return true;
+                                   }
+                                   return false;
+                                 });
+        iter != objects.end()) {
+      if (iter->expired()) {
+        return std::nullopt;
+      }
+      auto ptr = iter->lock();
+      if constexpr (std::is_same_v<T, UIObject>) {
+        return ptr;
+      } else {
+        return std::dynamic_pointer_cast<T>(ptr);
+      }
+    }
+    return std::nullopt;
+  }
+
 private:
   std::vector<std::weak_ptr<UIVisible>> drawable;
   std::vector<std::weak_ptr<UIObject>> objects;

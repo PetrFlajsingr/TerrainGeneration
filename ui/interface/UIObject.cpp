@@ -32,6 +32,7 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
 sdl2cpp::ui::GUIManager &sdl2cpp::ui::UIObject::getGUIManager() {
   return guiManager;
 }
+std::string_view sdl2cpp::ui::UIObject::getId() const { return id; }
 
 void sdl2cpp::ui::UIVisible::setVisibility(sdl2cpp::ui::Visibility visibility) {
   if (this->visibility.get() == visibility) {

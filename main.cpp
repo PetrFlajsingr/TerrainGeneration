@@ -108,20 +108,11 @@ int main(int argc, char *argv[]) {
     chunkCompLbl->text.setText(L"Computing: {}"_sw.format(val));
   });
 
+  auto t = guiManager.objectByName("");
+  print(t);
+
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    chunks.generateChunks();
-    chunks.draw(
-        drawMode,
-        {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
-         config.get<bool>("debug", "drawNormals").value(),
-         config.get<uint>("debug", "drawChunkBorder", "step").value()});
-
-    auto ortho = glm::ortho<float>(0, 1000, 0, 562.5, -1, 1);
-    guiManager.render(ortho);
-
-    window->swap();
 
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
@@ -139,6 +130,18 @@ int main(int argc, char *argv[]) {
                 std::to_wstring(fpsCounter.average()) + L" memory unused: " +
                 std::to_wstring(cur_avail_mem_kb)));
     ++cnt;
+
+    chunks.generateChunks();
+    chunks.draw(
+        drawMode,
+        {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
+         config.get<bool>("debug", "drawNormals").value(),
+         config.get<uint>("debug", "drawChunkBorder", "step").value()});
+
+    auto ortho = glm::ortho<float>(0, 1000, 0, 562.5, -1, 1);
+    guiManager.render(ortho);
+
+    window->swap();
   });
 
   (*mainLoop)();

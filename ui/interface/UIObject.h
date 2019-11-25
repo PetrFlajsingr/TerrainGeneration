@@ -38,12 +38,15 @@ public:
 
   GUIManager &getGUIManager();
 
+  std::string_view getId() const;
+
 protected:
   virtual void onFocusChanged(Focus focus) = 0;
   virtual void onEnabledChanged(bool enabled) = 0;
 
 private:
   GUIManager &guiManager;
+  std::string id;
 };
 
 /**

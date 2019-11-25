@@ -48,7 +48,7 @@ void Text::calcText(const WString &str, glm::vec4 color, glm::vec3 pen) {
   if (font == nullptr) {
     return;
   }
-  buffer->Clear();
+  buffer.Clear();
   size_t i;
   float r = color.r, g = color.g, b = color.b, a = color.a;
   GLuint indices_raw[6] = {0, 1, 2, 0, 2, 3};
@@ -76,7 +76,7 @@ void Text::calcText(const WString &str, glm::vec4 color, glm::vec3 pen) {
           vertex_t(x1, y1, pen.z, glyph->s1(), glyph->t1(), r, g, b, a));
       vertices.emplace_back(
           vertex_t(x1, y0, pen.z, glyph->s1(), glyph->t0(), r, g, b, a));
-      buffer->PushBack(vertices, indices);
+      buffer.PushBack(vertices, indices);
       pen.x += glyph->advance_x();
     }
   }
@@ -115,7 +115,7 @@ void TextRenderer::begin(glm::mat4 projection, glm::mat4 view,
                              1, 0, &projection[0][0]);
 }
 
-void TextRenderer::render(Text &text) { text.buffer->Render(GL_TRIANGLES); }
+void TextRenderer::render(Text &text) { text.buffer.Render(GL_TRIANGLES); }
 
 void TextRenderer::end() { ge::gl::glDisable(GL_BLEND); }
 

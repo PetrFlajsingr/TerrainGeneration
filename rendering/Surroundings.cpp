@@ -39,7 +39,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   constexpr uint availableThreshold = 30;
   for (auto &tile : map) {
     if (tile.state == ChunkIn::NotLoaded) {
-      if (availableCount != 0 &&
+      if (availableCount != 0 && setupCount < computeBatchSize &&
           glm::distance(tile.center, position) <= loadDistance) {
         auto chunk = available.front();
         available.remove(chunk);

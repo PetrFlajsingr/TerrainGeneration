@@ -22,6 +22,7 @@ class Surroundings {
     glm::vec3 center;
   };
   bool aggressiveChunkUnloading = true;
+  int computeBatchSize = 100;
 
 public:
   Surroundings(float loadDistance, glm::uvec3 size, uint chunkPoolSize,

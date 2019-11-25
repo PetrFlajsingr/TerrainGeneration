@@ -22,9 +22,8 @@ struct vertex_t {
 class TextRenderer;
 
 class Text {
-  std::unique_ptr<freetypeglxx::VertexBuffer> buffer =
-      std::unique_ptr<freetypeglxx::VertexBuffer>(
-          new freetypeglxx::VertexBuffer("vertex:3f,tex_coord:2f,color:4f"));
+  freetypeglxx::VertexBuffer buffer =
+      freetypeglxx::VertexBuffer("vertex:3f,tex_coord:2f,color:4f");
   OBSERVABLE_PROPERTIES(Text);
   friend class TextRenderer;
 

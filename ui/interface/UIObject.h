@@ -19,7 +19,7 @@ class UIObject {
   OBSERVABLE_PROPERTIES(UIObject);
 
 public:
-  UIObject(GUIManager &guiManager);
+  UIObject(UIManager &guiManager);
   virtual ~UIObject() = default;
 
   /**
@@ -37,7 +37,7 @@ public:
   observable_property<bool> enabled{true};
   observable_property<Focus> focus{Focus::NotFocused};
 
-  GUIManager &getGUIManager();
+  UIManager &getGUIManager();
 
   std::string_view getId() const;
 
@@ -46,7 +46,7 @@ protected:
   virtual void onEnabledChanged(bool enabled) = 0;
 
 private:
-  GUIManager &guiManager;
+  UIManager &guiManager;
   std::string id;
 };
 
@@ -54,7 +54,7 @@ private:
  * Common class for all ui objects which should be drawn to the screen.
  */
 class UIVisible : public virtual UIObject {
-  friend class GUIManager;
+  friend class UIManager;
   OBSERVABLE_PROPERTIES(UIVisible);
 
 public:

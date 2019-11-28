@@ -17,7 +17,7 @@ class KeyAction : public sdl2cpp::ui::KeyboardInteractable {
   using Action = std::function<void()>;
 
 public:
-  explicit KeyAction(GUIManager &guiManager, SDL_Keycode key, Action action);
+  explicit KeyAction(UIManager &guiManager, SDL_Keycode key, Action action);
 
 protected:
   void onKeyPressed(const SDL_Event &event) override;

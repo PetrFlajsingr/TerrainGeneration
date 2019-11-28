@@ -3,10 +3,10 @@
 //
 
 #include "UIObject.h"
-#include "ui/managers/GUIManager.h"
+#include "ui/managers/UIManager.h"
 #include <glm/vec3.hpp>
 
-sdl2cpp::ui::UIObject::UIObject(sdl2cpp::ui::GUIManager &guiManager)
+sdl2cpp::ui::UIObject::UIObject(sdl2cpp::ui::UIManager &guiManager)
     : guiManager(guiManager) {}
 
 void sdl2cpp::ui::UIObject::setEnabled(bool enabled) {
@@ -29,7 +29,7 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
   }
   onFocusChanged(focus);
 }
-sdl2cpp::ui::GUIManager &sdl2cpp::ui::UIObject::getGUIManager() {
+sdl2cpp::ui::UIManager &sdl2cpp::ui::UIObject::getGUIManager() {
   return guiManager;
 }
 std::string_view sdl2cpp::ui::UIObject::getId() const { return id; }

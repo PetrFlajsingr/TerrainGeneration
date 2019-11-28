@@ -3,14 +3,14 @@
 //
 
 #include "Button.h"
-#include "ui/managers/GUIManager.h"
+#include "ui/managers/UIManager.h"
 #include <GL/glut.h>
 #include <SDL_events.h>
 #include <geGL/StaticCalls.h>
 #include <io/print.h>
 #include <ui/utils.h>
 
-sdl2cpp::ui::Button::Button(GUIManager &guiManager, glm::vec3 position,
+sdl2cpp::ui::Button::Button(UIManager &guiManager, glm::vec3 position,
                             glm::vec3 dimensions)
     : UIObject(guiManager), MouseInteractable(),
       UIVisible(position, dimensions),

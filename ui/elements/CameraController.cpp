@@ -5,7 +5,7 @@
 #include "CameraController.h"
 #include "io/print.h"
 
-sdl2cpp::ui::CameraController::CameraController(GUIManager &guiManager,
+sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager,
                                                 glm::vec3 position,
                                                 glm::vec3 dimensions,
                                                 glm::vec3 startingPosition,

@@ -3,10 +3,10 @@
 //
 
 #include "Label.h"
-#include <ui/managers/GUIManager.h>
+#include <ui/managers/UIManager.h>
 #include <ui/utils.h>
 
-sdl2cpp::ui::Label::Label(sdl2cpp::ui::GUIManager &guiManager,
+sdl2cpp::ui::Label::Label(sdl2cpp::ui::UIManager &guiManager,
                           glm::vec3 position, glm::vec3 dimensions)
     : UIObject(guiManager), UIVisible(position, dimensions), text(guiManager.getTextRenderer().createText()) {
   SDL_Rect rect{static_cast<int>(position.x), static_cast<int>(position.y),

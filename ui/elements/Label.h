@@ -11,7 +11,7 @@ namespace sdl2cpp::ui {
 
 class Label : public UIVisible {
 public:
-  Label(GUIManager &guiManager, glm::vec3 position, glm::vec3 dimensions);
+  Label(UIManager &guiManager, glm::vec3 position, glm::vec3 dimensions);
 
   Text text;
 

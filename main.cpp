@@ -12,7 +12,7 @@
 #include "ui/elements/Button.h"
 #include "ui/elements/CameraController.h"
 #include "ui/elements/KeyAction.h"
-#include "ui/managers/GUIManager.h"
+#include "ui/managers/UIManager.h"
 #include "utils/config/JsonConfig.h"
 
 #include <SDL2CPP/MainLoop.h>
@@ -24,6 +24,7 @@ using namespace ShaderLiterals;
 using namespace sdl2cpp::ui;
 
 using Conf = JsonConfig<true>;
+
 
 int main(int argc, char *argv[]) {
   loc_assert(argc != 1, "Provide path for config");
@@ -48,15 +49,15 @@ int main(int argc, char *argv[]) {
   const auto assetPath =
       config.get<std::string>("paths", "assetsLocation").value();
 
-  sdl2cpp::ui::GUIManager guiManager{window, String{assetPath + "/gui/fonts"}};
+  sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
 
-  auto cameraController = guiManager.createGUIObject<CameraController>(
+  auto cameraController = uiManager.createGUIObject<CameraController>(
       glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
   auto testAction =
-      guiManager.createGUIObject<KeyAction>(SDLK_r, [] { print("test mman"); });
+      uiManager.createGUIObject<KeyAction>(SDLK_r, [] { print("test mman"); });
 
-  auto testBtn = guiManager.createGUIObject<sdl2cpp::ui::Button>(
+  auto testBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 0, 1}, glm::vec3{250, 100, 0});
   testBtn->text.setFont("arialbd", 60);
   testBtn->text.setText(L"Line"_sw);
@@ -76,11 +77,11 @@ int main(int argc, char *argv[]) {
         line = !line;
       });
 
-  auto fpsLbl = guiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1},
+  auto fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1},
                                                   glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);
 
-  auto chunkInfoLbl = guiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1},
+  auto chunkInfoLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1},
                                                         glm::vec3{500, 20, 0});
   chunkInfoLbl->text.setFont("arialbd", 10);
   chunkInfoLbl->text.setColor({1, 1, 1, 1});
@@ -119,7 +120,7 @@ int main(int argc, char *argv[]) {
          config.get<uint>("debug", "drawChunkBorder", "step").value()});
 
     auto ortho = glm::ortho<float>(0, 1000, 0, 562.5, -1, 1);
-    guiManager.render(ortho);
+    uiManager.render(ortho);
 
     window->swap();
   });

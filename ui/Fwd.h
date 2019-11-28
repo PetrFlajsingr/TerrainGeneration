@@ -15,7 +15,7 @@ class MouseInteractable;
 class CustomKeyboardInteractable;
 class KeyboardInteractable;
 
-class GUIManager;
+class UIManager;
 class EventDispatcher;
 class FocusManager;
 } // namespace sdl2cpp::ui

@@ -14,7 +14,7 @@
 namespace sdl2cpp::ui {
 
 class EventDispatcher {
-  friend class GUIManager;
+  friend class UIManager;
 
 public:
   explicit EventDispatcher(std::shared_ptr<Window> window,

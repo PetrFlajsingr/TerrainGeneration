@@ -2,8 +2,8 @@
 // Created by petr on 10/11/19.
 //
 
-#ifndef TERRAINGENERATION_GUIMANAGER_H
-#define TERRAINGENERATION_GUIMANAGER_H
+#ifndef TERRAINGENERATION_UIMANAGER_H
+#define TERRAINGENERATION_UIMANAGER_H
 
 #include <ui/interface/ui_traits.h>
 #include <utility>
@@ -12,17 +12,17 @@
 #include "FocusManager.h"
 
 namespace sdl2cpp::ui {
-class GUIManager {
+class UIManager {
 public:
-  explicit GUIManager(std::shared_ptr<Window> window, const String &fontPath)
+  explicit UIManager(std::shared_ptr<Window> window, const String &fontPath)
       : window(std::move(window)), eventDispatcher(window, focusManager),
         renderer(fontPath) {}
-  GUIManager(const GUIManager &) = delete;
-  GUIManager &operator=(const GUIManager &) = delete;
+  UIManager(const UIManager &) = delete;
+  UIManager &operator=(const UIManager &) = delete;
 
   template <typename T, typename... Args>
   [[nodiscard]] std::enable_if_t<
-      is_ui_object<T> && std::is_constructible_v<T, GUIManager &, Args...>,
+      is_ui_object<T> && std::is_constructible_v<T, UIManager &, Args...>,
       std::shared_ptr<T>>
   createGUIObject(Args &&... args);
 
@@ -74,9 +74,9 @@ private:
 
 template <typename T, typename... Args>
 std::enable_if_t<is_ui_object<T> &&
-                     std::is_constructible_v<T, GUIManager &, Args...>,
+                     std::is_constructible_v<T, UIManager &, Args...>,
                  std::shared_ptr<T>>
-GUIManager::createGUIObject(Args &&... args) {
+UIManager::createGUIObject(Args &&... args) {
   auto result = std::make_shared<T>(*this, std::forward<Args>(args)...);
   if constexpr (is_mouse_interactable<T>) {
     eventDispatcher.addMouseEventListener(result);
@@ -93,4 +93,4 @@ GUIManager::createGUIObject(Args &&... args) {
 
 } // namespace sdl2cpp::ui
 
-#endif // TERRAINGENERATION_GUIMANAGER_H
+#endif // TERRAINGENERATION_UIMANAGER_H

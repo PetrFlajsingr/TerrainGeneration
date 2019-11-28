@@ -15,11 +15,21 @@ class Text {
   OBSERVABLE_PROPERTIES(Text);
   friend class TextRenderer;
 
-public:
-  explicit Text(FontManager &fontManager,
-                const std::wstring &initialValue = L"", Font *font = nullptr,
-                float fontSize = 10);
+  struct vertex_t {
+    vertex_t(double _x, double _y, double _z, double _s, double _t, double _r,
+             double _g, double _b, double _a)
+        : x(_x), y(_y), z(_z), s(_s), t(_t), r(_r), g(_g), b(_b), a(_a) {}
 
+    float x, y, z;    // position
+    float s, t;       // texture
+    float r, g, b, a; // color
+  };
+
+  explicit Text(FontManager &fontManager,
+                const std::wstring &initialValue, Font *font,
+                float fontSize);
+
+public:
   [[nodiscard]] Font &getFont() const;
   void setFont(Font &font);
   void setFont(const std::string &name);

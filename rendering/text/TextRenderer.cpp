@@ -34,3 +34,8 @@ void TextRenderer::render(Text &text) { text.buffer.Render(GL_TRIANGLES); }
 void TextRenderer::end() { ge::gl::glDisable(GL_BLEND); }
 
 FontManager &TextRenderer::getFontManager() { return fontManager; }
+
+Text TextRenderer::createText(const std::wstring &initialValue, Font *font,
+                              float fontSize) {
+  return Text{fontManager, initialValue, font, fontSize};
+}

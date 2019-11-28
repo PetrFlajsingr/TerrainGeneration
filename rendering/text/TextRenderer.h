@@ -11,18 +11,6 @@
 #include <freetype-gl++/vertex-buffer+.hpp>
 #include <observable/value.hpp>
 
-struct vertex_t {
-  vertex_t(double _x, double _y, double _z, double _s, double _t, double _r,
-           double _g, double _b, double _a)
-      : x(_x), y(_y), z(_z), s(_s), t(_t), r(_r), g(_g), b(_b), a(_a) {}
-
-  float x, y, z;    // position
-  float s, t;       // texture
-  float r, g, b, a; // color
-};
-class TextRenderer;
-
-
 class TextRenderer {
 public:
   explicit TextRenderer(const String &fontPath,
@@ -33,6 +21,9 @@ public:
   void render(Text &text);
 
   void end();
+
+  Text createText(const std::wstring &initialValue = L"", Font *font = nullptr,
+                  float fontSize = 10);
 
   FontManager &getFontManager();
 

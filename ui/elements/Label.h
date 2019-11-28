@@ -9,7 +9,7 @@
 
 namespace sdl2cpp::ui {
 
-class Label : public MouseInteractable {
+class Label : public UIVisible {
 public:
   Label(GUIManager &guiManager, glm::vec3 position, glm::vec3 dimensions);
 

@@ -83,33 +83,14 @@ int main(int argc, char *argv[]) {
   auto chunkInfoLbl = guiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1},
                                                         glm::vec3{500, 20, 0});
   chunkInfoLbl->text.setFont("arialbd", 10);
-
-  auto chunkDrawnLbl = guiManager.createGUIObject<Label>(glm::vec3{0, 950, 1},
-                                                         glm::vec3{500, 20, 0});
-  chunkDrawnLbl->text.setFont("arialbd", 10);
-  auto chunkCompLbl = guiManager.createGUIObject<Label>(glm::vec3{0, 900, 1},
-                                                        glm::vec3{500, 20, 0});
-  chunkCompLbl->text.setFont("arialbd", 10);
-  chunkCompLbl->text.setColor({1, 1, 1, 1});
   chunkInfoLbl->text.setColor({1, 1, 1, 1});
-  chunkDrawnLbl->text.setColor({1, 1, 1, 1});
 
   FPSCounter fpsCounter;
-
-  int cnt = 0;
 
   ChunkManager chunks{cameraController, config};
   chunks.surr.info.subscribe(
       [&chunkInfoLbl](auto &val) { chunkInfoLbl->text.setText(val); });
-  chunks.drawnCount.subscribe([&chunkDrawnLbl](auto &val) {
-    chunkDrawnLbl->text.setText(L"Drawing: {}"_sw.format(val));
-  });
-  chunks.computeCount.subscribe([&chunkCompLbl](auto &val) {
-    chunkCompLbl->text.setText(L"Computing: {}"_sw.format(val));
-  });
 
-  auto t = guiManager.objectByName("");
-  print(t);
 
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -129,7 +110,6 @@ int main(int argc, char *argv[]) {
         WString(L"FPS: " + std::to_wstring(fpsCounter.current()) + L" Avg: " +
                 std::to_wstring(fpsCounter.average()) + L" memory unused: " +
                 std::to_wstring(cur_avail_mem_kb)));
-    ++cnt;
 
     chunks.generateChunks();
     chunks.draw(

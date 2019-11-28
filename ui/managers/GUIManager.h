@@ -31,6 +31,7 @@ public:
 
   FontManager &getFontManager();
   FocusManager &getFocusManager();
+  TextRenderer &getTextRenderer();
 
   template <typename T = UIObject,
             typename = typename std::enable_if_t<is_ui_object<T>>>

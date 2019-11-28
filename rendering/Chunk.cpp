@@ -17,11 +17,6 @@ Chunk::Chunk(glm::vec3 startPosition, float step, uint size)
   drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT, sizeof(float) * 3, 0,
                              GL_FALSE);
   drawVertexArray->addElementBuffer(indexBuffer);
-
-  // densityBuffer->pageCommitment(0, densityBuffer->getSize(), true);
-  // vertexBuffer->pageCommitment(0, vertexBuffer->getSize(), true);
-  // normalBuffer->pageCommitment(0, normalBuffer->getSize(), true);
-  // indexBuffer->pageCommitment(0, indexBuffer->getSize(), true);
 }
 
 SBuffer Chunk::getBuffer(Chunk::Buffers bufferType) {
@@ -58,3 +53,8 @@ geo::BoundingSphere<3> Chunk::calcBS() {
 bool Chunk::isComputed() const { return computed; }
 
 void Chunk::setComputed(bool val) { computed = val; }
+
+void Chunk::recalc() {
+  boundingSphere = calcBS();
+  boundingBox = calcAABB();
+}

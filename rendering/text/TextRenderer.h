@@ -6,6 +6,7 @@
 #define TERRAINGENERATION_TEXTRENDERER_H
 
 #include "FontManager.h"
+#include "Text.h"
 #include <freetype-gl++/shader+.hpp>
 #include <freetype-gl++/vertex-buffer+.hpp>
 #include <observable/value.hpp>
@@ -21,46 +22,11 @@ struct vertex_t {
 };
 class TextRenderer;
 
-class Text {
-  freetypeglxx::VertexBuffer buffer =
-      freetypeglxx::VertexBuffer("vertex:3f,tex_coord:2f,color:4f");
-  OBSERVABLE_PROPERTIES(Text);
-  friend class TextRenderer;
-
-public:
-  Text(FontManager &fontManager, const std::wstring &initialValue = L"",
-       Font *font = nullptr, float fontSize = 10);
-
-  [[nodiscard]] Font &getFont() const;
-  void setFont(Font &font);
-  void setFont(const std::string &name);
-  void setFont(const std::string &name, float size);
-  [[nodiscard]] float getFontSize() const;
-  void setFontSize(float fontSize);
-
-  void setText(const WString &text);
-
-  const glm::vec4 &getColor() const;
-  void setColor(const glm::vec4 &color);
-  const glm::vec3 &getPosition() const;
-  void setPosition(const glm::vec3 &position);
-
-  observable_property<WString> text;
-
-private:
-  Font *font;
-  float fontSize;
-  glm::vec4 color;
-  glm::vec3 position;
-
-  FontManager &fontManager;
-
-  void calcText(const WString &str, glm::vec4 color, glm::vec3 pen);
-};
 
 class TextRenderer {
 public:
-  TextRenderer(const String &fontPath, glm::uvec3 atlasSize = {4096, 4096, 1});
+  explicit TextRenderer(const String &fontPath,
+                        glm::uvec3 atlasSize = {4096, 4096, 1});
 
   void begin(glm::mat4 projection, glm::mat4 view, glm::mat4 model);
 

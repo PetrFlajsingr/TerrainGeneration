@@ -13,18 +13,25 @@
 #include <unordered_map>
 #include <utility>
 
+/**
+ * Loads and stores .ttf files
+ */
 class FontManager {
   friend class TextRenderer;
   friend class Font;
 
 public:
+  /**
+   * @param path path to folder containing font files TODO: multiple folders
+   * @param atlasSize
+   */
   explicit FontManager(String path, glm::uvec3 atlasSize = {512, 512, 1});
-
+  /**
+   * Load font into FontManager
+   */
   void loadFont(const std::string &name);
 
-  bool hasFont(const std::string &name) {
-    return fonts.find(name) != fonts.end();
-  }
+  bool hasFont(const std::string &name);
 
   Font &getFont(const std::string &name);
 

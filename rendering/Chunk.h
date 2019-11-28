@@ -46,10 +46,7 @@ public:
 
   void setComputed(bool val);
 
-  void recalc() {
-    boundingSphere = calcBS();
-    boundingBox = calcAABB();
-  }
+  void recalc();
 
   /* DEBUG */
   uint vertexCount = 0;

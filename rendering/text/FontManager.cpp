@@ -25,3 +25,6 @@ FontManager::load(const std::string &name, float size) {
   return std::unique_ptr<freetypeglxx::TextureFont>(
       new freetypeglxx::TextureFont(atlas.get(), folder.format(name), size));
 }
+bool FontManager::hasFont(const std::string &name) {
+  return fonts.find(name) != fonts.end();
+}

@@ -392,11 +392,6 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
 
         chunk->vertexCount = query.getui();
 
-        // vertexBuffer->pageCommitment(chunk->vertexCount,
-        // vertexBuffer->getSize() - chunk->vertexCount, false);
-        // normalBuffer->pageCommitment(chunk->vertexCount,
-        // normalBuffer->getSize() - chunk->vertexCount, false);
-
         ge::gl::glUseProgram(clearVertexIDsProgram);
         vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
         ge::gl::glDispatchCompute(4, 4, 4);
@@ -425,22 +420,11 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks,
         query.end();
         transformFeedback4.end();
         chunk->indexCount = query.getui() * 3;
-        // indexBuffer->pageCommitment(0, indexBuffer->getSize() -
-        // chunk->indexCount, false);
-        // const auto b = chunk->indexCount * 3 * sizeof(int);
-        // indexBuffer->pageCommitment(b, b + (a - b), false, true);
       }
     } else {
       chunk->vertexCount = 0;
       chunk->indexCount = 0;
-      // auto vBuffer = chunk->getBuffer(Chunk::Vertex);
-      // auto nBuffer = chunk->getBuffer(Chunk::Normal);
-      // auto iBuffer = chunk->getBuffer(Chunk::Index);
-      // vBuffer->pageCommitment(chunk->vertexCount, vBuffer->getSize(), false);
-      // nBuffer->pageCommitment(chunk->vertexCount, nBuffer->getSize(), false);
-      // iBuffer->pageCommitment(chunk->vertexCount, iBuffer->getSize(), false);
     }
-    // densityBuffer->pageCommitment(0, densityBuffer->getSize(), false);
 
     chunk->setComputed(true);
     if (chunk->indexCount != 0) {
@@ -475,4 +459,3 @@ void ChunkManager::generateChunks() {
   ge::gl::glDisable(GL_RASTERIZER_DISCARD);
 }
 
-bool isComputed = false;

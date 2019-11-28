@@ -25,6 +25,64 @@ using namespace sdl2cpp::ui;
 
 using Conf = JsonConfig<true>;
 
+struct SM {
+  const GLsizei width = 1024;
+  const GLsizei height = 1024;
+
+  const float near_plane = 1.0f;
+  const float far_plane = 1000.f;
+  const glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+  ge::gl::Texture depthMap{GL_TEXTURE_2D, GL_DEPTH_COMPONENT, 0, width, height};
+  ge::gl::Framebuffer fbo;
+
+  glm::vec3 lightPos;
+  glm::vec3 target{0.0f, 0.0f,  0.0f};
+  glm::vec3 up{0.0f, 1.0f,  0.0f};
+
+  glm::mat4 lightSpaceMatrix;
+
+  ge::gl::Program program{"shadow_map/sm"_vert, "shadow_map/sm"_frag};
+  SM() {
+    ge::gl::glTextureImage2DEXT(depthMap.getId(), GL_TEXTURE_2D, 0,
+                                GL_DEPTH_COMPONENT, width, height, 0,
+                                GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    depthMap.texParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    depthMap.texParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    depthMap.texParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
+    depthMap.texParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    fbo.attachTexture(GL_DEPTH_ATTACHMENT, &depthMap);
+    fbo.drawBuffer(GL_NONE);
+    ge::gl::glNamedFramebufferReadBuffer(fbo.getId(), GL_NONE);
+  }
+
+  GLint m_viewport[4];
+  void begin() {
+    ge::gl::glGetIntegerv( GL_VIEWPORT, m_viewport );
+
+    program.use();
+    ge::gl::glViewport(0, 0, width, height);
+    fbo.bind(GL_FRAMEBUFFER);
+    ge::gl::glClear(GL_DEPTH_BUFFER_BIT);
+    //fbo.clear(GL_DEPTH_BUFFER_BIT);
+
+    glm::mat4 lightView = glm::lookAt(lightPos,
+                                      target,
+                                      up);
+
+    lightSpaceMatrix = lightProjection * lightView;
+    program.setMatrix4fv("lightSpaceMatrix", &lightSpaceMatrix[0][0]);
+    glm::mat4 model {1};
+    program.setMatrix4fv("model", &model[0][0]);
+
+  }
+
+  void end() {
+    fbo.unbind(GL_FRAMEBUFFER);
+    auto [x, y, width, height] = m_viewport;
+    ge::gl::glViewport(x, y, width, height);
+  }
+};
 
 int main(int argc, char *argv[]) {
   loc_assert(argc != 1, "Provide path for config");
@@ -78,11 +136,11 @@ int main(int argc, char *argv[]) {
       });
 
   auto fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1},
-                                                  glm::vec3{220, 20, 0});
+                                                 glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);
 
   auto chunkInfoLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1},
-                                                        glm::vec3{500, 20, 0});
+                                                       glm::vec3{500, 20, 0});
   chunkInfoLbl->text.setFont("arialbd", 10);
   chunkInfoLbl->text.setColor({1, 1, 1, 1});
 
@@ -92,6 +150,7 @@ int main(int argc, char *argv[]) {
   chunks.surr.info.subscribe(
       [&chunkInfoLbl](auto &val) { chunkInfoLbl->text.setText(val); });
 
+  SM sm;
 
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -113,6 +172,9 @@ int main(int argc, char *argv[]) {
                 std::to_wstring(cur_avail_mem_kb)));
 
     chunks.generateChunks();
+    sm.begin();
+
+    sm.end();
     chunks.draw(
         drawMode,
         {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),

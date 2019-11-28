@@ -44,7 +44,7 @@ class ChunkManager {
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 
   BlinnPhongLight light{
-      {1, 1, 1}, {50, 50, 50}, 10000, {1, 1, 1}, {1, 0, 1}, {1, 1, 1},
+      {1, 1, 1}, {20, 25, 20}, 50000, {1, 1, 1}, {1, 1, 1}, {1, 1, 1},
   };
   BlinnPhongMaterial material{10, {1, 1, 1}};
 

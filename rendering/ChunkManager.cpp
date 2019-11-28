@@ -185,7 +185,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
       glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 1000.0f);
   auto view = cameraController->getViewMatrix();
   glm::vec3 lightPos =
-      glm::vec3{5, 5, 5}; // cameraController.camera.Position; // {2,5,2};
+      glm::vec3{25, 25, 50}; // cameraController.camera.Position; // {2,5,2};
   auto model = glm::mat4();
   auto MVPmatrix = projection * view * model;
 

@@ -39,18 +39,21 @@ struct DrawOptions {
 constexpr float step = 2;
 constexpr uint size = 32;
 class ChunkManager {
+public:
 
   std::list<Chunk *> chunks;
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 
   BlinnPhongLight light{
-      {1, 1, 1}, {20, 25, 20}, 50000, {1, 1, 1}, {1, 1, 1}, {1, 1, 1},
+      {1, 1, 1}, {500, 500, 500}, 50000, {1, 1, 1}, {1, 1, 1}, {1, 1, 1},
   };
   BlinnPhongMaterial material{10, {1, 1, 1}};
 
   RenderData renderData;
 
-public:
+  bool render = true;
+  std::shared_ptr<ge::gl::Program> smProgram;
+  std::shared_ptr<ge::gl::Texture> texture;
   Surroundings surr;
 
   observable::value<int> drawnCount;

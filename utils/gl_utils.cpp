@@ -19,3 +19,15 @@ bool checkProgramLinkStatus(GLuint program) {
   }
   return true;
 }
+std::pair<uint, uint> getGPUMemoryUsage() {
+#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+  GLint total_mem_kb = 0;
+  ge::gl::glGetIntegerv(GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX,
+                        &total_mem_kb);
+
+  GLint cur_avail_mem_kb = 0;
+  ge::gl::glGetIntegerv(GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX,
+                        &cur_avail_mem_kb);
+  return {cur_avail_mem_kb, total_mem_kb};
+}

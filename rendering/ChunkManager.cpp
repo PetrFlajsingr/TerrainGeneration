@@ -251,7 +251,7 @@ void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
   static auto shininessLoc =
       ge::gl::glGetUniformLocation(bpDrawProgram, "shininess");
   static auto colorLoc = ge::gl::glGetUniformLocation(bpDrawProgram, "color");
-  ge::gl::glUseProgram(bpDrawProgram);
+  /*ge::gl::glUseProgram(bpDrawProgram);
   glm::vec3 white{1, 1, 1};
 
   ge::gl::glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, &modelView[0][0]);
@@ -265,7 +265,17 @@ void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
   ge::gl::glUniform3fv(diffuseColorLoc, 1, &light.diffuseColor[0]);
   ge::gl::glUniform3fv(specColorLoc, 1, &light.specColor[0]);
   ge::gl::glUniform1f(shininessLoc, material.shininess);
-  ge::gl::glUniform4fv(colorLoc, 1, &material.color[0]);
+  ge::gl::glUniform4fv(colorLoc, 1, &material.color[0]);*/
+  if (render) {
+    smProgram->use();
+    auto camPos = cameraController->getPosition();
+    smProgram->setMatrix4fv("projection", &projection[0][0]);
+    smProgram->setMatrix4fv("modelView", &modelView[0][0]);
+    smProgram->setMatrix4fv("lightSpaceMatrix", &modelView[0][0]);
+    smProgram->set3fv("lightPos", &light.position[0]);
+    smProgram->set3fv("viewPos", &camPos[0]);
+    //texture->bind(0);
+  }
 
   for (auto &chunk : chunks) {
     chunk->getVA()->bind();

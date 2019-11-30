@@ -14,6 +14,7 @@ find_package(SDL2 CONFIG REQUIRED)
 #find_package(FTGL REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(glfw3 3.2 REQUIRED)
+find_package(tinyobjloader REQUIRED)
 
 FetchContent_Declare(SDL2CPP GIT_REPOSITORY https://github.com/dormon/SDL2CPP.git)
 FetchContent_Declare(geGL GIT_REPOSITORY https://github.com/dormon/geGL.git)
@@ -39,6 +40,7 @@ include_directories(${FTGL_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${GLFW_INCLUDE_DIR})
 include_directories(include/freetype-gl++/freetype-gl)
+include_directories(${TINYOBJLOADER_INCLUDE_DIRS})
 
 file(GLOB_RECURSE ui_src "ui/*.cpp")
 file(GLOB_RECURSE utils_src "utils/*.cpp")
@@ -51,9 +53,10 @@ add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src} ${ft_src} ${ft_
         ui/elements/CameraController.cpp rendering/archive/DensityGenerators.cpp
         rendering/archive/OldChunk.cpp rendering/ChunkManager.cpp rendering/ChunkManager.h
         rendering/Chunk.cpp rendering/Chunk.h rendering/Light.cpp rendering/Light.h rendering/Data.h rendering/Data.cpp
-        ui/interface/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/interface/MouseInteractable.cpp ui/interface/MouseInteractable.h utils/various/StringUtils.cpp ui/GUIRenderer.cpp ui/GUIRenderer.h ui/utils.cpp ui/utils.h utils/String.h ui/interface/Interactable.cpp ui/interface/Interactable.h include/gltext.cpp rendering/Surroundings.cpp rendering/Surroundings.h rendering/text/TextRenderer.cpp rendering/text/TextRenderer.h rendering/text/FontManager.cpp rendering/text/FontManager.h ui/Font.cpp ui/Font.h ui/interface/ui_traits.h ui/elements/Label.cpp ui/elements/Label.h utils/SparseBuffer.cpp utils/SparseBuffer.h rendering/text/Text.cpp rendering/text/Text.h)
+        ui/interface/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/interface/MouseInteractable.cpp ui/interface/MouseInteractable.h utils/various/StringUtils.cpp ui/GUIRenderer.cpp ui/GUIRenderer.h ui/utils.cpp ui/utils.h utils/String.h ui/interface/Interactable.cpp ui/interface/Interactable.h include/gltext.cpp rendering/Surroundings.cpp rendering/Surroundings.h rendering/text/TextRenderer.cpp rendering/text/TextRenderer.h rendering/text/FontManager.cpp rendering/text/FontManager.h ui/Font.cpp ui/Font.h ui/interface/ui_traits.h ui/elements/Label.cpp ui/elements/Label.h utils/SparseBuffer.cpp utils/SparseBuffer.h rendering/text/Text.cpp rendering/text/Text.h rendering/ModelRenderer.cpp rendering/ModelRenderer.h marching_cubes.cpp marching_cubes.h ui/elements.h ui/managers.h)
 
 target_link_libraries(TerrainGeneration SDL2_image geGL::geGL SDL2CPP::SDL2CPP glm
         glfw
         #${FTGL_LIBRARIES}
-        ${FREETYPE_LIBRARIES})
+        ${FREETYPE_LIBRARIES}
+        ${TINYOBJLOADER_LIBRARIES})

@@ -10,4 +10,6 @@
 
 bool checkProgramLinkStatus(GLuint program);
 
+std::pair<uint, uint> getGPUMemoryUsage();
+
 #endif // TERRAINGENERATION_GL_UTILS_H

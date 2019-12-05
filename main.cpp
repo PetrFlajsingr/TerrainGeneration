@@ -1,6 +1,6 @@
-#include "shadow_mapping.h"
+#include "ui_main.h"
 
 int main(int argc, char *argv[]) {
-  main_shadow_mapping(argc, argv);
+  ui_main(argc, argv);
   return 0;
 }

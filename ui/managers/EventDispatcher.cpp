@@ -83,8 +83,13 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
       element->onMouseUp(event);
       if (mouseDownIn == element.get()) {
         const auto clickTime = now<milliseconds>();
-        element->onMouseClicked(event);
-        focusManager.changeFocusTo(element);
+        if ((clickTime - lastClickTime) < 200ms) {
+          element->onMouseDblClicked(event);
+        } else {
+          element->onMouseClicked(event);
+          focusManager.changeFocusTo(element);
+          lastClickTime = clickTime;
+        }
       }
       mouseDownIn = nullptr;
       break;

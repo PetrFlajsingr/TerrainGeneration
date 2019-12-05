@@ -125,6 +125,26 @@ void main_shadow_mapping(int argc, char *argv[]) {
         sm.lightPos += delta / 10.0f;
         auto model = modelRenderer.modelById("light").value();
         model->setPosition(sm.lightPos);
+      }).setMouseWheel([&down, &sm, &modelRenderer] (EventInfo, ScrollDirection dir, int delta) {
+        if (!down) {
+          return;
+        }
+        glm::vec3 d{0};
+        switch (dir) {
+        case ScrollDirection::Left:
+          break;
+        case ScrollDirection::Right:
+          break;
+        case ScrollDirection::Up:
+          d.z += delta;
+          break;
+        case ScrollDirection::Down:
+          d.z += delta;
+          break;
+        }
+    sm.lightPos += d;
+    auto model = modelRenderer.modelById("light").value();
+    model->setPosition(sm.lightPos);
       });
 
   // ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

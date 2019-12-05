@@ -50,6 +50,14 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   int y;
   x = event.motion.x;
   y = event.motion.y;
+
+  if (event.type == SDL_MOUSEWHEEL) {
+    if (mouseIn != nullptr) {
+      mouseIn->onMouseWheel(event);
+    }
+    return true;
+  }
+
   if (auto el = findMouseInteractibleOnPosition(x, y); el.has_value()) {
     auto &element = el.value();
     if (!element->areControlsEnabled() || !element->areMouseControlsEnabled()) {
@@ -79,8 +87,6 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
         focusManager.changeFocusTo(element);
       }
       mouseDownIn = nullptr;
-      break;
-    case SDL_MOUSEWHEEL:
       break;
     }
     return true;

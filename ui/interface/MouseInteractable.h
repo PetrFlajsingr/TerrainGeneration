@@ -39,6 +39,7 @@ protected:
   virtual void onMouseDblClicked(const SDL_Event &event) = 0;
   virtual void onMouseOver(const SDL_Event &event) = 0;
   virtual void onMouseOut(const SDL_Event &event) = 0;
+  virtual void onMouseWheel(const SDL_Event &event) = 0;
 
 private:
   bool mouseControlsEnabled = true;
@@ -56,6 +57,7 @@ public:
   MouseInteractable &setMouseOver(Event::MouseOverFnc onOver);
   MouseInteractable &setMouseOut(Event::MouseOutFnc onOut);
   MouseInteractable &setMouseMove(Event::MouseMoveFnc onMove);
+  MouseInteractable &setMouseWheel(Event::MouseWheelFnc onWheel);
 
   template <SimpleInvocable F>
   MouseInteractable &setMouseDown(F onDown);
@@ -71,6 +73,8 @@ public:
   MouseInteractable &setMouseOut(F onOut);
   template <SimpleInvocable F>
   MouseInteractable &setMouseMove(F onMove);
+  template <SimpleInvocable F>
+  MouseInteractable &setMouseWheel(F onWheel);
 
 private:
   std::optional<Event::MouseDownFnc> e_onMouseDown = std::nullopt;
@@ -80,6 +84,7 @@ private:
   std::optional<Event::MouseOverFnc> e_onMouseOver = std::nullopt;
   std::optional<Event::MouseOutFnc> e_onMouseOut = std::nullopt;
   std::optional<Event::MouseMoveFnc> e_onMouseMove = std::nullopt;
+  std::optional<Event::MouseWheelFnc> e_onMouseWheel = std::nullopt;
 
 protected:
   void onMouseDown(const SDL_Event &event) override;
@@ -89,6 +94,7 @@ protected:
   void onMouseDblClicked(const SDL_Event &event) override;
   void onMouseOver(const SDL_Event &event) override;
   void onMouseOut(const SDL_Event &event) override;
+  void onMouseWheel(const SDL_Event &event) override;
 
 private:
   [[nodiscard]] MouseButton buttonFromEvent(const SDL_Event &event) const;
@@ -129,6 +135,11 @@ MouseInteractable &MouseInteractable::setMouseOut(F onOut) {
 template <SimpleInvocable F>
 MouseInteractable &MouseInteractable::setMouseMove(F onMove) {
   e_onMouseMove = [onMove] (EventInfo, SDL_Point, SDL_Point) {onMove();};
+  return *this;
+}
+template <SimpleInvocable F>
+MouseInteractable &MouseInteractable::setMouseWheel(F onWheel) {
+  e_onMouseWheel = [onWheel] (EventInfo, ScrollDirection, int) {onWheel();};
   return *this;
 }
 } // namespace sdl2cpp::ui

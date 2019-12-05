@@ -85,3 +85,4 @@ void sdl2cpp::ui::CameraController::onMouseOver(const SDL_Event &event) {}
 void sdl2cpp::ui::CameraController::onMouseOut(const SDL_Event &event) {}
 
 void sdl2cpp::ui::CameraController::onKeyUp(const SDL_Event &event) {}
+void sdl2cpp::ui::CameraController::onMouseWheel(const SDL_Event &event) {}

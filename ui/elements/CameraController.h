@@ -33,6 +33,9 @@ public:
   Camera camera;
 
 protected:
+  void onMouseWheel(const SDL_Event &event) override;
+
+protected:
   void onMouseDown(const SDL_Event &event) override;
   void draw(sdl2cpp::ui::GUIRenderer &renderer) override;
   void onVisibilityChanged(sdl2cpp::ui::Visibility visibility) override;

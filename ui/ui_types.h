@@ -17,6 +17,8 @@ enum class Focus : bool { Focused, NotFocused };
 
 enum class MouseButton { Left, Right, Middle };
 
+enum class ScrollDirection {Left, Right, Up, Down};
+
 namespace Event {
 using DrawFnc = std::function<void(EventInfo)>;
 using VisibilityChangedFnc = std::function<void(EventInfo, Visibility)>;
@@ -33,6 +35,7 @@ using MouseDblClickedFnc =
 using MouseOverFnc = std::function<void(EventInfo)>;
 using MouseOutFnc = std::function<void(EventInfo)>;
 using MouseMoveFnc = std::function<void(EventInfo, SDL_Point, SDL_Point)>;
+using MouseWheelFnc = std::function<void(EventInfo, ScrollDirection, int)>;
 
 using KeyUpFnc = std::function<void(EventInfo, SDL_Keycode)>;
 using KeyDownFnc = std::function<void(EventInfo, SDL_Keycode)>;
@@ -50,6 +53,7 @@ enum class Type {
   MouseOver,
   MouseOut,
   MouseMove,
+  MouseWheel,
   KeyDown,
   KeyUp,
   KeyPressed

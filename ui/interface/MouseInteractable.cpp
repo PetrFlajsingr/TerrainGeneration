@@ -70,6 +70,30 @@ void sdl2cpp::ui::MouseInteractable::onMouseClicked(const SDL_Event &event) {
                            position);
 }
 
+void sdl2cpp::ui::MouseInteractable::onMouseWheel(const SDL_Event &event) {
+  if (!e_onMouseWheel.has_value()) {
+    return;
+  }
+  ScrollDirection direction;
+  int delta;
+  if (event.wheel.y > 0) {
+    direction = ScrollDirection::Up;
+    delta = event.wheel.y;
+  } else if (event.wheel.y < 0) {
+    direction = ScrollDirection::Down;
+    delta = event.wheel.y;
+  } else if (event.wheel.x > 0) {
+    direction = ScrollDirection::Right;
+    delta = event.wheel.x;
+  } else if (event.wheel.x < 0) {
+    direction = ScrollDirection::Left;
+    delta = event.wheel.x;
+  } else {
+    throw exc::InternalError("onMouseWheel: Invalid state.");
+  }
+  e_onMouseWheel.value()(EventInfo{*this, Event::Type::MouseWheel}, direction, delta);
+}
+
 sdl2cpp::ui::MouseButton
 sdl2cpp::ui::MouseInteractable::buttonFromEvent(const SDL_Event &event) const {
   switch (event.button.button) {
@@ -128,6 +152,11 @@ sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseOut(
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseMove(
     sdl2cpp::ui::Event::MouseMoveFnc onMove) {
   e_onMouseMove = std::move(onMove);
+  return *this;
+}
+sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseWheel(
+    sdl2cpp::ui::Event::MouseWheelFnc onWheel) {
+  e_onMouseWheel = onWheel;
   return *this;
 }
 

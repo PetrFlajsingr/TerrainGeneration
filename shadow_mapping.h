@@ -23,10 +23,10 @@ struct ShadowMapData {
   const GLsizei width = 4096;
   const GLsizei height = 4096;
 
-  const float near_plane = 1.0f;
+  const float near_plane = .1f;
   const float far_plane = 70.5f;
-  const glm::mat4 lightProjection =glm::perspective(glm::radians(140.f), (float)1024 / (float)1024, 0.1f, 100.0f);
-     // glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+  const glm::mat4 lightProjection =//glm::perspective(glm::radians(140.f), (float)1024 / (float)1024, 0.1f, 20.0f);
+      glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
   // std::shared_ptr<ge::gl::Texture> depthMap =
   // std::make_shared<ge::gl::Texture>(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, 0,
   // width, height);

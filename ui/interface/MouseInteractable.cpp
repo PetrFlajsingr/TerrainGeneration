@@ -96,7 +96,7 @@ SDL_Point sdl2cpp::ui::MouseInteractable::positionFromEvent(
 
 sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseDown(
     sdl2cpp::ui::Event::MouseDownFnc onDown) {
-  e_onMouseClicked = std::move(onDown);
+  e_onMouseDown = std::move(onDown);
   return *this;
 }
 

@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 project(TerrainGeneration)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fconcepts")
 
 add_compile_definitions(GLT_IMPORTS)
 
@@ -60,3 +62,5 @@ target_link_libraries(TerrainGeneration SDL2_image geGL::geGL SDL2CPP::SDL2CPP g
         #${FTGL_LIBRARIES}
         ${FREETYPE_LIBRARIES}
         ${TINYOBJLOADER_LIBRARIES})
+
+

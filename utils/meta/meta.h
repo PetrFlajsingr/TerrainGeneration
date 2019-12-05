@@ -13,6 +13,9 @@
 #include "chrono.h"
 #include "string.h"
 
+template <typename T>
+concept SimpleInvocable = std::is_invocable_v<T>;
+
 template<typename T1, typename... T>
 struct first_of {
     using type = T1;

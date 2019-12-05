@@ -11,6 +11,7 @@
 
 namespace sdl2cpp::ui {
 
+// TODO: mouse wheel interaction
 /**
  * Interface for custom mouse event behavior.
  */
@@ -56,6 +57,21 @@ public:
   MouseInteractable &setMouseOut(Event::MouseOutFnc onOut);
   MouseInteractable &setMouseMove(Event::MouseMoveFnc onMove);
 
+  template <SimpleInvocable F>
+  MouseInteractable &setMouseDown(F onDown);
+  template <SimpleInvocable F>
+  MouseInteractable &setMouseUp(F onUp);
+  template <SimpleInvocable F>
+  MouseInteractable &setMouseClicked(F onClicked);
+  template <SimpleInvocable F>
+  MouseInteractable &setMouseDblClicked(F onDblClicked);
+  template <SimpleInvocable F>
+  MouseInteractable &setMouseOver(F onOver);
+  template <SimpleInvocable F>
+  MouseInteractable &setMouseOut(F onOut);
+  template <SimpleInvocable F>
+  MouseInteractable &setMouseMove(F onMove);
+
 private:
   std::optional<Event::MouseDownFnc> e_onMouseDown = std::nullopt;
   std::optional<Event::MouseUpFnc> e_OnMouseUp = std::nullopt;
@@ -78,5 +94,42 @@ private:
   [[nodiscard]] MouseButton buttonFromEvent(const SDL_Event &event) const;
   [[nodiscard]] SDL_Point positionFromEvent(const SDL_Event &event) const;
 };
+
+
+template <SimpleInvocable F>
+MouseInteractable &MouseInteractable::setMouseDown(F onDown) {
+  e_onMouseDown = [onDown] (EventInfo, MouseButton, SDL_Point) {onDown();};
+  return *this;
+}
+template <SimpleInvocable F>
+MouseInteractable &MouseInteractable::setMouseUp(F onUp) {
+  e_OnMouseUp = [onUp] (EventInfo, MouseButton, SDL_Point) {onUp();};
+  return *this;
+}
+template <SimpleInvocable F>
+MouseInteractable &MouseInteractable::setMouseClicked(F onClicked) {
+  e_onMouseClicked = [onClicked] (EventInfo, MouseButton, SDL_Point) {onClicked();};
+  return *this;
+}
+template <SimpleInvocable F>
+MouseInteractable &MouseInteractable::setMouseDblClicked(F onDblClicked) {
+  e_onMouseDblClicked = [onDblClicked] (EventInfo, MouseButton, SDL_Point) {onDblClicked();};
+  return *this;
+}
+template <SimpleInvocable F>
+MouseInteractable &MouseInteractable::setMouseOver(F onOver) {
+  e_onMouseOver = [onOver] (EventInfo) {onOver();};
+  return *this;
+}
+template <SimpleInvocable F>
+MouseInteractable &MouseInteractable::setMouseOut(F onOut) {
+  e_onMouseOut = [onOut] (EventInfo) {onOut();};
+  return *this;
+}
+template <SimpleInvocable F>
+MouseInteractable &MouseInteractable::setMouseMove(F onMove) {
+  e_onMouseMove = [onMove] (EventInfo, SDL_Point, SDL_Point) {onMove();};
+  return *this;
+}
 } // namespace sdl2cpp::ui
 #endif // TERRAINGENERATION_MOUSEINTERACTABLE_H

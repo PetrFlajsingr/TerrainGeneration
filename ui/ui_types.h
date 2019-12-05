@@ -24,9 +24,9 @@ using FocusChangedFnc = std::function<void(EventInfo, Focus)>;
 using EnabledChangedFnc = std::function<void(EventInfo, bool)>;
 
 using MouseDownFnc =
-    std::function<void(EventInfo, MouseButton, SDL_Point position)>;
+    std::function<void(EventInfo, MouseButton, SDL_Point)>;
 using MouseUpFnc =
-    std::function<void(EventInfo, MouseButton, SDL_Point position)>;
+    std::function<void(EventInfo, MouseButton, SDL_Point)>;
 using MouseClickedFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
 using MouseDblClickedFnc =
     std::function<void(EventInfo, MouseButton, SDL_Point)>;

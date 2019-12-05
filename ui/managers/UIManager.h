@@ -20,9 +20,8 @@ public:
   UIManager(const UIManager &) = delete;
   UIManager &operator=(const UIManager &) = delete;
 
-  template <typename T, typename... Args>
-  std::enable_if_t<
-      is_ui_object<T> && std::is_constructible_v<T, UIManager &, Args...>,
+  template <C_UIObject T, typename... Args>
+  std::enable_if_t<std::is_constructible_v<T, UIManager &, Args...>,
       std::shared_ptr<T>>
   createGUIObject(Args &&... args);
 
@@ -33,8 +32,7 @@ public:
   FocusManager &getFocusManager();
   TextRenderer &getTextRenderer();
 
-  template <typename T = UIObject,
-            typename = typename std::enable_if_t<is_ui_object<T>>>
+  template <C_UIObject T = UIObject>
   std::optional<std::shared_ptr<T>> objectByName(std::string_view name) {
     if (auto iter = std::find_if(objects.begin(), objects.end(),
                                  [name](const auto &obj) {
@@ -72,10 +70,9 @@ private:
   GUIRenderer renderer;
 };
 
-template <typename T, typename... Args>
-std::enable_if_t<is_ui_object<T> &&
-                     std::is_constructible_v<T, UIManager &, Args...>,
-                 std::shared_ptr<T>>
+template <C_UIObject T, typename... Args>
+std::enable_if_t<std::is_constructible_v<T, UIManager &, Args...>,
+    std::shared_ptr<T>>
 UIManager::createGUIObject(Args &&... args) {
   auto result = std::make_shared<T>(*this, std::forward<Args>(args)...);
   if constexpr (is_mouse_interactable<T>) {

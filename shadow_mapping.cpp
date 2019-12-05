@@ -19,10 +19,12 @@ using Conf = JsonConfig<true>;
 void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
   ObjModelLoader modelLoader{assetPath + "/models"};
   modelRenderer.addModel(modelLoader.loadModel("cube", "cube1"))
-      .setPosition({0, 2, 0}).setDrawn(true)
+      .setPosition({0, 2, 0})
+      .setDrawn(true)
       .setScale({0.1, 0.1, 0.1});
   modelRenderer.addModel(modelLoader.loadModel("cube", "cube2"))
-      .setPosition({5, 3, 5}).setDrawn(true)
+      .setPosition({5, 3, 5})
+      .setDrawn(true)
       .setScale({0.5, 0.5, 0.5});
 
   modelRenderer.addModel(modelLoader.loadModel("floor", "floor1"))
@@ -30,10 +32,12 @@ void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
   modelRenderer.addModel(modelLoader.loadModel("wall", "wall1"))
       .setPosition({-5, -5.1, 0});
 
-  modelRenderer.addModel(modelLoader.loadModel("sphere", "light")).setDrawn(false);
+  modelRenderer.addModel(modelLoader.loadModel("sphere", "light"))
+      .setDrawn(false);
 }
 
 void main_shadow_mapping(int argc, char *argv[]) {
+  using namespace sdl2cpp::ui;
   loc_assert(argc != 1, "Provide path for config");
   Conf config{argv[1]};
 
@@ -65,41 +69,35 @@ void main_shadow_mapping(int argc, char *argv[]) {
           glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
   bool showFrameBuffer = false;
-  auto btn = uiManager
-      .createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 0, 1},
-                                            glm::vec3{300, 100, 0});
+  auto btn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
+      glm::vec3{0, 0, 1}, glm::vec3{300, 100, 0});
   btn->text.setText(L"show/hide light sphere"_sw);
   btn->text.setFont("arialbd", 10);
 
-  btn->setMouseClicked([&modelRenderer](
-      sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton,
-      SDL_Point) {
+  btn->setMouseClicked([&modelRenderer](sdl2cpp::ui::EventInfo,
+                                        sdl2cpp::ui::MouseButton, SDL_Point) {
     auto model = modelRenderer.modelById("light").value();
-    model->setDrawn(!model->isDrawn()); });
+    model->setDrawn(!model->isDrawn());
+  });
 
-  auto btn2 = uiManager
-      .createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 110, 1},
-                                            glm::vec3{300, 100, 0});
+  auto btn2 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
+      glm::vec3{0, 110, 1}, glm::vec3{300, 100, 0});
 
-  btn2->setMouseClicked([&showFrameBuffer](
-      sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton,
-      SDL_Point) { showFrameBuffer = !showFrameBuffer; });
-
-
+  btn2->setMouseClicked(
+      [&showFrameBuffer](sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton,
+                         SDL_Point) { showFrameBuffer = !showFrameBuffer; });
 
   ShadowMapData sm;
 
   DrawFrameBuffer drawFrameBuffer;
 
-  sm.lightPos = {-5.0f, 2.0f, -5.0};
+  sm.lightPos = {-5.0f, 2.0f, -10.0};
 
-
-  auto btn3 = uiManager
-      .createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 220, 1},
-                                            glm::vec3{300, 100, 0});
-  btn3->setMouseClicked([&sm, &modelRenderer](
-      sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton,
-      SDL_Point) {
+  auto btn3 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
+      glm::vec3{0, 220, 1}, glm::vec3{300, 100, 0});
+  btn3->setMouseClicked([&sm, &modelRenderer](sdl2cpp::ui::EventInfo,
+                                              sdl2cpp::ui::MouseButton,
+                                              SDL_Point) {
     sm.lightPos += glm::vec3{0, 1, 0};
     auto model = modelRenderer.modelById("light").value();
     model->setPosition(sm.lightPos);
@@ -108,7 +106,26 @@ void main_shadow_mapping(int argc, char *argv[]) {
   btn2->text.setText(L"show/hide depth texture"_sw);
   btn2->text.setFont("arialbd", 10);
 
+  auto btn4 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
+      glm::vec3{0, 340, 1}, glm::vec3{300, 500, 0});
 
+  bool down = false;
+  btn4->setMouseDown([&down] {
+        down = true;
+      })
+      .setMouseUp([&down] {
+        down = false;
+      })
+      .setMouseMove([&down, &sm, &modelRenderer](EventInfo, SDL_Point oldPos,
+                                                 SDL_Point newPos) {
+        if (!down) {
+          return;
+        }
+        glm::vec3 delta{oldPos.x - newPos.x, oldPos.y - newPos.y, 0.0};
+        sm.lightPos += delta / 10.0f;
+        auto model = modelRenderer.modelById("light").value();
+        model->setPosition(sm.lightPos);
+      });
 
   // ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -125,11 +142,10 @@ void main_shadow_mapping(int argc, char *argv[]) {
     ge::gl::glCullFace(GL_BACK);
     sm.end();
 
-
     if (showFrameBuffer) {
       drawFrameBuffer.program.use();
-      //drawFrameBuffer.program.set("near_plane", sm.near_plane);
-      //drawFrameBuffer.program.set("far_plane", sm.far_plane);
+      // drawFrameBuffer.program.set("near_plane", sm.near_plane);
+      // drawFrameBuffer.program.set("far_plane", sm.far_plane);
       ge::gl::glBindVertexArray(drawFrameBuffer.quadVAO);
       ge::gl::glBindTexture(GL_TEXTURE_2D, sm.depthMap);
       ge::gl::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -138,7 +154,9 @@ void main_shadow_mapping(int argc, char *argv[]) {
       ge::gl::glActiveTexture(GL_TEXTURE0);
       ge::gl::glBindTexture(GL_TEXTURE_2D, sm.depthMap);
 
-      ge::gl::glUniform1i(ge::gl::glGetUniformLocation(sm.renderProgram->getId(), "shadowMap"), 0);
+      ge::gl::glUniform1i(
+          ge::gl::glGetUniformLocation(sm.renderProgram->getId(), "shadowMap"),
+          0);
 
       sm.renderProgram->set3fv("lightPos", &sm.lightPos[0]);
       sm.renderProgram->set3fv("viewPos", &cameraController->getPosition()[0]);
@@ -197,7 +215,6 @@ ShadowMapData::ShadowMapData() {
   ge::gl::glDrawBuffer(GL_NONE);
   ge::gl::glReadBuffer(GL_NONE);
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 }
 void ShadowMapData::begin() {
   ge::gl::glGetIntegerv(GL_VIEWPORT, m_viewport);

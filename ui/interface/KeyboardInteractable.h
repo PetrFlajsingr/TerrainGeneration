@@ -43,7 +43,14 @@ class KeyboardInteractable : public virtual CustomKeyboardInteractable {
 public:
   KeyboardInteractable &setOnKeyUp(Event::KeyUpFnc onUp);
   KeyboardInteractable &setOnKeyDown(Event::KeyUpFnc onDown);
-  KeyboardInteractable &setOnKeyPressed(Event::KeyUpFnc onUp);
+  KeyboardInteractable &setOnKeyPressed(Event::KeyUpFnc onPressed);
+
+  template <SimpleInvocable F>
+  KeyboardInteractable &setOnKeyUp(F onUp);
+  template <SimpleInvocable F>
+  KeyboardInteractable &setOnKeyDown(F onDown);
+  template <SimpleInvocable F>
+  KeyboardInteractable &setOnKeyPressed(F onPressed);
 
 protected:
   void onKeyPressed(const SDL_Event &event) override;
@@ -55,6 +62,22 @@ private:
   std::optional<Event::KeyDownFnc> e_keyDown = std::nullopt;
   std::optional<Event::KeyPressedFnc> e_keyPressed = std::nullopt;
 };
+
+template <SimpleInvocable F>
+KeyboardInteractable &KeyboardInteractable::setOnKeyUp(F onUp) {
+  e_keyUp = [onUp] (EventInfo, SDL_Keycode) {onUp();};
+  return *this;
+}
+template <SimpleInvocable F>
+KeyboardInteractable &KeyboardInteractable::setOnKeyDown(F onDown) {
+  e_keyDown = [onDown] (EventInfo, SDL_Keycode) {onDown();};
+  return *this;
+}
+template <SimpleInvocable F>
+KeyboardInteractable &KeyboardInteractable::setOnKeyPressed(F onPressed) {
+  e_keyPressed = [onPressed] (EventInfo, SDL_Keycode) {onPressed();};
+  return *this;
+}
 } // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_KEYBOARDINTERACTABLE_H

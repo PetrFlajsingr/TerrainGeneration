@@ -44,8 +44,8 @@ sdl2cpp::ui::KeyboardInteractable::setOnKeyDown(
 
 sdl2cpp::ui::KeyboardInteractable &
 sdl2cpp::ui::KeyboardInteractable::setOnKeyPressed(
-    sdl2cpp::ui::Event::KeyUpFnc onUp) {
-  e_keyPressed = onUp;
+    sdl2cpp::ui::Event::KeyUpFnc onPressed) {
+  e_keyPressed = onPressed;
   return *this;
 }
 

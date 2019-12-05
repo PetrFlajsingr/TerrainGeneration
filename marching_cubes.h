@@ -15,7 +15,6 @@ using namespace std::string_literals;
 using namespace ShaderLiterals;
 
 
-
 struct Tmp {
   unsigned int quadVAO, quadVBO;
   ge::gl::Program program{"framebuffer_screen"_vert, "framebuffer_screen"_frag};

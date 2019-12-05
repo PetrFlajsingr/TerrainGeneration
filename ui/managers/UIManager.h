@@ -21,7 +21,7 @@ public:
   UIManager &operator=(const UIManager &) = delete;
 
   template <typename T, typename... Args>
-  [[nodiscard]] std::enable_if_t<
+  std::enable_if_t<
       is_ui_object<T> && std::is_constructible_v<T, UIManager &, Args...>,
       std::shared_ptr<T>>
   createGUIObject(Args &&... args);

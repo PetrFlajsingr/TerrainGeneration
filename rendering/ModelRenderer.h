@@ -14,6 +14,7 @@
 #include <geGL_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <io/print.h>
 #include <string>
 #include <tiny_obj_loader.h>
 #include <utility>
@@ -37,16 +38,22 @@ public:
 
   [[nodiscard]] const glm::vec3 &getPosition() const;
   GraphicsModelBase &setPosition(const glm::vec3 &position);
+  GraphicsModelBase &setPosition(float x, float y, float z);
   [[nodiscard]] const glm::vec3 &getRotation() const;
-  GraphicsModelBase & setRotation(const glm::vec3 &rotation);
+  GraphicsModelBase &setRotation(const glm::vec3 &rotation);
+  GraphicsModelBase &setRotation(float x, float y, float z);
   [[nodiscard]] const glm::vec3 &getScale() const;
-  GraphicsModelBase & setScale(const glm::vec3 &scale);
+  GraphicsModelBase &setScale(const glm::vec3 &scale);
+  GraphicsModelBase &setScale(float x, float y, float z);
+
+  bool isDrawn() const;
+  GraphicsModelBase & setDrawn(bool drawn);
 
   virtual std::shared_ptr<ge::gl::Buffer> getVertexBuffer() = 0;
   virtual std::shared_ptr<ge::gl::Buffer> getNormalBuffer() = 0;
   virtual std::shared_ptr<ge::gl::Buffer> getElementBuffer() = 0;
 
-  CachedProperty<glm::mat4> modelMatrix{
+  mutable CachedProperty<glm::mat4> modelMatrix{
       [this] { return updateModelMatrix; },
       [this] {
         updateModelMatrix = false;
@@ -61,9 +68,11 @@ private:
   Type type;
   bool updateModelMatrix = true;
 
-  glm::vec3 position;
-  glm::vec3 rotation;
-  glm::vec3 scale;
+  bool drawn = true;
+
+  glm::vec3 position{0, 0, 0};
+  glm::vec3 rotation{0, 0, 0};
+  glm::vec3 scale{1, 1, 1};
 };
 
 template <typename BufferType = ge::gl::Buffer>
@@ -82,6 +91,12 @@ protected:
   std::shared_ptr<BufferType> vertexBuffer;
   std::shared_ptr<BufferType> normalBuffer;
   std::shared_ptr<BufferType> elementBuffer;
+};
+
+template <typename BufferType = ge::gl::Buffer>
+class InstancedGraphicsModel : public GraphicsModel<BufferType> {
+public:
+
 };
 
 class ObjModelLoader {
@@ -106,15 +121,26 @@ public:
     std::vector<uint> indices;
     std::vector<glm::vec4> vertices;
     std::vector<glm::vec3> normals;
-    for (auto index : shapes[0].mesh.indices) {
-      indices.emplace_back(index.vertex_index);
-      normals.emplace_back(attribs.normals[index.normal_index]);
-    }
+    std::vector<int> faceCountsForNormals;
 
     for (auto i : range(0, attribs.vertices.size(), 3)) {
       vertices.emplace_back(attribs.vertices[i], attribs.vertices[i + 1],
                             attribs.vertices[i + 2], 1);
     }
+    normals.resize(vertices.size(), glm::vec3{0, 0, 0});
+    faceCountsForNormals.resize(vertices.size(), 0);
+    for (auto index : shapes[0].mesh.indices) {
+      indices.emplace_back(index.vertex_index);
+      normals[index.vertex_index] +=
+          glm::vec3{attribs.normals[index.normal_index * 3],
+                    attribs.normals[index.normal_index * 3 + 1],
+                    attribs.normals[index.normal_index * 3 + 2]};
+      faceCountsForNormals[index.vertex_index]++;
+    }
+    for (auto i : range(normals.size())) {
+      normals[i] = normals[i] / static_cast<float>(faceCountsForNormals[i]);
+    }
+
     result->elementBuffer = createBuffer(indices);
     result->vertexBuffer = createBuffer(vertices);
     result->normalBuffer = createBuffer(normals);
@@ -150,12 +176,13 @@ GraphicsModel<BufferType>::GraphicsModel(const GraphicsModelBase::Id &id,
 
 class ModelRenderer {
 public:
-  void addModel(std::shared_ptr<GraphicsModelBase> model);
+  GraphicsModelBase &addModel(std::shared_ptr<GraphicsModelBase> model);
 
   std::optional<std::shared_ptr<GraphicsModelBase>>
   modelById(const GraphicsModelBase::Id &id);
 
-  void render(const std::shared_ptr<ge::gl::Program> &program, glm::mat4 view, bool wa);
+  void render(const std::shared_ptr<ge::gl::Program> &program, glm::mat4 view,
+              bool wa);
 
 private:
   std::vector<std::shared_ptr<GraphicsModelBase>> models;

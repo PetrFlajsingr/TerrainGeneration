@@ -191,7 +191,6 @@ void main_marching_cubes(int argc, char *argv[]) {
   (*mainLoop)();
 }
 
-
 Tmp::Tmp() {
   float quadVertices[] = {
       // positions        // texture Coords

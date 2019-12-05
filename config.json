@@ -20,7 +20,10 @@
   "render" : {
     "viewDistance": 10000,
     "levelOfDetail" : 0,
-    "viewFrustumCulling" : true
+    "viewFrustumCulling" : true,
+    "shadows" : {
+      "enabled" : true
+    }
   },
   "marching_cubes" : {
     "chunkSize": 10,

@@ -9,13 +9,14 @@ out VS_OUT {
 } vs_out;
 
 uniform mat4 projection;
-uniform mat4 modelView;
+uniform mat4 model;
+uniform mat4 view;
 uniform mat4 lightSpaceMatrix;
 
 void main()
 {
-    vs_out.FragPos = aPos.xyz;
-    vs_out.Normal = aNormal;
+    vs_out.FragPos = (model * aPos).xyz;
+    vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
     vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
-    gl_Position = projection * modelView * aPos, 1.0;
+    gl_Position = projection * view * model * aPos;
 }

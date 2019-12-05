@@ -17,6 +17,6 @@ void main()
 {
     vs_out.FragPos = (model * aPos).xyz;
     vs_out.Normal = transpose(inverse(mat3(model))) * aNormal;
-    vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
+    vs_out.FragPosLightSpace = lightSpaceMatrix * model * vec4(vs_out.FragPos, 1.0);
     gl_Position = projection * view * model * aPos;
 }

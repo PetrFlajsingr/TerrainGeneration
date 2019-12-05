@@ -82,3 +82,13 @@ ModelRenderer::modelById(const GraphicsModelBase::Id &id) {
   }
   return std::nullopt;
 }
+void ModelRenderer::plainRender() {
+  for (auto &model : models) {
+    if (!model->isDrawn()) {
+      continue;
+    }
+    model->getVertexArray()->bind();
+    ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(),
+                           GL_UNSIGNED_INT, nullptr);
+  }
+}

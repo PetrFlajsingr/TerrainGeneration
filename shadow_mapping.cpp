@@ -27,6 +27,8 @@ void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
 
   modelRenderer.addModel(modelLoader.loadModel("floor", "floor1"))
       .setPosition({0, -5, 0});
+  modelRenderer.addModel(modelLoader.loadModel("wall", "wall1"))
+      .setPosition({-5, -5.1, 0});
 
   modelRenderer.addModel(modelLoader.loadModel("sphere", "light")).setDrawn(false);
 }
@@ -89,7 +91,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 
   DrawFrameBuffer drawFrameBuffer;
 
-  sm.lightPos = {-1.0f, 0.0f, -0.0};
+  sm.lightPos = {-5.0f, 2.0f, -5.0};
 
 
   auto btn3 = uiManager
@@ -119,12 +121,10 @@ void main_shadow_mapping(int argc, char *argv[]) {
     sm.begin();
     ge::gl::glEnable(GL_CULL_FACE);
     ge::gl::glCullFace(GL_FRONT);
-    modelRenderer.modelById("floor1").value()->setDrawn(false);
     modelRenderer.render(sm.program, cameraController->getViewMatrix(), false);
-
     ge::gl::glCullFace(GL_BACK);
     sm.end();
-    modelRenderer.modelById("floor1").value()->setDrawn(true);
+
 
     if (showFrameBuffer) {
       drawFrameBuffer.program.use();

@@ -3,6 +3,7 @@
 //
 
 #include "ui_main.h"
+#include "utils/String.h"
 void ui_main(int argc, char *argv[]) {
   using namespace sdl2cpp::ui;
   loc_assert(argc != 1, "Provide path for config");
@@ -27,13 +28,25 @@ void ui_main(int argc, char *argv[]) {
   const auto assetPath =
       config.get<std::string>("paths", "assetsLocation").value();
 
-
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
 
   auto btn1 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 0, 1}, glm::vec3{500, 500, 0});
 
-  btn1->setMouseDblClicked([] {print("dbl clicked");}).setMouseClicked([] {print("clicked");});
+  btn1->setMouseDblClicked([] { print("dbl clicked"); })
+      .setMouseClicked([] { print("clicked"); })
+      .setMouseOut([] { print("out"); });
+
+  auto btn2 = uiManager.createGUIObject<Button>(glm::vec3{500, 500, 1},
+                                              glm::vec3{400, 100, 0});
+
+  uiManager.enqueueEvent(TimedEvent::Infinite(
+      [&btn2] {
+        btn2->setVisibility(btn2->visibility.get() == Visibility::Visible
+                           ? Visibility::Invisible
+                           : Visibility::Visible);
+      },
+      500ms));
 
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

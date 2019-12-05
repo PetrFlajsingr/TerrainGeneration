@@ -8,6 +8,7 @@
 
 void sdl2cpp::ui::UIManager::render(glm::mat4 projection, glm::mat4 view,
                                      glm::mat4 model) {
+  eventDispatcher.checkTimedEvents(now<std::chrono::milliseconds>());
   renderer.getProgram()->use();
   for (const auto &element : drawable) {
     if (element.expired()) {

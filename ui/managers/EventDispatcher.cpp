@@ -46,6 +46,7 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   using namespace std::chrono_literals;
   using namespace std::chrono;
   static auto lastClickTime = 0ms;
+  const auto currentTime = now<std::chrono::milliseconds>();
   int x;
   int y;
   x = event.motion.x;
@@ -82,13 +83,23 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
     case SDL_MOUSEBUTTONUP:
       element->onMouseUp(event);
       if (mouseDownIn == element.get()) {
-        const auto clickTime = now<milliseconds>();
-        if ((clickTime - lastClickTime) < 200ms) {
+        if ((currentTime - lastClickTime) < 400ms) {
           element->onMouseDblClicked(event);
+          doubleClicked = true;
+          lastClickTime = 0ms;
         } else {
-          element->onMouseClicked(event);
-          focusManager.changeFocusTo(element);
-          lastClickTime = clickTime;
+          doubleClicked = false;
+          addEvent(TimedEvent::SingleShot(
+              [element, event, this] {
+                if (!doubleClicked) {
+                  element->onMouseClicked(event);
+                  focusManager.changeFocusTo(element);
+                }
+              },
+              400ms));
+          // element->onMouseClicked(event);
+          // focusManager.changeFocusTo(element);
+          lastClickTime = currentTime;
         }
       }
       mouseDownIn = nullptr;
@@ -172,4 +183,27 @@ sdl2cpp::ui::EventDispatcher::getFocusedKeyboardInteractible() {
     }
   }
   return std::nullopt;
+}
+void sdl2cpp::ui::EventDispatcher::checkTimedEvents(
+    std::chrono::milliseconds currentTime) {
+  bool anyFired = false;
+  for (auto &event : events) {
+    if (event.shouldFire(currentTime)) {
+      event(currentTime);
+      anyFired = true;
+    }
+  }
+  if (anyFired) {
+    auto iter = events.begin();
+    while (iter != events.end()) {
+      if (!iter->isValid()) {
+        events.erase(iter++);
+      } else {
+        ++iter;
+      }
+    }
+  }
+}
+void sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
+  events.emplace_back(event);
 }

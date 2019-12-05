@@ -59,6 +59,10 @@ public:
     return std::nullopt;
   }
 
+  void enqueueEvent(TimedEvent &&event) {
+    eventDispatcher.addEvent(std::forward<TimedEvent&&>(event));
+  }
+
 private:
   std::vector<std::weak_ptr<UIVisible>> drawable;
   std::vector<std::weak_ptr<UIObject>> objects;

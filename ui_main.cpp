@@ -39,14 +39,22 @@ void ui_main(int argc, char *argv[]) {
 
   auto btn2 = uiManager.createGUIObject<Button>(glm::vec3{500, 500, 1},
                                               glm::vec3{400, 100, 0});
+  btn2->setMouseClicked([&btn1] {
+    btn1->setEnabled(!btn1->enabled.get());
+  });
 
   uiManager.enqueueEvent(TimedEvent::Infinite(
       [&btn2] {
-        btn2->setVisibility(btn2->visibility.get() == Visibility::Visible
-                           ? Visibility::Invisible
-                           : Visibility::Visible);
+        btn2->setPosition(btn2->position.get() + glm::vec3{0.1, 0, 0});
       },
-      500ms));
+      50ms));
+
+  btn1->setMouseMove([&btn1] (EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
+    if (btn1->getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
+      float i = newPos.x > oldPos.x ? 1 : -1;
+      btn1->setColor(btn1->getColor() + i * glm::vec4{0.01, 0, 0.01, 0});
+    }
+  });
 
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

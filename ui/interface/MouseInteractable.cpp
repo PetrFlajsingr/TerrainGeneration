@@ -8,12 +8,14 @@
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDown(
     const SDL_Event &event) {
   MouseButton button = buttonFromEvent(event);
+  buttonStates[static_cast<int>(button)] = MouseButtonState::Pressed;
   SDL_Point position = positionFromEvent(event);
   onMouseDown(EventInfo{*this, Event::Type::MouseDown}, button, position);
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseUp(
     const SDL_Event &event) {
   MouseButton button = buttonFromEvent(event);
+  buttonStates[static_cast<int>(button)] = MouseButtonState::Released;
   SDL_Point position = positionFromEvent(event);
   onMouseUp(EventInfo{*this, Event::Type::MouseUp}, button, position);
 }
@@ -86,6 +88,12 @@ sdl2cpp::ui::CustomEventMouseInteractable::buttonFromEvent(
 SDL_Point sdl2cpp::ui::CustomEventMouseInteractable::positionFromEvent(
     const SDL_Event &event) const {
   return {event.button.x, event.button.y};
+}
+
+sdl2cpp::ui::MouseButtonState
+sdl2cpp::ui::CustomEventMouseInteractable::getButtonState(
+    sdl2cpp::ui::MouseButton button) const {
+  return buttonStates[static_cast<int>(button)];
 }
 
 sdl2cpp::ui::MouseButton

@@ -33,6 +33,9 @@ public:
 
   Text text;
 
+  void setColor(glm::vec4 color);
+  const glm::vec4 &getColor() const;
+
 protected:
   void draw(GUIRenderer &renderer) override;
   void onVisibilityChanged(Visibility visibility) override;

@@ -36,34 +36,44 @@ void sdl2cpp::ui::Button::onVisibilityChanged(Visibility visibility) {}
 
 void sdl2cpp::ui::Button::onFocusChanged(Focus focus) {
   if (focus == Focus::Focused) {
-    color = {1, 0, 1, 1};
+   // color = {1, 0, 1, 1};
   } else {
-    color = {1, 1, 0, 1};
+    //color = {1, 1, 0, 1};
   }
 }
 
-void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {}
+void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {
+  if (!enabled) {
+    color = glm::vec4{0.5, 0.5, 0.5, 1};
+  } else {
+    color = glm::vec4{1, 0, 0, 1};
+  }
+}
 
 void sdl2cpp::ui::Button::onMouseDown(sdl2cpp::ui::EventInfo info,
                                       sdl2cpp::ui::MouseButton button,
                                       SDL_Point point) {
   MouseInteractable::onMouseDown(info, button, point);
-  color = {0, 0, 1, 1};
+ // color = {0, 0, 1, 1};
 }
 
 void sdl2cpp::ui::Button::onMouseUp(sdl2cpp::ui::EventInfo info,
                                     sdl2cpp::ui::MouseButton button,
                                     SDL_Point point) {
   MouseInteractable::onMouseUp(info, button, point);
-  color = {1, 0, 0, 1};
+ // color = {1, 0, 0, 1};
 }
 
 void sdl2cpp::ui::Button::onMouseOver(sdl2cpp::ui::EventInfo info) {
   MouseInteractable::onMouseOver(info);
-  color = {0, 1, 0, 1};
+  //color = {0, 1, 0, 1};
 }
 
 void sdl2cpp::ui::Button::onMouseOut(sdl2cpp::ui::EventInfo info) {
   MouseInteractable::onMouseOut(info);
-  color = {1, 0, 0, 1};
+ // color = {1, 0, 0, 1};
 }
+void sdl2cpp::ui::Button::setColor(glm::vec4 color) {
+  Button::color = color;
+}
+const glm::vec4 &sdl2cpp::ui::Button::getColor() const { return color; }

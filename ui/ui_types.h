@@ -15,9 +15,11 @@ enum class Visibility : bool { Visible, Invisible };
 
 enum class Focus : bool { Focused, NotFocused };
 
-enum class MouseButton { Left, Right, Middle };
+enum class MouseButton { Left = 0, Right = 1, Middle = 2 };
+constexpr unsigned int MouseButtonCount = 3;
+enum class MouseButtonState { Pressed, Released };
 
-enum class ScrollDirection {Left, Right, Up, Down};
+enum class ScrollDirection { Left, Right, Up, Down };
 
 namespace Event {
 using DrawFnc = std::function<void(EventInfo)>;
@@ -25,10 +27,8 @@ using VisibilityChangedFnc = std::function<void(EventInfo, Visibility)>;
 using FocusChangedFnc = std::function<void(EventInfo, Focus)>;
 using EnabledChangedFnc = std::function<void(EventInfo, bool)>;
 
-using MouseDownFnc =
-    std::function<void(EventInfo, MouseButton, SDL_Point)>;
-using MouseUpFnc =
-    std::function<void(EventInfo, MouseButton, SDL_Point)>;
+using MouseDownFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
+using MouseUpFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
 using MouseClickedFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
 using MouseDblClickedFnc =
     std::function<void(EventInfo, MouseButton, SDL_Point)>;

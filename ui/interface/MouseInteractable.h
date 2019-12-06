@@ -46,6 +46,7 @@ private:
 
 class CustomEventMouseInteractable : public virtual CustomMouseInteractable {
 public:
+  MouseButtonState getButtonState(MouseButton button) const;
 protected:
   void onMouseDown(const SDL_Event &event) final;
   void onMouseUp(const SDL_Event &event) final;
@@ -68,6 +69,9 @@ protected:
 private:
   MouseButton buttonFromEvent(const SDL_Event &event) const;
   SDL_Point positionFromEvent(const SDL_Event &event) const;
+  std::array<MouseButtonState, MouseButtonCount> buttonStates{
+      MouseButtonState::Released, MouseButtonState::Released,
+      MouseButtonState::Released};
 };
 
 /**

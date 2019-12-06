@@ -38,10 +38,11 @@ protected:
   void onVisibilityChanged(Visibility visibility) override;
   void onFocusChanged(Focus focus) override;
   void onEnabledChanged(bool enabled) override;
-  void onMouseOver(const SDL_Event &event) override;
-  void onMouseOut(const SDL_Event &event) override;
-  void onMouseDown(const SDL_Event &event) override;
-  void onMouseUp(const SDL_Event &event) override;
+  void onMouseDown(EventInfo info, MouseButton button,
+                   SDL_Point point) override;
+  void onMouseUp(EventInfo info, MouseButton button, SDL_Point point) override;
+  void onMouseOver(EventInfo info) override;
+  void onMouseOut(EventInfo info) override;
 
 private:
   glm::vec4 color{1, 0, 0, 1};

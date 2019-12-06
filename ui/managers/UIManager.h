@@ -14,8 +14,8 @@
 namespace sdl2cpp::ui {
 class UIManager {
 public:
-  explicit UIManager(std::shared_ptr<Window> window, const String &fontPath)
-      : window(std::move(window)), eventDispatcher(window, focusManager),
+  explicit UIManager(const std::shared_ptr<Window>& window, const String &fontPath)
+      : window(window), eventDispatcher(window, focusManager),
         renderer(fontPath) {}
   UIManager(const UIManager &) = delete;
   UIManager &operator=(const UIManager &) = delete;
@@ -64,12 +64,11 @@ public:
   }
 
 private:
+  std::shared_ptr<Window> window;
   std::vector<std::weak_ptr<UIVisible>> drawable;
   std::vector<std::weak_ptr<UIObject>> objects;
   EventDispatcher eventDispatcher;
   FocusManager focusManager{objects};
-
-  std::shared_ptr<Window> window;
 
   GUIRenderer renderer;
 };

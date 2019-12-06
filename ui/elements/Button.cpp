@@ -12,9 +12,8 @@
 
 sdl2cpp::ui::Button::Button(UIManager &guiManager, glm::vec3 position,
                             glm::vec3 dimensions)
-    : UIObject(guiManager), MouseInteractable(),
-      UIVisible(position, dimensions),
-      text(guiManager.getTextRenderer().createText()) {
+    : UIObject(guiManager), UIVisible(position, dimensions),
+      MouseInteractable(), text(guiManager.getTextRenderer().createText()) {
   SDL_Rect rect{static_cast<int>(position.x), static_cast<int>(position.y),
                 static_cast<int>(dimensions.x), static_cast<int>(dimensions.y)};
   auto positions = sdlRectToGLCoordinates(rect, 1920, 1080);
@@ -44,19 +43,27 @@ void sdl2cpp::ui::Button::onFocusChanged(Focus focus) {
 }
 
 void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {}
-void sdl2cpp::ui::Button::onMouseOver(const SDL_Event &event) {
-  MouseInteractable::onMouseOver(event);
-  color = {0, 1, 0, 1};
-}
-void sdl2cpp::ui::Button::onMouseOut(const SDL_Event &event) {
-  MouseInteractable::onMouseOut(event);
-  color = {1, 0, 0, 1};
-}
-void sdl2cpp::ui::Button::onMouseDown(const SDL_Event &event) {
-  MouseInteractable::onMouseDown(event);
+
+void sdl2cpp::ui::Button::onMouseDown(sdl2cpp::ui::EventInfo info,
+                                      sdl2cpp::ui::MouseButton button,
+                                      SDL_Point point) {
+  MouseInteractable::onMouseDown(info, button, point);
   color = {0, 0, 1, 1};
 }
-void sdl2cpp::ui::Button::onMouseUp(const SDL_Event &event) {
-  MouseInteractable::onMouseUp(event);
+
+void sdl2cpp::ui::Button::onMouseUp(sdl2cpp::ui::EventInfo info,
+                                    sdl2cpp::ui::MouseButton button,
+                                    SDL_Point point) {
+  MouseInteractable::onMouseUp(info, button, point);
+  color = {1, 0, 0, 1};
+}
+
+void sdl2cpp::ui::Button::onMouseOver(sdl2cpp::ui::EventInfo info) {
+  MouseInteractable::onMouseOver(info);
+  color = {0, 1, 0, 1};
+}
+
+void sdl2cpp::ui::Button::onMouseOut(sdl2cpp::ui::EventInfo info) {
+  MouseInteractable::onMouseOut(info);
   color = {1, 0, 0, 1};
 }

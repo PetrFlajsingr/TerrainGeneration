@@ -39,12 +39,27 @@ public:
   }
 
   [[nodiscard]] bool shouldFire(std::chrono::milliseconds time) {
+    if (!isValid()) {
+      return false;
+    }
     bool result = time - start >= duration;
     valid = !result || type == Type::Infinite || (type == Type::Repeated && (repetitions > fireCount));
-    return result;
+    return result && enabled;
   }
 
   [[nodiscard]] bool isValid() { return valid; }
+
+  void setEnabled(bool enabled) {
+    TimedEvent::enabled = enabled;
+  }
+
+  [[nodiscard]] bool isEnabled() const {
+    return enabled;
+  }
+
+  void invalidate() {
+    valid = false;
+  }
 
   void operator()(std::chrono::milliseconds now) {
     start = now;
@@ -60,6 +75,7 @@ private:
   unsigned int repetitions;
   unsigned int fireCount = 0;
   bool valid = true;
+  bool enabled = true;
 };
 
 class EventDispatcher {
@@ -69,35 +85,51 @@ public:
   explicit EventDispatcher(std::shared_ptr<Window> window,
                            FocusManager &focusManager);
 
-
-  void addEvent(TimedEvent &&event);
+  /**
+   * Add event to timed event list.
+   * @param event event to add - EventDispatcher moves it
+   * @return reference to added event
+   */
+  TimedEvent &addEvent(TimedEvent &&event);
 
   void checkTimedEvents(std::chrono::milliseconds currentTime);
 
-private:
-  std::list<TimedEvent> events;
-  bool doubleClicked = false;
-
-  FocusManager &focusManager;
   void addMouseEventListener(
       const std::weak_ptr<CustomMouseInteractable> &mouseInteractable);
   void addKeyboardEventListener(
       const std::weak_ptr<CustomKeyboardInteractable> &keyboardInteractable);
+private:
+  std::list<TimedEvent> events;
+
+  TimedEvent *clickEvent = nullptr;
+
+  FocusManager &focusManager;
 
   bool mouseEventHandler(const SDL_Event &event);
-
   bool keyboardEventHandler(const SDL_Event &event);
 
+  // element in which mouse down event occurred last
   CustomMouseInteractable *mouseDownIn = nullptr;
+  // element into which mouse has moved last
   CustomMouseInteractable *mouseIn = nullptr;
 
+  /**
+   * Find mouse interactable element in given coordinates.
+   * @param x
+   * @param y
+   * @return mouse interactable on position or std::nullopt if none was found on given position
+   */
   std::optional<std::shared_ptr<CustomMouseInteractable>>
-  findMouseInteractibleOnPosition(int x, int y);
-
+  findMouseInteractableOnPosition(int x, int y);
+  /**
+   * Find keyboard interactable currently in focus.
+   * @return focused keyobard interactable or std::nullopt if no element has focus
+   */
   std::optional<std::shared_ptr<CustomKeyboardInteractable>>
-  getFocusedKeyboardInteractible();
+  getFocusedKeyboardInteractable();
 
   std::shared_ptr<Window> window;
+
   std::vector<std::weak_ptr<CustomMouseInteractable>> mouseEventListeners;
   std::vector<std::weak_ptr<CustomKeyboardInteractable>> keyboardEventListeners;
 

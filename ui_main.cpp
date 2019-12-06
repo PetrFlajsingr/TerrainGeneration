@@ -4,6 +4,7 @@
 
 #include "ui_main.h"
 #include "utils/String.h"
+#include <ui/elements/Slider.h>
 #include <ui/elements/TextArea.h>
 void ui_main(int argc, char *argv[]) {
   using namespace sdl2cpp::ui;
@@ -39,32 +40,35 @@ void ui_main(int argc, char *argv[]) {
       .setMouseOut([] { print("out"); });
 
   auto btn2 = uiManager.createGUIObject<Button>(glm::vec3{500, 500, 1},
-                                              glm::vec3{400, 100, 0});
-  btn2->setMouseClicked([&btn1] {
-    btn1->setEnabled(!btn1->enabled.get());
-  });
+                                                glm::vec3{400, 100, 0});
+  btn2->setMouseClicked([&btn1] { btn1->setEnabled(!btn1->enabled.get()); });
 
-
-  btn1->setMouseMove([&btn1] (EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
+  btn1->setMouseMove([&btn1](EventInfo info, SDL_Point newPos,
+                             SDL_Point oldPos) {
     if (btn1->getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
       float i = newPos.x > oldPos.x ? 1 : -1;
       btn1->setColor(btn1->getColor() + i * glm::vec4{0.01, 0, 0.01, 0});
     }
   });
 
-  auto txtArea = uiManager.createGUIObject<TextArea>(glm::vec3{0, 500, 1}, glm::vec3{500, 500, 0});
-  txtArea->focus.subscribe([] {print("focus changed");});
+  auto s = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 500, 1},
+                                                  glm::vec3{500, 500, 0});
 
-  txtArea->text.subscribe([] (const auto &value) {print(value);});
+  s->value.subscribe([&btn1](const auto &value) {
+    float c = value / 100.0f;
+    btn1->setColor(glm::vec4{c, 0.5, c, 0});
+  });
 
-  uiManager.enqueueEvent(TimedEvent::SingleShot(
-      [&txtArea] {
-        txtArea->setEnabled(false);
-        print("disabled");
-      },
-      5s));
-
-  txtArea->setFocus(Focus::Focused);
+  /* uiManager.enqueueEvent(TimedEvent::SingleShot(
+       [&txtArea] {
+         txtArea->setEnabled(false);
+         print("disabled");
+       },
+       5s));*/
+  s->setStep(0.1);
+  s->setMax(100);
+  s->setMin(0);
+  s->setSliderValue(10);
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -270,7 +270,9 @@ void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
     smProgram->use();
     auto camPos = cameraController->getPosition();
     smProgram->setMatrix4fv("projection", &projection[0][0]);
-    smProgram->setMatrix4fv("modelView", &modelView[0][0]);
+    glm::mat4 model{1};
+    smProgram->setMatrix4fv("model", &model[0][0]);
+    smProgram->setMatrix4fv("view", &cameraController->getViewMatrix()[0][0]);
     smProgram->setMatrix4fv("lightSpaceMatrix", &modelView[0][0]);
     smProgram->set3fv("lightPos", &light.position[0]);
     smProgram->set3fv("viewPos", &camPos[0]);

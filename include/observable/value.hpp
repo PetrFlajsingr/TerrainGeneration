@@ -442,6 +442,8 @@ namespace detail {
 //! \ingroup observable
 #define observable_property \
     typename ::observable::detail::prop_<Observable_Property_EnclosingType_>::type
+#define template_observable_property \
+    typename ::observable::detail::prop_<Observable_Property_EnclosingType_>::template type
 
 //! Interface used to update a value.
 //!

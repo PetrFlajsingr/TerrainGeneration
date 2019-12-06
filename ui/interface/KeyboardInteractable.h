@@ -36,10 +36,21 @@ protected:
   bool keyboardControlsEnabled = true;
 };
 
+class CustomEventKeyboardInteractable : public CustomKeyboardInteractable {
+protected:
+  void onKeyPressed(const SDL_Event &event) override;
+  void onKeyDown(const SDL_Event &event) override;
+  void onKeyUp(const SDL_Event &event) override;
+
+  virtual void onKeyPressed(EventInfo, SDL_Keycode) = 0;
+  virtual void onKeyDown(EventInfo, SDL_Keycode) = 0;
+  virtual void onKeyUp(EventInfo, SDL_Keycode) = 0;
+};
+
 /**
  * Common keyboard interaction interface providing callbacks for events.
  */
-class KeyboardInteractable : public virtual CustomKeyboardInteractable {
+class KeyboardInteractable : public virtual CustomEventKeyboardInteractable {
 public:
   KeyboardInteractable &setOnKeyUp(Event::KeyUpFnc onUp);
   KeyboardInteractable &setOnKeyDown(Event::KeyUpFnc onDown);
@@ -53,9 +64,9 @@ public:
   KeyboardInteractable &setOnKeyPressed(F onPressed);
 
 protected:
-  void onKeyPressed(const SDL_Event &event) override;
-  void onKeyDown(const SDL_Event &event) override;
-  void onKeyUp(const SDL_Event &event) override;
+  void onKeyPressed(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyDown(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
 
 private:
   std::optional<Event::KeyUpFnc> e_keyUp = std::nullopt;

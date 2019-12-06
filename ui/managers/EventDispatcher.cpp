@@ -53,10 +53,8 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   using namespace std::chrono;
   static auto lastClickTime = 0ms;
   const auto currentTime = now<std::chrono::milliseconds>();
-  int x;
-  int y;
-  x = event.motion.x;
-  y = event.motion.y;
+  int x = event.motion.x;
+  int y = event.motion.y;
 
   if (event.type == SDL_MOUSEWHEEL) {
     if (mouseIn != nullptr) {

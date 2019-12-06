@@ -19,7 +19,7 @@ class UIObject {
   OBSERVABLE_PROPERTIES(UIObject);
 
 public:
-  UIObject(UIManager &guiManager);
+  explicit UIObject(UIManager &guiManager);
   virtual ~UIObject() = default;
 
   /**

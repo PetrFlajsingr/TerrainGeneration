@@ -4,6 +4,7 @@
 
 #include "ui_main.h"
 #include "utils/String.h"
+#include <ui/elements/TextArea.h>
 void ui_main(int argc, char *argv[]) {
   using namespace sdl2cpp::ui;
   loc_assert(argc != 1, "Provide path for config");
@@ -43,11 +44,6 @@ void ui_main(int argc, char *argv[]) {
     btn1->setEnabled(!btn1->enabled.get());
   });
 
-  uiManager.enqueueEvent(TimedEvent::Infinite(
-      [&btn2] {
-        btn2->setPosition(btn2->position.get() + glm::vec3{0.1, 0, 0});
-      },
-      50ms));
 
   btn1->setMouseMove([&btn1] (EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
     if (btn1->getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
@@ -56,6 +52,19 @@ void ui_main(int argc, char *argv[]) {
     }
   });
 
+  auto txtArea = uiManager.createGUIObject<TextArea>(glm::vec3{0, 500, 1}, glm::vec3{500, 500, 0});
+  txtArea->focus.subscribe([] {print("focus changed");});
+
+  txtArea->text.subscribe([] (const auto &value) {print(value);});
+
+  uiManager.enqueueEvent(TimedEvent::SingleShot(
+      [&txtArea] {
+        txtArea->setEnabled(false);
+        print("disabled");
+      },
+      5s));
+
+  txtArea->setFocus(Focus::Focused);
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

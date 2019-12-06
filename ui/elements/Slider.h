@@ -9,9 +9,11 @@
 
 namespace sdl2cpp::ui {
 
-template <typename T>
-class Slider : public CustomMouseInteractable {
+template <typename T> class Slider : public CustomEventMouseInteractable {
 public:
+  Slider(UIManager &guiManager, glm::vec3 position, glm::vec3 dimensions)
+      : UIObject(guiManager), UIVisible(position, dimensions) {}
+
   T getSliderValue() const;
   void setSliderValue(T sliderValue);
   T getMin() const;
@@ -21,26 +23,32 @@ public:
   T getStep() const;
   void setStep(T step);
 
-protected:
-  void onMouseDown(const SDL_Event &event) override;
-  void onMouseUp(const SDL_Event &event) override;
-  void onMouseMove(const SDL_Event &event) override;
-  void onMouseClicked(const SDL_Event &event) override;
-  void onMouseDblClicked(const SDL_Event &event) override;
-  void onMouseOver(const SDL_Event &event) override;
-  void onMouseOut(const SDL_Event &event) override;
-  void onMouseWheel(const SDL_Event &event) override;
+  void step();
 
+protected:
   void onFocusChanged(Focus focus) override;
   void onEnabledChanged(bool enabled) override;
   void draw(GUIRenderer &renderer) override;
   void onVisibilityChanged(Visibility visibility) override;
 
+  void onMouseDown(EventInfo info, MouseButton button,
+                   SDL_Point point) override;
+  void onMouseUp(EventInfo info, MouseButton button, SDL_Point point) override;
+  void onMouseMove(EventInfo info, SDL_Point point,
+                   SDL_Point sdlPoint) override;
+  void onMouseClicked(EventInfo info, MouseButton button,
+                      SDL_Point point) override;
+  void onMouseDblClicked(EventInfo info, MouseButton button,
+                         SDL_Point point) override;
+  void onMouseOver(EventInfo info) override;
+  void onMouseOut(EventInfo info) override;
+  void onMouseWheel(EventInfo info, ScrollDirection direction, int i) override;
+
 private:
   T sliderValue = T{0};
   T min = T{0};
   T max = T{100};
-  T step = T{1};
+  T sliderStep = T{1};
 
   const float margin = 0.1f;
 };
@@ -60,27 +68,49 @@ template <typename T> T sdl2cpp::ui::Slider<T>::getMax() const { return max; }
 template <typename T> void sdl2cpp::ui::Slider<T>::setMax(T max) {
   Slider::max = max;
 }
-template <typename T> T sdl2cpp::ui::Slider<T>::getStep() const { return step; }
-template <typename T> void sdl2cpp::ui::Slider<T>::setStep(T step) {
-  Slider::step = step;
+template <typename T> T sdl2cpp::ui::Slider<T>::getStep() const {
+  return sliderStep;
 }
-
-template <typename T> void Slider<T>::onMouseDown(const SDL_Event &event) {}
-template <typename T> void Slider<T>::onMouseUp(const SDL_Event &event) {}
-template <typename T> void Slider<T>::onMouseMove(const SDL_Event &event) {}
-template <typename T> void Slider<T>::onMouseClicked(const SDL_Event &event) {}
-template <typename T>
-void Slider<T>::onMouseDblClicked(const SDL_Event &event) {}
-template <typename T> void Slider<T>::onMouseOver(const SDL_Event &event) {}
-template <typename T> void Slider<T>::onMouseOut(const SDL_Event &event) {}
-template <typename T> void Slider<T>::onMouseWheel(const SDL_Event &event) {}
+template <typename T> void sdl2cpp::ui::Slider<T>::setStep(T step) {
+  Slider::sliderStep = step;
+}
 
 template <typename T> void Slider<T>::onFocusChanged(Focus focus) {}
 template <typename T> void Slider<T>::onEnabledChanged(bool enabled) {}
 template <typename T> void Slider<T>::draw(GUIRenderer &renderer) {}
 template <typename T>
 void Slider<T>::onVisibilityChanged(Visibility visibility) {}
+template <typename T> void Slider<T>::step() {
+  sliderValue += sliderStep;
+  if (sliderValue > max) {
+    sliderValue = max;
+  } else if (sliderValue < min) {
+    sliderValue = min;
+  }
+}
+template <typename T>
+void Slider<T>::onMouseDown(EventInfo info, MouseButton button,
+                            SDL_Point point) {}
+template <typename T>
+void Slider<T>::onMouseUp(EventInfo info, MouseButton button, SDL_Point point) {
 
 }
+template <typename T>
+void Slider<T>::onMouseMove(EventInfo info, SDL_Point point,
+                            SDL_Point sdlPoint) {}
+template <typename T>
+void Slider<T>::onMouseClicked(EventInfo info, MouseButton button,
+                               SDL_Point point) {}
+template <typename T>
+void Slider<T>::onMouseDblClicked(EventInfo info, MouseButton button,
+                                  SDL_Point point) {}
+template <typename T> void Slider<T>::onMouseOver(EventInfo info) {}
+template <typename T> void Slider<T>::onMouseOut(EventInfo info) {}
+template <typename T>
+void Slider<T>::onMouseWheel(EventInfo info, ScrollDirection direction, int i) {
+
+}
+
+} // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_SLIDER_H

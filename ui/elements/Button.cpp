@@ -35,14 +35,11 @@ void sdl2cpp::ui::Button::draw(GUIRenderer &renderer) {
 void sdl2cpp::ui::Button::onVisibilityChanged(Visibility visibility) {}
 
 void sdl2cpp::ui::Button::onFocusChanged(Focus focus) {
-  if (focus == Focus::Focused) {
-   // color = {1, 0, 1, 1};
-  } else {
-    //color = {1, 1, 0, 1};
-  }
+
 }
 
 void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {
+  Interactable::onEnabledChanged(enabled);
   if (!enabled) {
     color = glm::vec4{0.5, 0.5, 0.5, 1};
   } else {

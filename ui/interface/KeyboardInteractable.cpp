@@ -5,27 +5,39 @@
 #include "KeyboardInteractable.h"
 #include <error_handling/exceptions.h>
 
-void sdl2cpp::ui::KeyboardInteractable::onKeyPressed(const SDL_Event &event) {
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(
+    const SDL_Event &event) {
+  onKeyPressed(EventInfo{*this, Event::Type::KeyPressed}, event.key.keysym.sym);
+}
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(
+    const SDL_Event &event) {
+  onKeyDown(EventInfo{*this, Event::Type::KeyPressed}, event.key.keysym.sym);
+}
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(
+    const SDL_Event &event) {
+  onKeyUp(EventInfo{*this, Event::Type::KeyPressed}, event.key.keysym.sym);
+}
+
+void sdl2cpp::ui::KeyboardInteractable::onKeyPressed(
+    sdl2cpp::ui::EventInfo info, SDL_Keycode keycode) {
   if (!e_keyPressed.has_value()) {
     return;
   }
-  e_keyPressed.value()(EventInfo{*this, Event::Type::KeyPressed},
-                       event.key.keysym.sym);
+  e_keyPressed.value()(info, keycode);
 }
-
-void sdl2cpp::ui::KeyboardInteractable::onKeyDown(const SDL_Event &event) {
+void sdl2cpp::ui::KeyboardInteractable::onKeyDown(sdl2cpp::ui::EventInfo info,
+                                                  SDL_Keycode keycode) {
   if (!e_keyDown.has_value()) {
     return;
   }
-  e_keyDown.value()(EventInfo{*this, Event::Type::KeyDown},
-                    event.key.keysym.sym);
+  e_keyDown.value()(info, keycode);
 }
-
-void sdl2cpp::ui::KeyboardInteractable::onKeyUp(const SDL_Event &event) {
+void sdl2cpp::ui::KeyboardInteractable::onKeyUp(sdl2cpp::ui::EventInfo info,
+                                                SDL_Keycode keycode) {
   if (!e_keyUp.has_value()) {
     return;
   }
-  e_keyUp.value()(EventInfo{*this, Event::Type::KeyUp}, event.key.keysym.sym);
+  e_keyUp.value()(info, keycode);
 }
 
 sdl2cpp::ui::KeyboardInteractable &

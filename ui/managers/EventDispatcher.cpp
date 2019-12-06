@@ -97,8 +97,6 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
                 }
               },
               400ms));
-          // element->onMouseClicked(event);
-          // focusManager.changeFocusTo(element);
           lastClickTime = currentTime;
         }
       }

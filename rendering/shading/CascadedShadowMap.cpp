@@ -17,16 +17,16 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
   perspective.resize(cascadeCount);
   glm::vec4 borderColor{1.0, 1.0, 1.0, 1.0};
   for ([[maybe_unused]] auto _ : range(cascadeCount)) {
-    depthMaps.emplace_back(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, 0, width, height);
-    ge::gl::glTextureImage2DEXT(depthMaps.back().getId(), GL_TEXTURE_2D, 0,
+    depthMaps.emplace_back(std::make_unique<ge::gl::Texture>(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, 0, static_cast<int>(width), static_cast<int>(height)));
+    ge::gl::glTextureImage2DEXT(depthMaps.back()->getId(), GL_TEXTURE_2D, 0,
                                 GL_DEPTH_COMPONENT, width, height, 0,
                                 GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    depthMaps.back().texParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    depthMaps.back().texParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    depthMaps.back().texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    depthMaps.back().texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    depthMaps.back()->texParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    depthMaps.back()->texParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    depthMaps.back()->texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    depthMaps.back()->texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-    depthMaps.back().texParameterfv(GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
+    depthMaps.back()->texParameterfv(GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
   }
 
   ge::gl::glFramebufferDrawBufferEXT(depthMapFBO.getId(), GL_NONE);
@@ -34,12 +34,12 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
 }
 
 void CascadedShadowMap::bindCascade(unsigned int index) {
-  depthMapFBO.attachTexture(GL_DEPTH_ATTACHMENT, &depthMaps[index]);
+  depthMapFBO.attachTexture(GL_DEPTH_ATTACHMENT, depthMaps[index].get());
 }
 
 void CascadedShadowMap::bindRender() {
   for (auto i : range(depthMaps.size())) {
-    depthMaps[i].bind(shadowTextureUnitOffset + i);
+    depthMaps[i]->bind(shadowTextureUnitOffset + i);
   }
 }
 const glm::vec3 &CascadedShadowMap::getLightPos() const { return lightPos; }

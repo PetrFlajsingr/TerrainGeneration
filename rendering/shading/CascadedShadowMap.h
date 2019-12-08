@@ -43,7 +43,7 @@ private:
   unsigned int height = 4096;
   unsigned int cascadeCount;
 
-  std::vector<ge::gl::Texture> depthMaps;
+  std::vector<std::unique_ptr<ge::gl::Texture>> depthMaps;
 
   ge::gl::Framebuffer depthMapFBO;
 

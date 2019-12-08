@@ -13,9 +13,6 @@
 using namespace std::string_literals;
 using namespace ShaderLiterals;
 
-
-
-
 void main_shadow_mapping(int argc, char *argv[]);
 
 #endif // TERRAINGENERATION_SHADOW_MAPPING_H

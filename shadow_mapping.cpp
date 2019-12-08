@@ -2,9 +2,17 @@
 // Created by petr on 11/30/19.
 //
 
+#define OLD_SM
+
 #include "shadow_mapping.h"
 #include "rendering/Data.h"
+
+#ifdef OLD_SM
 #include "rendering/shading/ShadowMap.h"
+#else
+#include "rendering/shading/CascadedShadowMap.h"
+#endif
+
 #include "rendering/utils/DrawTexture.h"
 #include "ui/elements.h"
 #include "ui/managers.h"
@@ -39,7 +47,7 @@ void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
   }
   modelRenderer.addModel(modelLoader.loadModel("sphere", "b"))
       .setScale(3, 3, 3)
-      .setPosition(0, 5, 0);
+      .setPosition(0, 10, 0);
 
   modelRenderer.addModel(modelLoader.loadModel("floor", "floor1"))
       .setPosition({0, -5, 0});

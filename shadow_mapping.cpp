@@ -29,10 +29,19 @@ void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
       .setDrawn(true)
       .setScale({0.5, 0.5, 0.5});
 
+  for (auto x : range(-15, 15, 3)) {
+    for (auto y : range(-15, 15, 3)) {
+      modelRenderer.addModel(modelLoader.loadModel("cube", "cube" + std::to_string(x) + std::to_string(y)))
+          .setPosition({static_cast<float>(x), 2, static_cast<float>(y)});
+    }
+  }
   modelRenderer.addModel(modelLoader.loadModel("floor", "floor1"))
       .setPosition({0, -5, 0});
   modelRenderer.addModel(modelLoader.loadModel("wall", "wall1"))
       .setPosition({-5, -5.1, 0});
+
+  modelRenderer.addModel(modelLoader.loadModel("wall", "wall2"))
+      .setPosition({-5, -5.1, 0}).setScale({5, 5, 20});
 
   modelRenderer.addModel(modelLoader.loadModel("sphere", "light"))
       .setDrawn(false);
@@ -153,7 +162,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   // ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   auto projection =
-      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 100.0f);
+      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 10000.0f);
   auto renderProgram = std::make_shared<ge::gl::Program>("shadow_map/render"_vert, "shadow_map/render"_frag);
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

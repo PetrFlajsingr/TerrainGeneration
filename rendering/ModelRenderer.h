@@ -14,6 +14,7 @@
 #include <geGL_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 #include <io/print.h>
 #include <string>
 #include <tiny_obj_loader.h>
@@ -57,7 +58,12 @@ public:
       [this] { return updateModelMatrix; },
       [this] {
         updateModelMatrix = false;
-        return glm::scale(glm::translate(glm::mat4{}, position), scale);
+        auto ModelMatrix = glm::mat4();
+
+        ModelMatrix = glm::translate(ModelMatrix, position);
+        ModelMatrix = glm::scale(ModelMatrix, scale);
+        //ModelMatrix = glm::rotate(ModelMatrix, rotAngle, Rotation);
+        return ModelMatrix;
       }};
 
 protected:

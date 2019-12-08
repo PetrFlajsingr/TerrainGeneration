@@ -4,6 +4,8 @@
 
 #include "shadow_mapping.h"
 #include "rendering/Data.h"
+#include "rendering/shading/ShadowMap.h"
+#include "rendering/utils/DrawTexture.h"
 #include "ui/elements.h"
 #include "ui/managers.h"
 #include "various/loc_assert.h"
@@ -13,8 +15,6 @@
 #include <config/JsonConfig.h>
 #include <gl_utils.h>
 #include <rendering/ModelRenderer.h>
-#include "rendering/utils/DrawTexture.h"
-#include "rendering/shading/ShadowMap.h"
 
 using Conf = JsonConfig<true>;
 
@@ -31,17 +31,24 @@ void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
 
   for (auto x : range(-15, 15, 3)) {
     for (auto y : range(-15, 15, 3)) {
-      modelRenderer.addModel(modelLoader.loadModel("cube", "cube" + std::to_string(x) + std::to_string(y)))
-          .setPosition({static_cast<float>(x), 2, static_cast<float>(y)});
+      modelRenderer
+          .addModel(modelLoader.loadModel("cube", "cube" + std::to_string(x) +
+                                                      std::to_string(y)))
+          .setPosition({static_cast<float>(x), 3, static_cast<float>(y)});
     }
   }
+  modelRenderer.addModel(modelLoader.loadModel("sphere", "b"))
+      .setScale(3, 3, 3)
+      .setPosition(0, 5, 0);
+
   modelRenderer.addModel(modelLoader.loadModel("floor", "floor1"))
       .setPosition({0, -5, 0});
   modelRenderer.addModel(modelLoader.loadModel("wall", "wall1"))
       .setPosition({-5, -5.1, 0});
 
   modelRenderer.addModel(modelLoader.loadModel("wall", "wall2"))
-      .setPosition({-5, -5.1, 0}).setScale({5, 5, 20});
+      .setPosition({-5, -5.1, 0})
+      .setScale({5, 5, 20});
 
   modelRenderer.addModel(modelLoader.loadModel("sphere", "light"))
       .setDrawn(false);
@@ -99,9 +106,10 @@ void main_shadow_mapping(int argc, char *argv[]) {
                          SDL_Point) { showFrameBuffer = !showFrameBuffer; });
   const float near_plane = .1f;
   const float far_plane = 70.5f;
-  const glm::mat4 lightProjection =//glm::perspective(glm::radians(140.f), (float)1024 / (float)1024, 0.1f, 20.0f);
-      glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-  ShadowMap sm{lightProjection, {-5.0f, 2.0f, -10.0}, {0.0, 0, 0}, 4096, 4096};
+  const glm::mat4 lightProjection =  //glm::perspective(glm::radians(140.f),
+                                     //(float)1024 / (float)1024, near_plane, far_plane);
+      glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
+  ShadowMap sm{lightProjection, {0.f, 5.0f, 0.0}, {0.0, 0, 0}, 4096, 4096};
 
   DrawTexture drawTexture;
 
@@ -110,7 +118,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   btn3->setMouseClicked([&sm, &modelRenderer](sdl2cpp::ui::EventInfo,
                                               sdl2cpp::ui::MouseButton,
                                               SDL_Point) {
-    sm.setLightPos( sm.getLightPos() + glm::vec3{0, 1, 0});
+    sm.setLightPos(sm.getLightPos() + glm::vec3{0, 1, 0});
     auto model = modelRenderer.modelById("light").value();
     model->setPosition(sm.getLightPos());
   });
@@ -122,22 +130,20 @@ void main_shadow_mapping(int argc, char *argv[]) {
       glm::vec3{0, 340, 1}, glm::vec3{300, 500, 0});
 
   bool down = false;
-  btn4->setMouseDown([&down] {
-        down = true;
-      })
-      .setMouseUp([&down] {
-        down = false;
-      })
+  btn4->setMouseDown([&down] { down = true; })
+      .setMouseUp([&down] { down = false; })
       .setMouseMove([&down, &sm, &modelRenderer](EventInfo, SDL_Point oldPos,
                                                  SDL_Point newPos) {
         if (!down) {
           return;
         }
         glm::vec3 delta{oldPos.x - newPos.x, oldPos.y - newPos.y, 0.0};
-        sm.setLightPos( sm.getLightPos() + delta / 10.0f);
+        sm.setLightPos(sm.getLightPos() + delta / 10.0f);
         auto model = modelRenderer.modelById("light").value();
         model->setPosition(sm.getLightPos());
-      }).setMouseWheel([&down, &sm, &modelRenderer] (EventInfo, ScrollDirection dir, int delta) {
+      })
+      .setMouseWheel([&down, &sm, &modelRenderer](
+                         EventInfo, ScrollDirection dir, int delta) {
         if (!down) {
           return;
         }
@@ -154,16 +160,17 @@ void main_shadow_mapping(int argc, char *argv[]) {
           d.z += delta;
           break;
         }
-    sm.setLightPos( sm.getLightPos() + d);
-    auto model = modelRenderer.modelById("light").value();
-    model->setPosition(sm.getLightPos());
+        sm.setLightPos(sm.getLightPos() + d);
+        auto model = modelRenderer.modelById("light").value();
+        model->setPosition(sm.getLightPos());
       });
 
   // ge::gl::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   auto projection =
       glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 10000.0f);
-  auto renderProgram = std::make_shared<ge::gl::Program>("shadow_map/render"_vert, "shadow_map/render"_frag);
+  auto renderProgram = std::make_shared<ge::gl::Program>(
+      "shadow_map/render"_vert, "shadow_map/render"_frag);
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ge::gl::glEnable(GL_DEPTH_TEST);
@@ -171,7 +178,8 @@ void main_shadow_mapping(int argc, char *argv[]) {
     sm.begin();
     ge::gl::glEnable(GL_CULL_FACE);
     ge::gl::glCullFace(GL_FRONT);
-    modelRenderer.render(sm.getProgram(), cameraController->getViewMatrix(), false);
+    modelRenderer.render(sm.getProgram(), cameraController->getViewMatrix(),
+                         false);
     ge::gl::glCullFace(GL_BACK);
     sm.end();
 
@@ -183,14 +191,13 @@ void main_shadow_mapping(int argc, char *argv[]) {
       ge::gl::glBindTexture(GL_TEXTURE_2D, sm.getDepthMap().getId());
 
       ge::gl::glUniform1i(
-          ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"),
-          0);
+          ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"), 0);
 
       renderProgram->set3fv("lightPos", &sm.getLightPos()[0]);
       renderProgram->set3fv("viewPos", &cameraController->getPosition()[0]);
       renderProgram->setMatrix4fv("projection", &projection[0][0]);
       renderProgram->setMatrix4fv("lightSpaceMatrix",
-                                     &sm.getLightSpaceMatrix()[0][0]);
+                                  &sm.getLightSpaceMatrix()[0][0]);
       modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
                            true);
     }
@@ -202,4 +209,3 @@ void main_shadow_mapping(int argc, char *argv[]) {
 
   (*mainLoop)();
 }
-

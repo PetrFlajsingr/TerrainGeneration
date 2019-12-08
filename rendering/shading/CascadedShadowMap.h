@@ -1,0 +1,12 @@
+//
+// Created by petr on 12/8/19.
+//
+
+#ifndef TERRAINGENERATION_CASCADEDSHADOWMAP_H
+#define TERRAINGENERATION_CASCADEDSHADOWMAP_H
+
+class CascadedShadowMap {
+
+};
+
+#endif // TERRAINGENERATION_CASCADEDSHADOWMAP_H

@@ -1,6 +1,6 @@
-#include "marching_cubes.h"
+#include "ui_main.h"
 
 int main(int argc, char *argv[]) {
-  main_marching_cubes(argc, argv);
+  ui_main(argc, argv);
   return 0;
 }

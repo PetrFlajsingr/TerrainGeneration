@@ -13,11 +13,9 @@ set(SDL2_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/SDL2/lib/cmake/SDL2)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(Freetype REQUIRED)
-find_package(tinyobjloader REQUIRED)
 
 FetchContent_Declare(SDL2CPP GIT_REPOSITORY https://github.com/dormon/SDL2CPP.git)
 FetchContent_Declare(geGL GIT_REPOSITORY https://github.com/dormon/geGL.git)
-
 
 FetchContent_GetProperties(SDL2CPP)
 if (NOT SDL2CPP_POPULATED)
@@ -39,7 +37,6 @@ include_directories(${FTGL_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${GLFW_INCLUDE_DIR})
 include_directories(include/freetype-gl++/freetype-gl)
-include_directories(${TINYOBJLOADER_INCLUDE_DIRS})
 
 file(GLOB_RECURSE ui_src "ui/*.cpp")
 file(GLOB_RECURSE utils_src "utils/*.cpp")

@@ -1,8 +1,11 @@
 //
 // Created by petr on 11/29/19.
 //
+#define TINYOBJLOADER_IMPLEMENTATION
 
 #include "ModelRenderer.h"
+
+
 
 const std::shared_ptr<ge::gl::VertexArray> &
 GraphicsModelBase::getVertexArray() const {

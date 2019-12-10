@@ -1,7 +1,7 @@
-#include "shadow_mapping.h"
+#include "marching_cubes.h"
 
 
 int main(int argc, char *argv[]) {
-  main_shadow_mapping(argc, argv);
+  main_marching_cubes(argc, argv);
   return 0;
 }

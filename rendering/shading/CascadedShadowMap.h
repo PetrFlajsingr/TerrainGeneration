@@ -5,6 +5,7 @@
 #ifndef TERRAINGENERATION_CASCADEDSHADOWMAP_H
 #define TERRAINGENERATION_CASCADEDSHADOWMAP_H
 #include <geGL/geGL.h>
+#include <geGL/StaticCalls.h>
 #include <geGL_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,9 +25,11 @@ public:
   [[nodiscard]] const glm::vec3 &getTarget() const;
   void setTarget(const glm::vec3 &target);
 
+  const std::vector<std::unique_ptr<ge::gl::Texture>> &getDepthMaps() const;
+
   [[nodiscard]] glm::mat4 lightSpaceMatrix(unsigned int cascade) const;
 
-  template <SimpleInvocable F>
+  template <typename F>
   void renderShadowMap(F renderFunction, const glm::mat4 &cameraView,
                        float cameraNear, float cameraFar, float aspectRatio,
                        float fieldOfView);
@@ -47,7 +50,7 @@ private:
 
   ge::gl::Framebuffer depthMapFBO;
 
-  ge::gl::Program program{"shadow_map/sm"_vert, "shadow_map/sm"_frag};
+  std::shared_ptr<ge::gl::Program> program = std::make_shared<ge::gl::Program>("shadow_map/sm"_vert, "shadow_map/sm"_frag);
 
   glm::mat4 calculateOrthoMatrices(const glm::mat4 &cameraView,
                                    float cameraNear, float cameraFar,
@@ -56,7 +59,7 @@ private:
   void bindCascade(unsigned int index);
 };
 
-template <SimpleInvocable F>
+template <typename F>
 void CascadedShadowMap::renderShadowMap(F renderFunction,
                                         const glm::mat4 &cameraView,
                                         float cameraNear, float cameraFar,
@@ -64,14 +67,15 @@ void CascadedShadowMap::renderShadowMap(F renderFunction,
   using namespace MakeRange;
   calculateOrthoMatrices(cameraView, cameraNear, cameraFar, aspectRatio,
                          fieldOfView);
-  program.use();
+  program->use();
   depthMapFBO.bind(GL_FRAMEBUFFER);
   for (auto i : range(cascadeCount)) {
     bindCascade(i);
+    ge::gl::glClear(GL_DEPTH_BUFFER_BIT);
     const auto lightSpaceMatrix =
         perspective[i] * glm::lookAt(lightPos, target, up);
-    program.setMatrix4fv("lightSpaceMatrix", &lightSpaceMatrix[0][0]);
-    renderFunction();
+    program->setMatrix4fv("lightSpaceMatrix", &lightSpaceMatrix[0][0]);
+    renderFunction(program);
   }
   depthMapFBO.unbind(GL_FRAMEBUFFER);
 }

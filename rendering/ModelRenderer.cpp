@@ -47,6 +47,9 @@ GraphicsModelBase & GraphicsModelBase::setDrawn(bool drawn) {
   GraphicsModelBase::drawn = drawn;
   return *this;
 }
+GraphicsModelBase &GraphicsModelBase::setScale(float scale) {
+  setScale(scale, scale, scale);
+}
 
 ObjModelLoader::ObjModelLoader(std::string assetsPath)
     : assetsPath(std::move(assetsPath)) {}

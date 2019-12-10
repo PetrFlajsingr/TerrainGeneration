@@ -83,6 +83,20 @@ void Logger<OutStream>::print(const T &value, unsigned int indentLevel) const {
       }
     }
     print("}");
+  } else if constexpr (std::is_same_v<T, glm::mat4>) {
+    print("glm::mat4:");
+    print("{\n");
+    for (auto y = 0; y < 4; ++y) {
+      print("{");
+      for (auto x = 0; x < 4; ++x) {
+        print(value[x][y]);
+        if (x < 3) {
+          print(", ");
+        }
+      }
+      print("}\n");
+    }
+    print("}");
   } else {
     if constexpr (std::is_same_v<std::decay_t<T>, bool>) {
       outputStream << (value ? "true" : "false");

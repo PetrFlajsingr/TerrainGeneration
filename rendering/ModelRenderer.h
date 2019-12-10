@@ -46,6 +46,7 @@ public:
   [[nodiscard]] const glm::vec3 &getScale() const;
   GraphicsModelBase &setScale(const glm::vec3 &scale);
   GraphicsModelBase &setScale(float x, float y, float z);
+  GraphicsModelBase &setScale(float scale);
 
   bool isDrawn() const;
   GraphicsModelBase & setDrawn(bool drawn);
@@ -61,6 +62,9 @@ public:
         auto ModelMatrix = glm::mat4();
 
         ModelMatrix = glm::translate(ModelMatrix, position);
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.x),glm::vec3(1,0,0));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y),glm::vec3(0,1,0));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z),glm::vec3(0,0,1));
         ModelMatrix = glm::scale(ModelMatrix, scale);
         //ModelMatrix = glm::rotate(ModelMatrix, rotAngle, Rotation);
         return ModelMatrix;

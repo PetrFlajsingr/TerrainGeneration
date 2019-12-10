@@ -110,3 +110,7 @@ glm::mat4 CascadedShadowMap::calculateOrthoMatrices(const glm::mat4 &cameraView,
 glm::mat4 CascadedShadowMap::lightSpaceMatrix(unsigned int cascade) const {
   return perspective[cascade] * glm::lookAt(lightPos, target, up);
 }
+const std::vector<std::unique_ptr<ge::gl::Texture>> &
+CascadedShadowMap::getDepthMaps() const {
+  return depthMaps;
+}

@@ -12,7 +12,6 @@ include(FetchContent)
 set(SDL2_DIR /home/petr/Desktop/SDL2/lib/cmake/SDL2)
 
 find_package(SDL2 CONFIG REQUIRED)
-#find_package(FTGL REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(tinyobjloader REQUIRED)
 

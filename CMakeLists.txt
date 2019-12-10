@@ -9,7 +9,7 @@ add_compile_definitions(GLT_IMPORTS)
 
 include(FetchContent)
 
-set(SDL2_DIR /home/petr/Desktop/SDL2/lib/cmake/SDL2)
+set(SDL2_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/SDL2/lib/cmake/SDL2)
 
 find_package(SDL2 CONFIG REQUIRED)
 #find_package(FTGL REQUIRED)

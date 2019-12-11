@@ -12,6 +12,7 @@ include(FetchContent)
 set(SDL2_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/SDL2/lib/cmake/SDL2)
 
 find_package(SDL2 CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
 find_package(Freetype REQUIRED)
 
 FetchContent_Declare(SDL2CPP GIT_REPOSITORY https://github.com/dormon/SDL2CPP.git)
@@ -33,9 +34,8 @@ endif ()
 include_directories(include)
 include_directories(utils)
 include_directories(.)
-include_directories(${FTGL_INCLUDE_DIR})
 include_directories(${FREETYPE_INCLUDE_DIRS})
-include_directories(${GLFW_INCLUDE_DIR})
+include_directories(${GLM_INCLUDE_DIR})
 include_directories(include/freetype-gl++/freetype-gl)
 
 file(GLOB_RECURSE ui_src "ui/*.cpp")
@@ -52,6 +52,7 @@ add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src} ${ft_src} ${ft_
         ui/interface/KeyboardInteractable.cpp ui/elements/KeyAction.cpp ui/elements/KeyAction.h ui/interface/MouseInteractable.cpp ui/interface/MouseInteractable.h utils/various/StringUtils.cpp ui/GUIRenderer.cpp ui/GUIRenderer.h ui/utils.cpp ui/utils.h utils/String.h ui/interface/Interactable.cpp ui/interface/Interactable.h include/gltext.cpp rendering/Surroundings.cpp rendering/Surroundings.h rendering/text/TextRenderer.cpp rendering/text/TextRenderer.h rendering/text/FontManager.cpp rendering/text/FontManager.h ui/Font.cpp ui/Font.h ui/interface/ui_traits.h ui/elements/Label.cpp ui/elements/Label.h utils/SparseBuffer.cpp utils/SparseBuffer.h rendering/text/Text.cpp rendering/text/Text.h rendering/ModelRenderer.cpp rendering/ModelRenderer.h marching_cubes.cpp marching_cubes.h ui/elements.h ui/managers.h shadow_mapping.cpp shadow_mapping.h rendering/utils/DrawTexture.cpp rendering/utils/DrawTexture.h rendering/shading/ShadowMap.cpp rendering/shading/ShadowMap.h ui_main.cpp ui_main.h ui/elements/Slider.cpp ui/elements/Slider.h ui/elements/TextArea.cpp ui/elements/TextArea.h rendering/shading/CascadedShadowMap.cpp rendering/shading/CascadedShadowMap.h)
 
 target_link_libraries(TerrainGeneration SDL2_image geGL::geGL SDL2CPP::SDL2CPP
+        glm
         ${FREETYPE_LIBRARIES}
         ${TINYOBJLOADER_LIBRARIES})
 

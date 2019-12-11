@@ -52,6 +52,7 @@ GraphicsModelBase & GraphicsModelBase::setDrawn(bool drawn) {
 }
 GraphicsModelBase &GraphicsModelBase::setScale(float scale) {
   setScale(scale, scale, scale);
+  return *this;
 }
 
 ObjModelLoader::ObjModelLoader(std::string assetsPath)
@@ -68,11 +69,12 @@ void ModelRenderer::render(const std::shared_ptr<ge::gl::Program> &program,
     if (!model->isDrawn()) {
       continue;
     }
+    const auto modelMatrix = model->modelMatrix.getRef();
     if (wa) {
-      program->setMatrix4fv("model", &model->modelMatrix.getRef()[0][0]);
+      program->setMatrix4fv("model", &modelMatrix[0][0]);
       program->setMatrix4fv("view", &view[0][0]);
     } else {
-      program->setMatrix4fv("model", &model->modelMatrix.getRef()[0][0]);
+      program->setMatrix4fv("model", &modelMatrix[0][0]);
     }
     model->getVertexArray()->bind();
     ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(),

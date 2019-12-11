@@ -137,8 +137,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   const float near_plane = .1f;
   const float far_plane = 70.5f;
   const glm::mat4
-      lightProjection = // glm::perspective(glm::radians(140.f),
-                        //(float)1024 / (float)1024, near_plane, far_plane);
+      lightProjection =
       glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
 
   ShadowMap sm{lightProjection, {0.f, 5.0f, 0.0}, {0.0, 0, 0}, 4096, 4096};
@@ -266,6 +265,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
                          false);
     ge::gl::glCullFace(GL_BACK);
     sm.end();
+    ge::gl::glDisable(GL_CULL_FACE);
 
     if (showFrameBuffer) {
       drawTexture.draw(sm.getDepthMap().getId());
@@ -282,8 +282,14 @@ void main_shadow_mapping(int argc, char *argv[]) {
       renderProgram->setMatrix4fv("projection", &projection[0][0]);
       renderProgram->setMatrix4fv("lightSpaceMatrix",
                                   &sm.getLightSpaceMatrix()[0][0]);
+
       modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
                            true);
+
+      glm::mat4 m{};
+      renderProgram->setMatrix4fv("model", &m[0][0]);
+      drawTexture.quadVAO.bind();
+      ge::gl::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 #else
     auto renderFnc = [&modelRenderer, &cameraController] (const std::shared_ptr<ge::gl::Program> &program) {

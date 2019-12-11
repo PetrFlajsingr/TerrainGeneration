@@ -10,12 +10,13 @@
 using namespace ShaderLiterals;
 
 struct DrawTexture {
+ public:
   ge::gl::Program program{"framebuffer_screen"_vert, "framebuffer_screen"_frag};
   std::vector<float> quadVertices;
   ge::gl::Buffer quadVBO;
   ge::gl::VertexArray quadVAO;
 
-public:
+
   DrawTexture();
 
   void draw(GLint texture);

@@ -31,14 +31,6 @@ std::vector<GraphicsModelBase *> cubes;
 GraphicsModelBase *bigSphere;
 void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
   ObjModelLoader modelLoader{assetPath + "/models"};
-  modelRenderer.addModel(modelLoader.loadModel("cube", "cube1"))
-      .setPosition({0, 2, 0})
-      .setDrawn(true)
-      .setScale({0.1, 0.1, 0.1});
-  modelRenderer.addModel(modelLoader.loadModel("cube", "cube2"))
-      .setPosition({5, 3, 5})
-      .setDrawn(true)
-      .setScale({0.5, 0.5, 0.5});
 
   for (auto x : range(-15, 15, 3)) {
     for (auto y : range(-15, 15, 3)) {

@@ -1,0 +1,12 @@
+//
+// Created by petr on 12/12/19.
+//
+
+#ifndef TERRAINGENERATION_SCENELOADER_H
+#define TERRAINGENERATION_SCENELOADER_H
+
+class SceneLoader {
+
+};
+
+#endif // TERRAINGENERATION_SCENELOADER_H

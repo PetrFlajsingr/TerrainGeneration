@@ -137,6 +137,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
       });
 #else
   CascadedShadowMap cascadedShadowMap{3, 4096, 4096};
+  cascadedShadowMap.setLightPos({1, 10, 5});
   cascadedShadowMap.setTarget({0, 0, 0});
   btn4->setMouseDown([&down] { down = true; })
       .setMouseUp([&down] { down = false; })
@@ -266,6 +267,8 @@ void main_shadow_mapping(int argc, char *argv[]) {
                            true);
     }
 #else
+    ge::gl::glEnable(GL_CULL_FACE);
+    ge::gl::glCullFace(GL_FRONT);
     auto renderFnc = [&modelRenderer, &cameraController] (const std::shared_ptr<ge::gl::Program> &program) {
       modelRenderer.render(program, cameraController->getViewMatrix(),
                            false);
@@ -275,9 +278,14 @@ void main_shadow_mapping(int argc, char *argv[]) {
                                       cameraController->getViewMatrix(), near,
                                       far, aspectRatio, fieldOfView);
 
+    ge::gl::glCullFace(GL_BACK);
+
     if (showFrameBuffer) {
       drawTexture.draw(cascadedShadowMap.getDepthMaps()[0]->getId());
     } else {
+      renderProgram->use();
+      ge::gl::glActiveTexture(GL_TEXTURE0);
+      ge::gl::glBindTexture(GL_TEXTURE_2D, cascadedShadowMap.getDepthMaps()[0]->getId());
       ge::gl::glUniform1i(
           ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"), 0);
 

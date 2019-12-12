@@ -59,8 +59,8 @@ glm::mat4 CascadedShadowMap::calculateOrthoMatrices(const glm::mat4 &cameraView,
   std::vector<float> cascadeBoundaries;
   cascadeBoundaries.resize(cascadeCount + 1);
   const auto max = static_cast<float>(cascadeCount + 1);
-  for (auto i : range(cascadeCount)) {
-    cascadeBoundaries[i] = cameraNear + i / max * (cameraFar - cameraNear);
+  for (auto i : range(1, cascadeCount + 1, 1)) {
+    cascadeBoundaries[i-1] = cameraNear + i / max * (cameraFar - cameraNear);
   }
 
   const auto invertedCameraView = glm::inverse(cameraView);

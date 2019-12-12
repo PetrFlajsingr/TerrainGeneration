@@ -25,9 +25,9 @@ public:
 
     iterator &operator++();
 
-    std::shared_ptr<GraphicsModelBase> operator*();
+    std::vector<std::shared_ptr<GraphicsModelBase>> operator*();
 
-    std::shared_ptr<GraphicsModelBase> currentModel;
+    std::vector<std::shared_ptr<GraphicsModelBase>> currentModels;
     SceneLoader *loader = nullptr;
   };
 
@@ -39,7 +39,7 @@ private:
   tinyxml2::XMLDocument doc;
   tinyxml2::XMLNode *xmlIter;
 
-  std::shared_ptr<GraphicsModelBase> getNextModel();
+  std::vector<std::shared_ptr<GraphicsModelBase>> getNextModel();
 
   ObjModelLoader modelLoader;
 };

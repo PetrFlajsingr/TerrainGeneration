@@ -30,10 +30,13 @@ public:
   enum Type { UniformColor, Texture, ProceduralTexture };
 
   GraphicsModelBase(Id id, Type type) : id(std::move(id)), type(type) {}
-  ~GraphicsModelBase() = default;
+  virtual ~GraphicsModelBase() = default;
+  GraphicsModelBase(const GraphicsModelBase &other);
+  GraphicsModelBase &operator=(const GraphicsModelBase &other);
 
   [[nodiscard]] const std::shared_ptr<ge::gl::VertexArray> &
   getVertexArray() const;
+  void setId(const Id &id);
   [[nodiscard]] const Id &getId() const;
   [[nodiscard]] Type getType() const;
 
@@ -92,6 +95,8 @@ class GraphicsModel : public GraphicsModelBase {
 
 public:
   GraphicsModel(const Id &id, Type type);
+  GraphicsModel(const GraphicsModel &other);
+  GraphicsModel &operator=(const GraphicsModel &other);
 
   std::shared_ptr<ge::gl::Buffer> getVertexBuffer() override;
   std::shared_ptr<ge::gl::Buffer> getNormalBuffer() override;
@@ -137,6 +142,24 @@ template <typename BufferType>
 GraphicsModel<BufferType>::GraphicsModel(const GraphicsModelBase::Id &id,
                                          GraphicsModelBase::Type type)
     : GraphicsModelBase(id, type) {}
+template <typename BufferType>
+GraphicsModel<BufferType>::GraphicsModel(const GraphicsModel &other)
+    : GraphicsModelBase(other) {
+  vertexBuffer = other.vertexBuffer;
+  normalBuffer = other.normalBuffer;
+  elementBuffer = other.elementBuffer;
+  vertexArray = other.vertexArray;
+}
+template <typename BufferType>
+GraphicsModel<BufferType> &
+GraphicsModel<BufferType>::operator=(const GraphicsModel &other) {
+  GraphicsModelBase::operator=(other);
+  vertexBuffer = other.vertexBuffer;
+  normalBuffer = other.normalBuffer;
+  elementBuffer = other.elementBuffer;
+  vertexArray = other.vertexArray;
+  return *this;
+}
 
 class ModelRenderer {
 public:

@@ -2,7 +2,7 @@
 <scene name="scene1">
     <models>
         <model filename="floor.obj" name="floor">
-            <position x="0" y="0" z="0"/>
+            <position x="0" y="-5" z="0"/>
             <scale>1</scale>
             <rotation x="0" y="0" z="0"/>
         </model>
@@ -10,30 +10,30 @@
     <models>
         <instancedModel filename="cube.obj" name="cube">
             <genPosStart x="-15" y="0" z="-15"/>
-            <genPosStep x="1" y="1" z="1"/>
+            <genPosStep x="3" y="0" z="3"/>
             <scale>1</scale>
-            <instanceCount>125</instanceCount>
+            <instanceCount>100</instanceCount>
         </instancedModel>
     </models>
     <models>
         <instancedModel filename="sphere.obj" name="sphere">
-            <genPosStart x="-15" y="0" z="-15"/>
-            <genPosStep x="1" y="1" z="1"/>
-            <scale>3</scale>
+            <genPosStart x="-15" y="10" z="-15"/>
+            <genPosStep x="1" y="0" z="1"/>
+            <scale>1</scale>
             <instanceCount>900</instanceCount>
         </instancedModel>
     </models>
     <models>
         <model filename="sphere.obj" name="bigSphere">
-            <position x="0" y="0" z="0"/>
+            <position x="0" y="15" z="0"/>
             <scale>3</scale>
             <rotation x="0" y="0" z="0"/>
         </model>
     </models>
     <models>
         <model filename="wall.obj" name="wall">
-            <position x="5" y="-5.1" z="0"/>
-            <scale>5</scale>
+            <position x="5" y="-5.1" z="-15"/>
+            <scale>10</scale>
             <rotation x="0" y="0" z="0"/>
         </model>
     </models>

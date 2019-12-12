@@ -54,6 +54,27 @@ GraphicsModelBase &GraphicsModelBase::setScale(float scale) {
   setScale(scale, scale, scale);
   return *this;
 }
+GraphicsModelBase::GraphicsModelBase(const GraphicsModelBase &other) {
+  id = other.id;
+  type = other.type;
+  scale = other.scale;
+  position = other.position;
+  rotation = other.rotation;
+  updateModelMatrix = true;
+}
+GraphicsModelBase &
+GraphicsModelBase::operator=(const GraphicsModelBase &other) {
+  id = other.id;
+  type = other.type;
+  scale = other.scale;
+  position = other.position;
+  rotation = other.rotation;
+  updateModelMatrix = true;
+  return *this;
+}
+void GraphicsModelBase::setId(const GraphicsModelBase::Id &id) {
+  GraphicsModelBase::id = id;
+}
 
 ObjModelLoader::ObjModelLoader(std::string assetsPath)
     : assetsPath(std::move(assetsPath)) {}

@@ -27,9 +27,7 @@
 
 using Conf = JsonConfig<true>;
 
-std::vector<GraphicsModelBase *> spheres;
-std::vector<GraphicsModelBase *> cubes;
-GraphicsModelBase *bigSphere;
+/*
 void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
   ObjModelLoader modelLoader{assetPath + "/models"};
 
@@ -66,9 +64,8 @@ void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
       .setPosition({-5, -5.1, 0})
       .setScale({5, 5, 20});
 
-  modelRenderer.addModel(modelLoader.loadModel("sphere", "light"))
-      .setDrawn(false);
-}
+
+}*/
 
 void main_shadow_mapping(int argc, char *argv[]) {
   using namespace sdl2cpp::ui;
@@ -94,14 +91,24 @@ void main_shadow_mapping(int argc, char *argv[]) {
   const auto assetPath =
       config.get<std::string>("paths", "assetsLocation").value();
 
-  SceneLoader loader{assetPath, "scene1"};
-  for (auto val : loader) {
-    print(val->getId());
-  }
-  return;
 
   ModelRenderer modelRenderer;
-  prepModels(modelRenderer, assetPath);
+  //prepModels(modelRenderer, assetPath);
+
+  SceneLoader loader{assetPath, "scene1"};
+  for (auto models : loader) {
+    for (auto &model : models) {
+      modelRenderer.addModel(model);
+    }
+  }
+  std::vector<GraphicsModelBase *> spheres;
+  std::vector<GraphicsModelBase *> cubes;
+  GraphicsModelBase *bigSphere = modelRenderer.modelById("bigSphere")->get();
+  {
+    ObjModelLoader modelLoader(assetPath + "/models");
+    modelRenderer.addModel(modelLoader.loadModel("sphere", "light"))
+        .setDrawn(false);
+  }
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
   auto cameraController =
@@ -226,6 +233,26 @@ void main_shadow_mapping(int argc, char *argv[]) {
 
   bool shrink = true;
 
+  int cnt = 0;
+  while (true) {
+    auto model = modelRenderer.modelById("sphere" + std::to_string(cnt));
+    if (!model.has_value()) {
+      break;
+    }
+    spheres.emplace_back(model.value().get());
+    ++cnt;
+  }
+
+  cnt = 0;
+  while (true) {
+    auto model = modelRenderer.modelById("cube" + std::to_string(cnt));
+    if (!model.has_value()) {
+      break;
+    }
+    cubes.emplace_back(model.value().get());
+    ++cnt;
+  }
+
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ge::gl::glEnable(GL_DEPTH_TEST);
@@ -241,7 +268,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
         auto oldPos = sphere->getPosition();
         sphere->setPosition(oldPos.x * 0.95f, oldPos.y, oldPos.z * 0.95f);
       }
-      if (spheres[0]->getPosition().x > -0.1) {
+      if (spheres.size() > 0 && spheres[0]->getPosition().x > -0.1) {
         shrink = false;
       }
       bigSphere->setPosition(pos.x + 0.2f, pos.y, pos.z);
@@ -250,7 +277,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
         auto oldPos = sphere->getPosition();
         sphere->setPosition(oldPos.x * 1.05f, oldPos.y, oldPos.z * 1.05f);
       }
-      if (spheres[0]->getPosition().x < -50) {
+      if (spheres.size() > 0 && spheres[0]->getPosition().x < -50) {
         shrink = true;
       }
       bigSphere->setPosition(pos.x - 0.2f, pos.y, pos.z);
@@ -284,11 +311,6 @@ void main_shadow_mapping(int argc, char *argv[]) {
 
       modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
                            true);
-
-      glm::mat4 m{};
-      renderProgram->setMatrix4fv("model", &m[0][0]);
-      drawTexture.quadVAO.bind();
-      ge::gl::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 #else
     auto renderFnc = [&modelRenderer, &cameraController] (const std::shared_ptr<ge::gl::Program> &program) {

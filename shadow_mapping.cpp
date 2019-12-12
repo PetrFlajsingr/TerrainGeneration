@@ -288,13 +288,13 @@ void main_shadow_mapping(int argc, char *argv[]) {
       ge::gl::glBindTexture(GL_TEXTURE_2D, cascadedShadowMap.getDepthMaps()[0]->getId());
       ge::gl::glUniform1i(
           ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"), 0);*/
-      cascadedShadowMap.bindRender();
+      cascadedShadowMap.bindRender(renderProgram);
 
       renderProgram->set3fv("lightPos", &cascadedShadowMap.getLightPos()[0]);
       renderProgram->set3fv("viewPos", &cameraController->getPosition()[0]);
       renderProgram->setMatrix4fv("projection", &projection[0][0]);
-      renderProgram->setMatrix4fv("lightSpaceMatrix",
-                                  &cascadedShadowMap.lightSpaceMatrix(0)[0][0]);
+      /*renderProgram->setMatrix4fv("lightSpaceMatrix",
+                                  &cascadedShadowMap.lightSpaceMatrix(0)[0][0]);*/
       modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
                            true);
     }

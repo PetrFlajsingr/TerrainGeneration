@@ -38,9 +38,13 @@ void CascadedShadowMap::bindCascade(unsigned int index) {
   depthMapFBO.attachTexture(GL_DEPTH_ATTACHMENT, depthMaps[index].get());
 }
 
-void CascadedShadowMap::bindRender() {
+void CascadedShadowMap::bindRender(const std::shared_ptr<ge::gl::Program> &program) {
   for (auto i : range(depthMaps.size())) {
-    depthMaps[i]->bind(shadowTextureUnitOffset + i);
+    ge::gl::glUniform1i(
+        ge::gl::glGetUniformLocation(program->getId(), ("shadowMap[" + std::to_string(i) + "]").c_str()), depthMaps[i]->getId());
+    ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program->getId(), ("cascadeEnd[" + std::to_string(i) + "]").c_str()), cascadeBoundaries[i + 1]);
+    ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(program->getId(), ("lightSpaceMatrix[" + std::to_string(i) + "]").c_str()), 1, GL_FALSE, &lightSpaceMatrix(i)[0][0]);
+    //depthMaps[i]->bind(shadowTextureUnitOffset + i);
   }
 }
 
@@ -49,7 +53,6 @@ glm::mat4 CascadedShadowMap::calculateOrthoMatrices(const glm::mat4 &cameraView,
                                                     float cameraFar,
                                                     float aspectRatio,
                                                     float fieldOfView) {
-  std::vector<float> cascadeBoundaries;
   cascadeBoundaries.resize(cascadeCount + 1);
   const auto max = static_cast<float>(cascadeCount + 1);
   for (auto i : range(1, cascadeCount + 1, 1)) {

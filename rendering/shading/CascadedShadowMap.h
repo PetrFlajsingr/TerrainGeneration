@@ -18,7 +18,7 @@ public:
   CascadedShadowMap(unsigned int cascadeCount, unsigned int textureWidth,
                     unsigned int textureHeight);
 
-  void bindRender();
+  void bindRender(const std::shared_ptr<ge::gl::Program> &program);
 
   [[nodiscard]] const glm::vec3 &getLightDir() const;
   void setLightDir(const glm::vec3 &lightDir);
@@ -39,6 +39,7 @@ private:
   std::vector<glm::mat4> lightProjections;
   std::vector<glm::mat4> perspective;
   glm::vec3 lightDir;
+  std::vector<float> cascadeBoundaries;
   glm::vec3 lightPos;
   float lightHeight = 15;
 

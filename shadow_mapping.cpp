@@ -2,7 +2,7 @@
 // Created by petr on 11/30/19.
 //
 
-#define OLD_SM
+#define OLD_SM0
 
 #include "shadow_mapping.h"
 #include "rendering/Data.h"
@@ -68,7 +68,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
       uiManager.createGUIObject<sdl2cpp::ui::CameraController>(
           glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
-  bool showFrameBuffer = false;
+  int showFrameBuffer = 0;
   auto btn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 0, 1}, glm::vec3{300, 100, 0});
   btn->text.setText(L"show/hide light sphere"_sw);
@@ -85,7 +85,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 
   btn2->setMouseClicked(
       [&showFrameBuffer](sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton,
-                         SDL_Point) { showFrameBuffer = !showFrameBuffer; });
+                         SDL_Point) { showFrameBuffer = (showFrameBuffer + 1) % 4; });
   btn2->text.setText(L"show/hide depth texture"_sw);
   btn2->text.setFont("arialbd", 10);
 
@@ -137,8 +137,8 @@ void main_shadow_mapping(int argc, char *argv[]) {
       });
 #else
   CascadedShadowMap cascadedShadowMap{3, 4096, 4096};
-  cascadedShadowMap.setLightPos({1, 10, 5});
-  cascadedShadowMap.setTarget({0, 0, 0});
+  cascadedShadowMap.setLightPos({0, 10, 0});
+  cascadedShadowMap.setLightDir({0, -1, -1});
   btn4->setMouseDown([&down] { down = true; })
       .setMouseUp([&down] { down = false; })
       .setMouseMove([&down, &cascadedShadowMap, &modelRenderer](
@@ -177,7 +177,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 #endif
   DrawTexture drawTexture;
   const auto near = 0.1f;
-  const auto far = 500.0f;
+  const auto far = 200.0f;
   const auto aspectRatio = 1920.f / 1080;
   const auto fieldOfView = 60.0f;
   auto projection =
@@ -247,7 +247,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
     sm.end();
     ge::gl::glDisable(GL_CULL_FACE);
 
-    if (showFrameBuffer) {
+    if (showFrameBuffer % 2 == 0) {
       drawTexture.draw(sm.getDepthMap().getId());
     } else {
       renderProgram->use();
@@ -280,8 +280,8 @@ void main_shadow_mapping(int argc, char *argv[]) {
 
     ge::gl::glCullFace(GL_BACK);
 
-    if (showFrameBuffer) {
-      drawTexture.draw(cascadedShadowMap.getDepthMaps()[0]->getId());
+    if (showFrameBuffer != 0) {
+      drawTexture.draw(cascadedShadowMap.getDepthMaps()[showFrameBuffer - 1]->getId());
     } else {
       renderProgram->use();
       ge::gl::glActiveTexture(GL_TEXTURE0);

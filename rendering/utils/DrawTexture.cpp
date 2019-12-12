@@ -6,8 +6,8 @@
 #include <geGL/StaticCalls.h>
 
 DrawTexture::DrawTexture() : quadVertices({
-                                              -10.0f, 10.0f, 0.0f, 0.0f, 10.0f, -10.0f, -10.0f, 0.0f, 0.0f, 0.0f,
-                                              10.0f,  10.0f, 0.0f, 10.0f, 10.0f, 10.0f,  -10.0f, 0.0f, 10.0f, 0.0f,
+                                              -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+                                              1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
                                           }), quadVBO(sizeof(float) * quadVertices.size(), quadVertices.data()) {
   quadVAO.addAttrib(&quadVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), 0);
   quadVAO.addAttrib(&quadVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), (3 * sizeof(float)));

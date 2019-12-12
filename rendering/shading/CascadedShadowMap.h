@@ -58,7 +58,7 @@ private:
 
   void bindCascade(unsigned int index);
 
-  glm::mat4 calcLightView() const;
+  [[nodiscard]] glm::mat4 calcLightView() const;
   GLint m_viewport[4]{};
 
 };

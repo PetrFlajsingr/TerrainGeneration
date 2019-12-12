@@ -25,5 +25,5 @@ void main()
 
     clipSpacePos = gl_Position.z;
     Normal0 = transpose(inverse(mat3(model))) * Normal;
-    WorldPos0 = (gWorld * Position).xyz;
+    WorldPos0 = (model * Position).xyz;
 }

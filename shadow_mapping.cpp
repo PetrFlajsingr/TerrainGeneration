@@ -183,7 +183,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   auto projection =
       glm::perspective(glm::radians(fieldOfView), aspectRatio, near, far);
   auto renderProgram = std::make_shared<ge::gl::Program>(
-      "shadow_map/render"_vert, "shadow_map/render"_frag);
+      "shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
   bool shrink = true;
 
@@ -284,10 +284,11 @@ void main_shadow_mapping(int argc, char *argv[]) {
       drawTexture.draw(cascadedShadowMap.getDepthMaps()[showFrameBuffer - 1]->getId());
     } else {
       renderProgram->use();
-      ge::gl::glActiveTexture(GL_TEXTURE0);
+     /* ge::gl::glActiveTexture(GL_TEXTURE0);
       ge::gl::glBindTexture(GL_TEXTURE_2D, cascadedShadowMap.getDepthMaps()[0]->getId());
       ge::gl::glUniform1i(
-          ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"), 0);
+          ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"), 0);*/
+      cascadedShadowMap.bindRender();
 
       renderProgram->set3fv("lightPos", &cascadedShadowMap.getLightPos()[0]);
       renderProgram->set3fv("viewPos", &cameraController->getPosition()[0]);

@@ -4,7 +4,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include "ModelRenderer.h"
-
+#include "SceneLoader.h"
 
 
 const std::shared_ptr<ge::gl::VertexArray> &
@@ -119,5 +119,12 @@ void ModelRenderer::plainRender() {
     model->getVertexArray()->bind();
     ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(),
                            GL_UNSIGNED_INT, nullptr);
+  }
+}
+void ModelRenderer::loadScene(SceneLoader &&sceneLoader) {
+  for (const auto& models : sceneLoader) {
+    for (auto &model : models) {
+      addModel(model);
+    }
   }
 }

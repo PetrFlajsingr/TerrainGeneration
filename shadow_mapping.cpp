@@ -27,46 +27,6 @@
 
 using Conf = JsonConfig<true>;
 
-/*
-void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
-  ObjModelLoader modelLoader{assetPath + "/models"};
-
-  for (auto x : range(-15, 15, 3)) {
-    for (auto y : range(-15, 15, 3)) {
-      cubes.emplace_back(
-          &modelRenderer
-          .addModel(modelLoader.loadModel("cube", "cube" + std::to_string(x) +
-                                                      std::to_string(y)))
-          .setPosition({static_cast<float>(x), 3, static_cast<float>(y)}));
-    }
-  }
-  for (auto x : range(-15, 15, 1)) {
-    for (auto y : range(-15, 15, 1)) {
-      spheres.emplace_back(
-          &modelRenderer
-               .addModel(modelLoader.loadModel(
-                   "sphere", "sphere" + std::to_string(x) + std::to_string(y)))
-               .setPosition({static_cast<float>(x), 20, static_cast<float>(y)})
-               .setScale(0.5));
-    }
-  }
-
-  bigSphere = &modelRenderer.addModel(modelLoader.loadModel("sphere", "b"))
-                   .setScale(3, 3, 3)
-                   .setPosition(0, 10, 0);
-
-  modelRenderer.addModel(modelLoader.loadModel("floor", "floor1"))
-      .setPosition({0, -5, 0});
-  modelRenderer.addModel(modelLoader.loadModel("wall", "wall1"))
-      .setPosition({-5, -5.1, 0});
-
-  modelRenderer.addModel(modelLoader.loadModel("wall", "wall2"))
-      .setPosition({-5, -5.1, 0})
-      .setScale({5, 5, 20});
-
-
-}*/
-
 void main_shadow_mapping(int argc, char *argv[]) {
   using namespace sdl2cpp::ui;
   loc_assert(argc != 1, "Provide path for config");
@@ -91,16 +51,9 @@ void main_shadow_mapping(int argc, char *argv[]) {
   const auto assetPath =
       config.get<std::string>("paths", "assetsLocation").value();
 
-
   ModelRenderer modelRenderer;
-  //prepModels(modelRenderer, assetPath);
 
-  SceneLoader loader{assetPath, "scene1"};
-  for (auto models : loader) {
-    for (auto &model : models) {
-      modelRenderer.addModel(model);
-    }
-  }
+  modelRenderer.loadScene(SceneLoader{assetPath, "scene1"});
   std::vector<GraphicsModelBase *> spheres;
   std::vector<GraphicsModelBase *> cubes;
   GraphicsModelBase *bigSphere = modelRenderer.modelById("bigSphere")->get();

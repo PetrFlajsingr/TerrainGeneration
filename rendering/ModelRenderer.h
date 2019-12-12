@@ -161,9 +161,12 @@ GraphicsModel<BufferType>::operator=(const GraphicsModel &other) {
   return *this;
 }
 
+class SceneLoader;
 class ModelRenderer {
 public:
   GraphicsModelBase &addModel(std::shared_ptr<GraphicsModelBase> model);
+
+  void loadScene(SceneLoader &&sceneLoader);
 
   std::optional<std::shared_ptr<GraphicsModelBase>>
   modelById(const GraphicsModelBase::Id &id);

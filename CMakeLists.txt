@@ -45,6 +45,7 @@ file(GLOB_RECURSE ft_src2 "include/freetype-gl++/freetype-gl/*.c")
 add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src} ${ft_src} ${ft_src2}
         include/fmt/format.cc include/fmt/posix.cc
         include/gltext.cpp
+        include/tinyxml2.cpp
         ui/elements/CameraController.cpp rendering/archive/DensityGenerators.cpp
         rendering/archive/OldChunk.cpp rendering/ChunkManager.cpp rendering/ChunkManager.h
         rendering/Chunk.cpp rendering/Chunk.h rendering/Light.cpp rendering/Light.h rendering/Data.h rendering/Data.cpp

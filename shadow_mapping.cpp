@@ -23,6 +23,7 @@
 #include <config/JsonConfig.h>
 #include <gl_utils.h>
 #include <rendering/ModelRenderer.h>
+#include <rendering/SceneLoader.h>
 
 using Conf = JsonConfig<true>;
 
@@ -92,6 +93,12 @@ void main_shadow_mapping(int argc, char *argv[]) {
 
   const auto assetPath =
       config.get<std::string>("paths", "assetsLocation").value();
+
+  SceneLoader loader{assetPath, "scene1"};
+  for (auto val : loader) {
+    print(val->getId());
+  }
+  return;
 
   ModelRenderer modelRenderer;
   prepModels(modelRenderer, assetPath);

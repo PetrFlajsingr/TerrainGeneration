@@ -8,20 +8,20 @@
 #include <functional>
 #include <optional>
 
-template <typename T> class Lazy {
+template <typename T>
+class Lazy {
 public:
   using CalcFunction = std::function<T()>;
   explicit Lazy(CalcFunction &&calcFunction);
-  operator const T &();
-  const T &value();
+  operator const T&();
+  const T& value();
   void invalidate();
-
 private:
   CalcFunction calcFunction;
   std::optional<T> data;
 };
 
-template <typename T>
+template<typename T>
 std::ostream &operator<<(std::ostream &stream, Lazy<T> &other);
 
 #include "Lazy.tpp"

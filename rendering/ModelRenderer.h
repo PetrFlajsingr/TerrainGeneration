@@ -114,7 +114,7 @@ public:
   explicit ObjModelLoader(std::string assetsPath);
 
   template <typename BufferType = ge::gl::Buffer>
-  std::shared_ptr<GraphicsModelBase> loadModel(const std::string &name,
+  std::shared_ptr<GraphicsModelBase> loadModel(std::string name,
                                                const std::string &id);
 
 private:
@@ -157,7 +157,10 @@ private:
 
 template <typename BufferType>
 std::shared_ptr<GraphicsModelBase>
-ObjModelLoader::loadModel(const std::string &name, const std::string &id) {
+ObjModelLoader::loadModel(std::string name, const std::string &id) {
+  if (name.substr(name.size() - 4) == ".obj") {
+    name = name.substr(0, name.size() - 4);
+  }
   using namespace MakeRange;
   const auto path = assetsPath + '/' + name + ".obj";
   auto result = std::make_shared<GraphicsModel<BufferType>>(

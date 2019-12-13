@@ -103,6 +103,5 @@ vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDir
 void main()
 {
     vec3 lightDirection = normalize(vec3(lightDir));
-
     color = calculateDirectionalLight(Position.xyz, Normal, lightDirection);
 }

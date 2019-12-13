@@ -60,10 +60,17 @@ vec3 chessBoard(vec3 pos) {
 void main()
 {
     float ShadowFactor = 0.0;
-
+    vec3 c = vec3(0.f, 0.f, 0.f);
     for (int i = 0; i < NUM_CASCADES; i++) {
         if (clipSpacePos <= cascadeEnd[i]) {
             ShadowFactor = CalcShadowFactor(i, LightSpacePos[i]);
+            if (i == 0) {
+                c = vec3(0.5, 0.f, 0.f);
+            } else if (i == 1) {
+                c = vec3(0.f, 0.5f, 0.f);
+            } else if (i == 2) {
+                c = vec3(0.f, 0.f, 0.5f);
+            }
             break;
         }
     }
@@ -85,7 +92,7 @@ void main()
     spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
     vec3 specular = spec * lightColor;
     // calculate shad
-    vec3 lighting = (ambient + (1.0 - ShadowFactor) * (diffuse + specular)) * color;
+    vec3 lighting = (ambient + (1.0 - ShadowFactor) * (diffuse + specular)) * (color + c);
 
     FragColor = vec4(lighting, 1.0);
 }

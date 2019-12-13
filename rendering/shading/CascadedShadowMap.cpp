@@ -6,6 +6,7 @@
 #include "utils/types/Range.h"
 #include <geGL/StaticCalls.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <io/print.h>
 
 using namespace MakeRange;
 
@@ -15,19 +16,11 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
     : cascadeCount(cascadeCount), width(textureWidth), height(textureHeight) {
   lightProjections.resize(cascadeCount);
   perspective.resize(cascadeCount);
-  glm::vec4 borderColor{1.0, 1.0, 1.0, 1.0};
   for ([[maybe_unused]] auto _ : range(cascadeCount)) {
+    printErr("**** Please ignore the following errors ****");
     depthMaps.emplace_back(std::make_unique<ge::gl::Texture>(GL_TEXTURE_2D, GL_DEPTH_COMPONENT32, 0, static_cast<int>(width), static_cast<int>(height)));
-    ge::gl::glTextureImage2DEXT(depthMaps.back()->getId(), GL_TEXTURE_2D, 0,
-                                GL_DEPTH_COMPONENT32, width, height, 0,
-                                GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    depthMaps.back()->texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    depthMaps.back()->texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    depthMaps.back()->texParameteri(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-    depthMaps.back()->texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    depthMaps.back()->texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    depthMaps.back()->texParameterfv(GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
+    setupTexture(*depthMaps.back());
+    printErr("****************************************");
   }
 
   ge::gl::glFramebufferDrawBufferEXT(depthMapFBO.getId(), GL_NONE);
@@ -119,5 +112,19 @@ void CascadedShadowMap::setLightPos(const glm::vec3 &lightPos) {
   CascadedShadowMap::lightPos = lightPos;
 }
 glm::mat4 CascadedShadowMap::calcLightView() const {
-  return glm::lookAt({0.1, lightHeight, 0.1}, lightDir + glm::vec3{0, lightHeight, 0}, {0, 1, 0});
+  return glm::lookAt({0, 0, 0}, lightDir, {0, 1, 0});
+}
+
+void CascadedShadowMap::setupTexture(ge::gl::Texture &texture) {
+  glm::vec4 borderColor{1.0, 1.0, 1.0, 1.0};
+  ge::gl::glTextureImage2DEXT(texture.getId(), GL_TEXTURE_2D, 0,
+                              GL_DEPTH_COMPONENT32, width, height, 0,
+                              GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+  texture.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  texture.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  texture.texParameteri(GL_TEXTURE_COMPARE_MODE, GL_NONE);
+  texture.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  texture.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  depthMaps.back()->texParameterfv(GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
 }

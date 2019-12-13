@@ -41,7 +41,6 @@ private:
   glm::vec3 lightDir;
   std::vector<float> cascadeBoundaries;
   glm::vec3 lightPos;
-  float lightHeight = 15;
 
   unsigned int width = 1920;
   unsigned int height = 1080;
@@ -58,6 +57,8 @@ private:
                                    float aspectRatio, float fieldOfView);
 
   void bindCascade(unsigned int index);
+
+  void setupTexture(ge::gl::Texture &texture);
 
   [[nodiscard]] glm::mat4 calcLightView() const;
   GLint m_viewport[4]{};

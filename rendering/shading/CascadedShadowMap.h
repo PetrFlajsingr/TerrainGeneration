@@ -24,10 +24,11 @@ public:
   void setLightDir(const glm::vec3 &lightDir);
   [[nodiscard]] const glm::vec3 &getLightPos() const;
   void setLightPos(const glm::vec3 &lightPos);
+  [[nodiscard]] const std::vector<std::unique_ptr<ge::gl::Texture>> &getDepthMaps() const;
 
-  [[nodiscard]] const std::vector<std::unique_ptr<ge::gl::Texture>> &
-  getDepthMaps() const;
+  [[nodiscard]] const std::vector<float> &getCascadeSplits() const;
 
+  [[nodiscard]] unsigned int getCascadeCount() const;
 
   template <typename F>
   void renderShadowMap(F renderFunction, const glm::mat4 &cameraProjection,
@@ -35,7 +36,6 @@ public:
                        float cameraFar, float aspectRatio, float fieldOfView);
 
 private:
-  static constexpr unsigned int shadowTextureUnitOffset = 0;
   std::vector<glm::mat4> lightViewMatrix;
   std::vector<glm::mat4> lightOrthoMatrix;
   std::vector<glm::mat4> cascadedMatrices;
@@ -54,7 +54,7 @@ private:
   std::shared_ptr<ge::gl::Program> program = std::make_shared<ge::gl::Program>(
       "shadow_map/sm"_vert, "shadow_map/sm"_frag);
 
-  glm::mat4 calculateOrthoMatrices(const glm::mat4 &cameraProjection,
+  void calculateOrthoMatrices(const glm::mat4 &cameraProjection,
                                    const glm::mat4 &cameraView,
                                    float cameraNear, float cameraFar,
                                    float aspectRatio, float fieldOfView);
@@ -63,7 +63,7 @@ private:
 
   void setupTexture(ge::gl::Texture &texture);
 
-  [[nodiscard]] glm::mat4 calcLightView() const;
+
   GLint m_viewport[4]{};
 };
 

@@ -1,48 +1,66 @@
 #version 430
+#extension GL_EXT_texture_array : enable
 
-const int NUM_CASCADES = 3;
+uniform mat4 view;
+uniform mat4 inverseViewMatrix;
+uniform mat4 lightViewProjectionMatrices[3];
+uniform vec4 cascadedSplits;
+uniform vec3 lightDir;
+uniform int numOfCascades;
+uniform float screenWidth;
+uniform float screenHeight;
 
-in vec3 Normal0;
-in vec3 WorldPos0;
-in vec4 LightSpacePos[NUM_CASCADES];
-in float clipSpacePos;
+uniform sampler2D cascadedDepthTexture[3];
 
-out vec4 FragColor;
+in vec3 Normal;
+in vec3 Position;
 
-uniform sampler2D shadowMap[NUM_CASCADES];
-uniform float cascadeEnd[NUM_CASCADES];
-uniform vec3 lightPos;
-uniform vec3 viewPos;
+out vec4 color;
 
-float CalcShadowFactor(int CascadeIndex, vec4 LightSpacePos)
+vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace,vec3 viewPosition)
 {
-    vec3 ProjCoords = LightSpacePos.xyz / LightSpacePos.w;
 
-    vec2 UVCoords;
-    UVCoords.x = 0.5 * ProjCoords.x + 0.5;
-    UVCoords.y = 0.5 * ProjCoords.y + 0.5;
+    float positiveViewSpaceZ = depthViewSpace;
+    uint cascadeIdx = 0;
 
-    float z = 0.5 * ProjCoords.z + 0.5;
-
-    vec3 lightDir = normalize(lightPos - WorldPos0);
-    float bias = max(0.05 * (1.0 - dot(Normal0, lightDir)), 0.005);
-    // PCF
-    float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap[CascadeIndex], 0);
-    for(int x = -1; x <= 1; ++x)
+    // Figure out which cascade to sample from
+    for(uint i = 0; i < numOfCascades; ++i)
     {
-        for(int y = -1; y <= 1; ++y)
+        if(positiveViewSpaceZ < cascadedSplits[i + 1])
         {
-            float pcfDepth = texture(shadowMap[CascadeIndex], UVCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += z - bias > pcfDepth  ? 1.0 : 0.0;
+            cascadeIdx = i;
         }
     }
-    shadow /= 9.0;
+    float angleBias = 0.006f;
 
-    if(z > 1.0)
-        shadow = 0.0;
+    mat4 lightViewProjectionMatrix = lightViewProjectionMatrices[cascadeIdx];
 
-    return shadow;
+    vec2 TexCoord = gl_FragCoord.xy / vec2(1920, 1080);
+    vec4 tex_coord = vec4(TexCoord.x, TexCoord.y, cascadeIdx, 1.0);
+
+    vec4 fragmentModelViewPosition = vec4(viewPosition,1.0f);
+
+    vec4 fragmentModelPosition = inverseViewMatrix * fragmentModelViewPosition;
+
+    vec4 fragmentShadowPosition = lightViewProjectionMatrix * fragmentModelPosition;
+
+    vec3 projCoords = fragmentShadowPosition.xyz /= fragmentShadowPosition.w;
+
+    //Remap the -1 to 1 NDC to the range of 0 to 1
+    projCoords = projCoords * 0.5f + 0.5f;
+
+    // Get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+    float bias = max(angleBias * (1.0 - dot(normal, lightDirection)), 0.0008);
+
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(cascadedDepthTexture[cascadeIdx], 0).xy;
+
+    float pcfDepth = texture(cascadedDepthTexture[cascadeIdx], projCoords.xy * texelSize).r;
+    shadow += currentDepth > pcfDepth ? 1.0  : 0.0;
+
+    return vec3(shadow);
 }
 
 vec3 chessBoard(vec3 pos) {
@@ -57,42 +75,34 @@ vec3 chessBoard(vec3 pos) {
     return vec3(0, 0.5, 0);
 }
 
-void main()
-{
-    float ShadowFactor = 0.0;
-    vec3 c = vec3(0.f, 0.f, 0.f);
-    for (int i = 0; i < NUM_CASCADES; i++) {
-        if (clipSpacePos <= cascadeEnd[i]) {
-            ShadowFactor = CalcShadowFactor(i, LightSpacePos[i]);
-            if (i == 0) {
-                c = vec3(0.5, 0.f, 0.f);
-            } else if (i == 1) {
-                c = vec3(0.f, 0.5f, 0.f);
-            } else if (i == 2) {
-                c = vec3(0.f, 0.f, 0.5f);
-            }
-            break;
-        }
-    }
 
-    vec3 color = chessBoard(WorldPos0);
-    vec3 normal = normalize(Normal0);
+vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDirection)
+{
+    vec3 color = chessBoard(Position);
+    vec3 normal = normalize(Normal);
     vec3 lightColor = vec3(0.3);
     // ambient
     vec3 ambient = 0.3 * color;
     // diffuse
-    vec3 lightDir = normalize(lightPos - WorldPos0);
     float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * lightColor;
     // specular
-    vec3 viewDir = normalize(viewPos - WorldPos0);
+    vec3 viewDir = normalize(viewPosition - Position);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = 0.0;
     vec3 halfwayDir = normalize(lightDir + viewDir);
     spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
     vec3 specular = spec * lightColor;
     // calculate shad
-    vec3 lighting = (ambient + (1.0 - ShadowFactor) * (diffuse + specular)) * (color + c);
+    vec3 negatedLightDirection = lightDirection*-1.0f;
+    vec3 lighting = (ambient + (1.0 - readShadowMap(negatedLightDirection,viewNormal,viewPosition.z,viewPosition)) * (diffuse + specular)) * color;
+    return vec4(lighting, 1.0);
+}
 
-    FragColor = vec4(lighting, 1.0);
+
+void main()
+{
+    vec3 lightDirection = normalize(vec3(lightDir));
+
+    color = calculateDirectionalLight(Position.xyz, Normal, lightDirection);
 }

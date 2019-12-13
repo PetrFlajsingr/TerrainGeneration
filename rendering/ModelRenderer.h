@@ -171,6 +171,8 @@ public:
   std::optional<std::shared_ptr<GraphicsModelBase>>
   modelById(const GraphicsModelBase::Id &id);
 
+  const std::vector<std::shared_ptr<GraphicsModelBase>> &getModels() const;
+
   void render(const std::shared_ptr<ge::gl::Program> &program, glm::mat4 view,
               bool wa);
 

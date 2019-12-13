@@ -128,3 +128,7 @@ void ModelRenderer::loadScene(SceneLoader &&sceneLoader) {
     }
   }
 }
+const std::vector<std::shared_ptr<GraphicsModelBase>> &
+ModelRenderer::getModels() const {
+  return models;
+}

@@ -17,6 +17,7 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
   lightOrthoMatrix.resize(cascadeCount);
   cascadedMatrices.resize(cascadeCount);
   cascadeSplitArray.resize(cascadeCount);
+
   for ([[maybe_unused]] auto _ : range(cascadeCount)) {
     printErr("**** Please ignore the following errors ****");
     depthMaps.emplace_back(std::make_unique<ge::gl::Texture>(
@@ -26,8 +27,10 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
     printErr("****************************************");
   }
 
+  depthMapFBO.bind(GL_FRAMEBUFFER);
   ge::gl::glFramebufferDrawBufferEXT(depthMapFBO.getId(), GL_NONE);
   ge::gl::glFramebufferReadBufferEXT(depthMapFBO.getId(), GL_NONE);
+  depthMapFBO.unbind(GL_FRAMEBUFFER);
 }
 
 void CascadedShadowMap::bindCascade(unsigned int index) {
@@ -36,24 +39,22 @@ void CascadedShadowMap::bindCascade(unsigned int index) {
 
 void CascadedShadowMap::bindRender(
     const std::shared_ptr<ge::gl::Program> &program) {
-  for (auto i : range(depthMaps.size())) {
+  for (auto i : range(cascadeCount)) {
     ge::gl::glUniform1i(
         ge::gl::glGetUniformLocation(
-            program->getId(), ("shadowMap[" + std::to_string(i) + "]").c_str()),
+            program->getId(), ("cascadedDepthTexture[" + std::to_string(i) + "]").c_str()),
         depthMaps[i]->getId());
-    ge::gl::glUniform1f(ge::gl::glGetUniformLocation(
-                            program->getId(),
-                            ("cascadeEnd[" + std::to_string(i) + "]").c_str()),
-                        cascadeSplits[i + 1]);
     ge::gl::glUniformMatrix4fv(
         ge::gl::glGetUniformLocation(
             program->getId(),
-            ("lightSpaceMatrix[" + std::to_string(i) + "]").c_str()),
-        1, GL_FALSE, &lightSpaceMatrix(i)[0][0]);
+            ("lightViewProjectionMatrices[" + std::to_string(i) + "]").c_str()),
+        1, GL_FALSE, &cascadedMatrices[i][0][0]);
   }
+  program->set4fv("cascadedSplits", getCascadeSplits().data());
+  program->set1i("numOfCascades", getCascadeCount());
 }
 
-glm::mat4 CascadedShadowMap::calculateOrthoMatrices(
+void CascadedShadowMap::calculateOrthoMatrices(
     const glm::mat4 &cameraProjection, const glm::mat4 &cameraView,
     float cameraNear, float cameraFar, float aspectRatio, float fieldOfView) {
   cascadeSplits.resize(cascadeCount + 1);
@@ -75,8 +76,8 @@ glm::mat4 CascadedShadowMap::calculateOrthoMatrices(
   GLfloat zRange = maxZ - minZ;
   GLfloat ratio = maxZ / minZ;
 
-  for (auto i : range(cascadeCount)) {
-    GLfloat p = (i + 1.f) / static_cast<GLfloat>(cascadeCount);
+  for (auto i : range(cascadeCount + 1)) {
+    GLfloat p = (i + 1.f) / static_cast<GLfloat>(cascadeCount + 1);
     GLfloat log = minZ * std::pow(ratio, p);
     GLfloat uniform = minZ + zRange * p;
     GLfloat d = lambda * (log - uniform) + uniform;
@@ -116,9 +117,6 @@ glm::mat4 CascadedShadowMap::calculateOrthoMatrices(
       frustumCenter += corner;
     }
     frustumCenter /= 8.0f;
-
-    GLfloat far = -INFINITY;
-    GLfloat near = INFINITY;
 
     GLfloat radius = 0.0f;
     for (auto corner : frustumCornersWS) {
@@ -161,18 +159,16 @@ glm::mat4 CascadedShadowMap::calculateOrthoMatrices(
     lightOrthoMatrix[cascadeIterator] = shadowProj;
 
     // Store the split distances and the relevant matrices
-    const float clipDist = far - near;
+    const float clipDist = cameraFar - cameraNear;
     cascadeSplitArray[cascadeIterator] =
-        (near + splitDistance * clipDist) * -1.0f;
+        (cameraNear + splitDistance * clipDist) * -1.0f;
 
-    cascadedMatrices[cascadeIterator] = lightOrthoMatrix[cascadeIterator] * lightViewMatrix[cascadeIterator];
+    cascadedMatrices[cascadeIterator] =
+        lightOrthoMatrix[cascadeIterator] * lightViewMatrix[cascadeIterator];
   }
 }
 
-const std::vector<std::unique_ptr<ge::gl::Texture>> &
-CascadedShadowMap::getDepthMaps() const {
-  return depthMaps;
-}
+
 const glm::vec3 &CascadedShadowMap::getLightDir() const { return lightDir; }
 void CascadedShadowMap::setLightDir(const glm::vec3 &lightDir) {
   CascadedShadowMap::lightDir = lightDir;
@@ -181,8 +177,14 @@ const glm::vec3 &CascadedShadowMap::getLightPos() const { return lightPos; }
 void CascadedShadowMap::setLightPos(const glm::vec3 &lightPos) {
   CascadedShadowMap::lightPos = lightPos;
 }
-glm::mat4 CascadedShadowMap::calcLightView() const {
-  return glm::lookAt({0, 0, 0}, lightDir, {0, 1, 0});
+
+const std::vector<float> &CascadedShadowMap::getCascadeSplits() const {
+  return cascadeSplitArray;
+}
+unsigned int CascadedShadowMap::getCascadeCount() const { return cascadeCount; }
+const std::vector<std::unique_ptr<ge::gl::Texture>> &
+CascadedShadowMap::getDepthMaps() const {
+  return depthMaps;
 }
 
 void CascadedShadowMap::setupTexture(ge::gl::Texture &texture) {
@@ -195,6 +197,8 @@ void CascadedShadowMap::setupTexture(ge::gl::Texture &texture) {
   texture.texParameteri(GL_TEXTURE_COMPARE_MODE, GL_NONE);
   texture.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   texture.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  //texture.texParameteri(GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+  //texture.texParameteri(GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
   depthMaps.back()->texParameterfv(GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
 }

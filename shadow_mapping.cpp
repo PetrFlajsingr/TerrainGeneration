@@ -22,6 +22,7 @@
 #include <String.h>
 #include <config/JsonConfig.h>
 #include <gl_utils.h>
+#include <rendering/Data.h>
 #include <rendering/ModelRenderer.h>
 #include <rendering/SceneLoader.h>
 
@@ -83,9 +84,11 @@ void main_shadow_mapping(int argc, char *argv[]) {
   auto btn2 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 110, 1}, glm::vec3{300, 100, 0});
 
-  btn2->setMouseClicked(
-      [&showFrameBuffer](sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton,
-                         SDL_Point) { showFrameBuffer = (showFrameBuffer + 1) % 4; });
+  btn2->setMouseClicked([&showFrameBuffer](sdl2cpp::ui::EventInfo,
+                                           sdl2cpp::ui::MouseButton,
+                                           SDL_Point) {
+    showFrameBuffer = (showFrameBuffer + 1) % 4;
+  });
   btn2->text.setText(L"show/hide depth texture"_sw);
   btn2->text.setFont("arialbd", 10);
 
@@ -95,8 +98,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 #ifdef OLD_SM
   const float near_plane = .1f;
   const float far_plane = 70.5f;
-  const glm::mat4
-      lightProjection =
+  const glm::mat4 lightProjection =
       glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
 
   ShadowMap sm{lightProjection, {0.f, 5.0f, 0.0}, {0.0, 0, 0}, 4096, 4096};
@@ -136,9 +138,9 @@ void main_shadow_mapping(int argc, char *argv[]) {
         model->setPosition(sm.getLightPos());
       });
 #else
-  CascadedShadowMap cascadedShadowMap{3, 4096, 4096};
+  CascadedShadowMap cascadedShadowMap{3, 4096};
   cascadedShadowMap.setLightPos({0, 10, 0});
-  cascadedShadowMap.setLightDir({0, -1, -1});
+  cascadedShadowMap.setLightDir({-0.1f, -0.5f, 0.0f});
   btn4->setMouseDown([&down] { down = true; })
       .setMouseUp([&down] { down = false; })
       .setMouseMove([&down, &cascadedShadowMap, &modelRenderer](
@@ -207,6 +209,10 @@ void main_shadow_mapping(int argc, char *argv[]) {
     ++cnt;
   }
 
+  for (auto &model : modelRenderer.getModels()) {
+    model->setPosition(model->getPosition() - glm::vec3{0, 50, 0});
+  }
+
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ge::gl::glEnable(GL_DEPTH_TEST);
@@ -269,12 +275,12 @@ void main_shadow_mapping(int argc, char *argv[]) {
 #else
     ge::gl::glEnable(GL_CULL_FACE);
     ge::gl::glCullFace(GL_FRONT);
-    auto renderFnc = [&modelRenderer, &cameraController] (const std::shared_ptr<ge::gl::Program> &program) {
-      modelRenderer.render(program, cameraController->getViewMatrix(),
-                           false);
+    auto renderFnc = [&modelRenderer, &cameraController](
+                         const std::shared_ptr<ge::gl::Program> &program) {
+      modelRenderer.render(program, cameraController->getViewMatrix(), false);
     };
 
-    cascadedShadowMap.renderShadowMap(renderFnc,
+    cascadedShadowMap.renderShadowMap(renderFnc, projection,
                                       cameraController->getViewMatrix(), near,
                                       far, aspectRatio, fieldOfView);
 
@@ -286,9 +292,15 @@ void main_shadow_mapping(int argc, char *argv[]) {
       renderProgram->use();
       cascadedShadowMap.bindRender(renderProgram);
 
-      renderProgram->set3fv("lightPos", &cascadedShadowMap.getLightPos()[0]);
-      renderProgram->set3fv("viewPos", &cameraController->getPosition()[0]);
-      renderProgram->setMatrix4fv("projection", &projection[0][0]);
+      renderProgram->setMatrix4fv(
+          "inverseViewMatrix",
+          glm::value_ptr(glm::inverse(cameraController->getViewMatrix())));
+
+      //renderProgram->set1f("screenWidth", deviceData.screen.width);
+      //renderProgram->set1f("screenHeight", deviceData.screen.height);
+      renderProgram->set3fv("lightDir", glm::value_ptr(cascadedShadowMap.getLightDir()));
+      renderProgram->setMatrix4fv("projection", glm::value_ptr(projection));
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
       modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
                            true);
     }

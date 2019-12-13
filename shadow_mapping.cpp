@@ -177,7 +177,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 #endif
   DrawTexture drawTexture;
   const auto near = 0.1f;
-  const auto far = 200.0f;
+  const auto far = 1000.0f;
   const auto aspectRatio = 1920.f / 1080;
   const auto fieldOfView = 60.0f;
   auto projection =

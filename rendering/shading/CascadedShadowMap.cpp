@@ -11,14 +11,17 @@
 using namespace MakeRange;
 
 CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
-                                     unsigned int textureWidth,
-                                     unsigned int textureHeight)
-    : cascadeCount(cascadeCount), width(textureWidth), height(textureHeight) {
-  lightProjections.resize(cascadeCount);
-  perspective.resize(cascadeCount);
+                                     unsigned int size)
+    : cascadeCount(cascadeCount), size(size) {
+  lightViewMatrix.resize(cascadeCount);
+  lightOrthoMatrix.resize(cascadeCount);
+  cascadedMatrices.resize(cascadeCount);
+  cascadeSplitArray.resize(cascadeCount);
   for ([[maybe_unused]] auto _ : range(cascadeCount)) {
     printErr("**** Please ignore the following errors ****");
-    depthMaps.emplace_back(std::make_unique<ge::gl::Texture>(GL_TEXTURE_2D, GL_DEPTH_COMPONENT32, 0, static_cast<int>(width), static_cast<int>(height)));
+    depthMaps.emplace_back(std::make_unique<ge::gl::Texture>(
+        GL_TEXTURE_2D, GL_DEPTH_COMPONENT32, 0, static_cast<int>(size),
+        static_cast<int>(size)));
     setupTexture(*depthMaps.back());
     printErr("****************************************");
   }
@@ -31,74 +34,141 @@ void CascadedShadowMap::bindCascade(unsigned int index) {
   depthMapFBO.attachTexture(GL_DEPTH_ATTACHMENT, depthMaps[index].get());
 }
 
-void CascadedShadowMap::bindRender(const std::shared_ptr<ge::gl::Program> &program) {
+void CascadedShadowMap::bindRender(
+    const std::shared_ptr<ge::gl::Program> &program) {
   for (auto i : range(depthMaps.size())) {
     ge::gl::glUniform1i(
-        ge::gl::glGetUniformLocation(program->getId(), ("shadowMap[" + std::to_string(i) + "]").c_str()), depthMaps[i]->getId());
-    ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program->getId(), ("cascadeEnd[" + std::to_string(i) + "]").c_str()), cascadeBoundaries[i + 1]);
-    ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(program->getId(), ("lightSpaceMatrix[" + std::to_string(i) + "]").c_str()), 1, GL_FALSE, &lightSpaceMatrix(i)[0][0]);
-    //depthMaps[i]->bind(shadowTextureUnitOffset + i);
+        ge::gl::glGetUniformLocation(
+            program->getId(), ("shadowMap[" + std::to_string(i) + "]").c_str()),
+        depthMaps[i]->getId());
+    ge::gl::glUniform1f(ge::gl::glGetUniformLocation(
+                            program->getId(),
+                            ("cascadeEnd[" + std::to_string(i) + "]").c_str()),
+                        cascadeSplits[i + 1]);
+    ge::gl::glUniformMatrix4fv(
+        ge::gl::glGetUniformLocation(
+            program->getId(),
+            ("lightSpaceMatrix[" + std::to_string(i) + "]").c_str()),
+        1, GL_FALSE, &lightSpaceMatrix(i)[0][0]);
   }
 }
 
-glm::mat4 CascadedShadowMap::calculateOrthoMatrices(const glm::mat4 &cameraView,
-                                                    float cameraNear,
-                                                    float cameraFar,
-                                                    float aspectRatio,
-                                                    float fieldOfView) {
-  cascadeBoundaries.resize(cascadeCount + 1);
-  const auto max = static_cast<float>(cascadeCount + 1);
-  for (auto i : range(1, cascadeCount + 1, 1)) {
-    cascadeBoundaries[i-1] = cameraNear + i / max * (cameraFar - cameraNear);
-  }
+glm::mat4 CascadedShadowMap::calculateOrthoMatrices(
+    const glm::mat4 &cameraProjection, const glm::mat4 &cameraView,
+    float cameraNear, float cameraFar, float aspectRatio, float fieldOfView) {
+  cascadeSplits.resize(cascadeCount + 1);
 
-  const auto invertedCameraView = glm::inverse(cameraView);
-  const auto lightView = calcLightView();
-  const auto tanHalfHorizontalFOV = glm::tan(glm::radians(fieldOfView / 2.0f));
-  const auto tanHalfVerticalFOV =
-      glm::tan(glm::radians((fieldOfView * aspectRatio / 2.0f)));
+  // Between 0 and 1, change in order to see the results
+  GLfloat lambda = 1.0f;
+
+  // Between 0 and 1, change these to check the results
+  GLfloat minDistance = 0.0f;
+  GLfloat maxDistance = 1.0f;
+
+  GLfloat nearClip = cameraNear;
+  GLfloat farClip = cameraFar;
+  GLfloat clipRange = farClip - nearClip;
+
+  GLfloat minZ = nearClip + minDistance * clipRange;
+  GLfloat maxZ = nearClip + maxDistance * clipRange;
+
+  GLfloat zRange = maxZ - minZ;
+  GLfloat ratio = maxZ / minZ;
 
   for (auto i : range(cascadeCount)) {
-    const auto xn = cascadeBoundaries[i] * tanHalfHorizontalFOV;
-    const auto xf = cascadeBoundaries[i + 1] * tanHalfHorizontalFOV;
-    const auto yn = cascadeBoundaries[i] * tanHalfVerticalFOV;
-    const auto yf = cascadeBoundaries[i + 1] * tanHalfVerticalFOV;
+    GLfloat p = (i + 1.f) / static_cast<GLfloat>(cascadeCount);
+    GLfloat log = minZ * std::pow(ratio, p);
+    GLfloat uniform = minZ + zRange * p;
+    GLfloat d = lambda * (log - uniform) + uniform;
+    cascadeSplits[i] = (d - nearClip) / clipRange;
+  }
 
-    auto frustumCorners =
-        std::vector{glm::vec4{xn, yn, cascadeBoundaries[i], 1.0},
-                    {-xn, yn, cascadeBoundaries[i], 1.0},
-                    {xn, -yn, cascadeBoundaries[i], 1.0},
-                    {-xn, -yn, cascadeBoundaries[i], 1.0},
+  for (unsigned int cascadeIterator = 0; cascadeIterator < cascadeCount;
+       ++cascadeIterator) {
 
-                    {xf, yf, cascadeBoundaries[i + 1], 1.0},
-                    {-xf, yf, cascadeBoundaries[i + 1], 1.0},
-                    {xf, -yf, cascadeBoundaries[i + 1], 1.0},
-                    {-xf, -yf, cascadeBoundaries[i + 1], 1.0}};
+    GLfloat prevSplitDistance =
+        cascadeIterator == 0 ? minDistance : cascadeSplits[cascadeIterator - 1];
+    GLfloat splitDistance = cascadeSplits[cascadeIterator];
 
-    float minX = std::numeric_limits<float>::max();
-    float maxX = std::numeric_limits<float>::min();
-    float minY = std::numeric_limits<float>::max();
-    float maxY = std::numeric_limits<float>::min();
-    float minZ = std::numeric_limits<float>::max();
-    float maxZ = std::numeric_limits<float>::min();
+    glm::vec3 frustumCornersWS[8] = {
+        glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(1.0f, 1.0f, -1.0f),
+        glm::vec3(1.0f, -1.0f, -1.0f), glm::vec3(-1.0f, -1.0f, -1.0f),
+        glm::vec3(-1.0f, 1.0f, 1.0f),  glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, -1.0f, 1.0f),  glm::vec3(-1.0f, -1.0f, 1.0f),
+    };
 
-    for (auto &corner : frustumCorners) {
-      const glm::vec4 vW = invertedCameraView * corner;
-      corner = lightView * vW;
-
-      minX = glm::min(minX, corner.x);
-      maxX = glm::max(maxX, corner.x);
-      minY = glm::min(minY, corner.y);
-      maxY = glm::max(maxY, corner.y);
-      minZ = glm::min(minZ, corner.z);
-      maxZ = glm::max(maxZ, corner.z);
+    glm::mat4 invViewProj = glm::inverse(cameraProjection * cameraView);
+    for (auto &corner : frustumCornersWS) {
+      glm::vec4 inversePoint = invViewProj * glm::vec4(corner, 1.0f);
+      corner = glm::vec3(inversePoint / inversePoint.w);
     }
-    perspective[i] = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+
+    for (unsigned int i = 0; i < 4; ++i) {
+      glm::vec3 cornerRay = frustumCornersWS[i + 4] - frustumCornersWS[i];
+      glm::vec3 nearCornerRay = cornerRay * prevSplitDistance;
+      glm::vec3 farCornerRay = cornerRay * splitDistance;
+      frustumCornersWS[i + 4] = frustumCornersWS[i] + farCornerRay;
+      frustumCornersWS[i] = frustumCornersWS[i] + nearCornerRay;
+    }
+
+    auto frustumCenter = glm::vec3(0.0f);
+    for (auto corner : frustumCornersWS) {
+      frustumCenter += corner;
+    }
+    frustumCenter /= 8.0f;
+
+    GLfloat far = -INFINITY;
+    GLfloat near = INFINITY;
+
+    GLfloat radius = 0.0f;
+    for (auto corner : frustumCornersWS) {
+      GLfloat distance = glm::length(corner - frustumCenter);
+      radius = glm::max(radius, distance);
+    }
+    radius = std::ceil(radius * 16.0f) / 16.0f;
+
+    glm::vec3 maxExtents = glm::vec3(radius, radius, radius);
+    glm::vec3 minExtents = -maxExtents;
+
+    // Position the viewmatrix looking down the center of the frustum with an
+    // arbitrary lighht direction
+    glm::vec3 lightDirection =
+        frustumCenter - glm::normalize(lightDir) * -minExtents.z;
+    lightViewMatrix[cascadeIterator] =
+        glm::lookAt(lightDirection, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    glm::vec3 cascadeExtents = maxExtents - minExtents;
+
+    lightOrthoMatrix[cascadeIterator] =
+        glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f,
+                   cascadeExtents.z);
+
+    // The rounding matrix that ensures that shadow edges do not shimmer
+    glm::mat4 shadowMatrix =
+        lightOrthoMatrix[cascadeIterator] * lightViewMatrix[cascadeIterator];
+    glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    shadowOrigin = shadowMatrix * shadowOrigin;
+    shadowOrigin = shadowOrigin * static_cast<float>(size) / 2.0f;
+
+    glm::vec4 roundedOrigin = glm::round(shadowOrigin);
+    glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
+    roundOffset = roundOffset * 2.0f / static_cast<float>(size);
+    roundOffset.z = 0.0f;
+    roundOffset.w = 0.0f;
+
+    glm::mat4 shadowProj = lightOrthoMatrix[cascadeIterator];
+    shadowProj[3] += roundOffset;
+    lightOrthoMatrix[cascadeIterator] = shadowProj;
+
+    // Store the split distances and the relevant matrices
+    const float clipDist = far - near;
+    cascadeSplitArray[cascadeIterator] =
+        (near + splitDistance * clipDist) * -1.0f;
+
+    cascadedMatrices[cascadeIterator] = lightOrthoMatrix[cascadeIterator] * lightViewMatrix[cascadeIterator];
   }
 }
-glm::mat4 CascadedShadowMap::lightSpaceMatrix(unsigned int cascade) const {
-  return perspective[cascade] * calcLightView();
-}
+
 const std::vector<std::unique_ptr<ge::gl::Texture>> &
 CascadedShadowMap::getDepthMaps() const {
   return depthMaps;
@@ -118,7 +188,7 @@ glm::mat4 CascadedShadowMap::calcLightView() const {
 void CascadedShadowMap::setupTexture(ge::gl::Texture &texture) {
   glm::vec4 borderColor{1.0, 1.0, 1.0, 1.0};
   ge::gl::glTextureImage2DEXT(texture.getId(), GL_TEXTURE_2D, 0,
-                              GL_DEPTH_COMPONENT32, width, height, 0,
+                              GL_DEPTH_COMPONENT32, size, size, 0,
                               GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
   texture.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   texture.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);

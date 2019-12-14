@@ -3,6 +3,7 @@
 //
 
 #include "exceptions.h"
+
 using namespace std::string_literals;
 exc::Throwable::Throwable(std::string_view msg,
                           std::experimental::source_location srcLoc)

@@ -2,7 +2,6 @@
 // Created by Petr on 19.11.2019.
 //
 
-#include "BoundingBox.h"
 
 template <unsigned int Dims>
 std::ostream &geo::operator<<(std::ostream &stream,

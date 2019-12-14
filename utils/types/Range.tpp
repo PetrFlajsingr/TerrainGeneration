@@ -1,6 +1,3 @@
-
-#include "Range.h"
-
 template <typename T>
 template <typename U, typename V>
 Range<T>::Range(T start, U end, V step)
@@ -103,12 +100,12 @@ Range<ValueType> MakeRange::range(T start, U end, V step) {
   if (static_cast<ValueType>(step) < static_cast<ValueType>(V{0})) {
     assert(static_cast<ValueType>(start) >= static_cast<ValueType>(end));
     return Range<ValueType>{static_cast<ValueType>(start),
-                            static_cast<ValueType>(end - 1),
+                            static_cast<ValueType>(end),
                             static_cast<ValueType>(step)};
   } else {
     assert(static_cast<ValueType>(start) <= static_cast<ValueType>(end));
     return Range<ValueType>{static_cast<ValueType>(start),
-                            static_cast<ValueType>(end + 1),
+                            static_cast<ValueType>(end),
                             static_cast<ValueType>(step)};
   }
 }

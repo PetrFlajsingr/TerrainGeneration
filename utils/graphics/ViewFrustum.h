@@ -10,7 +10,6 @@
 #include "common.h"
 #include <array>
 #include <glm/glm.hpp>
-#include <glm/vec4.hpp>
 
 namespace geo {
 

@@ -6,9 +6,6 @@
 #include "error_handling/exceptions.h"
 #include <fstream>
 #include <iostream>
-#define SHADER_FOLDER                                                          \
-  std::string(                                                                 \
-      "/home/petr/CLionProjects/TerrainGeneration/marching_cubes/shaders")
 
 using namespace std::string_literals;
 std::string loadShaderFile(std::string_view name, ShaderType type) {

@@ -5,9 +5,9 @@
 #ifndef TERRAINGENERATION_GEGL_UTILS_H
 #define TERRAINGENERATION_GEGL_UTILS_H
 
+#include <geGL/geGL.h>
 #include "SparseBuffer.h"
 #include "shader_literals.h"
-#include <geGL/geGL.h>
 
 template <typename T = uint8_t>
 auto createBuffer(std::size_t componentCount, GLbitfield flags = GL_STATIC_DRAW,

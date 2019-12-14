@@ -6,6 +6,7 @@
 #define TERRAINGENERATION_STRING_H
 
 #include "various/StringUtils.h"
+
 using String = StringDecorator<std::string>;
 using WString = StringDecorator<std::wstring>;
 

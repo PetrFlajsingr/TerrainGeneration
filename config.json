@@ -18,7 +18,7 @@
     }
   },
   "render": {
-    "viewDistance": 10000,
+    "viewDistance": 500,
     "levelOfDetail": 0,
     "viewFrustumCulling": true,
     "shadows": {

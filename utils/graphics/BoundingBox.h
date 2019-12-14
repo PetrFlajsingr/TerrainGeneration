@@ -6,7 +6,6 @@
 #define UTILITIES_BOUNDINGBOX_H
 
 #include "common.h"
-#include <glm/detail/type_vec3.hpp>
 #include <glm/glm.hpp>
 #include <ostream>
 

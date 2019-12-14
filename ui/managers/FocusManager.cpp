@@ -3,6 +3,7 @@
 //
 
 #include "FocusManager.h"
+
 sdl2cpp::ui::FocusManager::FocusManager(
     std::vector<std::weak_ptr<UIObject>> &guiObjects)
     : guiObjects(guiObjects) {}

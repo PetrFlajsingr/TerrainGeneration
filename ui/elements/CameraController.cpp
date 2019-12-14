@@ -3,7 +3,6 @@
 //
 
 #include "CameraController.h"
-#include "io/print.h"
 
 sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager,
                                                 glm::vec3 position,

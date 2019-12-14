@@ -32,6 +32,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
             cascadeIdx = i;
         }
     }
+
     float angleBias = 0.006f;
 
     mat4 lightViewProjectionMatrix = lightViewProjectionMatrices[cascadeIdx];
@@ -118,7 +119,7 @@ vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDir
     vec3 specular = spec * lightColor;
     // calculate shad
     vec3 negatedLightDirection = lightDirection*-1.0f;
-    vec3 lighting = (ambient + (1.0 - readShadowMap(negatedLightDirection,viewNormal,viewPosition.z,viewPosition)) * (diffuse + specular)) * color;
+    vec3 lighting = (ambient + (1.0 - readShadowMap(negatedLightDirection,viewNormal,FragPos.z,viewPosition)) * (diffuse + specular)) * color;
     return vec4(lighting, 1.0);
 }
 

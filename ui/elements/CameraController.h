@@ -5,7 +5,6 @@
 #ifndef TERRAINGENERATION_CAMERACONTROLLER_H
 #define TERRAINGENERATION_CAMERACONTROLLER_H
 
-#include "ui/GUIRenderer.h"
 #include "ui/interface/KeyboardInteractable.h"
 #include "ui/interface/MouseInteractable.h"
 #include <Camera.h>
@@ -18,7 +17,7 @@ namespace sdl2cpp::ui {
  * the right mouse button is pressed.
  */
 class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
-                         public sdl2cpp::ui::KeyboardInteractable {
+                         public sdl2cpp::ui::CustomKeyboardInteractable {
 public:
   explicit CameraController(UIManager &guiManager, glm::vec3 position,
                             glm::vec3 dimensions,

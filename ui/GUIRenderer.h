@@ -6,7 +6,6 @@
 #define TERRAINGENERATION_GUIRENDERER_H
 
 #include "rendering/text/TextRenderer.h"
-#include "shader_literals.h"
 #include <String.h>
 #include <geGL/Program.h>
 
@@ -16,7 +15,7 @@ class GUIRenderer {
   using Program = std::shared_ptr<ge::gl::Program>;
 
 public:
-  GUIRenderer(const String &fontsPath);
+  explicit GUIRenderer(const String &fontsPath);
 
   Program getProgram();
   TextRenderer &getTextRenderer() { return textRenderer; }

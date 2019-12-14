@@ -6,14 +6,13 @@
 #define TERRAINGENERATION_KEYACTION_H
 
 #include <utility>
-
 #include "ui/interface/KeyboardInteractable.h"
 
 namespace sdl2cpp::ui {
 /**
  * Action called when no other object is focused and selected key is pressed.
  */
-class KeyAction : public sdl2cpp::ui::KeyboardInteractable {
+class KeyAction : public CustomKeyboardInteractable {
   using Action = std::function<void()>;
 
 public:

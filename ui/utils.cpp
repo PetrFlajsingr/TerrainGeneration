@@ -3,7 +3,6 @@
 //
 
 #include "utils.h"
-#include <experimental/array>
 
 std::array<glm::vec3, 4> sdlRectToGLCoordinates(const SDL_Rect &rect,
                                                 unsigned int screenWidth,

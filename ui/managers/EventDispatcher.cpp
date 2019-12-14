@@ -4,9 +4,6 @@
 
 #include "EventDispatcher.h"
 #include "FocusManager.h"
-#include "time/now.h"
-#include "ui/interface/KeyboardInteractable.h"
-#include <chrono>
 
 sdl2cpp::ui::EventDispatcher::EventDispatcher(
     std::shared_ptr<sdl2cpp::Window> window, FocusManager &focusManager)
@@ -211,33 +208,4 @@ void sdl2cpp::ui::EventDispatcher::checkTimedEvents(
 sdl2cpp::ui::TimedEvent &sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
   events.emplace_back(event);
   return events.back();
-}
-
-bool sdl2cpp::ui::TimedEvent::shouldFire(std::chrono::milliseconds time) {
-  if (!isValid()) {
-    return false;
-  }
-  bool result = time - start >= duration;
-  valid = !result || type == Type::Infinite || (type == Type::Repeated && (repetitions > fireCount));
-  return result && enabled;
-}
-
-bool sdl2cpp::ui::TimedEvent::isValid() { return valid; }
-
-void sdl2cpp::ui::TimedEvent::setEnabled(bool enabled) {
-  TimedEvent::enabled = enabled;
-}
-
-bool sdl2cpp::ui::TimedEvent::isEnabled() const {
-  return enabled;
-}
-
-void sdl2cpp::ui::TimedEvent::invalidate() {
-  valid = false;
-}
-
-void sdl2cpp::ui::TimedEvent::operator()(std::chrono::milliseconds now) {
-  start = now;
-  ++fireCount;
-  event();
 }

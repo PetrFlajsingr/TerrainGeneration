@@ -4,6 +4,7 @@
 
 #include "Font.h"
 #include "rendering/text/FontManager.h"
+#include <algorithm>
 
 Font::Font(std::string name, FontManager &fontManager)
     : name(std::move(name)), fontManager(fontManager) {}
@@ -18,3 +19,5 @@ freetypeglxx::TextureFont *Font::getData(float size) {
   fontSizes.emplace_back(size, fontManager.load(name, size));
   return fontSizes.back().second.get();
 }
+Font::Font(Font &&other) noexcept
+    : fontSizes(std::move(other.fontSizes)), fontManager(other.fontManager)  {}

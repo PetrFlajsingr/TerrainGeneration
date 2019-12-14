@@ -3,7 +3,6 @@
 //
 
 #include "KeyboardInteractable.h"
-#include <error_handling/exceptions.h>
 
 void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(
     const SDL_Event &event) {

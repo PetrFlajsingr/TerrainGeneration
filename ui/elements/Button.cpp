@@ -9,6 +9,7 @@
 #include <geGL/StaticCalls.h>
 #include <io/print.h>
 #include <ui/utils.h>
+#include "geGL_utils.h"
 
 sdl2cpp::ui::Button::Button(UIManager &guiManager, glm::vec3 position,
                             glm::vec3 dimensions)
@@ -51,24 +52,24 @@ void sdl2cpp::ui::Button::onMouseDown(sdl2cpp::ui::EventInfo info,
                                       sdl2cpp::ui::MouseButton button,
                                       SDL_Point point) {
   MouseInteractable::onMouseDown(info, button, point);
- // color = {0, 0, 1, 1};
+  color = {0, 0, 1, 1};
 }
 
 void sdl2cpp::ui::Button::onMouseUp(sdl2cpp::ui::EventInfo info,
                                     sdl2cpp::ui::MouseButton button,
                                     SDL_Point point) {
   MouseInteractable::onMouseUp(info, button, point);
- // color = {1, 0, 0, 1};
+  color = {1, 0, 0, 1};
 }
 
 void sdl2cpp::ui::Button::onMouseOver(sdl2cpp::ui::EventInfo info) {
   MouseInteractable::onMouseOver(info);
-  //color = {0, 1, 0, 1};
+  color = {0, 1, 0, 1};
 }
 
 void sdl2cpp::ui::Button::onMouseOut(sdl2cpp::ui::EventInfo info) {
   MouseInteractable::onMouseOut(info);
- // color = {1, 0, 0, 1};
+  color = {1, 0, 0, 1};
 }
 void sdl2cpp::ui::Button::setColor(glm::vec4 color) {
   Button::color = color;

@@ -95,9 +95,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   btn2->text.setText(L"show/hide depth texture"_sw);
   btn2->text.setFont("arialbd", 10);
 
-  auto btn4 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
-      glm::vec3{0, 340, 1}, glm::vec3{300, 500, 0});
-  bool down = false;
+
 #ifdef OLD_SM
   const float near_plane = .1f;
   const float far_plane = 70.5f;
@@ -105,80 +103,10 @@ void main_shadow_mapping(int argc, char *argv[]) {
       glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
 
   ShadowMap sm{lightProjection, {0.f, 5.0f, 0.0}, {0.0, 0, 0}, 4096, 4096};
-
-  btn4->setMouseDown([&down] { down = true; })
-      .setMouseUp([&down] { down = false; })
-      .setMouseMove([&down, &sm, &modelRenderer](EventInfo, SDL_Point oldPos,
-                                                 SDL_Point newPos) {
-        if (!down) {
-          return;
-        }
-        glm::vec3 delta{oldPos.x - newPos.x, oldPos.y - newPos.y, 0.0};
-        sm.setLightPos(sm.getLightPos() + delta / 10.0f);
-        auto model = modelRenderer.modelById("light").value();
-        model->setPosition(sm.getLightPos());
-      })
-      .setMouseWheel([&down, &sm, &modelRenderer](
-                         EventInfo, ScrollDirection dir, int delta) {
-        if (!down) {
-          return;
-        }
-        glm::vec3 d{0};
-        switch (dir) {
-        case ScrollDirection::Left:
-          break;
-        case ScrollDirection::Right:
-          break;
-        case ScrollDirection::Up:
-          d.z += delta;
-          break;
-        case ScrollDirection::Down:
-          d.z += delta;
-          break;
-        }
-        sm.setLightPos(sm.getLightPos() + d);
-        auto model = modelRenderer.modelById("light").value();
-        model->setPosition(sm.getLightPos());
-      });
 #else
   CascadedShadowMap cascadedShadowMap{4, 4096};
   cascadedShadowMap.setLightPos({0, 10, 0});
-  cascadedShadowMap.setLightDir({-0.1f, -0.5f, 0.0f});
-  btn4->setMouseDown([&down] { down = true; })
-      .setMouseUp([&down] { down = false; })
-      .setMouseMove([&down, &cascadedShadowMap, &modelRenderer](
-                        EventInfo, SDL_Point oldPos, SDL_Point newPos) {
-        if (!down) {
-          return;
-        }
-        glm::vec3 delta{oldPos.x - newPos.x, oldPos.y - newPos.y, 0.0};
-        cascadedShadowMap.setLightPos(cascadedShadowMap.getLightPos() +
-                                      delta / 10.0f);
-        auto model = modelRenderer.modelById("light").value();
-        model->setPosition(cascadedShadowMap.getLightPos());
-      })
-      .setMouseWheel([&down, &cascadedShadowMap, &modelRenderer](
-                         EventInfo, ScrollDirection dir, int delta) {
-        if (!down) {
-          return;
-        }
-        glm::vec3 d{0};
-        switch (dir) {
-        case ScrollDirection::Left:
-          break;
-        case ScrollDirection::Right:
-          break;
-        case ScrollDirection::Up:
-          d.z += delta;
-          break;
-        case ScrollDirection::Down:
-          d.z += delta;
-          break;
-        }
-        cascadedShadowMap.setLightPos(cascadedShadowMap.getLightPos() + d);
-        auto model = modelRenderer.modelById("light").value();
-        model->setPosition(cascadedShadowMap.getLightPos());
-      });
+  cascadedShadowMap.setLightDir({-0.5f, -0.5f, 0.1f});
 #endif
   DrawTexture drawTexture;
   const auto near = 1.f;

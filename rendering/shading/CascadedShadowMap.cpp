@@ -25,46 +25,43 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
   ge::gl::glBindTexture(GL_TEXTURE_2D_ARRAY, depthMap);
 
   ge::gl::glBindTexture(GL_TEXTURE_2D_ARRAY, depthMap);
-  ge::gl::glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, size, size, cascadeCount, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+  ge::gl::glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, size,
+                       size, cascadeCount, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+                       NULL);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER,
+                          GL_LINEAR);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER,
+                          GL_LINEAR);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S,
+                          GL_CLAMP_TO_EDGE);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T,
+                          GL_CLAMP_TO_EDGE);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE,
+                          GL_COMPARE_R_TO_TEXTURE);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC,
+                          GL_LEQUAL);
 
-  ge::gl::glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap, 0);
+  ge::gl::glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap,
+                               0);
   ge::gl::glDrawBuffer(GL_NONE);
   ge::gl::glReadBuffer(GL_NONE);
   // restore default FBO
   ge::gl::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-  /*for ([[maybe_unused]] auto _ : range(cascadeCount)) {
-    printErr("**** Please ignore the following errors ****");
-    depthMaps.emplace_back(std::make_unique<ge::gl::Texture>(
-        GL_TEXTURE_2D, GL_DEPTH_COMPONENT32, 0, static_cast<int>(size),
-        static_cast<int>(size)));
-    setupTexture(*depthMaps.back());
-    printErr("****************************************");
-  }*/
-
 }
 
 void CascadedShadowMap::bindCascade(unsigned int index) {
-  //depthMapFBO.attachTexture(GL_DEPTH_ATTACHMENT, depthMaps[index].get());
-  ge::gl::glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap, 0, index);
+  // depthMapFBO.attachTexture(GL_DEPTH_ATTACHMENT, depthMaps[index].get());
+  ge::gl::glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                    depthMap, 0, index);
 }
 
 void CascadedShadowMap::bindRender(
     const std::shared_ptr<ge::gl::Program> &program) {
   ge::gl::glActiveTexture(GL_TEXTURE0);
   ge::gl::glBindTexture(GL_TEXTURE_2D_ARRAY, depthMap);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE,
+                          GL_COMPARE_R_TO_TEXTURE);
   for (auto i : range(cascadeCount)) {
-   /* ge::gl::glUniform1i(
-        ge::gl::glGetUniformLocation(
-            program->getId(), ("cascadedDepthTexture[" + std::to_string(i) + "]").c_str()),
-        depthMaps[i]->getId());*/
     ge::gl::glUniformMatrix4fv(
         ge::gl::glGetUniformLocation(
             program->getId(),
@@ -191,39 +188,14 @@ void CascadedShadowMap::calculateOrthoMatrices(
   }
 }
 
-
 const glm::vec3 &CascadedShadowMap::getLightDir() const { return lightDir; }
 void CascadedShadowMap::setLightDir(const glm::vec3 &lightDir) {
   CascadedShadowMap::lightDir = lightDir;
-}
-const glm::vec3 &CascadedShadowMap::getLightPos() const { return lightPos; }
-void CascadedShadowMap::setLightPos(const glm::vec3 &lightPos) {
-  CascadedShadowMap::lightPos = lightPos;
 }
 
 const std::vector<float> &CascadedShadowMap::getCascadeSplits() const {
   return cascadeSplitArray;
 }
 unsigned int CascadedShadowMap::getCascadeCount() const { return cascadeCount; }
-/*
-const std::vector<std::unique_ptr<ge::gl::Texture>> &
-CascadedShadowMap::getDepthMaps() const {
-  return depthMaps;
-}*/
 
-void CascadedShadowMap::setupTexture(ge::gl::Texture &texture) {
-  glm::vec4 borderColor{1.0, 1.0, 1.0, 1.0};
-  ge::gl::glTextureImage2DEXT(texture.getId(), GL_TEXTURE_2D, 0,
-                              GL_DEPTH_COMPONENT32, size, size, 0,
-                              GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-  texture.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  texture.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  texture.texParameteri(GL_TEXTURE_COMPARE_MODE, GL_NONE);
-  texture.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  texture.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  //texture.texParameteri(GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-  //texture.texParameteri(GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-
-  //depthMaps.back()->texParameterfv(GL_TEXTURE_BORDER_COLOR, &borderColor[0]);
-}
 GLuint CascadedShadowMap::getDepthMap() const { return depthMap; }

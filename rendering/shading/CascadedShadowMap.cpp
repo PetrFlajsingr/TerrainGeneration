@@ -79,7 +79,7 @@ void CascadedShadowMap::calculateOrthoMatrices(
   cascadeSplits.resize(cascadeCount);
 
   // Between 0 and 1, change in order to see the results
-  GLfloat lambda = 1.0f;
+  GLfloat lambda = .5f;
 
   // Between 0 and 1, change these to check the results
   GLfloat minDistance = 0.0f;

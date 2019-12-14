@@ -4,6 +4,7 @@
 
 #include "marching_cubes.h"
 #include "rendering/Data.h"
+#include "rendering/shading/CascadedShadowMap.h"
 #include "ui/elements.h"
 #include "ui/managers.h"
 #include "utils/config/JsonConfig.h"
@@ -15,6 +16,7 @@
 #include <rendering/ModelRenderer.h>
 #include <time/FPSCounter.h>
 #include <types.h>
+#include "rendering/utils/DrawTexture.h"
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
@@ -48,15 +50,6 @@ UI initUI(UIManager &uiManager) {
 }
 
 void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
-  ObjModelLoader modelLoader{assetPath + "/models"};
-  auto sphereModel = modelLoader.loadModel("sphere", "sphere1");
-  modelRenderer.addModel(sphereModel);
-  modelRenderer.addModel(modelLoader.loadModel("sphere", "sphere2"));
-  modelRenderer.modelById("sphere2")
-      .value()
-      ->setPosition({0, 0, 0})
-      .setScale({1, 1, 1});
-  sphereModel->setPosition({10, 10, 10}).setScale({5, 5, 5});
 }
 
 void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
@@ -114,13 +107,21 @@ void main_marching_cubes(int argc, char *argv[]) {
   chunks.surr.info.subscribe(
       [&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
 
-  SM sm;
-  chunks.smProgram = sm.renderProgram;
-  // chunks.texture = sm.depthMap;
-  sm.lightPos = chunks.light.position;
-
   ModelRenderer modelRenderer;
   initModels(modelRenderer, assetPath);
+  auto renderProgram = std::make_shared<ge::gl::Program>(
+      "shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
+
+  CascadedShadowMap cascadedShadowMap{4, 4096};
+  cascadedShadowMap.setLightDir({0.1, -0.5, 0});
+
+  chunks.smProgram = renderProgram;
+
+  bool showTextures = false;
+  auto textureBtn =  uiManager.createGUIObject<sdl2cpp::ui::Button>(
+      glm::vec3{0, 100, 1}, glm::vec3{250, 100, 0});
+  textureBtn->setMouseClicked([&showTextures] {showTextures = !showTextures;});
+  DrawTexture drawTexture;
 
   ge::gl::glEnable(GL_DEPTH_TEST);
 
@@ -133,28 +134,48 @@ void main_marching_cubes(int argc, char *argv[]) {
     chunks.generateChunks();
 
     chunks.render = false;
-    sm.begin();
-    chunks.draw(
-        drawMode,
-        {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
-         config.get<bool>("debug", "drawNormals").value(),
-         config.get<uint>("debug", "drawChunkBorder", "step").value()});
+    auto projection =
+        glm::perspective(60.f, 1920.f / 1080, 0.1f, 500.0f);
+    auto renderFnc = [&ui, &drawMode, &chunks, &modelRenderer, &config] (const auto &program) {
+      glm::mat4 model{1.f};
+      program->setMatrix4fv("model", &model[0][0]);
+      chunks.draw(
+          drawMode,
+          {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
+           config.get<bool>("debug", "drawNormals").value(),
+           config.get<uint>("debug", "drawChunkBorder", "step").value()});
+      modelRenderer.render(program, ui.cameraController->getViewMatrix(),
+                           false);
+    };
+    cascadedShadowMap.renderShadowMap(renderFnc, projection, ui.cameraController->getViewMatrix(), 0.1f, 500.f, 1920.f/1080, 60.f);
 
-    modelRenderer.render(sm.program, ui.cameraController->getViewMatrix(),
-                         false);
-    sm.end();
 
-    chunks.render = true;
+    if (showTextures) {
+      drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
+    } else {
+      chunks.render = true;
 
-    chunks.draw(
-        drawMode,
-        {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
-         config.get<bool>("debug", "drawNormals").value(),
-         config.get<uint>("debug", "drawChunkBorder", "step").value()});
+      renderProgram->use();
+      cascadedShadowMap.bindRender(renderProgram);
+      renderProgram->setMatrix4fv(
+          "inverseViewMatrix",
+          glm::value_ptr(glm::inverse(ui.cameraController->getViewMatrix())));
 
-    modelRenderer.render(sm.renderProgram, ui.cameraController->getViewMatrix(),
-                         true);
+      renderProgram->set3fv("lightDir",
+                            glm::value_ptr(cascadedShadowMap.getLightDir()));
+      renderProgram->setMatrix4fv("projection", glm::value_ptr(projection));
+      ge::gl::glUniform1i(
+          renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
 
+      chunks.draw(
+          drawMode,
+          {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
+           config.get<bool>("debug", "drawNormals").value(),
+           config.get<uint>("debug", "drawChunkBorder", "step").value()});
+
+      modelRenderer.render(renderProgram, ui.cameraController->getViewMatrix(),
+                           true);
+    }
     auto ortho = glm::ortho<float>(0, 1000, 0, 562.5, -1, 1);
     uiManager.render(ortho);
 
@@ -162,58 +183,4 @@ void main_marching_cubes(int argc, char *argv[]) {
   });
 
   (*mainLoop)();
-}
-
-
-SM::SM() {
-  ge::gl::glGenTextures(1, &depthMap);
-  ge::gl::glBindTexture(GL_TEXTURE_2D, depthMap);
-  ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0,
-                       GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-  float borderColor[] = {1.0, 1.0, 1.0, 1.0};
-  ge::gl::glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
-  ge::gl::glGenFramebuffers(1, &depthMapFBO);
-  ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-  ge::gl::glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                                 GL_TEXTURE_2D, depthMap, 0);
-  ge::gl::glDrawBuffer(GL_NONE);
-  ge::gl::glReadBuffer(GL_NONE);
-  ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  /* ge::gl::glTextureImage2DEXT(depthMap->getId(), GL_TEXTURE_2D, 0,
-                               GL_DEPTH_COMPONENT, width, height, 0,
-                               GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-   depthMap->texParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-   depthMap->texParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   depthMap->texParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
-   depthMap->texParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-   fbo.attachTexture(GL_DEPTH_ATTACHMENT, depthMap);
-   fbo.drawBuffer(GL_NONE);
-   ge::gl::glNamedFramebufferReadBuffer(fbo.getId(), GL_NONE);*/
-}
-void SM::begin() {
-  ge::gl::glGetIntegerv(GL_VIEWPORT, m_viewport);
-
-  program->use();
-  ge::gl::glViewport(0, 0, width, height);
-  // fbo.bind(GL_FRAMEBUFFER);
-  ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-  ge::gl::glClear(GL_DEPTH_BUFFER_BIT);
-  // fbo.clear(GL_DEPTH_BUFFER_BIT);
-
-  glm::mat4 lightView = glm::lookAt(lightPos, target, up);
-
-  lightSpaceMatrix = lightProjection * lightView;
-  program->setMatrix4fv("lightSpaceMatrix", &lightSpaceMatrix[0][0]);
-}
-void SM::end() {
-  // fbo.unbind(GL_FRAMEBUFFER);
-  ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  auto [x, y, width, height] = m_viewport;
-  ge::gl::glViewport(x, y, width, height);
 }

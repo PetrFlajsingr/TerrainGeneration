@@ -26,11 +26,11 @@
     }
   },
   "marching_cubes": {
-    "chunkSize": 10,
+    "chunkSize": 3,
     "surroundingSize": 50,
     "chunkPoolSize": 1024,
     "aggressiveChunkUnloading": false,
-    "computeBatchSize": 100
+    "computeBatchSize": 256
   },
   "device": {
     "screen": {

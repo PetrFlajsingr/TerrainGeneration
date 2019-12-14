@@ -61,11 +61,6 @@ void main_shadow_mapping(int argc, char *argv[]) {
   std::vector<GraphicsModelBase *> spheres;
   std::vector<GraphicsModelBase *> cubes;
   GraphicsModelBase *bigSphere = modelRenderer.modelById("bigSphere")->get();
-  {
-    ObjModelLoader modelLoader(assetPath + "/models");
-    modelRenderer.addModel(modelLoader.loadModel("sphere", "light"))
-        .setDrawn(false);
-  }
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
   auto cameraController =
@@ -227,8 +222,6 @@ void main_shadow_mapping(int argc, char *argv[]) {
           "inverseViewMatrix",
           glm::value_ptr(glm::inverse(cameraController->getViewMatrix())));
 
-      //renderProgram->set1f("screenWidth", deviceData.screen.width);
-      //renderProgram->set1f("screenHeight", deviceData.screen.height);
       renderProgram->set3fv("lightDir", glm::value_ptr(cascadedShadowMap.getLightDir()));
       renderProgram->setMatrix4fv("projection", glm::value_ptr(projection));
       ge::gl::glUniform1i(renderProgram->getUniformLocation("cascadedDepthTexture"), 0);

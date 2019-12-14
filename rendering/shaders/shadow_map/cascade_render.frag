@@ -25,11 +25,11 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     uint cascadeIdx = 0;
 
     // Figure out which cascade to sample from
-    for(uint i = 0; i < numOfCascades - 1; ++i)
+    for(uint i = 0; i < numOfCascades; ++i)
     {
         if(positiveViewSpaceZ < cascadedSplits[i])
         {
-            cascadeIdx = i + 1;
+            cascadeIdx = i;
         }
     }
     float angleBias = 0.006f;
@@ -60,10 +60,29 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(cascadedDepthTexture, 0).xy;
 
-    float pcfDepth =  shadow2DArray(cascadedDepthTexture, vec4(projCoords.xyz, currentDepth - bias )).r;
-    shadow += currentDepth  > pcfDepth ? 1.0  : 0.0;
+    const int kernelSize = 9;
+    const int kernelOffset = kernelSize / 2;
+    for(int x = -kernelOffset; x <= kernelOffset; ++x)
+    {
+        for(int y = -kernelOffset; y <= kernelOffset; ++y)
+        {
+            vec3 coord = vec3(projCoords.xy + vec2(x, y) * texelSize, projCoords.z);
+            float pcfDepth = shadow2DArray(cascadedDepthTexture, vec4(coord, currentDepth - bias )).r;
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;
+        }
+    }
+    shadow /= float(kernelSize * kernelSize);
+
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
 
     return vec3(shadow);
+
+    /*float pcfDepth = shadow2DArray(cascadedDepthTexture, vec4(projCoords.xyz, currentDepth - bias )).r;
+    shadow += currentDepth  > pcfDepth ? 1.0  : 0.0;
+
+    return vec3(shadow);*/
 }
 
 vec3 chessBoard(vec3 pos) {

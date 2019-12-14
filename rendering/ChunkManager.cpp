@@ -182,7 +182,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_DEPTH_TEST);
   ge::gl::glEnable(GL_CULL_FACE);
   auto projection =
-      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 1000.0f);
+      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 500.0f);
   auto view = cameraController->getViewMatrix();
   glm::vec3 lightPos =
       glm::vec3{25, 25, 50}; // cameraController.camera.Position; // {2,5,2};
@@ -273,10 +273,6 @@ void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
     glm::mat4 model{1};
     smProgram->setMatrix4fv("model", &model[0][0]);
     smProgram->setMatrix4fv("view", &cameraController->getViewMatrix()[0][0]);
-    smProgram->setMatrix4fv("lightSpaceMatrix", &modelView[0][0]);
-    smProgram->set3fv("lightPos", &light.position[0]);
-    smProgram->set3fv("viewPos", &camPos[0]);
-    //texture->bind(0);
   }
 
   for (auto &chunk : chunks) {

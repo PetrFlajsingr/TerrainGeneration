@@ -28,6 +28,8 @@
 
 using Conf = JsonConfig<true>;
 
+
+
 void main_shadow_mapping(int argc, char *argv[]) {
   using namespace sdl2cpp::ui;
   loc_assert(argc != 1, "Provide path for config");
@@ -44,6 +46,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   // init OpenGL
   ge::gl::init(SDL_GL_GetProcAddress);
   ge::gl::setHighDebugMessage();
+
 
   ge::gl::glClearColor(0, 0, 0, 1);
 
@@ -138,7 +141,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
         model->setPosition(sm.getLightPos());
       });
 #else
-  CascadedShadowMap cascadedShadowMap{3, 4096};
+  CascadedShadowMap cascadedShadowMap{4, 4096};
   cascadedShadowMap.setLightPos({0, 10, 0});
   cascadedShadowMap.setLightDir({-0.1f, -0.5f, 0.0f});
   btn4->setMouseDown([&down] { down = true; })
@@ -178,12 +181,12 @@ void main_shadow_mapping(int argc, char *argv[]) {
       });
 #endif
   DrawTexture drawTexture;
-  const auto near = 0.1f;
-  const auto far = 1000.0f;
+  const auto near = 1.f;
+  const auto far = 750.0f;
   const auto aspectRatio = 1920.f / 1080;
-  const auto fieldOfView = 60.0f;
+  const auto fieldOfView = 45.0f;
   auto projection =
-      glm::perspective(glm::radians(fieldOfView), aspectRatio, near, far);
+      glm::perspective(fieldOfView, aspectRatio, near, far);
   auto renderProgram = std::make_shared<ge::gl::Program>(
       "shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
@@ -213,6 +216,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
     model->setPosition(model->getPosition() - glm::vec3{0, 50, 0});
   }
 
+  cameraController->camera.Position = {0, 25, 25};
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ge::gl::glEnable(GL_DEPTH_TEST);
@@ -228,7 +232,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
         auto oldPos = sphere->getPosition();
         sphere->setPosition(oldPos.x * 0.95f, oldPos.y, oldPos.z * 0.95f);
       }
-      if (spheres.size() > 0 && spheres[0]->getPosition().x > -0.1) {
+      if (!spheres.empty() && spheres[0]->getPosition().x > -0.1) {
         shrink = false;
       }
       bigSphere->setPosition(pos.x + 0.2f, pos.y, pos.z);
@@ -237,7 +241,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
         auto oldPos = sphere->getPosition();
         sphere->setPosition(oldPos.x * 1.05f, oldPos.y, oldPos.z * 1.05f);
       }
-      if (spheres.size() > 0 && spheres[0]->getPosition().x < -50) {
+      if (!spheres.empty() && spheres[0]->getPosition().x < -50) {
         shrink = true;
       }
       bigSphere->setPosition(pos.x - 0.2f, pos.y, pos.z);
@@ -274,7 +278,6 @@ void main_shadow_mapping(int argc, char *argv[]) {
     }
 #else
     ge::gl::glEnable(GL_CULL_FACE);
-    ge::gl::glCullFace(GL_FRONT);
     auto renderFnc = [&modelRenderer, &cameraController](
                          const std::shared_ptr<ge::gl::Program> &program) {
       modelRenderer.render(program, cameraController->getViewMatrix(), false);
@@ -287,7 +290,8 @@ void main_shadow_mapping(int argc, char *argv[]) {
     ge::gl::glCullFace(GL_BACK);
 
     if (showFrameBuffer != 0) {
-      drawTexture.draw(cascadedShadowMap.getDepthMaps()[showFrameBuffer - 1]->getId());
+      //drawTexture.draw(cascadedShadowMap.getDepthMaps()[showFrameBuffer - 1]->getId());
+      drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
     } else {
       renderProgram->use();
       cascadedShadowMap.bindRender(renderProgram);

@@ -3,32 +3,33 @@
 
 uniform mat4 view;
 uniform mat4 inverseViewMatrix;
-uniform mat4 lightViewProjectionMatrices[3];
+uniform mat4 lightViewProjectionMatrices[4];
 uniform vec4 cascadedSplits;
 uniform vec3 lightDir;
 uniform int numOfCascades;
 uniform float screenWidth;
 uniform float screenHeight;
 
-uniform sampler2D cascadedDepthTexture[3];
+uniform sampler2DArrayShadow cascadedDepthTexture;
 
-in vec3 Normal;
-in vec3 Position;
+in vec3 v2fNormal;
+in vec3 v2fPosition;
+in vec3 FragPos;
 
 out vec4 color;
 
-vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace,vec3 viewPosition)
+vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 viewPosition)
 {
 
     float positiveViewSpaceZ = depthViewSpace;
     uint cascadeIdx = 0;
 
     // Figure out which cascade to sample from
-    for(uint i = 0; i < numOfCascades; ++i)
+    for(uint i = 0; i < numOfCascades - 1; ++i)
     {
-        if(positiveViewSpaceZ < cascadedSplits[i + 1])
+        if(positiveViewSpaceZ < cascadedSplits[i])
         {
-            cascadeIdx = i;
+            cascadeIdx = i + 1;
         }
     }
     float angleBias = 0.006f;
@@ -52,13 +53,15 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace,vec3 v
     // Get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 
+    projCoords.z = cascadeIdx;
+
     float bias = max(angleBias * (1.0 - dot(normal, lightDirection)), 0.0008);
 
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(cascadedDepthTexture[cascadeIdx], 0).xy;
+    vec2 texelSize = 1.0 / textureSize(cascadedDepthTexture, 0).xy;
 
-    float pcfDepth = texture(cascadedDepthTexture[cascadeIdx], projCoords.xy * texelSize).r;
-    shadow += currentDepth > pcfDepth ? 1.0  : 0.0;
+    float pcfDepth =  shadow2DArray(cascadedDepthTexture, vec4(projCoords.xyz, currentDepth - bias )).r;
+    shadow += currentDepth  > pcfDepth ? 1.0  : 0.0;
 
     return vec3(shadow);
 }
@@ -78,19 +81,20 @@ vec3 chessBoard(vec3 pos) {
 
 vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDirection)
 {
-    vec3 color = chessBoard(Position);
-    vec3 normal = normalize(Normal);
+    lightDirection = -lightDirection;
+    vec3 color = chessBoard(FragPos);
+    vec3 normal = normalize(viewNormal);
     vec3 lightColor = vec3(0.3);
     // ambient
     vec3 ambient = 0.3 * color;
     // diffuse
-    float diff = max(dot(lightDir, normal), 0.0);
+    float diff = max(dot(lightDirection, normal), 0.0);
     vec3 diffuse = diff * lightColor;
     // specular
-    vec3 viewDir = normalize(viewPosition - Position);
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 viewDir = normalize(viewPosition - FragPos);
+    vec3 reflectDir = reflect(-lightDirection, normal);
     float spec = 0.0;
-    vec3 halfwayDir = normalize(lightDir + viewDir);
+    vec3 halfwayDir = normalize(lightDirection + viewDir);
     spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
     vec3 specular = spec * lightColor;
     // calculate shad
@@ -99,9 +103,8 @@ vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDir
     return vec4(lighting, 1.0);
 }
 
-
 void main()
 {
     vec3 lightDirection = normalize(vec3(lightDir));
-    color = calculateDirectionalLight(Position.xyz, Normal, lightDirection);
+    color = calculateDirectionalLight(v2fPosition.xyz, v2fNormal, lightDirection);
 }

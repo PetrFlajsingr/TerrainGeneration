@@ -18,9 +18,9 @@
     <models>
         <instancedModel filename="sphere.obj" name="sphere">
             <genPosStart x="-15" y="10" z="-15"/>
-            <genPosStep x="1" y="0" z="1"/>
+            <genPosStep x="3" y="0" z="3"/>
             <scale>1</scale>
-            <instanceCount>900</instanceCount>
+            <instanceCount>300</instanceCount>
         </instancedModel>
     </models>
     <models>
@@ -29,6 +29,14 @@
             <scale>3</scale>
             <rotation x="0" y="0" z="0"/>
         </model>
+    </models>
+    <models>
+    <instancedModel filename="sphere.obj" name="centerSphere">
+        <genPosStart x="-15" y="0" z="-15"/>
+        <genPosStep x="3" y="0" z="3"/>
+        <scale>1</scale>
+        <instanceCount>4</instanceCount>
+    </instancedModel>
     </models>
     <models>
         <model filename="wall.obj" name="wall">

@@ -4,6 +4,7 @@
 
 #ifndef TERRAINGENERATION_CASCADEDSHADOWMAP_H
 #define TERRAINGENERATION_CASCADEDSHADOWMAP_H
+
 #include "glm/gtc//type_ptr.hpp"
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
@@ -40,7 +41,7 @@ private:
   std::vector<float> cascadeSplitArray;
   glm::vec3 lightDir;
 
-  unsigned int size = 4096;
+  unsigned int size;
   unsigned int cascadeCount;
 
   GLuint depthMap;

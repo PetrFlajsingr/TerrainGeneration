@@ -105,7 +105,6 @@ void main_shadow_mapping(int argc, char *argv[]) {
   ShadowMap sm{lightProjection, {0.f, 5.0f, 0.0}, {0.0, 0, 0}, 4096, 4096};
 #else
   CascadedShadowMap cascadedShadowMap{4, 4096};
-  cascadedShadowMap.setLightPos({0, 10, 0});
   cascadedShadowMap.setLightDir({-0.5f, -0.5f, 0.1f});
 #endif
   DrawTexture drawTexture;

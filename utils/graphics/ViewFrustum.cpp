@@ -83,26 +83,26 @@ geo::ViewFrustum::FromProjectionView(const glm::mat4 &viewMatrix,
   return result;
 }
 
-geo::FrustumPosition
+geo::RelativePosition
 geo::ViewFrustum::contains(const geo::BoundingSphere<3> &bs) const {
   auto center = glm::vec4{bs.center, 1.0};
   auto dist01 = std::min(distanceToPlane(planes[0], center),
                          distanceToPlane(planes[1], center));
   if (dist01 <= 0)
-    return FrustumPosition::Outside;
+    return RelativePosition::Outside;
   auto dist23 = std::min(distanceToPlane(planes[2], center),
                          distanceToPlane(planes[3], center));
   if (dist23 <= 0)
-    return FrustumPosition::Outside;
+    return RelativePosition::Outside;
   auto dist45 = std::min(distanceToPlane(planes[4], center),
                          distanceToPlane(planes[5], center));
   if (dist45 > 0) {
-    return FrustumPosition::Inside;
+    return RelativePosition::Inside;
   }
-  return FrustumPosition::Intersection;
+  return RelativePosition::Intersection;
 }
 
-geo::FrustumPosition
+geo::RelativePosition
 geo::ViewFrustum::contains(const geo::BoundingBox<3> &aabb) const {
   static auto createPoint = [](auto &first, auto &second, auto &normal) {
     glm::vec3 result = first;
@@ -121,12 +121,12 @@ geo::ViewFrustum::contains(const geo::BoundingBox<3> &aabb) const {
     const auto normal = glm::vec3(planes[i]);
 
     if (glm::dot(normal, createPoint(aabb.p1, aabb.p2, normal)) + pos < 0.0f) {
-      return FrustumPosition::Outside;
+      return RelativePosition::Outside;
     }
 
     if (glm::dot(normal, createPoint(aabb.p2, aabb.p1, normal)) + pos < 0.0f) {
-      return FrustumPosition::Intersection;
+      return RelativePosition::Intersection;
     }
   }
-  return FrustumPosition::Inside;
+  return RelativePosition::Inside;
 }

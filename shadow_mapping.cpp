@@ -201,7 +201,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 #else
     ge::gl::glEnable(GL_CULL_FACE);
     auto renderFnc = [&modelRenderer, &cameraController](
-                         const std::shared_ptr<ge::gl::Program> &program) {
+                         const std::shared_ptr<ge::gl::Program> &program, const auto&) {
       modelRenderer.render(program, cameraController->getViewMatrix(), false);
     };
 

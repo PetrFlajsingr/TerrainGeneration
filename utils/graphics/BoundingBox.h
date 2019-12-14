@@ -5,6 +5,7 @@
 #ifndef UTILITIES_BOUNDINGBOX_H
 #define UTILITIES_BOUNDINGBOX_H
 
+#include "common.h"
 #include <glm/detail/type_vec3.hpp>
 #include <glm/glm.hpp>
 #include <ostream>
@@ -14,14 +15,20 @@ template <unsigned int Dimensions = 3> struct BoundingBox {
   using Point = std::conditional_t<Dimensions == 3, glm::vec3, glm::vec2>;
   Point p1, p2;
 
+  BoundingBox() = default;
+  BoundingBox(glm::vec3 p1, glm::vec3 p2) : p1(p1), p2(p2) {}
+
   bool operator==(const BoundingBox &rhs) const;
 
   bool operator!=(const BoundingBox &rhs) const;
 
-  template <unsigned int Dims>
-  friend std::ostream &operator<<(std::ostream &stream,
-                                  const BoundingBox<Dims> &aabb);
+  [[nodiscard]] RelativePosition contains(const BoundingBox<3> &aabb) const;
+
+
 };
+template <unsigned int Dims>
+std::ostream &operator<<(std::ostream &stream,
+                         const BoundingBox<Dims> &aabb);
 } // namespace geo
 
 #include "BoundingBox.tpp"

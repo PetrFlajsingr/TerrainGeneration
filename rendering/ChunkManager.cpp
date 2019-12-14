@@ -205,7 +205,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   for (auto &chunk : chunks) {
     if (renderData.viewFrustumCulling &&
         viewFrustum.contains(chunk->boundingBox) !=
-            geo::FrustumPosition::Outside) {
+            geo::RelativePosition::Outside) {
       if (chunk->boundingSphere.distance(cameraController->camera.Position) <
               renderData.viewDistance &&
           chunk->indexCount != 0) {
@@ -232,40 +232,6 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
                              glm::mat4 projection, glm::mat4 modelView,
                              glm::vec3 lightPos) {
-  static auto modelViewLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "modelView");
-  static auto projectionLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "projection");
-  static auto lightColorLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "lightColor");
-  static auto lightPosLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "lightPos");
-  static auto lightPowerLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "lightPower");
-  static auto ambientColorLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "ambientColor");
-  static auto diffuseColorLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "diffuseColor");
-  static auto specColorLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "specColor");
-  static auto shininessLoc =
-      ge::gl::glGetUniformLocation(bpDrawProgram, "shininess");
-  static auto colorLoc = ge::gl::glGetUniformLocation(bpDrawProgram, "color");
-  /*ge::gl::glUseProgram(bpDrawProgram);
-  glm::vec3 white{1, 1, 1};
-
-  ge::gl::glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, &modelView[0][0]);
-  ge::gl::glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
-
-  ge::gl::glUniform3fv(lightColorLoc, 1, &light.color[0]);
-
-  ge::gl::glUniform3fv(lightPosLoc, 1, &light.position[0]);
-  ge::gl::glUniform1f(lightPowerLoc, light.power);
-  ge::gl::glUniform3fv(ambientColorLoc, 1, &light.ambientColor[0]);
-  ge::gl::glUniform3fv(diffuseColorLoc, 1, &light.diffuseColor[0]);
-  ge::gl::glUniform3fv(specColorLoc, 1, &light.specColor[0]);
-  ge::gl::glUniform1f(shininessLoc, material.shininess);
-  ge::gl::glUniform4fv(colorLoc, 1, &material.color[0]);*/
   if (render) {
     smProgram->use();
     auto camPos = cameraController->getPosition();
@@ -466,4 +432,21 @@ void ChunkManager::generateChunks() {
   streamIdxVert(ptrs, query);
   ge::gl::glDisable(GL_RASTERIZER_DISCARD);
 }
-
+void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
+  std::vector<Chunk *> visibleChunks;
+  for (auto &chunk : chunks) {
+    if (aabb.contains(chunk->boundingBox) !=
+            geo::RelativePosition::Outside) {
+      if (chunk->boundingSphere.distance(cameraController->camera.Position) <
+          renderData.viewDistance &&
+          chunk->indexCount != 0) {
+        visibleChunks.emplace_back(chunk);
+      }
+    }
+  }
+  for (auto &chunk : visibleChunks) {
+    chunk->getVA()->bind();
+    ge::gl::glDrawElements(GL_TRIANGLES, chunk->indexCount, GL_UNSIGNED_INT,
+                           nullptr);
+  }
+}

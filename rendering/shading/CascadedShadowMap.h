@@ -11,6 +11,7 @@
 #include <geGL_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <graphics/BoundingBox.h>
 #include <meta/meta.h>
 #include <utils/types/Range.h>
 
@@ -38,6 +39,7 @@ private:
   std::vector<glm::mat4> lightViewMatrix;
   std::vector<glm::mat4> lightOrthoMatrix;
   std::vector<glm::mat4> cascadedMatrices;
+  std::vector<geo::BoundingBox<3>> bbs;
   std::vector<float> cascadeSplitArray;
   glm::vec3 lightDir;
 
@@ -86,7 +88,7 @@ void CascadedShadowMap::renderShadowMap(F renderFunction,
     const auto lightViewProjection = lightOrthoMatrix[i] * lightViewMatrix[i];
     program->setMatrix4fv("lightViewProjectionMatrix",
                           glm::value_ptr(lightViewProjection));
-    renderFunction(program);
+    renderFunction(program, bbs[i]);
   }
   ge::gl::glDisable(GL_DEPTH_CLAMP);
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, 0);

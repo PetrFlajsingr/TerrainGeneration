@@ -7,6 +7,7 @@
 
 #include "Chunk.h"
 #include "graphics/Geometry.h"
+#include "graphics/BoundingBox.h"
 #include "io/print.h"
 #include "ui/elements/CameraController.h"
 #include "various/loc_assert.h"
@@ -65,6 +66,8 @@ public:
   void generateChunks();
 
   void draw(DrawMode mode, DrawOptions = {false, false});
+
+  void drawToShadowMap(const geo::BoundingBox<3> &aabb);
 
 private:
   JsonConfig<true> config;

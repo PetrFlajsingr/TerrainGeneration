@@ -136,14 +136,10 @@ void main_marching_cubes(int argc, char *argv[]) {
     chunks.render = false;
     auto projection =
         glm::perspective(60.f, 1920.f / 1080, 0.1f, 500.0f);
-    auto renderFnc = [&ui, &drawMode, &chunks, &modelRenderer, &config] (const auto &program) {
+    auto renderFnc = [&ui, &chunks, &modelRenderer] (const auto &program, const auto &aabb) {
       glm::mat4 model{1.f};
       program->setMatrix4fv("model", &model[0][0]);
-      chunks.draw(
-          drawMode,
-          {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
-           config.get<bool>("debug", "drawNormals").value(),
-           config.get<uint>("debug", "drawChunkBorder", "step").value()});
+      chunks.drawToShadowMap(aabb);
       modelRenderer.render(program, ui.cameraController->getViewMatrix(),
                            false);
     };

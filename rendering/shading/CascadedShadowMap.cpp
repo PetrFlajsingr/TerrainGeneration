@@ -17,6 +17,7 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
   lightOrthoMatrix.resize(cascadeCount);
   cascadedMatrices.resize(cascadeCount);
   cascadeSplitArray.resize(cascadeCount);
+  bbs.resize(cascadeCount);
 
   ge::gl::glGenFramebuffers(1, &depthMapFBO);
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -160,6 +161,8 @@ void CascadedShadowMap::calculateOrthoMatrices(
     lightOrthoMatrix[cascadeIterator] =
         glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f,
                    cascadeExtents.z);
+
+    bbs[cascadeIterator] = geo::BoundingBox{minExtents, maxExtents};
 
     // The rounding matrix that ensures that shadow edges do not shimmer
     glm::mat4 shadowMatrix =

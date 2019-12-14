@@ -6,7 +6,6 @@
 #define UTILITIES_JSONCONFIG_H
 
 #include "Config.h"
-#include "io/print.h"
 #include "types/Range.h"
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -19,7 +18,7 @@ std::optional<nlohmann::json::iterator> findJsonNode(nlohmann::json &container,
                                                      const Keys &... keys) {
   std::vector<std::string> tmpKeys{keys...};
   nlohmann::json::iterator iter;
-  for (unsigned int i : until(0, tmpKeys.size())) {
+  for (unsigned int i : range(0, tmpKeys.size())) {
     if (i == 0) {
       if (iter = container.find(tmpKeys[i]); iter == container.end()) {
         return std::nullopt;
@@ -39,7 +38,7 @@ void setJsonNode(nlohmann::json &container, const T &value,
                  const Keys &... keys) {
   std::vector<std::string> tmpKeys{keys...};
   auto tmp = container;
-  for (unsigned int i : until(0, tmpKeys.size() - 1)) {
+  for (unsigned int i : range(0, tmpKeys.size() - 1)) {
     if (!tmp.contains(tmpKeys[i])) {
       tmp[tmpKeys[i]] = nlohmann::json::object();
     }

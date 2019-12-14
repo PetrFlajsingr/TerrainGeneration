@@ -113,7 +113,7 @@ void main_marching_cubes(int argc, char *argv[]) {
       "shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
   CascadedShadowMap cascadedShadowMap{4, 4096};
-  cascadedShadowMap.setLightDir({0.1, -0.5, 0});
+  cascadedShadowMap.setLightDir({0.5, -0.5, 0});
 
   chunks.smProgram = renderProgram;
 

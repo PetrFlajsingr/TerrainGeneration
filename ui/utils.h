@@ -6,7 +6,6 @@
 #define TERRAINGENERATION_UTILS_H
 
 #include <SDL_rect.h>
-#include <experimental/array>
 #include <glm/vec3.hpp>
 
 std::array<glm::vec3, 4> sdlRectToGLCoordinates(const SDL_Rect &rect,

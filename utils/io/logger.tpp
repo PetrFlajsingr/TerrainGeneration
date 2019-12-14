@@ -72,7 +72,7 @@ void Logger<OutStream>::print(const T &value, unsigned int indentLevel) const {
     }
     print(indent(indentLevel));
     print("},\n");
-  } else if constexpr (is_vec_specialisation_v<T>) {
+  } else if constexpr (is_vec_specialisation_v<std::decay_t<T>>) {
     print(indent(indentLevel));
     print("glm::vec" + std::to_string(value.length()) + ":");
     print(" {");

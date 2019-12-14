@@ -1,41 +1,41 @@
 {
-  "gl" : {
-    "depthTest" : true,
-    "msaa" : false,
-    "backfaceCulling" : true,
-    "shadingModel" : "blinn"
+  "gl": {
+    "depthTest": true,
+    "msaa": false,
+    "backfaceCulling": true,
+    "shadingModel": "blinn"
   },
-  "paths" : {
-    "shaderLocation" : "/home/petr/CLionProjects/TerrainGeneration/rendering/shaders",
-    "assetsLocation" : "/home/petr/CLionProjects/TerrainGeneration/assets"
+  "paths": {
+    "shaderLocation": "/home/petr/CLionProjects/TerrainGeneration/rendering/shaders",
+    "assetsLocation": "/home/petr/CLionProjects/TerrainGeneration/assets"
   },
-  "debug" : {
-    "drawMesh" : true,
+  "debug": {
+    "drawMesh": true,
     "drawNormals": false,
-    "drawChunkBorder" : {
-      "enabled" : false,
-      "step" : 32
+    "drawChunkBorder": {
+      "enabled": false,
+      "step": 32
     }
   },
-  "render" : {
+  "render": {
     "viewDistance": 10000,
-    "levelOfDetail" : 0,
-    "viewFrustumCulling" : true,
-    "shadows" : {
-      "enabled" : true
+    "levelOfDetail": 0,
+    "viewFrustumCulling": true,
+    "shadows": {
+      "enabled": true
     }
   },
-  "marching_cubes" : {
+  "marching_cubes": {
     "chunkSize": 10,
     "surroundingSize": 50,
     "chunkPoolSize": 1024,
     "aggressiveChunkUnloading": false,
     "computeBatchSize": 100
   },
-  "device" : {
-    "screen" : {
-      "width" : 1920,
-      "height" : 1080
+  "device": {
+    "screen": {
+      "width": 1920,
+      "height": 1080
     }
   }
 }

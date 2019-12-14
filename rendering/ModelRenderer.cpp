@@ -4,7 +4,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include "ModelRenderer.h"
-
+#include "SceneLoader.h"
 
 
 const std::shared_ptr<ge::gl::VertexArray> &
@@ -52,6 +52,28 @@ GraphicsModelBase & GraphicsModelBase::setDrawn(bool drawn) {
 }
 GraphicsModelBase &GraphicsModelBase::setScale(float scale) {
   setScale(scale, scale, scale);
+  return *this;
+}
+GraphicsModelBase::GraphicsModelBase(const GraphicsModelBase &other) {
+  id = other.id;
+  type = other.type;
+  scale = other.scale;
+  position = other.position;
+  rotation = other.rotation;
+  updateModelMatrix = true;
+}
+GraphicsModelBase &
+GraphicsModelBase::operator=(const GraphicsModelBase &other) {
+  id = other.id;
+  type = other.type;
+  scale = other.scale;
+  position = other.position;
+  rotation = other.rotation;
+  updateModelMatrix = true;
+  return *this;
+}
+void GraphicsModelBase::setId(const GraphicsModelBase::Id &id) {
+  GraphicsModelBase::id = id;
 }
 
 ObjModelLoader::ObjModelLoader(std::string assetsPath)
@@ -68,11 +90,12 @@ void ModelRenderer::render(const std::shared_ptr<ge::gl::Program> &program,
     if (!model->isDrawn()) {
       continue;
     }
+    const auto modelMatrix = model->modelMatrix.getRef();
     if (wa) {
-      program->setMatrix4fv("model", &model->modelMatrix.getRef()[0][0]);
+      program->setMatrix4fv("model", &modelMatrix[0][0]);
       program->setMatrix4fv("view", &view[0][0]);
     } else {
-      program->setMatrix4fv("model", &model->modelMatrix.getRef()[0][0]);
+      program->setMatrix4fv("model", &modelMatrix[0][0]);
     }
     model->getVertexArray()->bind();
     ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(),
@@ -97,4 +120,15 @@ void ModelRenderer::plainRender() {
     ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(),
                            GL_UNSIGNED_INT, nullptr);
   }
+}
+void ModelRenderer::loadScene(SceneLoader &&sceneLoader) {
+  for (const auto& models : sceneLoader) {
+    for (auto &model : models) {
+      addModel(model);
+    }
+  }
+}
+const std::vector<std::shared_ptr<GraphicsModelBase>> &
+ModelRenderer::getModels() const {
+  return models;
 }

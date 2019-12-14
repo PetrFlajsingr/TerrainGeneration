@@ -2,7 +2,7 @@
 // Created by petr on 11/30/19.
 //
 
-#define OLD_SM
+#define OLD_SM0
 
 #include "shadow_mapping.h"
 #include "rendering/Data.h"
@@ -22,60 +22,13 @@
 #include <String.h>
 #include <config/JsonConfig.h>
 #include <gl_utils.h>
+#include <rendering/Data.h>
 #include <rendering/ModelRenderer.h>
+#include <rendering/SceneLoader.h>
 
 using Conf = JsonConfig<true>;
 
-std::vector<GraphicsModelBase *> spheres;
-std::vector<GraphicsModelBase *> cubes;
-GraphicsModelBase *bigSphere;
-void prepModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
-  ObjModelLoader modelLoader{assetPath + "/models"};
-  modelRenderer.addModel(modelLoader.loadModel("cube", "cube1"))
-      .setPosition({0, 2, 0})
-      .setDrawn(true)
-      .setScale({0.1, 0.1, 0.1});
-  modelRenderer.addModel(modelLoader.loadModel("cube", "cube2"))
-      .setPosition({5, 3, 5})
-      .setDrawn(true)
-      .setScale({0.5, 0.5, 0.5});
 
-  for (auto x : range(-15, 15, 3)) {
-    for (auto y : range(-15, 15, 3)) {
-      cubes.emplace_back(
-          &modelRenderer
-          .addModel(modelLoader.loadModel("cube", "cube" + std::to_string(x) +
-                                                      std::to_string(y)))
-          .setPosition({static_cast<float>(x), 3, static_cast<float>(y)}));
-    }
-  }
-  for (auto x : range(-15, 15, 1)) {
-    for (auto y : range(-15, 15, 1)) {
-      spheres.emplace_back(
-          &modelRenderer
-               .addModel(modelLoader.loadModel(
-                   "sphere", "sphere" + std::to_string(x) + std::to_string(y)))
-               .setPosition({static_cast<float>(x), 20, static_cast<float>(y)})
-               .setScale(0.5));
-    }
-  }
-
-  bigSphere = &modelRenderer.addModel(modelLoader.loadModel("sphere", "b"))
-                   .setScale(3, 3, 3)
-                   .setPosition(0, 10, 0);
-
-  modelRenderer.addModel(modelLoader.loadModel("floor", "floor1"))
-      .setPosition({0, -5, 0});
-  modelRenderer.addModel(modelLoader.loadModel("wall", "wall1"))
-      .setPosition({-5, -5.1, 0});
-
-  modelRenderer.addModel(modelLoader.loadModel("wall", "wall2"))
-      .setPosition({-5, -5.1, 0})
-      .setScale({5, 5, 20});
-
-  modelRenderer.addModel(modelLoader.loadModel("sphere", "light"))
-      .setDrawn(false);
-}
 
 void main_shadow_mapping(int argc, char *argv[]) {
   using namespace sdl2cpp::ui;
@@ -94,6 +47,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   ge::gl::init(SDL_GL_GetProcAddress);
   ge::gl::setHighDebugMessage();
 
+
   ge::gl::glClearColor(0, 0, 0, 1);
 
   setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
@@ -102,14 +56,23 @@ void main_shadow_mapping(int argc, char *argv[]) {
       config.get<std::string>("paths", "assetsLocation").value();
 
   ModelRenderer modelRenderer;
-  prepModels(modelRenderer, assetPath);
+
+  modelRenderer.loadScene(SceneLoader{assetPath, "scene1"});
+  std::vector<GraphicsModelBase *> spheres;
+  std::vector<GraphicsModelBase *> cubes;
+  GraphicsModelBase *bigSphere = modelRenderer.modelById("bigSphere")->get();
+  {
+    ObjModelLoader modelLoader(assetPath + "/models");
+    modelRenderer.addModel(modelLoader.loadModel("sphere", "light"))
+        .setDrawn(false);
+  }
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
   auto cameraController =
       uiManager.createGUIObject<sdl2cpp::ui::CameraController>(
           glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
-  bool showFrameBuffer = false;
+  int showFrameBuffer = 0;
   auto btn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 0, 1}, glm::vec3{300, 100, 0});
   btn->text.setText(L"show/hide light sphere"_sw);
@@ -124,9 +87,11 @@ void main_shadow_mapping(int argc, char *argv[]) {
   auto btn2 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 110, 1}, glm::vec3{300, 100, 0});
 
-  btn2->setMouseClicked(
-      [&showFrameBuffer](sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton,
-                         SDL_Point) { showFrameBuffer = !showFrameBuffer; });
+  btn2->setMouseClicked([&showFrameBuffer](sdl2cpp::ui::EventInfo,
+                                           sdl2cpp::ui::MouseButton,
+                                           SDL_Point) {
+    showFrameBuffer = (showFrameBuffer + 1) % 4;
+  });
   btn2->text.setText(L"show/hide depth texture"_sw);
   btn2->text.setFont("arialbd", 10);
 
@@ -136,9 +101,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 #ifdef OLD_SM
   const float near_plane = .1f;
   const float far_plane = 70.5f;
-  const glm::mat4
-      lightProjection = // glm::perspective(glm::radians(140.f),
-                        //(float)1024 / (float)1024, near_plane, far_plane);
+  const glm::mat4 lightProjection =
       glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
 
   ShadowMap sm{lightProjection, {0.f, 5.0f, 0.0}, {0.0, 0, 0}, 4096, 4096};
@@ -178,8 +141,9 @@ void main_shadow_mapping(int argc, char *argv[]) {
         model->setPosition(sm.getLightPos());
       });
 #else
-  CascadedShadowMap cascadedShadowMap{3, 4096, 4096};
-  cascadedShadowMap.setTarget({0, 0, 0});
+  CascadedShadowMap cascadedShadowMap{4, 4096};
+  cascadedShadowMap.setLightPos({0, 10, 0});
+  cascadedShadowMap.setLightDir({-0.1f, -0.5f, 0.0f});
   btn4->setMouseDown([&down] { down = true; })
       .setMouseUp([&down] { down = false; })
       .setMouseMove([&down, &cascadedShadowMap, &modelRenderer](
@@ -217,17 +181,42 @@ void main_shadow_mapping(int argc, char *argv[]) {
       });
 #endif
   DrawTexture drawTexture;
-  const auto near = 0.1f;
-  const auto far = 500.0f;
+  const auto near = 1.f;
+  const auto far = 750.0f;
   const auto aspectRatio = 1920.f / 1080;
-  const auto fieldOfView = 60.0f;
+  const auto fieldOfView = 45.0f;
   auto projection =
-      glm::perspective(glm::radians(fieldOfView), aspectRatio, near, far);
+      glm::perspective(fieldOfView, aspectRatio, near, far);
   auto renderProgram = std::make_shared<ge::gl::Program>(
-      "shadow_map/render"_vert, "shadow_map/render"_frag);
+      "shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
   bool shrink = true;
 
+  int cnt = 0;
+  while (true) {
+    auto model = modelRenderer.modelById("sphere" + std::to_string(cnt));
+    if (!model.has_value()) {
+      break;
+    }
+    spheres.emplace_back(model.value().get());
+    ++cnt;
+  }
+
+  cnt = 0;
+  while (true) {
+    auto model = modelRenderer.modelById("cube" + std::to_string(cnt));
+    if (!model.has_value()) {
+      break;
+    }
+    cubes.emplace_back(model.value().get());
+    ++cnt;
+  }
+
+  for (auto &model : modelRenderer.getModels()) {
+    model->setPosition(model->getPosition() - glm::vec3{0, 50, 0});
+  }
+
+  cameraController->camera.Position = {0, 25, 25};
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ge::gl::glEnable(GL_DEPTH_TEST);
@@ -243,7 +232,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
         auto oldPos = sphere->getPosition();
         sphere->setPosition(oldPos.x * 0.95f, oldPos.y, oldPos.z * 0.95f);
       }
-      if (spheres[0]->getPosition().x > -0.1) {
+      if (!spheres.empty() && spheres[0]->getPosition().x > -0.1) {
         shrink = false;
       }
       bigSphere->setPosition(pos.x + 0.2f, pos.y, pos.z);
@@ -252,7 +241,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
         auto oldPos = sphere->getPosition();
         sphere->setPosition(oldPos.x * 1.05f, oldPos.y, oldPos.z * 1.05f);
       }
-      if (spheres[0]->getPosition().x < -50) {
+      if (!spheres.empty() && spheres[0]->getPosition().x < -50) {
         shrink = true;
       }
       bigSphere->setPosition(pos.x - 0.2f, pos.y, pos.z);
@@ -266,8 +255,9 @@ void main_shadow_mapping(int argc, char *argv[]) {
                          false);
     ge::gl::glCullFace(GL_BACK);
     sm.end();
+    ge::gl::glDisable(GL_CULL_FACE);
 
-    if (showFrameBuffer) {
+    if (showFrameBuffer % 2 == 0) {
       drawTexture.draw(sm.getDepthMap().getId());
     } else {
       renderProgram->use();
@@ -282,30 +272,39 @@ void main_shadow_mapping(int argc, char *argv[]) {
       renderProgram->setMatrix4fv("projection", &projection[0][0]);
       renderProgram->setMatrix4fv("lightSpaceMatrix",
                                   &sm.getLightSpaceMatrix()[0][0]);
+
       modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
                            true);
     }
 #else
-    auto renderFnc = [&modelRenderer, &cameraController] (const std::shared_ptr<ge::gl::Program> &program) {
-      modelRenderer.render(program, cameraController->getViewMatrix(),
-                           false);
+    ge::gl::glEnable(GL_CULL_FACE);
+    auto renderFnc = [&modelRenderer, &cameraController](
+                         const std::shared_ptr<ge::gl::Program> &program) {
+      modelRenderer.render(program, cameraController->getViewMatrix(), false);
     };
 
-    cascadedShadowMap.renderShadowMap(renderFnc,
+    cascadedShadowMap.renderShadowMap(renderFnc, projection,
                                       cameraController->getViewMatrix(), near,
                                       far, aspectRatio, fieldOfView);
 
-    if (showFrameBuffer) {
-      drawTexture.draw(cascadedShadowMap.getDepthMaps()[0]->getId());
-    } else {
-      ge::gl::glUniform1i(
-          ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"), 0);
+    ge::gl::glCullFace(GL_BACK);
 
-      renderProgram->set3fv("lightPos", &cascadedShadowMap.getLightPos()[0]);
-      renderProgram->set3fv("viewPos", &cameraController->getPosition()[0]);
-      renderProgram->setMatrix4fv("projection", &projection[0][0]);
-      renderProgram->setMatrix4fv("lightSpaceMatrix",
-                                  &cascadedShadowMap.lightSpaceMatrix(0)[0][0]);
+    if (showFrameBuffer != 0) {
+      //drawTexture.draw(cascadedShadowMap.getDepthMaps()[showFrameBuffer - 1]->getId());
+      drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
+    } else {
+      renderProgram->use();
+      cascadedShadowMap.bindRender(renderProgram);
+
+      renderProgram->setMatrix4fv(
+          "inverseViewMatrix",
+          glm::value_ptr(glm::inverse(cameraController->getViewMatrix())));
+
+      //renderProgram->set1f("screenWidth", deviceData.screen.width);
+      //renderProgram->set1f("screenHeight", deviceData.screen.height);
+      renderProgram->set3fv("lightDir", glm::value_ptr(cascadedShadowMap.getLightDir()));
+      renderProgram->setMatrix4fv("projection", glm::value_ptr(projection));
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
       modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
                            true);
     }

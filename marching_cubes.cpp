@@ -54,9 +54,9 @@ void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
   modelRenderer.addModel(modelLoader.loadModel("sphere", "sphere2"));
   modelRenderer.modelById("sphere2")
       .value()
-      ->setPosition({500, 450, 500})
+      ->setPosition({0, 0, 0})
       .setScale({1, 1, 1});
-  sphereModel->setPosition({500, 500, 500}).setScale({5, 5, 5});
+  sphereModel->setPosition({10, 10, 10}).setScale({5, 5, 5});
 }
 
 void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
@@ -164,25 +164,6 @@ void main_marching_cubes(int argc, char *argv[]) {
   (*mainLoop)();
 }
 
-Tmp::Tmp() {
-  float quadVertices[] = {
-      // positions        // texture Coords
-      -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-      1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
-  };
-  ge::gl::glGenVertexArrays(1, &quadVAO);
-  ge::gl::glGenBuffers(1, &quadVBO);
-  ge::gl::glBindVertexArray(quadVAO);
-  ge::gl::glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-  ge::gl::glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices,
-                       GL_STATIC_DRAW);
-  ge::gl::glEnableVertexAttribArray(0);
-  ge::gl::glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                                (void *)0);
-  ge::gl::glEnableVertexAttribArray(1);
-  ge::gl::glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                                (void *)(3 * sizeof(float)));
-}
 
 SM::SM() {
   ge::gl::glGenTextures(1, &depthMap);

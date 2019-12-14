@@ -35,6 +35,13 @@ public:
   ;
 };
 
+class SerialisationException : public Exception {
+public:
+  explicit SerialisationException(std::string_view msg,
+  std::experimental::source_location srcLoc =
+      std::experimental::source_location::current());
+};
+
 class ProgrammingError : public Error {
 public:
   explicit ProgrammingError(std::string_view msg,

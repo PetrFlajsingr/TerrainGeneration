@@ -11,7 +11,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 using namespace ShaderLiterals;
 
-// TODO: cascades
 class ShadowMap {
 public:
 

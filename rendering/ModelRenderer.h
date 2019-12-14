@@ -30,10 +30,13 @@ public:
   enum Type { UniformColor, Texture, ProceduralTexture };
 
   GraphicsModelBase(Id id, Type type) : id(std::move(id)), type(type) {}
-  ~GraphicsModelBase() = default;
+  virtual ~GraphicsModelBase() = default;
+  GraphicsModelBase(const GraphicsModelBase &other);
+  GraphicsModelBase &operator=(const GraphicsModelBase &other);
 
   [[nodiscard]] const std::shared_ptr<ge::gl::VertexArray> &
   getVertexArray() const;
+  void setId(const Id &id);
   [[nodiscard]] const Id &getId() const;
   [[nodiscard]] Type getType() const;
 
@@ -66,7 +69,7 @@ public:
         ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y),glm::vec3(0,1,0));
         ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z),glm::vec3(0,0,1));
         ModelMatrix = glm::scale(ModelMatrix, scale);
-        //ModelMatrix = glm::rotate(ModelMatrix, rotAngle, Rotation);
+
         return ModelMatrix;
       }};
 
@@ -92,6 +95,8 @@ class GraphicsModel : public GraphicsModelBase {
 
 public:
   GraphicsModel(const Id &id, Type type);
+  GraphicsModel(const GraphicsModel &other);
+  GraphicsModel &operator=(const GraphicsModel &other);
 
   std::shared_ptr<ge::gl::Buffer> getVertexBuffer() override;
   std::shared_ptr<ge::gl::Buffer> getNormalBuffer() override;
@@ -114,59 +119,13 @@ public:
   explicit ObjModelLoader(std::string assetsPath);
 
   template <typename BufferType = ge::gl::Buffer>
-  std::shared_ptr<GraphicsModelBase> loadModel(const std::string &name,
-                                               const std::string &id) {
-    using namespace MakeRange;
-    const auto path = assetsPath + '/' + name + ".obj";
-    auto result = std::make_shared<GraphicsModel<BufferType>>(
-        id, GraphicsModelBase::Type::UniformColor);
-
-    tinyobj::attrib_t attribs;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    if (!tinyobj::LoadObj(&attribs, &shapes, &materials, nullptr, nullptr,
-                          path.c_str())) {
-      throw exc::Exception("Obj file could not be loaded: " + path);
-    }
-    std::vector<uint> indices;
-    std::vector<glm::vec4> vertices;
-    std::vector<glm::vec3> normals;
-    std::vector<int> faceCountsForNormals;
-
-    for (auto i : range(0, attribs.vertices.size(), 3)) {
-      vertices.emplace_back(attribs.vertices[i], attribs.vertices[i + 1],
-                            attribs.vertices[i + 2], 1);
-    }
-    normals.resize(vertices.size(), glm::vec3{0, 0, 0});
-    faceCountsForNormals.resize(vertices.size(), 0);
-    for (auto index : shapes[0].mesh.indices) {
-      indices.emplace_back(index.vertex_index);
-      normals[index.vertex_index] +=
-          glm::vec3{attribs.normals[index.normal_index * 3],
-                    attribs.normals[index.normal_index * 3 + 1],
-                    attribs.normals[index.normal_index * 3 + 2]};
-      faceCountsForNormals[index.vertex_index]++;
-    }
-    for (auto i : range(normals.size())) {
-      normals[i] = normals[i] / static_cast<float>(faceCountsForNormals[i]);
-    }
-
-    result->elementBuffer = createBuffer(indices);
-    result->vertexBuffer = createBuffer(vertices);
-    result->normalBuffer = createBuffer(normals);
-    result->vertexArray = std::make_shared<ge::gl::VertexArray>();
-    result->vertexArray->addAttrib(result->vertexBuffer, 0, 4, GL_FLOAT,
-                                   sizeof(float) * 4, 0, GL_FALSE);
-    result->vertexArray->addAttrib(result->normalBuffer, 1, 3, GL_FLOAT,
-                                   sizeof(float) * 3, 0, GL_FALSE);
-    result->vertexArray->addElementBuffer(result->elementBuffer);
-
-    return result;
-  }
+  std::shared_ptr<GraphicsModelBase> loadModel(std::string name,
+                                               const std::string &id);
 
 private:
   std::string assetsPath;
 };
+
 template <typename BufferType>
 std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getVertexBuffer() {
   return vertexBuffer;
@@ -183,13 +142,36 @@ template <typename BufferType>
 GraphicsModel<BufferType>::GraphicsModel(const GraphicsModelBase::Id &id,
                                          GraphicsModelBase::Type type)
     : GraphicsModelBase(id, type) {}
+template <typename BufferType>
+GraphicsModel<BufferType>::GraphicsModel(const GraphicsModel &other)
+    : GraphicsModelBase(other) {
+  vertexBuffer = other.vertexBuffer;
+  normalBuffer = other.normalBuffer;
+  elementBuffer = other.elementBuffer;
+  vertexArray = other.vertexArray;
+}
+template <typename BufferType>
+GraphicsModel<BufferType> &
+GraphicsModel<BufferType>::operator=(const GraphicsModel &other) {
+  GraphicsModelBase::operator=(other);
+  vertexBuffer = other.vertexBuffer;
+  normalBuffer = other.normalBuffer;
+  elementBuffer = other.elementBuffer;
+  vertexArray = other.vertexArray;
+  return *this;
+}
 
+class SceneLoader;
 class ModelRenderer {
 public:
   GraphicsModelBase &addModel(std::shared_ptr<GraphicsModelBase> model);
 
+  void loadScene(SceneLoader &&sceneLoader);
+
   std::optional<std::shared_ptr<GraphicsModelBase>>
   modelById(const GraphicsModelBase::Id &id);
+
+  const std::vector<std::shared_ptr<GraphicsModelBase>> &getModels() const;
 
   void render(const std::shared_ptr<ge::gl::Program> &program, glm::mat4 view,
               bool wa);
@@ -199,5 +181,60 @@ public:
 private:
   std::vector<std::shared_ptr<GraphicsModelBase>> models;
 };
+
+
+template <typename BufferType>
+std::shared_ptr<GraphicsModelBase>
+ObjModelLoader::loadModel(std::string name, const std::string &id) {
+  if (name.substr(name.size() - 4) == ".obj") {
+    name = name.substr(0, name.size() - 4);
+  }
+  using namespace MakeRange;
+  const auto path = assetsPath + '/' + name + ".obj";
+  auto result = std::make_shared<GraphicsModel<BufferType>>(
+      id, GraphicsModelBase::Type::UniformColor);
+
+  tinyobj::attrib_t attribs;
+  std::vector<tinyobj::shape_t> shapes;
+  std::vector<tinyobj::material_t> materials;
+  if (!tinyobj::LoadObj(&attribs, &shapes, &materials, nullptr, nullptr,
+                        path.c_str())) {
+    throw exc::Exception("Obj file could not be loaded: " + path);
+  }
+  std::vector<uint> indices;
+  std::vector<glm::vec4> vertices;
+  std::vector<glm::vec3> normals;
+  std::vector<int> faceCountsForNormals;
+
+  for (auto i : range(0, attribs.vertices.size(), 3)) {
+    vertices.emplace_back(attribs.vertices[i], attribs.vertices[i + 1],
+                          attribs.vertices[i + 2], 1);
+  }
+  normals.resize(vertices.size(), glm::vec3{0, 0, 0});
+  faceCountsForNormals.resize(vertices.size(), 0);
+  for (auto index : shapes[0].mesh.indices) {
+    indices.emplace_back(index.vertex_index);
+    normals[index.vertex_index] +=
+        glm::vec3{attribs.normals[index.normal_index * 3],
+                  attribs.normals[index.normal_index * 3 + 1],
+                  attribs.normals[index.normal_index * 3 + 2]};
+    faceCountsForNormals[index.vertex_index]++;
+  }
+  for (auto i : range(normals.size())) {
+    normals[i] = normals[i] / static_cast<float>(faceCountsForNormals[i]);
+  }
+
+  result->elementBuffer = createBuffer(indices);
+  result->vertexBuffer = createBuffer(vertices);
+  result->normalBuffer = createBuffer(normals);
+  result->vertexArray = std::make_shared<ge::gl::VertexArray>();
+  result->vertexArray->addAttrib(result->vertexBuffer, 0, 4, GL_FLOAT,
+                                 sizeof(float) * 4, 0, GL_FALSE);
+  result->vertexArray->addAttrib(result->normalBuffer, 1, 3, GL_FLOAT,
+                                 sizeof(float) * 3, 0, GL_FALSE);
+  result->vertexArray->addElementBuffer(result->elementBuffer);
+
+  return result;
+}
 
 #endif // TERRAINGENERATION_MODELRENDERER_H

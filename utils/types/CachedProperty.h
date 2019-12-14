@@ -1,5 +1,3 @@
-#include <utility>
-
 //
 // Created by Petr on 18.11.2019.
 //
@@ -8,6 +6,7 @@
 #define UTILITIES_CACHEDPROPERTY_H
 
 #include <functional>
+#include <utility>
 
 template<typename T, bool LazyInit = true>
 class CachedProperty {

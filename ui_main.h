@@ -17,7 +17,7 @@
 #include <String.h>
 #include <config/JsonConfig.h>
 #include <gl_utils.h>
-#include <rendering/ModelRenderer.h>
+#include <rendering/models/ModelRenderer.h>
 
 using Conf = JsonConfig<true>;
 

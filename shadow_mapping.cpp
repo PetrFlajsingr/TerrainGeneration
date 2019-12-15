@@ -23,8 +23,8 @@
 #include <config/JsonConfig.h>
 #include <gl_utils.h>
 #include <rendering/Data.h>
-#include <rendering/ModelRenderer.h>
-#include <rendering/SceneLoader.h>
+#include <rendering/models/ModelRenderer.h>
+#include <rendering/models/SceneLoader.h>
 
 using Conf = JsonConfig<true>;
 

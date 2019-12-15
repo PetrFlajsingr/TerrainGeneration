@@ -5,11 +5,11 @@
 #ifndef TERRAINGENERATION_SCENELOADER_H
 #define TERRAINGENERATION_SCENELOADER_H
 
-#include "ModelRenderer.h"
-#include <string>
+#include "rendering/models/ModelRenderer.h"
 #include <memory>
-#include <vector>
+#include <string>
 #include <tinyxml2.h>
+#include <vector>
 
 class SceneLoader {
 public:

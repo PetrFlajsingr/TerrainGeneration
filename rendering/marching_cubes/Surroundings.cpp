@@ -4,12 +4,15 @@
 
 #include "Surroundings.h"
 #include "io/print.h"
+#include "utils/types/Zip.h"
 #include <fplus/fplus.hpp>
 
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size,
-                           uint chunkPoolSize, float step)
+                           unsigned int chunkPoolSize, float step)
     : loadDistance(loadDistance), size(size), step(step) {
-  map.resize(size.x * size.y * size.z);
+  for (auto &map : maps) {
+    map.tiles.resize(size.x * size.y * size.z);
+  }
   chunkPool = fplus::generate<std::vector<Chunk>>(
       [step]() {
         return Chunk{{-30, -30, -30}, step, 32};
@@ -17,81 +20,91 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size,
       chunkPoolSize);
 
   const auto halfDist = 16.f * glm::vec3{step};
-  for (uint i = 0; i < map.size(); ++i) {
-    uint x = i % size.x;
-    uint y = i / size.x % size.y;
-    uint z = i / (size.x * size.y) % size.z;
-    const auto start = glm::vec3{x, y, z} * step * 30.f;
-    const auto center = start + halfDist;
-    map[i] = {ChunkIn::NotLoaded, nullptr, start, center};
+
+  using namespace MakeRange;
+  const auto areaSize = step * 30.f;
+  for (auto [index, coords] :
+       zip(range(27), range<float, 3>({-1, -1, -1}, {2, 2, 2}, {1, 1, 1}))) {
+    const auto [x, y, z] = coords;
+    const auto startPos = glm::vec3{x, y, z} * areaSize;
+    maps[index].init(startPos,
+                     startPos + halfDist, size, step);
   }
   for (auto &chunk : chunkPool) {
     available.emplace_back(&chunk);
   }
 }
 std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
-  // TODO: move to GPU for speedup
+  //  TODO: move to GPU for speedup
   uint availableCount = available.size();
   uint emptyCount = 0;
   uint setupCount = 0;
   uint filledCount = 0;
   uint notLoadedCount = 0;
   constexpr uint availableThreshold = 30;
-  for (auto &tile : map) {
-    if (tile.state == ChunkIn::NotLoaded) {
-      if (availableCount != 0 && setupCount < computeBatchSize &&
-          glm::distance(tile.center, position) <= loadDistance) {
-        auto chunk = available.front();
-        available.remove(chunk);
-        --availableCount;
-        chunk->setComputed(false);
-        chunk->startPosition = tile.pos;
-        chunk->recalc();
-        used.emplace_back(chunk);
+  unsigned int mapCnt = 0;
+  for (auto &map : maps) {
+    if (!map.isInRange(position, loadDistance)) {
+      continue;
+    }
+    ++mapCnt;
+    for (auto &tile : map.tiles) {
+      if (tile.state == ChunkIn::NotLoaded) {
+        if (availableCount != 0 && setupCount < computeBatchSize &&
+            glm::distance(tile.center, position) <= loadDistance) {
+          auto chunk = available.front();
+          available.remove(chunk);
+          --availableCount;
+          chunk->setComputed(false);
+          chunk->startPosition = tile.pos;
+          chunk->recalc();
+          used.emplace_back(chunk);
 
-        usedChunks[chunk] = &tile;
+          usedChunks[chunk] = &tile;
 
-        tile.state = ChunkIn::Setup;
-        tile.ptr = chunk;
+          tile.state = ChunkIn::Setup;
+          tile.ptr = chunk;
+          ++setupCount;
+        } else {
+          ++notLoadedCount;
+        }
+      } else if (tile.state == ChunkIn::Filled) {
+        if ((aggressiveChunkUnloading || availableCount < availableThreshold) && tile.ptr->boundingSphere.distance(position) > loadDistance) {
+          used.remove(tile.ptr);
+
+          usedChunks[tile.ptr] = nullptr;
+
+          available.emplace_back(tile.ptr);
+          ++availableCount;
+          ++notLoadedCount;
+          tile.state = ChunkIn::NotLoaded;
+          tile.ptr = nullptr;
+        } else {
+          ++filledCount;
+        }
+      } else if (tile.state == ChunkIn::Empty) {
+        if (tile.ptr != nullptr) {
+          available.emplace_back(tile.ptr);
+          used.remove(tile.ptr);
+
+          usedChunks[tile.ptr] = nullptr;
+
+          ++availableCount;
+          tile.ptr = nullptr;
+        }
+        ++emptyCount;
+      } else if (tile.state == ChunkIn::Setup) {
         ++setupCount;
-      } else {
-        ++notLoadedCount;
       }
-    } else if (tile.state == ChunkIn::Filled) {
-      if (tile.ptr->boundingSphere.distance(position) > loadDistance &&
-          (aggressiveChunkUnloading || availableCount < availableThreshold)) {
-        used.remove(tile.ptr);
-
-        usedChunks[tile.ptr] = nullptr;
-
-        available.emplace_back(tile.ptr);
-        ++availableCount;
-        tile.state = ChunkIn::NotLoaded;
-        tile.ptr = nullptr;
-      }
-      ++filledCount;
-    } else if (tile.state == ChunkIn::Empty) {
-      if (tile.ptr != nullptr) {
-        available.emplace_back(tile.ptr);
-        used.remove(tile.ptr);
-
-        usedChunks[tile.ptr] = nullptr;
-
-        ++availableCount;
-        tile.ptr = nullptr;
-      }
-      ++emptyCount;
-    } else if (tile.state == ChunkIn::Setup) {
-      ++setupCount;
     }
   }
   const uint usedCount = used.size();
   static int a = 0;
   ++a;
   info = WString::Format(L"Chunks: available {}, used {}, empty {}, setup {}, "
-                         L"filled {}, notLoaded {}",
+                         L"filled {}, notLoaded {}, maps {}",
                          available.size(), usedCount, emptyCount, setupCount,
-                         filledCount, notLoadedCount);
+                         filledCount, notLoadedCount, mapCnt);
   return used;
 }
 void Surroundings::setEmpty(Chunk *chunk) {

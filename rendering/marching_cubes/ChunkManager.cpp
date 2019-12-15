@@ -204,17 +204,13 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 
   std::vector<Chunk *> visibleChunks;
   for (auto &chunk : chunks) {
-    if (renderData.viewFrustumCulling &&
+    if (!renderData.viewFrustumCulling ||
         viewFrustum.contains(chunk->boundingBox) !=
             geo::RelativePosition::Outside) {
       if (chunk->boundingSphere.distance(cameraController->camera.Position) <
               renderData.viewDistance &&
           chunk->indexCount != 0) {
         visibleChunks.emplace_back(chunk);
-      } else {
-        chunk->setComputed(false);
-        chunk->startPosition = cameraController->camera.Position;
-        chunk->recalc();
       }
     }
   }

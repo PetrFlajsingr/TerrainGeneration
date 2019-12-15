@@ -14,6 +14,9 @@ template <unsigned int Dimensions = 3> struct BoundingSphere {
   Point center;
   float radius;
 
+  BoundingSphere() = default;
+  BoundingSphere(Point center, float radius);
+
   [[nodiscard]] float distance(Point point) const;
 };
 } // namespace geo

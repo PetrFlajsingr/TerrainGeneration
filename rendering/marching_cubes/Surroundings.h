@@ -5,19 +5,61 @@
 #ifndef TERRAINGENERATION_SURROUNDINGS_H
 #define TERRAINGENERATION_SURROUNDINGS_H
 
-#include "rendering/marching_cubes/Chunk.h"
-#include <String.h>
-#include <glm/glm.hpp>
-#include <list>
-#include <observable/value.hpp>
-#include <types/Range.h>
 #include <unordered_map>
 #include <vector>
+#include <list>
+#include "rendering/marching_cubes/Chunk.h"
+#include "utils/various/isin.h"
+#include <String.h>
+#include <glm/glm.hpp>
+#include <observable/value.hpp>
+#include <types/Range.h>
 
-enum class ChunkIn { NotLoaded, Setup, Empty, Filled };
 
+enum class ChunkState { NotLoaded, Setup, Empty, Filled };
+
+enum class SurrMoveDir : unsigned int { Front, Back, Left, Right, Up, Down };
+
+glm::vec3 SurrDirToVec(SurrMoveDir direction);
+
+unsigned int SurrDirToOffset(SurrMoveDir direction);
+
+enum class SurrPos : unsigned int {
+  BackLowLeft = 0,
+  BackLowMid,
+  BackLowRight,
+  BackMidLeft,
+  BackMidMid,
+  BackMidRight,
+  BackHighLeft,
+  BackHighMid,
+  BackHighRight,
+
+  MidLowLeft,
+  MidLowMid,
+  MidLowRight,
+  MidMidLeft,
+  MidMidMid,
+  MidMidRight,
+  MidHighLeft,
+  MidHighMid,
+  MidHighRight,
+
+  FrontLowLeft,
+  FrontLowMid,
+  FrontLowRight,
+  FrontMidLeft,
+  FrontMidMid,
+  FrontMidRight,
+  FrontHighLeft,
+  FrontHighMid,
+  FrontHighRight,
+};
+
+SurrPos PosForDir(SurrMoveDir direction, SurrPos pos);
+SurrPos CoordSourceForDir(SurrMoveDir direction, SurrPos pos);
 struct Tile {
-  ChunkIn state;
+  ChunkState state;
   Chunk *ptr;
   glm::vec3 pos;
   glm::vec3 center;
@@ -28,40 +70,31 @@ struct Map {
   glm::vec3 startPosition;
   glm::vec3 center;
   geo::BoundingSphere<3> boundingSphere;
+  geo::BoundingBox<3> boundingBox;
   Map() = default;
 
-  bool isInRange(glm::vec3 cameraPosition, float range) {
-    return boundingSphere.distance(cameraPosition) <= range;
-  }
+  bool isInRange(glm::vec3 cameraPosition, float range);
 
   std::vector<Chunk *> init(glm::vec3 start, glm::vec3 center,
-                            glm::uvec3 tileSize, float step) {
-    using namespace MakeRange;
-    startPosition = start;
-    Map::center = center;
-    std::vector<Chunk *> result;
-    boundingSphere =
-        geo::BoundingSphere<3>{center, glm::distance(start, center)};
-    const auto halfDist = 16.f * glm::vec3{step};
-    for (auto i : range(tiles.size())) {
-      uint x = i % tileSize.x;
-      uint y = i / tileSize.x % tileSize.y;
-      uint z = i / (tileSize.x * tileSize.y) % tileSize.z;
-      const auto start = glm::vec3{x, y, z} * step * 30.f;
-      const auto center = start + halfDist;
-      if (tiles[i].ptr != nullptr) {
-        result.emplace_back(tiles[i].ptr);
-      }
-      tiles[i] = {ChunkIn::NotLoaded, nullptr, start + startPosition, center + startPosition};
-    }
-    return result;
-  }
+                            glm::uvec3 tileSize, float step);
 };
 
 class Surroundings {
 
   bool aggressiveChunkUnloading = true;
   unsigned int computeBatchSize = 100;
+
+public:
+  std::unordered_map<SurrPos, Map *> partsMap;
+
+  void checkForMapMove(glm::vec3 cameraPosition);
+
+  // FIXME: MAZANI USED
+  void moveSurroundings(SurrMoveDir direction);
+
+  void rearrangeSurroundings(SurrPos newMid);
+
+  std::vector<Chunk *> unused;
 
 public:
   Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize,
@@ -84,6 +117,8 @@ private:
   std::vector<Chunk> chunkPool;
   std::list<Chunk *> available;
   std::list<Chunk *> used;
+
+  unsigned int currentCenterIndex = 13;
 
   std::unordered_map<Chunk *, Tile *> usedChunks;
 };

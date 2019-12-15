@@ -17,6 +17,7 @@
 #include <rendering/models/ModelRenderer.h>
 #include <time/FPSCounter.h>
 #include <types.h>
+#include "rendering/models/GraphicsModelBase.h"
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
@@ -49,7 +50,12 @@ UI initUI(UIManager &uiManager) {
   return {lineFillBtn, fpsLbl, chunkInfoLbl, cameraController};
 }
 
-void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
+void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
+  ObjModelLoader loader(assetPath + "/models");
+  for (int i : range(27)) {
+    modelRenderer.addModel(loader.loadModel("bah.obj", "uga" + std::to_string(i)));
+  }
+}
 
 void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
   auto [available, _] = getGPUMemoryUsage();
@@ -108,6 +114,11 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   ModelRenderer modelRenderer;
   initModels(modelRenderer, assetPath);
+
+  std::vector<std::shared_ptr<GraphicsModelBase>> ugas;
+  for (int i : range(27)) {
+    ugas.emplace_back(modelRenderer.modelById("uga" + std::to_string(i)).value());
+  }
   auto renderProgram = std::make_shared<ge::gl::Program>(
       "shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
@@ -130,6 +141,12 @@ void main_marching_cubes(int argc, char *argv[]) {
 
     fpsCounter.frame();
     updateFPSLabel(ui, fpsCounter);
+
+    uint cnt = 0;
+    for (auto &model : ugas) {
+      model->setPosition(chunks.surr.partsMap[static_cast<SurrPos>(cnt)]->center);
+      ++cnt;
+    }
 
     chunks.generateChunks();
 

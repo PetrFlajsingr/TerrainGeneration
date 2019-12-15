@@ -5,6 +5,8 @@
 #ifndef TERRAINGENERATION_MODELRENDERER_H
 #define TERRAINGENERATION_MODELRENDERER_H
 
+#include "GraphicsModelBase.h"
+#include "GraphicsModel.h"
 #include "types/CachedProperty.h"
 #include "types/Range.h"
 #include <error_handling/exceptions.h>
@@ -14,107 +16,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <memory>
 #include <string>
 #include <tiny_obj_loader.h>
 #include <utility>
 #include <vector>
-#include <memory>
-
-class ObjModelLoader;
-
-class GraphicsModelBase {
-  friend class ObjModelLoader;
-
-public:
-  using Id = std::string;
-  enum Type { UniformColor, Texture, ProceduralTexture };
-
-  GraphicsModelBase(Id id, Type type) : id(std::move(id)), type(type) {}
-  virtual ~GraphicsModelBase() = default;
-  GraphicsModelBase(const GraphicsModelBase &other);
-  GraphicsModelBase &operator=(const GraphicsModelBase &other);
-
-  [[nodiscard]] const std::shared_ptr<ge::gl::VertexArray> &
-  getVertexArray() const;
-  void setId(const Id &id);
-  [[nodiscard]] const Id &getId() const;
-  [[nodiscard]] Type getType() const;
-
-  [[nodiscard]] const glm::vec3 &getPosition() const;
-  GraphicsModelBase &setPosition(const glm::vec3 &position);
-  GraphicsModelBase &setPosition(float x, float y, float z);
-  [[nodiscard]] const glm::vec3 &getRotation() const;
-  GraphicsModelBase &setRotation(const glm::vec3 &rotation);
-  GraphicsModelBase &setRotation(float x, float y, float z);
-  [[nodiscard]] const glm::vec3 &getScale() const;
-  GraphicsModelBase &setScale(const glm::vec3 &scale);
-  GraphicsModelBase &setScale(float x, float y, float z);
-  GraphicsModelBase &setScale(float scale);
-
-  bool isDrawn() const;
-  GraphicsModelBase &setDrawn(bool drawn);
-
-  virtual std::shared_ptr<ge::gl::Buffer> getVertexBuffer() = 0;
-  virtual std::shared_ptr<ge::gl::Buffer> getNormalBuffer() = 0;
-  virtual std::shared_ptr<ge::gl::Buffer> getElementBuffer() = 0;
-
-  mutable CachedProperty<glm::mat4> modelMatrix{
-      [this] { return updateModelMatrix; },
-      [this] {
-        updateModelMatrix = false;
-        auto ModelMatrix = glm::mat4();
-
-        ModelMatrix = glm::translate(ModelMatrix, position);
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.x),
-                                  glm::vec3(1, 0, 0));
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y),
-                                  glm::vec3(0, 1, 0));
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z),
-                                  glm::vec3(0, 0, 1));
-        ModelMatrix = glm::scale(ModelMatrix, scale);
-
-        return ModelMatrix;
-      }};
-
-protected:
-  std::shared_ptr<ge::gl::VertexArray> vertexArray;
-
-private:
-  Id id;
-  Type type;
-  bool updateModelMatrix = true;
-
-  bool drawn = true;
-
-  glm::vec3 position{0, 0, 0};
-  glm::vec3 rotation{0, 0, 0};
-  glm::vec3 scale{1, 1, 1};
-};
-
-template <typename BufferType = ge::gl::Buffer>
-class GraphicsModel : public GraphicsModelBase {
-  friend class ObjModelLoader;
-  static_assert(std::is_base_of_v<ge::gl::Buffer, BufferType>);
-
-public:
-  GraphicsModel(const Id &id, Type type);
-  GraphicsModel(const GraphicsModel &other);
-  GraphicsModel &operator=(const GraphicsModel &other);
-
-  std::shared_ptr<ge::gl::Buffer> getVertexBuffer() override;
-  std::shared_ptr<ge::gl::Buffer> getNormalBuffer() override;
-  std::shared_ptr<ge::gl::Buffer> getElementBuffer() override;
-
-protected:
-  std::shared_ptr<BufferType> vertexBuffer;
-  std::shared_ptr<BufferType> normalBuffer;
-  std::shared_ptr<BufferType> elementBuffer;
-};
-
-template <typename BufferType = ge::gl::Buffer>
-class InstancedGraphicsModel : public GraphicsModel<BufferType> {
-public:
-};
 
 class ObjModelLoader {
 public:
@@ -128,40 +34,6 @@ private:
   std::string assetsPath;
 };
 
-template <typename BufferType>
-std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getVertexBuffer() {
-  return vertexBuffer;
-}
-template <typename BufferType>
-std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getNormalBuffer() {
-  return normalBuffer;
-}
-template <typename BufferType>
-std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getElementBuffer() {
-  return elementBuffer;
-}
-template <typename BufferType>
-GraphicsModel<BufferType>::GraphicsModel(const GraphicsModelBase::Id &id,
-                                         GraphicsModelBase::Type type)
-    : GraphicsModelBase(id, type) {}
-template <typename BufferType>
-GraphicsModel<BufferType>::GraphicsModel(const GraphicsModel &other)
-    : GraphicsModelBase(other) {
-  vertexBuffer = other.vertexBuffer;
-  normalBuffer = other.normalBuffer;
-  elementBuffer = other.elementBuffer;
-  vertexArray = other.vertexArray;
-}
-template <typename BufferType>
-GraphicsModel<BufferType> &
-GraphicsModel<BufferType>::operator=(const GraphicsModel &other) {
-  GraphicsModelBase::operator=(other);
-  vertexBuffer = other.vertexBuffer;
-  normalBuffer = other.normalBuffer;
-  elementBuffer = other.elementBuffer;
-  vertexArray = other.vertexArray;
-  return *this;
-}
 
 class SceneLoader;
 class ModelRenderer {

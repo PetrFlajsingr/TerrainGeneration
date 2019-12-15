@@ -13,7 +13,7 @@
 #include <SDL2CPP/MainLoop.h>
 #include <SDL2CPP/Window.h>
 #include <gl_utils.h>
-#include <rendering/ChunkManager.h>
+#include <rendering/marching_cubes/ChunkManager.h>
 #include <rendering/models/ModelRenderer.h>
 #include <time/FPSCounter.h>
 #include <types.h>

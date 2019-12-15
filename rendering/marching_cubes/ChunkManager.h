@@ -19,9 +19,9 @@
 #include <list>
 #include <memory>
 
-#include "Data.h"
-#include "Light.h"
 #include "Surroundings.h"
+#include "rendering/Data.h"
+#include "rendering/Light.h"
 #include "types.h"
 
 namespace {

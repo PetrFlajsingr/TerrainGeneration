@@ -5,13 +5,13 @@
 #ifndef TERRAINGENERATION_SURROUNDINGS_H
 #define TERRAINGENERATION_SURROUNDINGS_H
 
-#include "Chunk.h"
+#include "rendering/marching_cubes/Chunk.h"
 #include <String.h>
 #include <glm/glm.hpp>
 #include <list>
 #include <observable/value.hpp>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 enum class ChunkIn { NotLoaded, Setup, Empty, Filled };
 

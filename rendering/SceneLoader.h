@@ -7,11 +7,13 @@
 
 #include "ModelRenderer.h"
 #include <string>
+#include <memory>
+#include <vector>
 #include <tinyxml2.h>
 
 class SceneLoader {
 public:
-  explicit SceneLoader(std::string assetsPath, std::string sceneName);
+  explicit SceneLoader(const std::string& assetsPath, const std::string& sceneName);
 
   [[nodiscard]] bool isValid() const;
 

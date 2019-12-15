@@ -11,6 +11,8 @@
 #include <ui/Font.h>
 #include <unordered_map>
 #include <utility>
+#include <memory>
+#include <string>
 
 /**
  * Loads and stores .ttf files

@@ -5,6 +5,7 @@
 #ifndef TERRAINGENERATION_BUTTON_H
 #define TERRAINGENERATION_BUTTON_H
 
+#include <memory>
 #include "ui/interface/MouseInteractable.h"
 
 namespace sdl2cpp::ui {

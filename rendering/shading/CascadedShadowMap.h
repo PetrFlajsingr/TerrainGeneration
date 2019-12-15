@@ -14,8 +14,12 @@
 #include <graphics/BoundingBox.h>
 #include <meta/meta.h>
 #include <utils/types/Range.h>
+#include <vector>
+#include <memory>
 
-using namespace ShaderLiterals;
+using ShaderLiterals::operator""_vert;
+using ShaderLiterals::operator""_frag;
+
 class CascadedShadowMap {
 public:
   CascadedShadowMap(unsigned int cascadeCount, unsigned int size);

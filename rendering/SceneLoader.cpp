@@ -5,7 +5,8 @@
 #include "SceneLoader.h"
 #include "utils/types/Zip.h"
 
-SceneLoader::SceneLoader(std::string assetsPath, std::string sceneName)
+SceneLoader::SceneLoader(const std::string &assetsPath,
+                         const std::string &sceneName)
     : modelLoader(assetsPath + "/models") {
   doc.LoadFile((assetsPath + "/scenes/" + sceneName + ".xml").c_str());
   xmlIter = doc.FirstChildElement("scene")->FirstChildElement("models");

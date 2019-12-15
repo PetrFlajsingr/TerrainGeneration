@@ -13,6 +13,8 @@
 #include <list>
 #include <meta/meta.h>
 #include <set>
+#include <memory>
+#include <vector>
 
 namespace sdl2cpp::ui {
 

@@ -8,6 +8,7 @@
 #include "meta/meta.h"
 #include "time/now.h"
 #include <chrono>
+#include <utility>
 
 namespace sdl2cpp::ui {
 

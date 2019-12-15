@@ -22,7 +22,7 @@ Font &FontManager::getFont(const std::string &name) {
 std::unique_ptr<freetypeglxx::TextureFont>
 FontManager::load(const std::string &name, float size) {
   return std::unique_ptr<
-      freetypeglxx::TextureFont>( // NOLINT(modernize-make-unique)
+      freetypeglxx::TextureFont>(  // NOLINT(modernize-make-unique)
       new freetypeglxx::TextureFont(atlas.get(), folder.format(name), size));
 }
 bool FontManager::hasFont(const std::string &name) {

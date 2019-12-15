@@ -7,6 +7,7 @@
 
 #include "rendering/text/TextRenderer.h"
 #include <String.h>
+#include <memory>
 #include <geGL/Program.h>
 
 namespace sdl2cpp::ui {

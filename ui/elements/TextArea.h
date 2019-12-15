@@ -9,6 +9,7 @@
 #include "ui/interface/UIObject.h"
 #include "utils/String.h"
 #include <observable/observable.hpp>
+#include <string>
 
 namespace sdl2cpp::ui {
 class TextArea : public CustomEventKeyboardInteractable, public UIVisible {

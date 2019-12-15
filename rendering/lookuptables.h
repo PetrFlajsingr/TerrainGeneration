@@ -6,6 +6,7 @@
 #define TERRAINGENERATION_LOOKUPTABLES_H
 
 #include <array>
+#include <utility>
 #include <glm/glm.hpp>
 
 namespace mc::LUT {

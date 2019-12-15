@@ -31,7 +31,7 @@ void sdl2cpp::ui::EventDispatcher::addMouseEventListener(
             [](std::weak_ptr<CustomMouseInteractable> &a,
                std::weak_ptr<CustomMouseInteractable> &b) {
               if (a.expired() || b.expired()) {
-                return false; // FIXME: can loop
+                return false;  // FIXME: can loop
               }
               auto lckA = a.lock();
               auto lckB = b.lock();

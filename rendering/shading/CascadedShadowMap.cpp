@@ -3,8 +3,6 @@
 //
 
 #include "CascadedShadowMap.h"
-#include "utils/types/Range.h"
-#include <geGL/StaticCalls.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace MakeRange;

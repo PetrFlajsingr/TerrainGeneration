@@ -15,6 +15,9 @@
 #include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
 #include <geGL_utils.h>
+#include <vector>
+#include <list>
+#include <memory>
 
 #include "Data.h"
 #include "Light.h"

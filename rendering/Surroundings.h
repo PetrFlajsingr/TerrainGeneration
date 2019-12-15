@@ -11,6 +11,7 @@
 #include <list>
 #include <observable/value.hpp>
 #include <vector>
+#include <unordered_map>
 
 enum class ChunkIn { NotLoaded, Setup, Empty, Filled };
 

@@ -7,6 +7,7 @@
 
 #include <ui/interface/ui_traits.h>
 #include <utility>
+#include <memory>
 
 #include "EventDispatcher.h"
 #include "FocusManager.h"

@@ -42,7 +42,7 @@ struct Map {
     std::vector<Chunk *> result;
     boundingSphere =
         geo::BoundingSphere<3>{center, glm::distance(start, center)};
-    const auto halfDist = 30.f * glm::vec3{step};
+    const auto halfDist = 16.f * glm::vec3{step};
     for (auto i : range(tiles.size())) {
       uint x = i % tileSize.x;
       uint y = i / tileSize.x % tileSize.y;

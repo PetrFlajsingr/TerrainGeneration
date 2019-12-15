@@ -19,16 +19,17 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size,
       },
       chunkPoolSize);
 
-  const auto halfDist = 16.f * glm::vec3{step};
+  const auto halfDist = 16.f * glm::vec3{step} * glm::vec3{size};
 
   using namespace MakeRange;
   const auto areaSize = step * 30.f;
   for (auto [index, coords] :
        zip(range(27), range<float, 3>({-1, -1, -1}, {2, 2, 2}, {1, 1, 1}))) {
     const auto [x, y, z] = coords;
-    const auto startPos = glm::vec3{x, y, z} * areaSize;
+    const auto startPos = glm::vec3{x, y, z} * glm::vec3{size} * areaSize;
     maps[index].init(startPos,
                      startPos + halfDist, size, step);
+    print(startPos);
   }
   for (auto &chunk : chunkPool) {
     available.emplace_back(&chunk);
@@ -44,10 +45,11 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   constexpr uint availableThreshold = 30;
   unsigned int mapCnt = 0;
   for (auto &map : maps) {
-    if (!map.isInRange(position, loadDistance)) {
+    if (!map.isInRange(position, loadDistance * 10)) {
       continue;
     }
     ++mapCnt;
+
     for (auto &tile : map.tiles) {
       if (tile.state == ChunkIn::NotLoaded) {
         if (availableCount != 0 && setupCount < computeBatchSize &&

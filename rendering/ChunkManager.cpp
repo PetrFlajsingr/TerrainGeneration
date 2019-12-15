@@ -23,7 +23,8 @@ ChunkManager::ChunkManager(
             glm::uvec3{
                 config.get<uint>("marching_cubes", "surroundingSize").value()},
             config.get<uint>("marching_cubes", "chunkPoolSize").value(),
-            config.get<float>("marching_cubes", "chunkSize").value()}),  config(config) {
+            config.get<float>("marching_cubes", "chunkSize").value()}),
+      config(config) {
   loadShaders();
   createPrograms();
   linkPrograms();
@@ -434,13 +435,15 @@ void ChunkManager::generateChunks() {
 void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
   std::vector<Chunk *> visibleChunks;
   for (auto &chunk : chunks) {
-   //if (aabb.contains(chunk->boundingBox) !=
-   //        geo::RelativePosition::Outside || chunk->boundingBox.contains(aabb) != geo::RelativePosition::Outside) {
-      if (chunk->boundingSphere.distance(cameraController->camera.Position) <
-          renderData.viewDistance &&
-          chunk->indexCount != 0) {
-        visibleChunks.emplace_back(chunk);
-      }
+    // if (aabb.contains(chunk->boundingBox) !=
+    //        geo::RelativePosition::Outside ||
+    //        chunk->boundingBox.contains(aabb) !=
+    //        geo::RelativePosition::Outside) {
+    if (chunk->boundingSphere.distance(cameraController->camera.Position) <
+            renderData.viewDistance &&
+        chunk->indexCount != 0) {
+      visibleChunks.emplace_back(chunk);
+    }
     //}
   }
   for (auto &chunk : visibleChunks) {

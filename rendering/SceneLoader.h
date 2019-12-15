@@ -6,8 +6,8 @@
 #define TERRAINGENERATION_SCENELOADER_H
 
 #include "ModelRenderer.h"
-#include <tinyxml2.h>
 #include <string>
+#include <tinyxml2.h>
 
 class SceneLoader {
 public:
@@ -34,6 +34,7 @@ public:
   iterator begin();
 
   iterator end();
+
 private:
   bool valid = true;
   tinyxml2::XMLDocument doc;

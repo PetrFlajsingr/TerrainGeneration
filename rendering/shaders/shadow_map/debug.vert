@@ -9,6 +9,6 @@ uniform mat4 modelMatrix;
 
 void main()
 {
-    gl_Position = modelMatrix * vec4(position.xy,0.0f, 1.0f);
+    gl_Position = modelMatrix * vec4(position.xy, 0.0f, 1.0f);
     v2fTexcoords = texcoord;
 }

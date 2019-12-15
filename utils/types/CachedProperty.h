@@ -8,43 +8,41 @@
 #include <functional>
 #include <utility>
 
-template<typename T, bool LazyInit = true>
-class CachedProperty {
+template <typename T, bool LazyInit = true> class CachedProperty {
 public:
-    using Calculate = std::function<T()>;
-    using Predicate = std::function<bool()>;
+  using Calculate = std::function<T()>;
+  using Predicate = std::function<bool()>;
 
-    explicit CachedProperty(Calculate calc);
+  explicit CachedProperty(Calculate calc);
 
-    CachedProperty(Predicate pred, Calculate calc);
+  CachedProperty(Predicate pred, Calculate calc);
 
-    CachedProperty(const CachedProperty &) = delete;
+  CachedProperty(const CachedProperty &) = delete;
 
-    CachedProperty(CachedProperty &&) = delete;
+  CachedProperty(CachedProperty &&) = delete;
 
-    operator const T &();
+  operator const T &();
 
-    T *operator->();
+  T *operator->();
 
-    T getCopy();
+  T getCopy();
 
-    const T &getRef();
+  const T &getRef();
 
-    void setInitialised(bool initialised);
+  void setInitialised(bool initialised);
 
 private:
-    T cached;
-    Predicate predicate;
-    Calculate calculate;
-    bool initialised = false;
+  T cached;
+  Predicate predicate;
+  Calculate calculate;
+  bool initialised = false;
 
-    void checkAndRecalculate();
+  void checkAndRecalculate();
 };
 
-template<typename T>
+template <typename T>
 std::ostream &operator<<(std::ostream &stream, CachedProperty<T> &other);
 
 #include "CachedProperty.tpp"
 
-
-#endif //UTILITIES_CACHEDPROPERTY_H
+#endif // UTILITIES_CACHEDPROPERTY_H

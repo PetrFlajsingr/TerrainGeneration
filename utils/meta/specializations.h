@@ -14,7 +14,6 @@ struct is_specialization<Template<Args...>, Template> : std::true_type {};
 
 template <typename T, template <class...> class U>
 static inline constexpr bool is_specialization_v =
-        is_specialization<T, U>::value;
+    is_specialization<T, U>::value;
 
-
-#endif //UTILITIES_SPECIALIZATIONS_H
+#endif // UTILITIES_SPECIALIZATIONS_H

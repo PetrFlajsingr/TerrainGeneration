@@ -22,12 +22,9 @@ template <unsigned int Dimensions = 3> struct BoundingBox {
   bool operator!=(const BoundingBox &rhs) const;
 
   [[nodiscard]] RelativePosition contains(const BoundingBox<3> &aabb) const;
-
-
 };
 template <unsigned int Dims>
-std::ostream &operator<<(std::ostream &stream,
-                         const BoundingBox<Dims> &aabb);
+std::ostream &operator<<(std::ostream &stream, const BoundingBox<Dims> &aabb);
 } // namespace geo
 
 #include "BoundingBox.tpp"

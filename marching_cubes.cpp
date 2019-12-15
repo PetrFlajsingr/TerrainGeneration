@@ -5,6 +5,7 @@
 #include "marching_cubes.h"
 #include "rendering/Data.h"
 #include "rendering/shading/CascadedShadowMap.h"
+#include "rendering/utils/DrawTexture.h"
 #include "ui/elements.h"
 #include "ui/managers.h"
 #include "utils/config/JsonConfig.h"
@@ -16,7 +17,6 @@
 #include <rendering/ModelRenderer.h>
 #include <time/FPSCounter.h>
 #include <types.h>
-#include "rendering/utils/DrawTexture.h"
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
@@ -49,8 +49,7 @@ UI initUI(UIManager &uiManager) {
   return {lineFillBtn, fpsLbl, chunkInfoLbl, cameraController};
 }
 
-void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {
-}
+void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
 
 void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
   auto [available, _] = getGPUMemoryUsage();
@@ -118,9 +117,10 @@ void main_marching_cubes(int argc, char *argv[]) {
   chunks.smProgram = renderProgram;
 
   bool showTextures = false;
-  auto textureBtn =  uiManager.createGUIObject<sdl2cpp::ui::Button>(
+  auto textureBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 100, 1}, glm::vec3{250, 100, 0});
-  textureBtn->setMouseClicked([&showTextures] {showTextures = !showTextures;});
+  textureBtn->setMouseClicked(
+      [&showTextures] { showTextures = !showTextures; });
   DrawTexture drawTexture;
 
   ge::gl::glEnable(GL_DEPTH_TEST);
@@ -134,17 +134,18 @@ void main_marching_cubes(int argc, char *argv[]) {
     chunks.generateChunks();
 
     chunks.render = false;
-    auto projection =
-        glm::perspective(60.f, 1920.f / 1080, 0.1f, 500.0f);
-    auto renderFnc = [&ui, &chunks, &modelRenderer] (const auto &program, const auto &aabb) {
+    auto projection = glm::perspective(60.f, 1920.f / 1080, 0.1f, 500.0f);
+    auto renderFnc = [&ui, &chunks, &modelRenderer](const auto &program,
+                                                    const auto &aabb) {
       glm::mat4 model{1.f};
       program->setMatrix4fv("model", &model[0][0]);
       chunks.drawToShadowMap(aabb);
       modelRenderer.render(program, ui.cameraController->getViewMatrix(),
                            false);
     };
-    cascadedShadowMap.renderShadowMap(renderFnc, projection, ui.cameraController->getViewMatrix(), 0.1f, 500.f, 1920.f/1080, 60.f);
-
+    cascadedShadowMap.renderShadowMap(renderFnc, projection,
+                                      ui.cameraController->getViewMatrix(),
+                                      0.1f, 500.f, 1920.f / 1080, 60.f);
 
     if (showTextures) {
       drawTexture.drawCasc(cascadedShadowMap.getDepthMap());

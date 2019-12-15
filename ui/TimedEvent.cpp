@@ -9,7 +9,8 @@ bool sdl2cpp::ui::TimedEvent::shouldFire(std::chrono::milliseconds time) {
     return false;
   }
   bool result = time - start >= duration;
-  valid = !result || type == Type::Infinite || (type == Type::Repeated && (repetitions > fireCount));
+  valid = !result || type == Type::Infinite ||
+          (type == Type::Repeated && (repetitions > fireCount));
   return result && enabled;
 }
 
@@ -19,13 +20,9 @@ void sdl2cpp::ui::TimedEvent::setEnabled(bool enabled) {
   TimedEvent::enabled = enabled;
 }
 
-bool sdl2cpp::ui::TimedEvent::isEnabled() const {
-  return enabled;
-}
+bool sdl2cpp::ui::TimedEvent::isEnabled() const { return enabled; }
 
-void sdl2cpp::ui::TimedEvent::invalidate() {
-  valid = false;
-}
+void sdl2cpp::ui::TimedEvent::invalidate() { valid = false; }
 
 void sdl2cpp::ui::TimedEvent::operator()(std::chrono::milliseconds now) {
   start = now;

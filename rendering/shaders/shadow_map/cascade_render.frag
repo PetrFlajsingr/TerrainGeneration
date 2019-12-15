@@ -25,9 +25,9 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     uint cascadeIdx = 0;
 
     // Figure out which cascade to sample from
-    for(uint i = 0; i < numOfCascades; ++i)
+    for (uint i = 0; i < numOfCascades; ++i)
     {
-        if(positiveViewSpaceZ < cascadedSplits[i])
+        if (positiveViewSpaceZ < cascadedSplits[i])
         {
             cascadeIdx = i;
         }
@@ -40,7 +40,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     vec2 TexCoord = gl_FragCoord.xy / vec2(1920, 1080);
     vec4 tex_coord = vec4(TexCoord.x, TexCoord.y, cascadeIdx, 1.0);
 
-    vec4 fragmentModelViewPosition = vec4(viewPosition,1.0f);
+    vec4 fragmentModelViewPosition = vec4(viewPosition, 1.0f);
 
     vec4 fragmentModelPosition = inverseViewMatrix * fragmentModelViewPosition;
 
@@ -63,20 +63,20 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
 
     const int kernelSize = 9;
     const int kernelOffset = kernelSize / 2;
-    for(int x = -kernelOffset; x <= kernelOffset; ++x)
+    for (int x = -kernelOffset; x <= kernelOffset; ++x)
     {
-        for(int y = -kernelOffset; y <= kernelOffset; ++y)
+        for (int y = -kernelOffset; y <= kernelOffset; ++y)
         {
             vec3 coord = vec3(projCoords.xy + vec2(x, y) * texelSize, projCoords.z);
-            float pcfDepth = shadow2DArray(cascadedDepthTexture, vec4(coord, currentDepth - bias )).r;
+            float pcfDepth = shadow2DArray(cascadedDepthTexture, vec4(coord, currentDepth - bias)).r;
             shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;
         }
     }
     shadow /= float(kernelSize * kernelSize);
 
     // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
-    if(projCoords.z > 1.0)
-        shadow = 0.0;
+    if (projCoords.z > 1.0)
+    shadow = 0.0;
 
     return vec3(shadow);
 
@@ -119,7 +119,7 @@ vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDir
     vec3 specular = spec * lightColor;
     // calculate shad
     vec3 negatedLightDirection = lightDirection*-1.0f;
-    vec3 lighting = (ambient + (1.0 - readShadowMap(negatedLightDirection,viewNormal,FragPos.z,viewPosition)) * (diffuse + specular)) * color;
+    vec3 lighting = (ambient + (1.0 - readShadowMap(negatedLightDirection, viewNormal, FragPos.z, viewPosition)) * (diffuse + specular)) * color;
     return vec4(lighting, 1.0);
 }
 

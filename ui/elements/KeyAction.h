@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_KEYACTION_H
 #define TERRAINGENERATION_KEYACTION_H
 
-#include <utility>
 #include "ui/interface/KeyboardInteractable.h"
+#include <utility>
 
 namespace sdl2cpp::ui {
 /**

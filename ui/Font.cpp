@@ -20,4 +20,4 @@ freetypeglxx::TextureFont *Font::getData(float size) {
   return fontSizes.back().second.get();
 }
 Font::Font(Font &&other) noexcept
-    : fontSizes(std::move(other.fontSizes)), fontManager(other.fontManager)  {}
+    : fontSizes(std::move(other.fontSizes)), fontManager(other.fontManager) {}

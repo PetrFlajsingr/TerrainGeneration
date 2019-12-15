@@ -14,7 +14,8 @@
 namespace sdl2cpp::ui {
 class UIManager {
 public:
-  explicit UIManager(const std::shared_ptr<Window>& window, const String &fontPath)
+  explicit UIManager(const std::shared_ptr<Window> &window,
+                     const String &fontPath)
       : window(window), eventDispatcher(window, focusManager),
         renderer(fontPath) {}
   UIManager(const UIManager &) = delete;
@@ -22,7 +23,7 @@ public:
 
   template <C_UIObject T, typename... Args>
   std::enable_if_t<std::is_constructible_v<T, UIManager &, Args...>,
-      std::shared_ptr<T>>
+                   std::shared_ptr<T>>
   createGUIObject(Args &&... args);
 
   void render(glm::mat4 projection = glm::mat4(1),
@@ -60,7 +61,7 @@ public:
   }
 
   void enqueueEvent(TimedEvent &&event) {
-    eventDispatcher.addEvent(std::forward<TimedEvent&&>(event));
+    eventDispatcher.addEvent(std::forward<TimedEvent &&>(event));
   }
 
 private:
@@ -75,7 +76,7 @@ private:
 
 template <C_UIObject T, typename... Args>
 std::enable_if_t<std::is_constructible_v<T, UIManager &, Args...>,
-    std::shared_ptr<T>>
+                 std::shared_ptr<T>>
 UIManager::createGUIObject(Args &&... args) {
   auto result = std::make_shared<T>(*this, std::forward<Args>(args)...);
   if constexpr (is_mouse_interactable<T>) {

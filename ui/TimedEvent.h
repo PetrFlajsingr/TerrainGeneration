@@ -6,8 +6,8 @@
 #define TERRAINGENERATION_TIMEDEVENT_H
 
 #include "meta/meta.h"
-#include <chrono>
 #include "time/now.h"
+#include <chrono>
 
 namespace sdl2cpp::ui {
 
@@ -59,7 +59,8 @@ public:
    */
   [[nodiscard]] bool shouldFire(std::chrono::milliseconds time);
   /**
-   * TimedEvent is invalid when it should no longer fire (SingleShot, Repeated) or when it is invalidated.
+   * TimedEvent is invalid when it should no longer fire (SingleShot, Repeated)
+   * or when it is invalidated.
    */
   [[nodiscard]] bool isValid();
   /**
@@ -87,6 +88,6 @@ private:
   bool valid = true;
   bool enabled = true;
 };
-}
+} // namespace sdl2cpp::ui
 
 #endif // TERRAINGENERATION_TIMEDEVENT_H

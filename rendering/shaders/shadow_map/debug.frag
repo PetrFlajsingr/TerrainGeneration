@@ -10,6 +10,6 @@ layout(location = 0) out vec4 color;
 
 void main()
 {
-	vec4 tex_coord = vec4(v2fTexcoords.x, v2fTexcoords.y, layer, 1.0);
-	color = vec4(vec3(texture2DArray(arrayTex,tex_coord.xyz).x),1.0f);
+    vec4 tex_coord = vec4(v2fTexcoords.x, v2fTexcoords.y, layer, 1.0);
+    color = vec4(vec3(texture2DArray(arrayTex, tex_coord.xyz).x), 1.0f);
 }

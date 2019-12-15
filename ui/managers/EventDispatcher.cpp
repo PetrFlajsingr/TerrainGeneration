@@ -94,8 +94,8 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
         } else {
           clickEvent = &addEvent(TimedEvent::SingleShot(
               [element, event, this] {
-                  element->onMouseClicked(event);
-                  focusManager.changeFocusTo(element);
+                element->onMouseClicked(event);
+                focusManager.changeFocusTo(element);
               },
               400ms));
           lastClickTime = currentTime;
@@ -205,7 +205,8 @@ void sdl2cpp::ui::EventDispatcher::checkTimedEvents(
   }
 }
 
-sdl2cpp::ui::TimedEvent &sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
+sdl2cpp::ui::TimedEvent &
+sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
   events.emplace_back(event);
   return events.back();
 }

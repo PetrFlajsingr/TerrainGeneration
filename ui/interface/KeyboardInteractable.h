@@ -6,9 +6,9 @@
 #define TERRAINGENERATION_KEYBOARDINTERACTABLE_H
 
 #include "Interactable.h"
+#include "meta/meta.h"
 #include "ui/Fwd.h"
 #include <SDL_events.h>
-#include "meta/meta.h"
 
 namespace sdl2cpp::ui {
 
@@ -57,10 +57,8 @@ public:
   KeyboardInteractable &setOnKeyDown(Event::KeyUpFnc onDown);
   KeyboardInteractable &setOnKeyPressed(Event::KeyUpFnc onPressed);
 
-  template <SimpleInvocable F>
-  KeyboardInteractable &setOnKeyUp(F onUp);
-  template <SimpleInvocable F>
-  KeyboardInteractable &setOnKeyDown(F onDown);
+  template <SimpleInvocable F> KeyboardInteractable &setOnKeyUp(F onUp);
+  template <SimpleInvocable F> KeyboardInteractable &setOnKeyDown(F onDown);
   template <SimpleInvocable F>
   KeyboardInteractable &setOnKeyPressed(F onPressed);
 
@@ -77,17 +75,17 @@ private:
 
 template <SimpleInvocable F>
 KeyboardInteractable &KeyboardInteractable::setOnKeyUp(F onUp) {
-  e_keyUp = [onUp] (EventInfo, SDL_Keycode) {onUp();};
+  e_keyUp = [onUp](EventInfo, SDL_Keycode) { onUp(); };
   return *this;
 }
 template <SimpleInvocable F>
 KeyboardInteractable &KeyboardInteractable::setOnKeyDown(F onDown) {
-  e_keyDown = [onDown] (EventInfo, SDL_Keycode) {onDown();};
+  e_keyDown = [onDown](EventInfo, SDL_Keycode) { onDown(); };
   return *this;
 }
 template <SimpleInvocable F>
 KeyboardInteractable &KeyboardInteractable::setOnKeyPressed(F onPressed) {
-  e_keyPressed = [onPressed] (EventInfo, SDL_Keycode) {onPressed();};
+  e_keyPressed = [onPressed](EventInfo, SDL_Keycode) { onPressed(); };
   return *this;
 }
 } // namespace sdl2cpp::ui

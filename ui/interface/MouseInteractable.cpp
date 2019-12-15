@@ -47,9 +47,12 @@ void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOver(
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOut(
     const SDL_Event &event) {
-  buttonStates[static_cast<int>(MouseButton::Left)] = MouseButtonState::Released;
-  buttonStates[static_cast<int>(MouseButton::Middle)] = MouseButtonState::Released;
-  buttonStates[static_cast<int>(MouseButton::Right)] = MouseButtonState::Released;
+  buttonStates[static_cast<int>(MouseButton::Left)] =
+      MouseButtonState::Released;
+  buttonStates[static_cast<int>(MouseButton::Middle)] =
+      MouseButtonState::Released;
+  buttonStates[static_cast<int>(MouseButton::Right)] =
+      MouseButtonState::Released;
   onMouseOut(EventInfo{*this, Event::Type::MouseOut});
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseWheel(

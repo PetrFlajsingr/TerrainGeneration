@@ -45,7 +45,7 @@ GraphicsModelBase &GraphicsModelBase::setScale(float x, float y, float z) {
   return *this;
 }
 bool GraphicsModelBase::isDrawn() const { return drawn; }
-GraphicsModelBase & GraphicsModelBase::setDrawn(bool drawn) {
+GraphicsModelBase &GraphicsModelBase::setDrawn(bool drawn) {
   GraphicsModelBase::drawn = drawn;
   return *this;
 }
@@ -121,7 +121,7 @@ void ModelRenderer::plainRender() {
   }
 }
 void ModelRenderer::loadScene(SceneLoader &&sceneLoader) {
-  for (const auto& models : sceneLoader) {
+  for (const auto &models : sceneLoader) {
     for (auto &model : models) {
       addModel(model);
     }

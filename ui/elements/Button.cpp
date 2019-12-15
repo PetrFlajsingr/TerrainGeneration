@@ -3,13 +3,13 @@
 //
 
 #include "Button.h"
+#include "geGL_utils.h"
 #include "ui/managers/UIManager.h"
 #include <GL/glut.h>
 #include <SDL_events.h>
 #include <geGL/StaticCalls.h>
 #include <io/print.h>
 #include <ui/utils.h>
-#include "geGL_utils.h"
 
 sdl2cpp::ui::Button::Button(UIManager &guiManager, glm::vec3 position,
                             glm::vec3 dimensions)
@@ -35,9 +35,7 @@ void sdl2cpp::ui::Button::draw(GUIRenderer &renderer) {
 
 void sdl2cpp::ui::Button::onVisibilityChanged(Visibility visibility) {}
 
-void sdl2cpp::ui::Button::onFocusChanged(Focus focus) {
-
-}
+void sdl2cpp::ui::Button::onFocusChanged(Focus focus) {}
 
 void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {
   Interactable::onEnabledChanged(enabled);
@@ -71,7 +69,5 @@ void sdl2cpp::ui::Button::onMouseOut(sdl2cpp::ui::EventInfo info) {
   MouseInteractable::onMouseOut(info);
   color = {1, 0, 0, 1};
 }
-void sdl2cpp::ui::Button::setColor(glm::vec4 color) {
-  Button::color = color;
-}
+void sdl2cpp::ui::Button::setColor(glm::vec4 color) { Button::color = color; }
 const glm::vec4 &sdl2cpp::ui::Button::getColor() const { return color; }

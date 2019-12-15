@@ -6,9 +6,9 @@
 #define TERRAINGENERATION_MOUSEINTERACTABLE_H
 
 #include "Interactable.h"
+#include "meta/meta.h"
 #include "ui/Fwd.h"
 #include <SDL_events.h>
-#include "meta/meta.h"
 
 namespace sdl2cpp::ui {
 
@@ -48,6 +48,7 @@ private:
 class CustomEventMouseInteractable : public virtual CustomMouseInteractable {
 public:
   MouseButtonState getButtonState(MouseButton button) const;
+
 protected:
   void onMouseDown(const SDL_Event &event) final;
   void onMouseUp(const SDL_Event &event) final;

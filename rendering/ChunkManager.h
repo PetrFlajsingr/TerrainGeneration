@@ -6,8 +6,8 @@
 #define TERRAINGENERATION_CHUNKMANAGER_H
 
 #include "Chunk.h"
-#include "graphics/Geometry.h"
 #include "graphics/BoundingBox.h"
+#include "graphics/Geometry.h"
 #include "ui/elements/CameraController.h"
 #include "various/loc_assert.h"
 #include <TransformFeedback.h>
@@ -39,7 +39,6 @@ constexpr float step = 2;
 constexpr uint size = 32;
 class ChunkManager {
 public:
-
   std::list<Chunk *> chunks;
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 

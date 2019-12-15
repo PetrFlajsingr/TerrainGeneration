@@ -6,18 +6,17 @@
 #define TERRAINGENERATION_EVENTDISPATCHER_H
 
 #include "ui/Fwd.h"
+#include "ui/TimedEvent.h"
 #include "ui/interface/KeyboardInteractable.h"
 #include "ui/interface/MouseInteractable.h"
 #include <SDL2CPP/Window.h>
 #include <list>
 #include <meta/meta.h>
 #include <set>
-#include "ui/TimedEvent.h"
 
 namespace sdl2cpp::ui {
 
 using namespace std::chrono_literals;
-
 
 class EventDispatcher {
   friend class UIManager;
@@ -62,13 +61,15 @@ private:
    * Find mouse interactable element in given coordinates.
    * @param x
    * @param y
-   * @return mouse interactable on position or std::nullopt if none was found on given position
+   * @return mouse interactable on position or std::nullopt if none was found on
+   * given position
    */
   std::optional<std::shared_ptr<CustomMouseInteractable>>
   findMouseInteractableOnPosition(int x, int y);
   /**
    * Find keyboard interactable currently in focus.
-   * @return focused keyobard interactable or std::nullopt if no element has focus
+   * @return focused keyobard interactable or std::nullopt if no element has
+   * focus
    */
   std::optional<std::shared_ptr<CustomKeyboardInteractable>>
   getFocusedKeyboardInteractable();

@@ -9,7 +9,7 @@
 #include "Text.h"
 #include <freetype-gl++/shader+.hpp>
 #include <freetype-gl++/vertex-buffer+.hpp>
-#include <observable/value.hpp>
+#include <observable/observable.hpp>
 
 class TextRenderer {
 public:

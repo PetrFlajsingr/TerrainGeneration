@@ -8,6 +8,7 @@
 #include "Interactable.h"
 #include "ui/Fwd.h"
 #include <SDL_events.h>
+#include "meta/meta.h"
 
 namespace sdl2cpp::ui {
 

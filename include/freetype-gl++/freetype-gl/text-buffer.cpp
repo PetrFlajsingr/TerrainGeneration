@@ -150,9 +150,9 @@ void text_buffer_printf(text_buffer_t *self, vec2 *pen, ...) {
 void text_buffer_move_last_line(text_buffer_t *self, float dy) {
   size_t i, j;
   for (i = self->line_start; i < vector_size(self->buffer->items); ++i) {
-    ivec4 *item = (ivec4 *)vector_get(self->buffer->items, i);
-    for (j = item->vstart; j < item->vstart + item->vcount; ++j) {
-      glyph_vertex_t *vertex =
+    auto *item = (ivec4 *)vector_get(self->buffer->items, i);
+    for (j = item->vstart; j < static_cast<long unsigned int>(item->vstart) + item->vcount; ++j) {
+      auto *vertex =
           (glyph_vertex_t *)vector_get(self->buffer->vertices, j);
       vertex->y -= dy;
     }

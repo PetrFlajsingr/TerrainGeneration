@@ -6,7 +6,6 @@
 #include "utils/types/Range.h"
 #include <geGL/StaticCalls.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <io/print.h>
 
 using namespace MakeRange;
 
@@ -28,7 +27,7 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
   ge::gl::glBindTexture(GL_TEXTURE_2D_ARRAY, depthMap);
   ge::gl::glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, size,
                        size, cascadeCount, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
-                       NULL);
+                       nullptr);
   ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER,
                           GL_LINEAR);
   ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER,

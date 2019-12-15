@@ -6,7 +6,6 @@
 #include "ModelRenderer.h"
 #include "SceneLoader.h"
 
-
 const std::shared_ptr<ge::gl::VertexArray> &
 GraphicsModelBase::getVertexArray() const {
   return vertexArray;

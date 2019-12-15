@@ -198,7 +198,7 @@ size_t vertex_buffer_size(const vertex_buffer_t *self) {
 // ----------------------------------------------------------------------------
 void vertex_buffer_print(vertex_buffer_t *self) {
   int i = 0;
-  static char *gltypes[9] = {
+  static const char *gltypes[9] = {
       "GL_BOOL",         "GL_BYTE",           "GL_UNSIGNED_BYTE",
       "GL_SHORT",        "GL_UNSIGNED_SHORT", "GL_INT",
       "GL_UNSIGNED_INT", "GL_FLOAT",          "GL_VOID"};
@@ -547,8 +547,8 @@ void vertex_buffer_erase(vertex_buffer_t *self, const size_t index) {
 
   // Update items
   for (i = 0; i < vector_size(self->items); ++i) {
-    ivec4 *item = (ivec4 *)vector_get(self->items, i);
-    if (item->vstart > vstart) {
+    auto *item = (ivec4 *)vector_get(self->items, i);
+    if (static_cast<size_t>(item->vstart) > vstart) {
       item->vstart -= vcount;
       item->istart -= icount;
     }

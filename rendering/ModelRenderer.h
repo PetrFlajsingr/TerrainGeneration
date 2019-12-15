@@ -10,12 +10,10 @@
 #include <error_handling/exceptions.h>
 #include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
-#include <geGL/geGL.h>
 #include <geGL_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
-#include <io/print.h>
 #include <string>
 #include <tiny_obj_loader.h>
 #include <utility>

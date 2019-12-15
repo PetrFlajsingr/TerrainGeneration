@@ -8,14 +8,12 @@
 #include "Chunk.h"
 #include "graphics/Geometry.h"
 #include "graphics/BoundingBox.h"
-#include "io/print.h"
 #include "ui/elements/CameraController.h"
 #include "various/loc_assert.h"
 #include <TransformFeedback.h>
 #include <config/JsonConfig.h>
 #include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
-#include <geGL/geGL.h>
 #include <geGL_utils.h>
 
 #include "Data.h"

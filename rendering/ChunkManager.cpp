@@ -18,12 +18,12 @@ using namespace ShaderLiterals;
 ChunkManager::ChunkManager(
     std::shared_ptr<sdl2cpp::ui::CameraController> cameraController,
     JsonConfig<true> config)
-    : cameraController(std::move(cameraController)), config(config),
+    : cameraController(std::move(cameraController)),
       surr({config.get<float>("render", "viewDistance").value(),
             glm::uvec3{
                 config.get<uint>("marching_cubes", "surroundingSize").value()},
             config.get<uint>("marching_cubes", "chunkPoolSize").value(),
-            config.get<float>("marching_cubes", "chunkSize").value()}) {
+            config.get<float>("marching_cubes", "chunkSize").value()}),  config(config) {
   loadShaders();
   createPrograms();
   linkPrograms();
@@ -234,7 +234,6 @@ void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
                              glm::vec3 lightPos) {
   if (render) {
     smProgram->use();
-    auto camPos = cameraController->getPosition();
     smProgram->setMatrix4fv("projection", &projection[0][0]);
     glm::mat4 model{1};
     smProgram->setMatrix4fv("model", &model[0][0]);

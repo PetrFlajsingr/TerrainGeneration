@@ -3,15 +3,17 @@
 //
 
 #include "Chunk.h"
+#include "graphics/Geometry.h"
+#include <error_handling/exceptions.h>
 
 Chunk::Chunk(glm::vec3 startPosition, float step, uint size)
-    : densityBuffer(createSparseBuffer<float>(std::pow(size, 3))),
+    : startPosition(startPosition), step(step), size(size),
+      boundingBox(calcAABB()), boundingSphere(calcBS()),
+      densityBuffer(createSparseBuffer<float>(std::pow(size, 3))),
       vertexBuffer(createSparseBuffer<glm::vec4>(std::pow(size, 3) * 5)),
       normalBuffer(createSparseBuffer<glm::vec3>(std::pow(size, 3) * 5)),
       indexBuffer(createSparseBuffer<glm::uvec3>(std::pow(size, 3) * 5)),
-      drawVertexArray(std::make_shared<ge::gl::VertexArray>()),
-      startPosition(startPosition), step(step), size(size),
-      boundingBox(calcAABB()), boundingSphere(calcBS()) {
+      drawVertexArray(std::make_shared<ge::gl::VertexArray>()) {
   drawVertexArray->addAttrib(vertexBuffer, 0, 4, GL_FLOAT, sizeof(float) * 4, 0,
                              GL_FALSE);
   drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT, sizeof(float) * 3, 0,
@@ -29,6 +31,8 @@ SBuffer Chunk::getBuffer(Chunk::Buffers bufferType) {
     return normalBuffer;
   case Index:
     return indexBuffer;
+  default:
+    throw exc::InternalError("Invalid enum value.");
   }
 }
 

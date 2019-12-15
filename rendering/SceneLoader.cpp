@@ -38,7 +38,7 @@ std::vector<std::shared_ptr<GraphicsModelBase>> SceneLoader::getNextModel() {
                        rotEl->FloatAttribute("y", 0),
                        rotEl->FloatAttribute("z", 0)};
     auto scaleEl = model->FirstChildElement("scale");
-    float scale = scaleEl->DoubleText();
+    float scale = scaleEl->FloatText();
     result->setPosition(position);
     result->setRotation(rotation);
     result->setScale(scale);
@@ -57,7 +57,6 @@ std::vector<std::shared_ptr<GraphicsModelBase>> SceneLoader::getNextModel() {
         model->FirstChildElement("instanceCount")->IntText(0);
     const auto scale = model->FirstChildElement("scale")->FloatText(0);
     using namespace MakeRange;
-    const auto floatMax = std::numeric_limits<float>::max();
     int cnt = 0;
     int genAxisCount = 0;
     if (genStep.x > 0) {

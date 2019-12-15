@@ -43,8 +43,8 @@ private:
   std::vector<float> cascadeSplitArray;
   glm::vec3 lightDir;
 
-  unsigned int size;
   unsigned int cascadeCount;
+  unsigned int size;
 
   GLuint depthMap;
 

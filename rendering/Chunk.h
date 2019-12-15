@@ -8,8 +8,6 @@
 #include "geGL_utils.h"
 #include "graphics/BoundingBox.h"
 #include "graphics/BoundingSphere.h"
-#include "graphics/Geometry.h"
-#include <cmath>
 #include <geGL/Buffer.h>
 #include <geGL/Generated/OpenGLTypes.h>
 #include <geGL/VertexArray.h>

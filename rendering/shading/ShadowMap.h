@@ -46,7 +46,7 @@ private:
   unsigned int width = 4096;
   unsigned int height = 4096;
 
-  ge::gl::Texture depthMap {GL_TEXTURE_2D, GL_DEPTH_COMPONENT, 0, width, height};
+  ge::gl::Texture depthMap {GL_TEXTURE_2D, GL_DEPTH_COMPONENT, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
 
   ge::gl::Framebuffer depthMapFBO;
   std::shared_ptr<ge::gl::Program> program = std::make_shared<ge::gl::Program>(

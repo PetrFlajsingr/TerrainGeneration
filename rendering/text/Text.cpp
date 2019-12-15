@@ -6,7 +6,7 @@
 
 Text::Text(FontManager &fontManager, const std::wstring &initialValue,
            Font *font, float fontSize)
-    : fontManager(fontManager), font(font), fontSize(fontSize) {}
+    : font(font), fontSize(fontSize), fontManager(fontManager) {}
 
 const glm::vec4 &Text::getColor() const { return color; }
 

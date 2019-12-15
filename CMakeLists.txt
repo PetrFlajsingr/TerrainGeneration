@@ -3,7 +3,7 @@ project(TerrainGeneration)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fconcepts")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fconcepts")
 
 add_compile_definitions(GLT_IMPORTS)
 

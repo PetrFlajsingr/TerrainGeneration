@@ -10,20 +10,21 @@ sdl2cpp::ui::FocusManager::FocusManager(
 
 void sdl2cpp::ui::FocusManager::changeFocusTo(
     const std::shared_ptr<UIObject> &guiObject) {
-  changeFocusTo(guiObject.get());
-}
-
-void sdl2cpp::ui::FocusManager::changeFocusTo(
-    sdl2cpp::ui::UIObject *guiObject) {
-  for (auto &guiObj : guiObjects) {
-    if (guiObj.expired()) {
-      continue;
-    }
-    auto ptr = guiObj.lock();
-    if (ptr.get() == guiObject) {
-      continue;
-    }
-    ptr->setFocus(Focus::NotFocused);
+  std::shared_ptr<UIObject> currentlyFocused = nullptr;
+  if (!focusedObject.expired()) {
+    currentlyFocused = focusedObject.lock();
+  }
+  if (currentlyFocused == guiObject) {
+    return;
+  }
+  if (currentlyFocused != nullptr) {
+    currentlyFocused->setFocus(Focus::NotFocused);
   }
   guiObject->setFocus(Focus::Focused);
+  focusedObject = guiObject;
+}
+
+const std::weak_ptr<sdl2cpp::ui::UIObject> &
+sdl2cpp::ui::FocusManager::getFocusedObject() const {
+  return focusedObject;
 }

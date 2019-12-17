@@ -18,6 +18,7 @@
 #include <time/FPSCounter.h>
 #include <types.h>
 #include "rendering/models/GraphicsModelBase.h"
+#include "Camera.h"
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
@@ -31,7 +32,7 @@ struct UI {
 
 UI initUI(UIManager &uiManager) {
   auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, 60.f);
-  auto cameraController = uiManager.createGUIObject<CameraController>(perspective,
+  auto cameraController = uiManager.createGUIObject<CameraController>(std::move(perspective),
       glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
   auto lineFillBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
@@ -177,7 +178,7 @@ void main_marching_cubes(int argc, char *argv[]) {
 
       renderProgram->set3fv("lightDir",
                             glm::value_ptr(cascadedShadowMap.getLightDir()));
-      renderProgram->setMatrix4fv("projection", glm::value_ptr(ui.cameraController->camera.projection.matrix));
+      renderProgram->setMatrix4fv("projection", glm::value_ptr(ui.cameraController->camera.projection.matrix.getRef()));
       ge::gl::glUniform1i(
           renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
 

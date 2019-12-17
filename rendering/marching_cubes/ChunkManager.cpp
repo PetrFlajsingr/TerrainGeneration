@@ -182,7 +182,7 @@ void ChunkManager::linkPrograms() {
 void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_DEPTH_TEST);
   ge::gl::glEnable(GL_CULL_FACE);
-  auto projection = cameraController->camera.projection.matrix;
+  auto projection = cameraController->camera.projection.matrix.getRef();
   auto view = cameraController->getViewMatrix();
   glm::vec3 lightPos =
       glm::vec3{25, 25, 50};

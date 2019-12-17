@@ -4,7 +4,7 @@
 
 #include "Camera.h"
 
-PerspectiveProjection::PerspectiveProjection(float, float, float aspectRatio,
+PerspectiveProjection::PerspectiveProjection(float near, float far, float aspectRatio,
                                              float fieldOfView)
     : near(near), far(far), aspectRatio(aspectRatio), fieldOfView(fieldOfView) {
 }

@@ -4,21 +4,9 @@
 
 #ifndef TERRAINGENERATION_BUTTON_H
 #define TERRAINGENERATION_BUTTON_H
-#include <geGL/StaticCalls.h>
-#include <geGL/geGL.h>
 
-#include <SDL.h>
-#include <SDL2CPP/Window.h>
-#include <geGL/Buffer.h>
-#include <utility>
-
+#include <memory>
 #include "ui/interface/MouseInteractable.h"
-#include "ui/interface/UIObject.h"
-#include "ui/ui_types.h"
-#include <String.h>
-#include <geGL_utils.h>
-#include <glm/vec4.hpp>
-#include <set>
 
 namespace sdl2cpp::ui {
 

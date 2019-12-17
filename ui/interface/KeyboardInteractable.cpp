@@ -3,7 +3,13 @@
 //
 
 #include "KeyboardInteractable.h"
-#include <error_handling/exceptions.h>
+
+void sdl2cpp::ui::CustomKeyboardInteractable::onKeyPressed([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomKeyboardInteractable::onKeyDown([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomKeyboardInteractable::onKeyUp([
+    [maybe_unused]] const SDL_Event &event) {}
 
 void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(
     const SDL_Event &event) {

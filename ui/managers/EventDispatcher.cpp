@@ -4,9 +4,6 @@
 
 #include "EventDispatcher.h"
 #include "FocusManager.h"
-#include "time/now.h"
-#include "ui/interface/KeyboardInteractable.h"
-#include <chrono>
 
 sdl2cpp::ui::EventDispatcher::EventDispatcher(
     std::shared_ptr<sdl2cpp::Window> window, FocusManager &focusManager)
@@ -34,7 +31,7 @@ void sdl2cpp::ui::EventDispatcher::addMouseEventListener(
             [](std::weak_ptr<CustomMouseInteractable> &a,
                std::weak_ptr<CustomMouseInteractable> &b) {
               if (a.expired() || b.expired()) {
-                return false; // FIXME: can loop
+                return false;  // FIXME: can loop
               }
               auto lckA = a.lock();
               auto lckB = b.lock();
@@ -97,8 +94,8 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
         } else {
           clickEvent = &addEvent(TimedEvent::SingleShot(
               [element, event, this] {
-                  element->onMouseClicked(event);
-                  focusManager.changeFocusTo(element);
+                element->onMouseClicked(event);
+                focusManager.changeFocusTo(element);
               },
               400ms));
           lastClickTime = currentTime;
@@ -208,36 +205,8 @@ void sdl2cpp::ui::EventDispatcher::checkTimedEvents(
   }
 }
 
-sdl2cpp::ui::TimedEvent &sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
+sdl2cpp::ui::TimedEvent &
+sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
   events.emplace_back(event);
   return events.back();
-}
-
-bool sdl2cpp::ui::TimedEvent::shouldFire(std::chrono::milliseconds time) {
-  if (!isValid()) {
-    return false;
-  }
-  bool result = time - start >= duration;
-  valid = !result || type == Type::Infinite || (type == Type::Repeated && (repetitions > fireCount));
-  return result && enabled;
-}
-
-bool sdl2cpp::ui::TimedEvent::isValid() { return valid; }
-
-void sdl2cpp::ui::TimedEvent::setEnabled(bool enabled) {
-  TimedEvent::enabled = enabled;
-}
-
-bool sdl2cpp::ui::TimedEvent::isEnabled() const {
-  return enabled;
-}
-
-void sdl2cpp::ui::TimedEvent::invalidate() {
-  valid = false;
-}
-
-void sdl2cpp::ui::TimedEvent::operator()(std::chrono::milliseconds now) {
-  start = now;
-  ++fireCount;
-  event();
 }

@@ -4,7 +4,6 @@
 
 #include "TextRenderer.h"
 
-
 TextRenderer::TextRenderer(const String &fontPath, glm::uvec3 atlasSize)
     : fontManager(fontPath, atlasSize) {
   shader = freetypeglxx::shader::Load(

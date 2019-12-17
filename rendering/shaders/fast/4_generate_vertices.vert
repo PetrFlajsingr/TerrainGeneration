@@ -80,10 +80,10 @@ float distToSphere(vec3 vertex, vec3 center, float radius) {
 
 float calculateDensity(vec3 vertex) {
     return -vertex.y + (noise(vertex/20)*20
-  //  + noise(vertex/10)*10
+    //  + noise(vertex/10)*10
     + noise(vertex/40)*40
     + noise(vertex/80)*80
-  //  + noise(vertex/4)*4
+    //  + noise(vertex/4)*4
     ) * 3;
 
 

@@ -5,11 +5,11 @@
 #ifndef TERRAINGENERATION_FONT_H
 #define TERRAINGENERATION_FONT_H
 
-#include <algorithm>
 #include <freetype-gl++/texture-font+.hpp>
 #include <memory>
 #include <utility>
 #include <vector>
+#include <string>
 
 class FontManager;
 class Font {
@@ -18,8 +18,7 @@ class Font {
 
 public:
   explicit Font(std::string name, FontManager &fontManager);
-  Font(Font &&other)
-      : fontManager(other.fontManager), fontSizes(std::move(other.fontSizes)) {}
+  Font(Font &&other) noexcept;
   freetypeglxx::TextureFont *getData(float size);
   const std::string name;
 

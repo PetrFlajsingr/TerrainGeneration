@@ -5,10 +5,13 @@
 #include "ShadowMap.h"
 #include <geGL/StaticCalls.h>
 
-
-ShadowMap::ShadowMap(glm::mat4 lightProjection, glm::vec3 lightPos, glm::vec3 target, unsigned int textureWidth, unsigned int textureHeight)
-: lightProjection(lightProjection), lightPos(lightPos), target(target), width(textureWidth), height(textureHeight) {
-  ge::gl::glTextureImage2DEXT(depthMap.getId(), GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0,
+ShadowMap::ShadowMap(glm::mat4 lightProjection, glm::vec3 lightPos,
+                     glm::vec3 target, unsigned int textureWidth,
+                     unsigned int textureHeight)
+    : lightProjection(lightProjection), lightPos(lightPos), target(target),
+      width(textureWidth), height(textureHeight) {
+  ge::gl::glTextureImage2DEXT(depthMap.getId(), GL_TEXTURE_2D, 0,
+                              GL_DEPTH_COMPONENT, width, height, 0,
                               GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
   depthMap.texParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   depthMap.texParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);

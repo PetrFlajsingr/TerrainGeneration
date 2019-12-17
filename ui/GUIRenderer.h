@@ -6,8 +6,8 @@
 #define TERRAINGENERATION_GUIRENDERER_H
 
 #include "rendering/text/TextRenderer.h"
-#include "shader_literals.h"
 #include <String.h>
+#include <memory>
 #include <geGL/Program.h>
 
 namespace sdl2cpp::ui {
@@ -16,7 +16,7 @@ class GUIRenderer {
   using Program = std::shared_ptr<ge::gl::Program>;
 
 public:
-  GUIRenderer(const String &fontsPath);
+  explicit GUIRenderer(const String &fontsPath);
 
   Program getProgram();
   TextRenderer &getTextRenderer() { return textRenderer; }

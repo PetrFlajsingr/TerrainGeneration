@@ -5,7 +5,6 @@
 #ifndef TERRAINGENERATION_CAMERACONTROLLER_H
 #define TERRAINGENERATION_CAMERACONTROLLER_H
 
-#include "ui/GUIRenderer.h"
 #include "ui/interface/KeyboardInteractable.h"
 #include "ui/interface/MouseInteractable.h"
 #include <Camera.h>
@@ -18,9 +17,9 @@ namespace sdl2cpp::ui {
  * the right mouse button is pressed.
  */
 class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
-                         public sdl2cpp::ui::KeyboardInteractable {
+                         public sdl2cpp::ui::CustomKeyboardInteractable {
 public:
-  explicit CameraController(UIManager &guiManager, glm::vec3 position,
+  explicit CameraController(UIManager &guiManager, PerspectiveProjection projection, glm::vec3 position,
                             glm::vec3 dimensions,
                             glm::vec3 startingPosition = {0.f, 0.f, 0.f},
                             glm::vec3 direction = {0.f, 0.f, -1.f});
@@ -34,21 +33,14 @@ public:
 
 protected:
   void onMouseWheel(const SDL_Event &event) override;
-
-protected:
   void onMouseDown(const SDL_Event &event) override;
   void draw(sdl2cpp::ui::GUIRenderer &renderer) override;
   void onVisibilityChanged(sdl2cpp::ui::Visibility visibility) override;
   void onFocusChanged(sdl2cpp::ui::Focus focus) override;
-  void onMouseClicked(const SDL_Event &event) override;
-  void onMouseDblClicked(const SDL_Event &event) override;
-  void onMouseOver(const SDL_Event &event) override;
-  void onKeyUp(const SDL_Event &event) override;
-  void onMouseOut(const SDL_Event &event) override;
+
   void onEnabledChanged(bool enabled) override;
   void onMouseUp(const SDL_Event &event) override;
   void onMouseMove(const SDL_Event &event) override;
-  void onKeyPressed(const SDL_Event &event) override;
   void onKeyDown(const SDL_Event &event) override;
 
 private:

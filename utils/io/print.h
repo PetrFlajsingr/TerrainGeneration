@@ -6,7 +6,6 @@
 #define TERRAINGENERATION_PRINT_H
 
 #include "logger.h"
-#include <iostream>
 
 namespace detail {
 template <typename OutStream, typename... Args>

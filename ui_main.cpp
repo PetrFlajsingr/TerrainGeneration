@@ -52,7 +52,7 @@ void ui_main(int argc, char *argv[]) {
   });
 
   auto s = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 500, 1},
-                                                  glm::vec3{500, 500, 0});
+                                                    glm::vec3{500, 500, 0});
 
   s->value.subscribe([&btn1](const auto &value) {
     float c = value / 100.0f;

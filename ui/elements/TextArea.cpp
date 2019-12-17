@@ -4,7 +4,8 @@
 
 #include "TextArea.h"
 
-sdl2cpp::ui::TextArea::TextArea(UIManager &guiManager, const glm::vec3 &position,
+sdl2cpp::ui::TextArea::TextArea(UIManager &guiManager,
+                                const glm::vec3 &position,
                                 const glm::vec3 &dimensions)
     : UIObject(guiManager), UIVisible(position, dimensions) {}
 

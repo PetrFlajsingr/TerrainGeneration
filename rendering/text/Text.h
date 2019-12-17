@@ -16,18 +16,17 @@ class Text {
   friend class TextRenderer;
 
   struct vertex_t {
-    vertex_t(double _x, double _y, double _z, double _s, double _t, double _r,
-             double _g, double _b, double _a)
+    vertex_t(float _x, float _y, float _z, float _s, float _t, float _r,
+             float _g, float _b, float _a)
         : x(_x), y(_y), z(_z), s(_s), t(_t), r(_r), g(_g), b(_b), a(_a) {}
 
-    float x, y, z;    // position
-    float s, t;       // texture
-    float r, g, b, a; // color
+    float x, y, z;     // position
+    float s, t;        // texture
+    float r, g, b, a;  // color
   };
 
-  explicit Text(FontManager &fontManager,
-                const std::wstring &initialValue, Font *font,
-                float fontSize);
+  explicit Text(FontManager &fontManager, const std::wstring &initialValue,
+                Font *font, float fontSize);
 
 public:
   [[nodiscard]] Font &getFont() const;

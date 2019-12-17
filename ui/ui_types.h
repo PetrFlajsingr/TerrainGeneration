@@ -58,12 +58,12 @@ enum class Type {
   KeyUp,
   KeyPressed
 };
-} // namespace Event
+}  // namespace Event
 
 struct EventInfo {
   UIObject &sender;
   Event::Type eventType;
 };
-} // namespace sdl2cpp::ui
+}  // namespace sdl2cpp::ui
 
-#endif // TERRAINGENERATION_UI_TYPES_H
+#endif  // TERRAINGENERATION_UI_TYPES_H

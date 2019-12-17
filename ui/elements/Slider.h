@@ -36,8 +36,7 @@ protected:
   void onMouseDown(EventInfo info, MouseButton button,
                    SDL_Point point) override;
   void onMouseUp(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseMove(EventInfo info, SDL_Point newPos,
-                   SDL_Point oldPos) override;
+  void onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) override;
   void onMouseClicked(EventInfo info, MouseButton button,
                       SDL_Point point) override;
   void onMouseDblClicked(EventInfo info, MouseButton button,

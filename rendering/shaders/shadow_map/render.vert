@@ -13,6 +13,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 lightSpaceMatrix;
 
+
 void main()
 {
     vs_out.FragPos = (model * aPos).xyz;

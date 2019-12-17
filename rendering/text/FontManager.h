@@ -8,10 +8,11 @@
 #include <String.h>
 #include <freetype-gl++/texture-font+.hpp>
 #include <glm/glm.hpp>
-#include <io/print.h>
 #include <ui/Font.h>
 #include <unordered_map>
 #include <utility>
+#include <memory>
+#include <string>
 
 /**
  * Loads and stores .ttf files

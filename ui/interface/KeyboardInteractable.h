@@ -6,6 +6,7 @@
 #define TERRAINGENERATION_KEYBOARDINTERACTABLE_H
 
 #include "Interactable.h"
+#include "meta/meta.h"
 #include "ui/Fwd.h"
 #include <SDL_events.h>
 
@@ -29,9 +30,9 @@ public:
 
 protected:
   friend class EventDispatcher;
-  virtual void onKeyPressed(const SDL_Event &event) = 0;
-  virtual void onKeyDown(const SDL_Event &event) = 0;
-  virtual void onKeyUp(const SDL_Event &event) = 0;
+  virtual void onKeyPressed(const SDL_Event &event);
+  virtual void onKeyDown(const SDL_Event &event);
+  virtual void onKeyUp(const SDL_Event &event);
 
   bool keyboardControlsEnabled = true;
 };
@@ -56,17 +57,15 @@ public:
   KeyboardInteractable &setOnKeyDown(Event::KeyUpFnc onDown);
   KeyboardInteractable &setOnKeyPressed(Event::KeyUpFnc onPressed);
 
-  template <SimpleInvocable F>
-  KeyboardInteractable &setOnKeyUp(F onUp);
-  template <SimpleInvocable F>
-  KeyboardInteractable &setOnKeyDown(F onDown);
+  template <SimpleInvocable F> KeyboardInteractable &setOnKeyUp(F onUp);
+  template <SimpleInvocable F> KeyboardInteractable &setOnKeyDown(F onDown);
   template <SimpleInvocable F>
   KeyboardInteractable &setOnKeyPressed(F onPressed);
 
 protected:
-  void onKeyPressed(EventInfo info, SDL_Keycode keycode) override;
-  void onKeyDown(EventInfo info, SDL_Keycode keycode) override;
-  void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyPressed(EventInfo info, SDL_Keycode keycode) final;
+  void onKeyDown(EventInfo info, SDL_Keycode keycode) final;
+  void onKeyUp(EventInfo info, SDL_Keycode keycode) final;
 
 private:
   std::optional<Event::KeyUpFnc> e_keyUp = std::nullopt;
@@ -76,17 +75,17 @@ private:
 
 template <SimpleInvocable F>
 KeyboardInteractable &KeyboardInteractable::setOnKeyUp(F onUp) {
-  e_keyUp = [onUp] (EventInfo, SDL_Keycode) {onUp();};
+  e_keyUp = [onUp](EventInfo, SDL_Keycode) { onUp(); };
   return *this;
 }
 template <SimpleInvocable F>
 KeyboardInteractable &KeyboardInteractable::setOnKeyDown(F onDown) {
-  e_keyDown = [onDown] (EventInfo, SDL_Keycode) {onDown();};
+  e_keyDown = [onDown](EventInfo, SDL_Keycode) { onDown(); };
   return *this;
 }
 template <SimpleInvocable F>
 KeyboardInteractable &KeyboardInteractable::setOnKeyPressed(F onPressed) {
-  e_keyPressed = [onPressed] (EventInfo, SDL_Keycode) {onPressed();};
+  e_keyPressed = [onPressed](EventInfo, SDL_Keycode) { onPressed(); };
   return *this;
 }
 } // namespace sdl2cpp::ui

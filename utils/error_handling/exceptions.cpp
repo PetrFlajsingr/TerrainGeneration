@@ -3,6 +3,7 @@
 //
 
 #include "exceptions.h"
+
 using namespace std::string_literals;
 exc::Throwable::Throwable(std::string_view msg,
                           std::experimental::source_location srcLoc)
@@ -25,3 +26,6 @@ exc::ProgrammingError::ProgrammingError(
 exc::InternalError::InternalError(std::string_view msg,
                                   std::experimental::source_location srcLoc)
     : Error(msg, srcLoc) {}
+exc::SerialisationException::SerialisationException(
+    std::string_view msg, std::experimental::source_location srcLoc)
+    : Exception(msg, srcLoc) {}

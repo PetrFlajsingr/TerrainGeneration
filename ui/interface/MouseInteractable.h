@@ -32,14 +32,14 @@ public:
 
 protected:
   friend class EventDispatcher;
-  virtual void onMouseDown(const SDL_Event &event) = 0;
-  virtual void onMouseUp(const SDL_Event &event) = 0;
-  virtual void onMouseMove(const SDL_Event &event) = 0;
-  virtual void onMouseClicked(const SDL_Event &event) = 0;
-  virtual void onMouseDblClicked(const SDL_Event &event) = 0;
-  virtual void onMouseOver(const SDL_Event &event) = 0;
-  virtual void onMouseOut(const SDL_Event &event) = 0;
-  virtual void onMouseWheel(const SDL_Event &event) = 0;
+  virtual void onMouseDown(const SDL_Event &event);
+  virtual void onMouseUp(const SDL_Event &event);
+  virtual void onMouseMove(const SDL_Event &event);
+  virtual void onMouseClicked(const SDL_Event &event);
+  virtual void onMouseDblClicked(const SDL_Event &event);
+  virtual void onMouseOver(const SDL_Event &event);
+  virtual void onMouseOut(const SDL_Event &event);
+  virtual void onMouseWheel(const SDL_Event &event);
 
 private:
   bool mouseControlsEnabled = true;

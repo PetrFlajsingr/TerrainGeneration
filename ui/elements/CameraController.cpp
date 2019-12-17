@@ -76,14 +76,6 @@ void sdl2cpp::ui::CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 
 void sdl2cpp::ui::CameraController::onEnabledChanged(bool enabled) {}
 
-void sdl2cpp::ui::CameraController::onMouseClicked(const SDL_Event &event) {}
-
-void sdl2cpp::ui::CameraController::onMouseDblClicked(const SDL_Event &event) {}
-
-void sdl2cpp::ui::CameraController::onMouseOver(const SDL_Event &event) {}
-
-void sdl2cpp::ui::CameraController::onMouseOut(const SDL_Event &event) {}
-
 void sdl2cpp::ui::CameraController::onMouseWheel(const SDL_Event &event) {
     camera.ProcessMouseScroll(event.wheel.y);
 }

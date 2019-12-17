@@ -37,10 +37,7 @@ protected:
   void draw(sdl2cpp::ui::GUIRenderer &renderer) override;
   void onVisibilityChanged(sdl2cpp::ui::Visibility visibility) override;
   void onFocusChanged(sdl2cpp::ui::Focus focus) override;
-  void onMouseClicked(const SDL_Event &event) override;
-  void onMouseDblClicked(const SDL_Event &event) override;
-  void onMouseOver(const SDL_Event &event) override;
-  void onMouseOut(const SDL_Event &event) override;
+
   void onEnabledChanged(bool enabled) override;
   void onMouseUp(const SDL_Event &event) override;
   void onMouseMove(const SDL_Event &event) override;

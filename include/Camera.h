@@ -19,6 +19,7 @@ class PerspectiveProjection {
 public:
   PerspectiveProjection(float near, float far, float aspectRatio,
                         float fieldOfView);
+  PerspectiveProjection(PerspectiveProjection &&other) noexcept;
   [[nodiscard]] float getNear() const;
   void setNear(float near);
   [[nodiscard]] float getFar() const;
@@ -28,7 +29,7 @@ public:
   [[nodiscard]] float getFieldOfView() const;
   void setFieldOfView(float fieldOfView);
 
-  CachedProperty<glm::mat4> matrix{[this] { return shouldUpdateMatrix; },
+  mutable CachedProperty<glm::mat4> matrix{[this] { return shouldUpdateMatrix; },
                                    [this] {
                                      shouldUpdateMatrix = false;
                                      return glm::perspective(

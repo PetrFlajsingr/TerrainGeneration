@@ -6,6 +6,7 @@
 #define TERRAINGENERATION_CASCADEDSHADOWMAP_H
 
 #include "glm/gtc//type_ptr.hpp"
+#include <Camera.h>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 #include <glm/glm.hpp>
@@ -42,9 +43,8 @@ public:
   void setMaxDistance(float maxDistance);
 
   template <typename F>
-  void renderShadowMap(F renderFunction, const glm::mat4 &cameraProjection,
-                       const glm::mat4 &cameraView, float cameraNear,
-                       float cameraFar, float aspectRatio, float fieldOfView);
+  void renderShadowMap(F renderFunction, const PerspectiveProjection &perspectiveProjection,
+                       const glm::mat4 &cameraView);
 
 private:
   std::vector<glm::mat4> lightViewMatrix;
@@ -75,14 +75,11 @@ private:
 };
 
 template <typename F>
-void CascadedShadowMap::renderShadowMap(F renderFunction,
-                                        const glm::mat4 &cameraProjection,
-                                        const glm::mat4 &cameraView,
-                                        float cameraNear, float cameraFar,
-                                        float aspectRatio, float fieldOfView) {
+void CascadedShadowMap::renderShadowMap(F renderFunction, const PerspectiveProjection &perspectiveProjection,
+                                        const glm::mat4 &cameraView) {
   using namespace MakeRange;
-  calculateOrthoMatrices(cameraProjection, cameraView, cameraNear, cameraFar,
-                         aspectRatio, fieldOfView);
+  calculateOrthoMatrices(perspectiveProjection.matrix.getRef(), cameraView, perspectiveProjection.getNear(), perspectiveProjection.getFar(),
+                         perspectiveProjection.getAspectRatio(), perspectiveProjection.getFieldOfView());
 
   program->use();
   TempViewportSetter viewportSetter{

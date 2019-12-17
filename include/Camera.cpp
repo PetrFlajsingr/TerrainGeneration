@@ -9,6 +9,16 @@ PerspectiveProjection::PerspectiveProjection(float near, float far, float aspect
     : near(near), far(far), aspectRatio(aspectRatio), fieldOfView(fieldOfView) {
 }
 
+PerspectiveProjection::PerspectiveProjection(
+    PerspectiveProjection &&other) noexcept {
+  near = other.near;
+  far = other.far;
+  aspectRatio = other.aspectRatio;
+  fieldOfView = other.fieldOfView;
+  shouldUpdateMatrix = true;
+}
+
+
 float PerspectiveProjection::getAspectRatio() const { return aspectRatio; }
 void PerspectiveProjection::setAspectRatio(float aspectRatio) {
   shouldUpdateMatrix = true;

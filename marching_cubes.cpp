@@ -31,7 +31,7 @@ struct UI {
 };
 
 UI initUI(UIManager &uiManager) {
-  auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, 60.f);
+  auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, glm::degrees(60.f));
   auto cameraController = uiManager.createGUIObject<CameraController>(std::move(perspective),
       glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
@@ -147,9 +147,8 @@ void main_marching_cubes(int argc, char *argv[]) {
       modelRenderer.render(program, ui.cameraController->getViewMatrix(),
                            false);
     };
-    cascadedShadowMap.renderShadowMap(renderFnc, ui.cameraController->camera.projection.matrix,
-                                      ui.cameraController->getViewMatrix(),
-                                      0.1f, 500.f, 1920.f / 1080, 60.f);
+    cascadedShadowMap.renderShadowMap(renderFnc, ui.cameraController->camera.projection,
+                                      ui.cameraController->getViewMatrix());
 
     if (showTextures) {
       drawTexture.drawCasc(cascadedShadowMap.getDepthMap());

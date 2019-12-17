@@ -24,16 +24,15 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     float positiveViewSpaceZ = depthViewSpace;
     uint cascadeIdx = 0;
 
-    // Figure out which cascade to sample from
-    for (uint i = 0; i < numOfCascades; ++i)
+    for(uint i = 0; i < numOfCascades - 1; ++i)
     {
-        if (positiveViewSpaceZ < cascadedSplits[i])
+        if(positiveViewSpaceZ < cascadedSplits[i])
         {
-            cascadeIdx = i;
+            cascadeIdx = i + 1;
         }
     }
 
-    float angleBias = 0.006f;
+    float angleBias = 0.006f * (cascadeIdx + 1);
 
     mat4 lightViewProjectionMatrix = lightViewProjectionMatrices[cascadeIdx];
 
@@ -61,7 +60,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(cascadedDepthTexture, 0).xy;
 
-    const int kernelSize = 9;
+    const int kernelSize = 5;
     const int kernelOffset = kernelSize / 2;
     for (int x = -kernelOffset; x <= kernelOffset; ++x)
     {
@@ -74,16 +73,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     }
     shadow /= float(kernelSize * kernelSize);
 
-    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
-    if (projCoords.z > 1.0)
-    shadow = 0.0;
-
     return vec3(shadow);
-
-    /*float pcfDepth = shadow2DArray(cascadedDepthTexture, vec4(projCoords.xyz, currentDepth - bias )).r;
-    shadow += currentDepth  > pcfDepth ? 1.0  : 0.0;
-
-    return vec3(shadow);*/
 }
 
 vec3 chessBoard(vec3 pos) {
@@ -91,7 +81,6 @@ vec3 chessBoard(vec3 pos) {
     uint y = uint(abs(floor(pos.y)));
     uint z = uint(abs(floor(pos.z)));
 
-    if (y >=300) return vec3(1, 0, 0);
     if (x/10 % 2 == 0 ^^ z/10 % 2 == 0) {
         return vec3(0.5, 0, 0);
     }
@@ -125,6 +114,29 @@ vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDir
 
 void main()
 {
+    uint cascadeIdx = 0;
+
+    for(uint i = 0; i < numOfCascades - 1; ++i)
+    {
+        if(v2fPosition.z < cascadedSplits[i])
+        {
+            cascadeIdx = i + 1;
+        }
+    }
+
     vec3 lightDirection = normalize(vec3(lightDir));
-    color = calculateDirectionalLight(v2fPosition.xyz, v2fNormal, lightDirection);
+    vec4 col = calculateDirectionalLight(v2fPosition.xyz, v2fNormal, lightDirection);
+
+    vec4 c;
+    if (cascadeIdx == 0) {
+        c = vec4(0.2, 0, 0, 0);
+    } else if (cascadeIdx == 1) {
+        c = vec4(0, 0.2, 0, 0);
+    } else if (cascadeIdx == 2) {
+        c = vec4(0, 0, 0.2, 0);
+    } else if (cascadeIdx == 3) {
+        c = vec4(0.2, 0, 0, 0);
+    }
+
+    color = col + c;
 }

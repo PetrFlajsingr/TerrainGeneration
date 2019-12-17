@@ -202,9 +202,9 @@ void main_shadow_mapping(int argc, char *argv[]) {
       modelRenderer.render(program, cameraController->getViewMatrix(), false);
     };
 
-    cascadedShadowMap.renderShadowMap(renderFnc, projection,
+  /*  cascadedShadowMap.renderShadowMap(renderFnc, projection,
                                       cameraController->getViewMatrix(), near,
-                                      far, aspectRatio, fieldOfView);
+                                      far, aspectRatio, fieldOfView);*/
 
     ge::gl::glCullFace(GL_BACK);
 

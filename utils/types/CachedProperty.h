@@ -19,7 +19,7 @@ public:
 
   CachedProperty(const CachedProperty &) = delete;
 
-  CachedProperty(CachedProperty &&) = default;
+  CachedProperty(CachedProperty &&) = delete;
 
   operator const T &();
 

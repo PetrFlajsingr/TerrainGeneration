@@ -3,12 +3,10 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include "utils/types/CachedProperty.h"
 #include <SDL_opengl.h>
 #include <vector>
 
-// Defines several possible options for camera movement. Used as abstraction to
-// stay away from window-system specific input methods
 enum Camera_Movement {
   FORWARD,
   BACKWARD,
@@ -16,15 +14,41 @@ enum Camera_Movement {
   RIGHT
 };
 
-// Default camera values
 const float YAW         = -90.0f;
 const float PITCH       =  0.0f;
 const float SPEED       =  2.5f;
 const float SENSITIVITY =  0.1f;
 const float ZOOM        =  45.0f;
 
+class PerspectiveProjection {
+public:
+  PerspectiveProjection(float near, float far, float aspectRatio, float fieldOfView);
+  [[nodiscard]] float getNear() const;
+  void setNear(float near);
+  [[nodiscard]] float getFar() const;
+  void setFar(float far);
+  [[nodiscard]] float getAspectRatio() const;
+  void setAspectRatio(float aspectRatio);
+  [[nodiscard]] float getFieldOfView() const;
+  void setFieldOfView(float fieldOfView);
 
-// An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
+  CachedProperty<glm::mat4> matrix {
+    [this] {
+      return shouldUpdateMatrix;
+    },
+    [this] {
+      shouldUpdateMatrix = false;
+      return glm::perspective(fieldOfView, aspectRatio, near, far);
+    }
+  };
+private:
+  float near;
+  float far;
+  float aspectRatio;
+  float fieldOfView;
+  bool shouldUpdateMatrix = true;
+};
+
 class Camera
 {
 public:

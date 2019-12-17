@@ -184,8 +184,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_CULL_FACE);
   auto projection = cameraController->camera.projection.matrix.getRef();
   auto view = cameraController->getViewMatrix();
-  glm::vec3 lightPos =
-      glm::vec3{25, 25, 50};
+
   auto model = glm::mat4();
   auto MVPmatrix = projection * view * model;
 
@@ -215,7 +214,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   }
   drawnCount = visibleChunks.size();
 
-  drawChunk(visibleChunks, projection, view, lightPos);
+  drawChunk(visibleChunks, projection);
   if (drawOptions.drawNormals) {
     drawNormals(visibleChunks, MVPmatrix);
   }
@@ -226,8 +225,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 }
 
 void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
-                             glm::mat4 projection, glm::mat4 modelView,
-                             glm::vec3 lightPos) {
+                             glm::mat4 projection) {
   if (render) {
     smProgram->use();
     smProgram->setMatrix4fv("projection", &projection[0][0]);

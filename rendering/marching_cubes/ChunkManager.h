@@ -70,8 +70,7 @@ public:
 
 private:
   JsonConfig<true> config;
-  void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection,
-                 glm::mat4 modelView, glm::vec3 lightPos);
+  void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection);
   void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
   void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix,
                       uint step);

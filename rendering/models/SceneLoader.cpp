@@ -112,7 +112,7 @@ SceneLoader::iterator::operator=(const SceneLoader::iterator &other) {
   return *this;
 }
 
-bool SceneLoader::iterator::operator==(const SceneLoader::iterator &rhs) const {
+bool SceneLoader::iterator::operator==([[maybe_unused]] const SceneLoader::iterator &rhs) const {
   return !loader->isValid();
 }
 

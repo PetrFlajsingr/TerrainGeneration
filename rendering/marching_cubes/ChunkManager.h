@@ -64,7 +64,7 @@ public:
 
   void generateChunks();
 
-  void draw(DrawMode mode, DrawOptions = {false, false});
+  void draw(DrawMode mode, DrawOptions = {false, false, 0});
 
   void drawToShadowMap(const geo::BoundingBox<3> &aabb);
 

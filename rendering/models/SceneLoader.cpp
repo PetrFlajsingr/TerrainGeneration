@@ -112,7 +112,7 @@ SceneLoader::iterator::operator=(const SceneLoader::iterator &other) {
   return *this;
 }
 
-bool SceneLoader::iterator::operator==(const SceneLoader::iterator &rhs) const {
+bool SceneLoader::iterator::operator==([[maybe_unused]] const SceneLoader::iterator &rhs) const {
   return !loader->isValid();
 }
 
@@ -125,7 +125,6 @@ SceneLoader::iterator &SceneLoader::iterator::operator++() {
   return *this;
 }
 
-std::vector<std::shared_ptr<GraphicsModelBase>>
-    SceneLoader::iterator::operator*() {
+SceneLoader::iterator::value_type SceneLoader::iterator::operator*() {
   return currentModels;
 }

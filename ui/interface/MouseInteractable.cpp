@@ -5,6 +5,23 @@
 #include "MouseInteractable.h"
 #include <error_handling/exceptions.h>
 
+void sdl2cpp::ui::CustomMouseInteractable::onMouseDown([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomMouseInteractable::onMouseUp([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomMouseInteractable::onMouseMove([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomMouseInteractable::onMouseClicked([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomMouseInteractable::onMouseDblClicked([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomMouseInteractable::onMouseOver([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomMouseInteractable::onMouseOut([
+    [maybe_unused]] const SDL_Event &event) {}
+void sdl2cpp::ui::CustomMouseInteractable::onMouseWheel([
+    [maybe_unused]] const SDL_Event &event) {}
+
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDown(
     const SDL_Event &event) {
   MouseButton button = buttonFromEvent(event);

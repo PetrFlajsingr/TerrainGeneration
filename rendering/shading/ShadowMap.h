@@ -5,7 +5,7 @@
 #ifndef TERRAINGENERATION_SHADOWMAP_H
 #define TERRAINGENERATION_SHADOWMAP_H
 
-#include "utils/geGL_utils.h"
+#include "graphics/geGL_utils.h"
 #include <geGL/geGL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

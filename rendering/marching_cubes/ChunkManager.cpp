@@ -4,14 +4,14 @@
 
 #include "ChunkManager.h"
 #include "error_handling/exceptions.h"
-#include "geGL_utils.h"
+#include "graphics/geGL_utils.h"
+#include "graphics/shader_literals.h"
 #include "lookuptables.h"
-#include "shader_literals.h"
 #include <experimental/array>
 #include <geGL/StaticCalls.h>
-#include <gl_utils.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <graphics/ViewFrustum.h>
+#include <graphics/gl_utils.h>
 
 using namespace ShaderLiterals;
 
@@ -21,8 +21,8 @@ ChunkManager::ChunkManager(
     : cameraController(std::move(cameraController)),
       surr({config.get<float>("render", "viewDistance").value(),
             glm::uvec3{
-                config.get<uint>("marching_cubes", "surroundingSize").value()},
-            config.get<uint>("marching_cubes", "chunkPoolSize").value(),
+                config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
+            config.get<unsigned int>("marching_cubes", "chunkPoolSize").value(),
             config.get<float>("marching_cubes", "chunkSize").value()}),
       config(config) {
   loadShaders();
@@ -84,25 +84,25 @@ std::vector<glm::uvec3> generateChunkCoords() {
 
 void ChunkManager::createBuffers() {
   const auto componentCount = std::pow(32, 3);
-  vertexIDsBuffer = createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
-  caseBuffer = createBuffer<uint>(componentCount, GL_DYNAMIC_DRAW);
+  vertexIDsBuffer = createBuffer<unsigned int>(componentCount * 3, GL_DYNAMIC_DRAW);
+  caseBuffer = createBuffer<unsigned int>(componentCount, GL_DYNAMIC_DRAW);
   auto chunkCoords = generateChunkCoords();
   chunkCoordBuffer = createBuffer(chunkCoords, GL_STATIC_COPY);
-  edgeBuffer = createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
+  edgeBuffer = createBuffer<unsigned int>(componentCount * 3, GL_DYNAMIC_DRAW);
 
   chunkCoordVertexArray = std::make_shared<ge::gl::VertexArray>();
   chunkCoordVertexArray->addAttrib(chunkCoordBuffer, 0, 1, GL_UNSIGNED_INT,
-                                   sizeof(uint), 0, GL_FALSE, 0,
+                                   sizeof(unsigned int), 0, GL_FALSE, 0,
                                    ge::gl::VertexArray::I);
 
   caseMarkersVertexArray = std::make_shared<ge::gl::VertexArray>();
   caseMarkersVertexArray->addAttrib(caseBuffer, 0, 1, GL_UNSIGNED_INT,
-                                    sizeof(uint), 0, GL_FALSE, 0,
+                                    sizeof(unsigned int), 0, GL_FALSE, 0,
                                     ge::gl::VertexArray::I);
 
   edgeMarkersVertexArray = std::make_shared<ge::gl::VertexArray>();
   edgeMarkersVertexArray->addAttrib(edgeBuffer, 0, 1, GL_UNSIGNED_INT,
-                                    sizeof(uint), 0, GL_FALSE, 0,
+                                    sizeof(unsigned int), 0, GL_FALSE, 0,
                                     ge::gl::VertexArray::I);
 
   transformFeedback1.setBuffers(caseBuffer);
@@ -182,11 +182,9 @@ void ChunkManager::linkPrograms() {
 void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_DEPTH_TEST);
   ge::gl::glEnable(GL_CULL_FACE);
-  auto projection =
-      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 500.0f);
+  auto projection = cameraController->camera.projection.matrix.getRef();
   auto view = cameraController->getViewMatrix();
-  glm::vec3 lightPos =
-      glm::vec3{25, 25, 50};
+
   auto model = glm::mat4();
   auto MVPmatrix = projection * view * model;
 
@@ -204,23 +202,19 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 
   std::vector<Chunk *> visibleChunks;
   for (auto &chunk : chunks) {
-    if (renderData.viewFrustumCulling &&
+    if (!renderData.viewFrustumCulling ||
         viewFrustum.contains(chunk->boundingBox) !=
             geo::RelativePosition::Outside) {
       if (chunk->boundingSphere.distance(cameraController->camera.Position) <
               renderData.viewDistance &&
           chunk->indexCount != 0) {
         visibleChunks.emplace_back(chunk);
-      } else {
-        chunk->setComputed(false);
-        chunk->startPosition = cameraController->camera.Position;
-        chunk->recalc();
       }
     }
   }
   drawnCount = visibleChunks.size();
 
-  drawChunk(visibleChunks, projection, view, lightPos);
+  drawChunk(visibleChunks, projection);
   if (drawOptions.drawNormals) {
     drawNormals(visibleChunks, MVPmatrix);
   }
@@ -231,8 +225,7 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
 }
 
 void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks,
-                             glm::mat4 projection, glm::mat4 modelView,
-                             glm::vec3 lightPos) {
+                             glm::mat4 projection) {
   if (render) {
     smProgram->use();
     smProgram->setMatrix4fv("projection", &projection[0][0]);

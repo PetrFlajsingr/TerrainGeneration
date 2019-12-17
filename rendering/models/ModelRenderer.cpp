@@ -34,10 +34,11 @@ void ModelRenderer::render(const std::shared_ptr<ge::gl::Program> &program,
 }
 std::optional<std::shared_ptr<GraphicsModelBase>>
 ModelRenderer::modelById(const GraphicsModelBase::Id &id) {
-  if (auto iter = fplus::find_first_by(
-          [id](const auto &model) { return model->getId() == id; }, models);
-      iter.is_just()) {
-    return iter.unsafe_get_just();
+  if (auto iter = std::find_if(
+          models.begin(), models.end(),
+          [id](const auto &model) { return model->getId() == id; });
+      iter != models.end()) {
+    return *iter;
   }
   return std::nullopt;
 }

@@ -16,7 +16,7 @@
 #include <SDL2CPP/Window.h>
 #include <String.h>
 #include <config/JsonConfig.h>
-#include <gl_utils.h>
+#include <graphics/gl_utils.h>
 #include <rendering/models/ModelRenderer.h>
 
 using Conf = JsonConfig<true>;

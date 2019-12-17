@@ -37,3 +37,7 @@ geo::BoundingBox<Dimensions>::contains(const geo::BoundingBox<3> &aabb) const {
   }
   return RelativePosition::Outside;
 }
+template <unsigned int Dimensions>
+bool geo::BoundingBox<Dimensions>::contains(glm::vec3 point) const {
+  return p1.x <= point.x && p1.y <= point.y && p1.z <= point.z && point.x <= p2.x && point.y <= p2.y && point.z <= p2.z;
+}

@@ -10,14 +10,13 @@
 #include "graphics/Geometry.h"
 #include "ui/elements/CameraController.h"
 #include "various/loc_assert.h"
-#include <TransformFeedback.h>
 #include <config/JsonConfig.h>
-#include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
-#include <geGL_utils.h>
-#include <vector>
+#include <graphics/TransformFeedback.h>
+#include <graphics/geGL_utils.h>
 #include <list>
 #include <memory>
+#include <vector>
 
 #include "Surroundings.h"
 #include "rendering/Data.h"
@@ -65,14 +64,13 @@ public:
 
   void generateChunks();
 
-  void draw(DrawMode mode, DrawOptions = {false, false});
+  void draw(DrawMode mode, DrawOptions = {false, false, 0});
 
   void drawToShadowMap(const geo::BoundingBox<3> &aabb);
 
 private:
   JsonConfig<true> config;
-  void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection,
-                 glm::mat4 modelView, glm::vec3 lightPos);
+  void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection);
   void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
   void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix,
                       uint step);

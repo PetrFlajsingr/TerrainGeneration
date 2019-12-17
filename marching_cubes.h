@@ -5,7 +5,7 @@
 #ifndef TERRAINGENERATION_MARCHING_CUBES_H
 #define TERRAINGENERATION_MARCHING_CUBES_H
 
-#include "utils/geGL_utils.h"
+#include "graphics/geGL_utils.h"
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 #include <glm/glm.hpp>

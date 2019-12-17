@@ -6,10 +6,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace MakeRange;
+using ShaderLiterals::operator""_vert;
+using ShaderLiterals::operator""_frag;
 
 CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
                                      unsigned int size)
-    : cascadeCount(cascadeCount), size(size) {
+    : cascadeCount(cascadeCount), size(size),
+      program(std::make_shared<ge::gl::Program>("shadow_map/sm"_vert,
+                                                "shadow_map/sm"_frag)) {
   lightViewMatrix.resize(cascadeCount);
   lightOrthoMatrix.resize(cascadeCount);
   cascadedMatrices.resize(cascadeCount);
@@ -43,12 +47,10 @@ CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
                                0);
   ge::gl::glDrawBuffer(GL_NONE);
   ge::gl::glReadBuffer(GL_NONE);
-  // restore default FBO
   ge::gl::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
 void CascadedShadowMap::bindCascade(unsigned int index) {
-  // depthMapFBO.attachTexture(GL_DEPTH_ATTACHMENT, depthMaps[index].get());
   ge::gl::glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                     depthMap, 0, index);
 }
@@ -76,37 +78,29 @@ void CascadedShadowMap::calculateOrthoMatrices(
   std::vector<float> cascadeSplits;
   cascadeSplits.resize(cascadeCount);
 
-  // Between 0 and 1, change in order to see the results
-  GLfloat lambda = .7f;
+  const float nearClip = cameraNear;
+  const float farClip = cameraFar;
+  const float clipRange = farClip - nearClip;
 
-  // Between 0 and 1, change these to check the results
-  GLfloat minDistance = 0.0f;
-  GLfloat maxDistance = 1.0f;
+  const float minZ = nearClip + minDistance * clipRange;
+  const float maxZ = nearClip + maxDistance * clipRange;
 
-  GLfloat nearClip = cameraNear;
-  GLfloat farClip = cameraFar;
-  GLfloat clipRange = farClip - nearClip;
-
-  GLfloat minZ = nearClip + minDistance * clipRange;
-  GLfloat maxZ = nearClip + maxDistance * clipRange;
-
-  GLfloat zRange = maxZ - minZ;
-  GLfloat ratio = maxZ / minZ;
+  const float zRange = maxZ - minZ;
+  const float ratio = maxZ / minZ;
 
   for (auto i : range(cascadeCount)) {
-    GLfloat p = (i + 1.f) / static_cast<GLfloat>(cascadeCount);
-    GLfloat log = minZ * std::pow(ratio, p);
-    GLfloat uniform = minZ + zRange * p;
-    GLfloat d = lambda * (log - uniform) + uniform;
+    float p = (i + 1.f) / static_cast<float>(cascadeCount);
+    float log = minZ * std::pow(ratio, p);
+    float uniform = minZ + zRange * p;
+    float d = lambda * (log - uniform) + uniform;
     cascadeSplits[i] = (d - nearClip) / clipRange;
   }
 
   for (unsigned int cascadeIterator = 0; cascadeIterator < cascadeCount;
        ++cascadeIterator) {
-
-    GLfloat prevSplitDistance =
+    const float prevSplitDistance =
         cascadeIterator == 0 ? minDistance : cascadeSplits[cascadeIterator - 1];
-    GLfloat splitDistance = cascadeSplits[cascadeIterator];
+    const float splitDistance = cascadeSplits[cascadeIterator];
 
     glm::vec3 frustumCornersWS[8] = {
         glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec3(1.0f, 1.0f, -1.0f),
@@ -115,16 +109,16 @@ void CascadedShadowMap::calculateOrthoMatrices(
         glm::vec3(1.0f, -1.0f, 1.0f),  glm::vec3(-1.0f, -1.0f, 1.0f),
     };
 
-    glm::mat4 invViewProj = glm::inverse(cameraProjection * cameraView);
+    const glm::mat4 invViewProj = glm::inverse(cameraProjection * cameraView);
     for (auto &corner : frustumCornersWS) {
       glm::vec4 inversePoint = invViewProj * glm::vec4(corner, 1.0f);
       corner = glm::vec3(inversePoint / inversePoint.w);
     }
 
-    for (unsigned int i = 0; i < 4; ++i) {
-      glm::vec3 cornerRay = frustumCornersWS[i + 4] - frustumCornersWS[i];
-      glm::vec3 nearCornerRay = cornerRay * prevSplitDistance;
-      glm::vec3 farCornerRay = cornerRay * splitDistance;
+    for (auto i : range(4)) {
+      const glm::vec3 cornerRay = frustumCornersWS[i + 4] - frustumCornersWS[i];
+      const glm::vec3 nearCornerRay = cornerRay * prevSplitDistance;
+      const glm::vec3 farCornerRay = cornerRay * splitDistance;
       frustumCornersWS[i + 4] = frustumCornersWS[i] + farCornerRay;
       frustumCornersWS[i] = frustumCornersWS[i] + nearCornerRay;
     }
@@ -135,25 +129,23 @@ void CascadedShadowMap::calculateOrthoMatrices(
     }
     frustumCenter /= 8.0f;
 
-    GLfloat radius = 0.0f;
+    float radius = 0.0f;
     for (auto corner : frustumCornersWS) {
-      GLfloat distance = glm::length(corner - frustumCenter);
+      float distance = glm::length(corner - frustumCenter);
       radius = glm::max(radius, distance);
     }
     radius = std::ceil(radius * 16.0f) / 16.0f;
 
-    glm::vec3 maxExtents = glm::vec3(radius, radius, radius);
-    glm::vec3 minExtents = -maxExtents;
+    const glm::vec3 maxExtents = glm::vec3(radius, radius, radius);
+    const glm::vec3 minExtents = -maxExtents;
 
-    // Position the viewmatrix looking down the center of the frustum with an
-    // arbitrary lighht direction
-    glm::vec3 lightDirection =
+    const glm::vec3 lightDirection =
         frustumCenter - glm::normalize(lightDir) * -minExtents.z;
     lightViewMatrix[cascadeIterator] = glm::mat4(1.0f);
     lightViewMatrix[cascadeIterator] =
         glm::lookAt(lightDirection, frustumCenter, glm::vec3(0.0f, 1.0f, 0.0f));
 
-    glm::vec3 cascadeExtents = maxExtents - minExtents;
+    const glm::vec3 cascadeExtents = maxExtents - minExtents;
 
     lightOrthoMatrix[cascadeIterator] =
         glm::ortho(minExtents.x, maxExtents.x, minExtents.y, maxExtents.y, 0.0f,
@@ -161,14 +153,13 @@ void CascadedShadowMap::calculateOrthoMatrices(
 
     bbs[cascadeIterator] = geo::BoundingBox{minExtents, maxExtents};
 
-    // The rounding matrix that ensures that shadow edges do not shimmer
-    glm::mat4 shadowMatrix =
+    const auto shadowMatrix =
         lightOrthoMatrix[cascadeIterator] * lightViewMatrix[cascadeIterator];
-    glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    auto shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     shadowOrigin = shadowMatrix * shadowOrigin;
     shadowOrigin = shadowOrigin * static_cast<float>(size) / 2.0f;
 
-    glm::vec4 roundedOrigin = glm::round(shadowOrigin);
+    const glm::vec4 roundedOrigin = glm::round(shadowOrigin);
     glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
     roundOffset = roundOffset * 2.0f / static_cast<float>(size);
     roundOffset.z = 0.0f;
@@ -178,7 +169,6 @@ void CascadedShadowMap::calculateOrthoMatrices(
     shadowProj[3] += roundOffset;
     lightOrthoMatrix[cascadeIterator] = shadowProj;
 
-    // Store the split distances and the relevant matrices
     const float clipDist = cameraFar - cameraNear;
     cascadeSplitArray[cascadeIterator] =
         (cameraNear + splitDistance * clipDist) * -1.0f;
@@ -199,3 +189,18 @@ const std::vector<float> &CascadedShadowMap::getCascadeSplits() const {
 unsigned int CascadedShadowMap::getCascadeCount() const { return cascadeCount; }
 
 GLuint CascadedShadowMap::getDepthMap() const { return depthMap; }
+
+float CascadedShadowMap::getLambda() const { return lambda; }
+void CascadedShadowMap::setLambda(float lambda) {
+  CascadedShadowMap::lambda = lambda;
+}
+
+float CascadedShadowMap::getMinDistance() const { return minDistance; }
+void CascadedShadowMap::setMinDistance(float minDistance) {
+  CascadedShadowMap::minDistance = minDistance;
+}
+
+float CascadedShadowMap::getMaxDistance() const { return maxDistance; }
+void CascadedShadowMap::setMaxDistance(float maxDistance) {
+  CascadedShadowMap::maxDistance = maxDistance;
+}

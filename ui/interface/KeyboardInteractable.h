@@ -30,9 +30,9 @@ public:
 
 protected:
   friend class EventDispatcher;
-  virtual void onKeyPressed(const SDL_Event &event) = 0;
-  virtual void onKeyDown(const SDL_Event &event) = 0;
-  virtual void onKeyUp(const SDL_Event &event) = 0;
+  virtual void onKeyPressed(const SDL_Event &event);
+  virtual void onKeyDown(const SDL_Event &event);
+  virtual void onKeyUp(const SDL_Event &event);
 
   bool keyboardControlsEnabled = true;
 };

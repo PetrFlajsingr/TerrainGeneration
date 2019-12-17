@@ -21,7 +21,7 @@
 #include <SDL2CPP/Window.h>
 #include <String.h>
 #include <config/JsonConfig.h>
-#include <gl_utils.h>
+#include <graphics/gl_utils.h>
 #include <rendering/Data.h>
 #include <rendering/models/ModelRenderer.h>
 #include <rendering/models/SceneLoader.h>
@@ -60,8 +60,9 @@ void main_shadow_mapping(int argc, char *argv[]) {
   GraphicsModelBase *bigSphere = modelRenderer.modelById("bigSphere")->get();
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
+  auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, 60.f);
   auto cameraController =
-      uiManager.createGUIObject<sdl2cpp::ui::CameraController>(
+      uiManager.createGUIObject<sdl2cpp::ui::CameraController>(std::move(perspective),
           glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
   int showFrameBuffer = 0;
@@ -201,9 +202,9 @@ void main_shadow_mapping(int argc, char *argv[]) {
       modelRenderer.render(program, cameraController->getViewMatrix(), false);
     };
 
-    cascadedShadowMap.renderShadowMap(renderFnc, projection,
+  /*  cascadedShadowMap.renderShadowMap(renderFnc, projection,
                                       cameraController->getViewMatrix(), near,
-                                      far, aspectRatio, fieldOfView);
+                                      far, aspectRatio, fieldOfView);*/
 
     ge::gl::glCullFace(GL_BACK);
 

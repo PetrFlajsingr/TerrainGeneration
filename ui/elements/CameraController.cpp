@@ -4,13 +4,16 @@
 
 #include "CameraController.h"
 
+#include <utility>
+
 sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager,
+                                                PerspectiveProjection projection,
                                                 glm::vec3 position,
                                                 glm::vec3 dimensions,
                                                 glm::vec3 startingPosition,
                                                 glm::vec3 direction)
     : UIObject(guiManager), UIVisible(position, dimensions),
-      camera(startingPosition) {
+      camera(std::move(projection), startingPosition) {
   camera.MovementSpeed = 5.f;
 }
 
@@ -35,8 +38,6 @@ void sdl2cpp::ui::CameraController::onMouseMove(const SDL_Event &event) {
     camera.ProcessMouseMovement(event.motion.xrel, -event.motion.yrel, true);
   }
 }
-
-void sdl2cpp::ui::CameraController::onKeyPressed(const SDL_Event &event) {}
 
 void sdl2cpp::ui::CameraController::onKeyDown(const SDL_Event &event) {
   auto key = event.key.keysym.sym;
@@ -75,13 +76,6 @@ void sdl2cpp::ui::CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 
 void sdl2cpp::ui::CameraController::onEnabledChanged(bool enabled) {}
 
-void sdl2cpp::ui::CameraController::onMouseClicked(const SDL_Event &event) {}
-
-void sdl2cpp::ui::CameraController::onMouseDblClicked(const SDL_Event &event) {}
-
-void sdl2cpp::ui::CameraController::onMouseOver(const SDL_Event &event) {}
-
-void sdl2cpp::ui::CameraController::onMouseOut(const SDL_Event &event) {}
-
-void sdl2cpp::ui::CameraController::onKeyUp(const SDL_Event &event) {}
-void sdl2cpp::ui::CameraController::onMouseWheel(const SDL_Event &event) {}
+void sdl2cpp::ui::CameraController::onMouseWheel(const SDL_Event &event) {
+    camera.ProcessMouseScroll(event.wheel.y);
+}

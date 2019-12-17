@@ -3,7 +3,9 @@
 //
 
 #include "marching_cubes.h"
+#include "Camera.h"
 #include "rendering/Data.h"
+#include "rendering/models/GraphicsModelBase.h"
 #include "rendering/shading/CascadedShadowMap.h"
 #include "rendering/utils/DrawTexture.h"
 #include "ui/elements.h"
@@ -12,7 +14,7 @@
 #include "various/loc_assert.h"
 #include <SDL2CPP/MainLoop.h>
 #include <SDL2CPP/Window.h>
-#include <gl_utils.h>
+#include <graphics/gl_utils.h>
 #include <rendering/marching_cubes/ChunkManager.h>
 #include <rendering/models/ModelRenderer.h>
 #include <time/FPSCounter.h>
@@ -29,8 +31,10 @@ struct UI {
 };
 
 UI initUI(UIManager &uiManager) {
+  auto perspective =
+      PerspectiveProjection(0.1f, 500.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController = uiManager.createGUIObject<CameraController>(
-      glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
+      std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
   auto lineFillBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
       glm::vec3{0, 0, 1}, glm::vec3{250, 100, 0});
@@ -108,6 +112,7 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   ModelRenderer modelRenderer;
   initModels(modelRenderer, assetPath);
+
   auto renderProgram = std::make_shared<ge::gl::Program>(
       "shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
@@ -125,6 +130,16 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   ge::gl::glEnable(GL_DEPTH_TEST);
 
+  auto &event = uiManager.enqueueEvent(
+      TimedEvent::Repeated([] { print("event fired"); }, 1s, 10));
+
+  uiManager.enqueueEvent(TimedEvent::SingleShot(
+      [&event] {
+        print("invalidating event");
+        event.invalidate();
+      },
+      5s));
+
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -134,7 +149,6 @@ void main_marching_cubes(int argc, char *argv[]) {
     chunks.generateChunks();
 
     chunks.render = false;
-    auto projection = glm::perspective(60.f, 1920.f / 1080, 0.1f, 500.0f);
     auto renderFnc = [&ui, &chunks, &modelRenderer](const auto &program,
                                                     const auto &aabb) {
       glm::mat4 model{1.f};
@@ -143,9 +157,9 @@ void main_marching_cubes(int argc, char *argv[]) {
       modelRenderer.render(program, ui.cameraController->getViewMatrix(),
                            false);
     };
-    cascadedShadowMap.renderShadowMap(renderFnc, projection,
-                                      ui.cameraController->getViewMatrix(),
-                                      0.1f, 500.f, 1920.f / 1080, 60.f);
+    cascadedShadowMap.renderShadowMap(renderFnc,
+                                      ui.cameraController->camera.projection,
+                                      ui.cameraController->getViewMatrix());
 
     if (showTextures) {
       drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
@@ -160,7 +174,10 @@ void main_marching_cubes(int argc, char *argv[]) {
 
       renderProgram->set3fv("lightDir",
                             glm::value_ptr(cascadedShadowMap.getLightDir()));
-      renderProgram->setMatrix4fv("projection", glm::value_ptr(projection));
+      renderProgram->setMatrix4fv(
+          "projection",
+          glm::value_ptr(
+              ui.cameraController->camera.projection.matrix.getRef()));
       ge::gl::glUniform1i(
           renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
 
@@ -168,7 +185,8 @@ void main_marching_cubes(int argc, char *argv[]) {
           drawMode,
           {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
            config.get<bool>("debug", "drawNormals").value(),
-           config.get<uint>("debug", "drawChunkBorder", "step").value()});
+           config.get<unsigned int>("debug", "drawChunkBorder", "step")
+               .value()});
 
       modelRenderer.render(renderProgram, ui.cameraController->getViewMatrix(),
                            true);

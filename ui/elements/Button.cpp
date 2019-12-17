@@ -3,7 +3,7 @@
 //
 
 #include "Button.h"
-#include "geGL_utils.h"
+#include "graphics/geGL_utils.h"
 #include "ui/managers/UIManager.h"
 #include <GL/glut.h>
 #include <SDL_events.h>

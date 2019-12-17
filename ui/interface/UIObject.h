@@ -15,7 +15,7 @@ namespace sdl2cpp::ui {
 /**
  * Common class for all ui objects.
  */
-class UIObject {
+class UIObject : public std::enable_shared_from_this<UIObject> {
   OBSERVABLE_PROPERTIES(UIObject);
 
 public:

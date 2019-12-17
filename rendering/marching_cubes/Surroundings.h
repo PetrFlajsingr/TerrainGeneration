@@ -15,7 +15,6 @@
 #include <observable/value.hpp>
 #include <types/Range.h>
 
-
 enum class ChunkState { NotLoaded, Setup, Empty, Filled };
 
 enum class SurrMoveDir : unsigned int { Front, Back, Left, Right, Up, Down };
@@ -80,22 +79,6 @@ struct Map {
 };
 
 class Surroundings {
-
-  bool aggressiveChunkUnloading = true;
-  unsigned int computeBatchSize = 100;
-
-public:
-  std::unordered_map<SurrPos, Map *> partsMap;
-
-  void checkForMapMove(glm::vec3 cameraPosition);
-
-  // FIXME: MAZANI USED
-  void moveSurroundings(SurrMoveDir direction);
-
-  void rearrangeSurroundings(SurrPos newMid);
-
-  std::vector<Chunk *> unused;
-
 public:
   Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize,
                float step);
@@ -118,9 +101,22 @@ private:
   std::list<Chunk *> available;
   std::list<Chunk *> used;
 
-  unsigned int currentCenterIndex = 13;
-
   std::unordered_map<Chunk *, Tile *> usedChunks;
+
+  bool aggressiveChunkUnloading = true;
+  unsigned int computeBatchSize = 100;
+
+  //std::unordered_map<SurrPos, Map *> partsMap;
+  std::array<Map *, 27> partsMap;
+
+  void checkForMapMove(glm::vec3 cameraPosition);
+
+  void moveSurroundings(SurrMoveDir direction);
+
+  void rearrangeSurroundings(SurrPos newMid);
+
+  std::vector<Chunk *> unused;
+
 };
 
 #endif // TERRAINGENERATION_SURROUNDINGS_H

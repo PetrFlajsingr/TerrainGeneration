@@ -28,7 +28,7 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size,
     const auto [x, y, z] = coords;
     const auto startPos = glm::vec3{x, y, z} * glm::vec3{size} * areaSize;
     maps[index].init(startPos, startPos + halfDist, size, step);
-    partsMap[static_cast<SurrPos>(index)] = &maps[index];
+    partsMap[index] = &maps[index];
   }
   for (auto &chunk : chunkPool) {
     available.emplace_back(&chunk);
@@ -133,8 +133,8 @@ void Surroundings::moveSurroundings(SurrMoveDir direction) {
   const auto surroundingsStep = glm::vec3{size} * areaSize;
   using namespace MakeRange;
   for (unsigned int i : range(27)) {
-    partsMap[static_cast<SurrPos>(i)] =
-        tmp[PosForDir(direction, static_cast<SurrPos>(i))];
+    partsMap[i] =
+        tmp[static_cast<int>(PosForDir(direction, static_cast<SurrPos>(i)))];
   }
   glm::vec3 newStartPosition;
   glm::vec3 newCenter;
@@ -184,10 +184,10 @@ void Surroundings::moveSurroundings(SurrMoveDir direction) {
 
   for (auto pos : forCoords) {
     newStartPosition =
-        partsMap[CoordSourceForDir(direction, pos)]->startPosition +
+        partsMap[static_cast<int>(CoordSourceForDir(direction, pos))]->startPosition +
             directionVect * surroundingsStep;
     newCenter = newStartPosition + surroundingsStep / 2.f;
-    const auto tmp = partsMap[pos]->init(newStartPosition, newCenter, size, step);
+    const auto tmp = partsMap[static_cast<int>(pos)]->init(newStartPosition, newCenter, size, step);
     unused.insert(unused.end(), tmp.begin(), tmp.end());
   }
 }
@@ -304,13 +304,13 @@ void Surroundings::rearrangeSurroundings(SurrPos newMid) {
   }
 }
 void Surroundings::checkForMapMove(glm::vec3 cameraPosition) {
-  if (partsMap[SurrPos::MidMidMid]->boundingBox.contains(cameraPosition)) {
+  if (partsMap[static_cast<int>(SurrPos::MidMidMid)]->boundingBox.contains(cameraPosition)) {
     return;
   }
   using namespace MakeRange;
   SurrPos cameraIn = SurrPos::MidMidMid;
   for (unsigned int i : range(27)) {
-    if (partsMap[static_cast<SurrPos>(i)]->boundingBox.contains(
+    if (partsMap[i]->boundingBox.contains(
         cameraPosition)) {
       cameraIn = static_cast<SurrPos>(i);
       break;

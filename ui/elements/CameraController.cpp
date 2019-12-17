@@ -4,13 +4,16 @@
 
 #include "CameraController.h"
 
+#include <utility>
+
 sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager,
+                                                PerspectiveProjection projection,
                                                 glm::vec3 position,
                                                 glm::vec3 dimensions,
                                                 glm::vec3 startingPosition,
                                                 glm::vec3 direction)
     : UIObject(guiManager), UIVisible(position, dimensions),
-      camera(startingPosition) {
+      camera(std::move(projection), startingPosition) {
   camera.MovementSpeed = 5.f;
 }
 

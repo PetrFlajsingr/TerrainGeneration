@@ -19,7 +19,7 @@ namespace sdl2cpp::ui {
 class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
                          public sdl2cpp::ui::CustomKeyboardInteractable {
 public:
-  explicit CameraController(UIManager &guiManager, glm::vec3 position,
+  explicit CameraController(UIManager &guiManager, PerspectiveProjection projection, glm::vec3 position,
                             glm::vec3 dimensions,
                             glm::vec3 startingPosition = {0.f, 0.f, 0.f},
                             glm::vec3 direction = {0.f, 0.f, -1.f});

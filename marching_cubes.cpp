@@ -30,7 +30,8 @@ struct UI {
 };
 
 UI initUI(UIManager &uiManager) {
-  auto cameraController = uiManager.createGUIObject<CameraController>(
+  auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, 60.f);
+  auto cameraController = uiManager.createGUIObject<CameraController>(perspective,
       glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
   auto lineFillBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
@@ -142,7 +143,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     fpsCounter.frame();
     updateFPSLabel(ui, fpsCounter);
 
-    uint cnt = 0;
+    unsigned int cnt = 0;
     for (auto &model : ugas) {
       model->setPosition(chunks.surr.partsMap[static_cast<SurrPos>(cnt)]->center);
       ++cnt;
@@ -151,7 +152,6 @@ void main_marching_cubes(int argc, char *argv[]) {
     chunks.generateChunks();
 
     chunks.render = false;
-    auto projection = glm::perspective(60.f, 1920.f / 1080, 0.1f, 500.0f);
     auto renderFnc = [&ui, &chunks, &modelRenderer](const auto &program,
                                                     const auto &aabb) {
       glm::mat4 model{1.f};
@@ -160,7 +160,7 @@ void main_marching_cubes(int argc, char *argv[]) {
       modelRenderer.render(program, ui.cameraController->getViewMatrix(),
                            false);
     };
-    cascadedShadowMap.renderShadowMap(renderFnc, projection,
+    cascadedShadowMap.renderShadowMap(renderFnc, ui.cameraController->camera.projection.matrix,
                                       ui.cameraController->getViewMatrix(),
                                       0.1f, 500.f, 1920.f / 1080, 60.f);
 
@@ -177,7 +177,7 @@ void main_marching_cubes(int argc, char *argv[]) {
 
       renderProgram->set3fv("lightDir",
                             glm::value_ptr(cascadedShadowMap.getLightDir()));
-      renderProgram->setMatrix4fv("projection", glm::value_ptr(projection));
+      renderProgram->setMatrix4fv("projection", glm::value_ptr(ui.cameraController->camera.projection.matrix));
       ge::gl::glUniform1i(
           renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
 
@@ -185,7 +185,7 @@ void main_marching_cubes(int argc, char *argv[]) {
           drawMode,
           {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
            config.get<bool>("debug", "drawNormals").value(),
-           config.get<uint>("debug", "drawChunkBorder", "step").value()});
+           config.get<unsigned int>("debug", "drawChunkBorder", "step").value()});
 
       modelRenderer.render(renderProgram, ui.cameraController->getViewMatrix(),
                            true);

@@ -21,8 +21,8 @@ ChunkManager::ChunkManager(
     : cameraController(std::move(cameraController)),
       surr({config.get<float>("render", "viewDistance").value(),
             glm::uvec3{
-                config.get<uint>("marching_cubes", "surroundingSize").value()},
-            config.get<uint>("marching_cubes", "chunkPoolSize").value(),
+                config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
+            config.get<unsigned int>("marching_cubes", "chunkPoolSize").value(),
             config.get<float>("marching_cubes", "chunkSize").value()}),
       config(config) {
   loadShaders();
@@ -84,25 +84,25 @@ std::vector<glm::uvec3> generateChunkCoords() {
 
 void ChunkManager::createBuffers() {
   const auto componentCount = std::pow(32, 3);
-  vertexIDsBuffer = createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
-  caseBuffer = createBuffer<uint>(componentCount, GL_DYNAMIC_DRAW);
+  vertexIDsBuffer = createBuffer<unsigned int>(componentCount * 3, GL_DYNAMIC_DRAW);
+  caseBuffer = createBuffer<unsigned int>(componentCount, GL_DYNAMIC_DRAW);
   auto chunkCoords = generateChunkCoords();
   chunkCoordBuffer = createBuffer(chunkCoords, GL_STATIC_COPY);
-  edgeBuffer = createBuffer<uint>(componentCount * 3, GL_DYNAMIC_DRAW);
+  edgeBuffer = createBuffer<unsigned int>(componentCount * 3, GL_DYNAMIC_DRAW);
 
   chunkCoordVertexArray = std::make_shared<ge::gl::VertexArray>();
   chunkCoordVertexArray->addAttrib(chunkCoordBuffer, 0, 1, GL_UNSIGNED_INT,
-                                   sizeof(uint), 0, GL_FALSE, 0,
+                                   sizeof(unsigned int), 0, GL_FALSE, 0,
                                    ge::gl::VertexArray::I);
 
   caseMarkersVertexArray = std::make_shared<ge::gl::VertexArray>();
   caseMarkersVertexArray->addAttrib(caseBuffer, 0, 1, GL_UNSIGNED_INT,
-                                    sizeof(uint), 0, GL_FALSE, 0,
+                                    sizeof(unsigned int), 0, GL_FALSE, 0,
                                     ge::gl::VertexArray::I);
 
   edgeMarkersVertexArray = std::make_shared<ge::gl::VertexArray>();
   edgeMarkersVertexArray->addAttrib(edgeBuffer, 0, 1, GL_UNSIGNED_INT,
-                                    sizeof(uint), 0, GL_FALSE, 0,
+                                    sizeof(unsigned int), 0, GL_FALSE, 0,
                                     ge::gl::VertexArray::I);
 
   transformFeedback1.setBuffers(caseBuffer);
@@ -182,8 +182,7 @@ void ChunkManager::linkPrograms() {
 void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_DEPTH_TEST);
   ge::gl::glEnable(GL_CULL_FACE);
-  auto projection =
-      glm::perspective(glm::radians(60.f), 1920.f / 1080, 0.1f, 500.0f);
+  auto projection = cameraController->camera.projection.matrix;
   auto view = cameraController->getViewMatrix();
   glm::vec3 lightPos =
       glm::vec3{25, 25, 50};

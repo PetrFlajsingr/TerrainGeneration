@@ -8,21 +8,27 @@ PerspectiveProjection::PerspectiveProjection(float near, float far, float aspect
                                              float fieldOfView)
     : near(near), far(far), aspectRatio(aspectRatio), fieldOfView(fieldOfView) {
 }
+
 float PerspectiveProjection::getAspectRatio() const { return aspectRatio; }
 void PerspectiveProjection::setAspectRatio(float aspectRatio) {
   shouldUpdateMatrix = true;
   PerspectiveProjection::aspectRatio = aspectRatio;
 }
+
 float PerspectiveProjection::getFieldOfView() const { return fieldOfView; }
 void PerspectiveProjection::setFieldOfView(float fieldOfView) {
   shouldUpdateMatrix = true;
   PerspectiveProjection::fieldOfView = fieldOfView;
 }
+
 float PerspectiveProjection::getNear() const { return near; }
 void PerspectiveProjection::setNear(float near) {
+  shouldUpdateMatrix = true;
   PerspectiveProjection::near = near;
 }
+
 float PerspectiveProjection::getFar() const { return far; }
 void PerspectiveProjection::setFar(float far) {
+  shouldUpdateMatrix = true;
   PerspectiveProjection::far = far;
 }

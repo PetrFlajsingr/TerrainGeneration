@@ -17,9 +17,9 @@ public:
 
   CachedProperty(Predicate pred, Calculate calc);
 
-  CachedProperty(const CachedProperty &) = delete;
+  CachedProperty(const CachedProperty &) = default;
 
-  CachedProperty(CachedProperty &&) = delete;
+  CachedProperty(CachedProperty &&) = default;
 
   operator const T &();
 

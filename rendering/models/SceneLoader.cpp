@@ -125,7 +125,6 @@ SceneLoader::iterator &SceneLoader::iterator::operator++() {
   return *this;
 }
 
-std::vector<std::shared_ptr<GraphicsModelBase>>
-    SceneLoader::iterator::operator*() {
+SceneLoader::iterator::value_type SceneLoader::iterator::operator*() {
   return currentModels;
 }

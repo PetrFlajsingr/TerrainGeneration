@@ -13,11 +13,19 @@
 
 class SceneLoader {
 public:
-  explicit SceneLoader(const std::string& assetsPath, const std::string& sceneName);
+  explicit SceneLoader(const std::string &assetsPath,
+                       const std::string &sceneName);
 
   [[nodiscard]] bool isValid() const;
 
-  struct iterator {
+  class iterator {
+  public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = std::vector<std::shared_ptr<GraphicsModelBase>>;
+    using difference_type = int;
+    using pointer = value_type *;
+    using reference = value_type &;
+
     iterator() = default;
     explicit iterator(SceneLoader &loader, bool isEnd = false);
     iterator(const iterator &other);
@@ -27,9 +35,10 @@ public:
 
     iterator &operator++();
 
-    std::vector<std::shared_ptr<GraphicsModelBase>> operator*();
+    value_type operator*();
 
-    std::vector<std::shared_ptr<GraphicsModelBase>> currentModels;
+  private:
+    value_type currentModels;
     SceneLoader *loader = nullptr;
   };
 

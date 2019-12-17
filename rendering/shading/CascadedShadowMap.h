@@ -6,19 +6,17 @@
 #define TERRAINGENERATION_CASCADEDSHADOWMAP_H
 
 #include "glm/gtc//type_ptr.hpp"
+#include <TempViewportSetter.h>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
 #include <geGL_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <graphics/BoundingBox.h>
+#include <memory>
 #include <meta/meta.h>
 #include <utils/types/Range.h>
 #include <vector>
-#include <memory>
-
-using ShaderLiterals::operator""_vert;
-using ShaderLiterals::operator""_frag;
 
 class CascadedShadowMap {
 public:
@@ -33,6 +31,15 @@ public:
   [[nodiscard]] GLuint getDepthMap() const;
 
   [[nodiscard]] unsigned int getCascadeCount() const;
+
+  [[nodiscard]] float getLambda() const;
+  void setLambda(float lambda);
+
+  [[nodiscard]] float getMinDistance() const;
+  void setMinDistance(float minDistance);
+
+  [[nodiscard]] float getMaxDistance() const;
+  void setMaxDistance(float maxDistance);
 
   template <typename F>
   void renderShadowMap(F renderFunction, const glm::mat4 &cameraProjection,
@@ -50,12 +57,14 @@ private:
   unsigned int cascadeCount;
   unsigned int size;
 
-  GLuint depthMap;
+  float lambda = .7f;
+  float minDistance = 0.0f;
+  float maxDistance = 1.0f;
 
+  GLuint depthMap;
   GLuint depthMapFBO;
 
-  std::shared_ptr<ge::gl::Program> program = std::make_shared<ge::gl::Program>(
-      "shadow_map/sm"_vert, "shadow_map/sm"_frag);
+  std::shared_ptr<ge::gl::Program> program;
 
   void calculateOrthoMatrices(const glm::mat4 &cameraProjection,
                               const glm::mat4 &cameraView, float cameraNear,
@@ -63,8 +72,6 @@ private:
                               float fieldOfView);
 
   void bindCascade(unsigned int index);
-
-  GLint m_viewport[4]{};
 };
 
 template <typename F>
@@ -76,10 +83,9 @@ void CascadedShadowMap::renderShadowMap(F renderFunction,
   using namespace MakeRange;
   calculateOrthoMatrices(cameraProjection, cameraView, cameraNear, cameraFar,
                          aspectRatio, fieldOfView);
-  ge::gl::glGetIntegerv(GL_VIEWPORT, m_viewport);
 
   program->use();
-  ge::gl::glViewport(0, 0, size, size);
+  TempViewportSetter viewportSetter{{0, 0, static_cast<int>(size), static_cast<int>(size)}};
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
   for (auto i : range(cascadeCount)) {
@@ -88,7 +94,6 @@ void CascadedShadowMap::renderShadowMap(F renderFunction,
     ge::gl::glEnable(GL_DEPTH_TEST);
     ge::gl::glEnable(GL_DEPTH_CLAMP);
     ge::gl::glCullFace(GL_FRONT);
-    //ge::gl::glCullFace(GL_BACK);
     const auto lightViewProjection = lightOrthoMatrix[i] * lightViewMatrix[i];
     program->setMatrix4fv("lightViewProjectionMatrix",
                           glm::value_ptr(lightViewProjection));
@@ -96,8 +101,6 @@ void CascadedShadowMap::renderShadowMap(F renderFunction,
   }
   ge::gl::glDisable(GL_DEPTH_CLAMP);
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  auto [x, y, width, height] = m_viewport;
-  ge::gl::glViewport(x, y, width, height);
   ge::gl::glCullFace(GL_BACK);
 }
 

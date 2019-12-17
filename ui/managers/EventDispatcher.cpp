@@ -206,6 +206,6 @@ void sdl2cpp::ui::EventDispatcher::checkTimedEvents(
 
 sdl2cpp::ui::TimedEvent &
 sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
-  events.emplace_back(event);
+  events.emplace_back(std::move(event));
   return events.back();
 }

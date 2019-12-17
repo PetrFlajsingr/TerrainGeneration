@@ -61,8 +61,8 @@ public:
     return std::nullopt;
   }
 
-  void enqueueEvent(TimedEvent &&event) {
-    eventDispatcher.addEvent(std::forward<TimedEvent &&>(event));
+  TimedEvent &enqueueEvent(TimedEvent &&event) {
+      return eventDispatcher.addEvent(std::forward<TimedEvent &&>(event));
   }
 
 private:

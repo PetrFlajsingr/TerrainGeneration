@@ -6,7 +6,8 @@
 #include "io/print.h"
 #include "utils/types/Zip.h"
 #include <error_handling/exceptions.h>
-#include <fplus/fplus.hpp>
+
+using namespace MakeRange;
 
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size,
                            unsigned int chunkPoolSize, float step)
@@ -14,11 +15,9 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size,
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
   }
-  chunkPool = fplus::generate<std::vector<Chunk>>(
-      [step]() {
-        return Chunk{{-30, -30, -30}, step, 32};
-      },
-      chunkPoolSize);
+  for ([[maybe_unused]] auto _ : range(chunkPoolSize)) {
+    chunkPool.emplace_back(glm::vec3{-30, -30, -30}, step, 32);
+  }
 
   const auto halfDist = 16.f * glm::vec3{step} * glm::vec3{size};
 
@@ -188,7 +187,7 @@ void Surroundings::moveSurroundings(SurrMoveDir direction) {
         partsMap[CoordSourceForDir(direction, pos)]->startPosition +
             directionVect * surroundingsStep;
     newCenter = newStartPosition + surroundingsStep / 2.f;
-    auto tmp = partsMap[pos]->init(newStartPosition, newCenter, size, step);
+    const auto tmp = partsMap[pos]->init(newStartPosition, newCenter, size, step);
     unused.insert(unused.end(), tmp.begin(), tmp.end());
   }
 }

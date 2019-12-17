@@ -10,7 +10,6 @@
 #include "types/CachedProperty.h"
 #include "types/Range.h"
 #include <error_handling/exceptions.h>
-#include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

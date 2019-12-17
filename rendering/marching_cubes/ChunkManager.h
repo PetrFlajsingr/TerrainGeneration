@@ -11,7 +11,6 @@
 #include "ui/elements/CameraController.h"
 #include "various/loc_assert.h"
 #include <config/JsonConfig.h>
-#include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
 #include <graphics/TransformFeedback.h>
 #include <graphics/geGL_utils.h>

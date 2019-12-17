@@ -3,7 +3,9 @@
 //
 
 #include "marching_cubes.h"
+#include "Camera.h"
 #include "rendering/Data.h"
+#include "rendering/models/GraphicsModelBase.h"
 #include "rendering/shading/CascadedShadowMap.h"
 #include "rendering/utils/DrawTexture.h"
 #include "ui/elements.h"
@@ -12,13 +14,11 @@
 #include "various/loc_assert.h"
 #include <SDL2CPP/MainLoop.h>
 #include <SDL2CPP/Window.h>
-#include <gl_utils.h>
+#include <graphics/gl_utils.h>
 #include <rendering/marching_cubes/ChunkManager.h>
 #include <rendering/models/ModelRenderer.h>
 #include <time/FPSCounter.h>
 #include <types.h>
-#include "rendering/models/GraphicsModelBase.h"
-#include "Camera.h"
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;

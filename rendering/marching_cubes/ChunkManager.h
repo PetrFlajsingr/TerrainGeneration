@@ -10,14 +10,14 @@
 #include "graphics/Geometry.h"
 #include "ui/elements/CameraController.h"
 #include "various/loc_assert.h"
-#include <TransformFeedback.h>
 #include <config/JsonConfig.h>
 #include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
-#include <geGL_utils.h>
-#include <vector>
+#include <graphics/TransformFeedback.h>
+#include <graphics/geGL_utils.h>
 #include <list>
 #include <memory>
+#include <vector>
 
 #include "Surroundings.h"
 #include "rendering/Data.h"

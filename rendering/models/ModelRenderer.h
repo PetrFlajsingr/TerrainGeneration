@@ -5,17 +5,17 @@
 #ifndef TERRAINGENERATION_MODELRENDERER_H
 #define TERRAINGENERATION_MODELRENDERER_H
 
-#include "GraphicsModelBase.h"
 #include "GraphicsModel.h"
+#include "GraphicsModelBase.h"
 #include "types/CachedProperty.h"
 #include "types/Range.h"
 #include <error_handling/exceptions.h>
 #include <fplus/fplus.hpp>
 #include <geGL/StaticCalls.h>
-#include <geGL_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <graphics/geGL_utils.h>
 #include <memory>
 #include <string>
 #include <tiny_obj_loader.h>

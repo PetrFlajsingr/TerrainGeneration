@@ -6,13 +6,13 @@
 #define TERRAINGENERATION_CASCADEDSHADOWMAP_H
 
 #include "glm/gtc//type_ptr.hpp"
-#include <TempViewportSetter.h>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
-#include <geGL_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <graphics/BoundingBox.h>
+#include <graphics/TempViewportSetter.h>
+#include <graphics/geGL_utils.h>
 #include <memory>
 #include <meta/meta.h>
 #include <utils/types/Range.h>
@@ -85,7 +85,8 @@ void CascadedShadowMap::renderShadowMap(F renderFunction,
                          aspectRatio, fieldOfView);
 
   program->use();
-  TempViewportSetter viewportSetter{{0, 0, static_cast<int>(size), static_cast<int>(size)}};
+  TempViewportSetter viewportSetter{
+      {0, 0, static_cast<int>(size), static_cast<int>(size)}};
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
   for (auto i : range(cascadeCount)) {

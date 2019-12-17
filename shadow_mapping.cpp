@@ -21,7 +21,7 @@
 #include <SDL2CPP/Window.h>
 #include <String.h>
 #include <config/JsonConfig.h>
-#include <gl_utils.h>
+#include <graphics/gl_utils.h>
 #include <rendering/Data.h>
 #include <rendering/models/ModelRenderer.h>
 #include <rendering/models/SceneLoader.h>

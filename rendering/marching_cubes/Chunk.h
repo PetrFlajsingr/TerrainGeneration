@@ -5,9 +5,9 @@
 #ifndef TERRAINGENERATION_CHUNK_H
 #define TERRAINGENERATION_CHUNK_H
 
-#include "geGL_utils.h"
 #include "graphics/BoundingBox.h"
 #include "graphics/BoundingSphere.h"
+#include "graphics/geGL_utils.h"
 #include <geGL/Buffer.h>
 #include <geGL/Generated/OpenGLTypes.h>
 #include <geGL/VertexArray.h>

@@ -4,14 +4,14 @@
 
 #include "ChunkManager.h"
 #include "error_handling/exceptions.h"
-#include "geGL_utils.h"
+#include "graphics/geGL_utils.h"
+#include "graphics/shader_literals.h"
 #include "lookuptables.h"
-#include "shader_literals.h"
 #include <experimental/array>
 #include <geGL/StaticCalls.h>
-#include <gl_utils.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <graphics/ViewFrustum.h>
+#include <graphics/gl_utils.h>
 
 using namespace ShaderLiterals;
 

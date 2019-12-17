@@ -11,8 +11,9 @@ using ShaderLiterals::operator""_frag;
 
 CascadedShadowMap::CascadedShadowMap(unsigned int cascadeCount,
                                      unsigned int size)
-    : cascadeCount(cascadeCount), size(size), program(std::make_shared<ge::gl::Program>(
-    "shadow_map/sm"_vert, "shadow_map/sm"_frag)) {
+    : cascadeCount(cascadeCount), size(size),
+      program(std::make_shared<ge::gl::Program>("shadow_map/sm"_vert,
+                                                "shadow_map/sm"_frag)) {
   lightViewMatrix.resize(cascadeCount);
   lightOrthoMatrix.resize(cascadeCount);
   cascadedMatrices.resize(cascadeCount);

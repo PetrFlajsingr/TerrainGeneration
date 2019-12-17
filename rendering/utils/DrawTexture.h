@@ -4,7 +4,7 @@
 
 #ifndef TERRAINGENERATION_DRAWTEXTURE_H
 #define TERRAINGENERATION_DRAWTEXTURE_H
-#include "utils/geGL_utils.h"
+#include "graphics/geGL_utils.h"
 #include <vector>
 
 using namespace ShaderLiterals;

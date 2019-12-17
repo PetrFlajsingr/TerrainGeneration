@@ -3,7 +3,7 @@
 //
 
 #include "GUIRenderer.h"
-#include "shader_literals.h"
+#include "graphics/shader_literals.h"
 
 sdl2cpp::ui::GUIRenderer::Program sdl2cpp::ui::GUIRenderer::getProgram() {
   return drawProgram;

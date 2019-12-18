@@ -1,7 +1,6 @@
 # UI TODOs
 
 * observable
-* focus manager
 * Scrollable
 * Resizable
 * Movable

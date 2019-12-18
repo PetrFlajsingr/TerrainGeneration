@@ -23,8 +23,7 @@ public:
     getContext().glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackHandle);
     uint idx = 0;
     for (auto &buffer : this->buffers) {
-      getContext().glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, idx,
-                                    buffer->getId());
+      getContext().glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, idx, buffer->getId());
       ++idx;
     }
     getContext().glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);

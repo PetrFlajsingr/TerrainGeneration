@@ -8,9 +8,7 @@
 #include "specializations.h"
 #include <chrono>
 
-template <typename T>
-static inline constexpr bool is_duration_v =
-    is_specialization<T, std::chrono::duration>::value;
+template <typename T> static inline constexpr bool is_duration_v = is_specialization<T, std::chrono::duration>::value;
 
 template <typename Duration> constexpr auto durationToString() {
   using namespace std::chrono;

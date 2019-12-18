@@ -21,8 +21,7 @@ public:
 
   void restart();
 
-  friend std::ostream &operator<<(std::ostream &stream,
-                                  const FPSCounter &fpsCounter);
+  friend std::ostream &operator<<(std::ostream &stream, const FPSCounter &fpsCounter);
 
 private:
   uint64_t totalFrameCount = 0;

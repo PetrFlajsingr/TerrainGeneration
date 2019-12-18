@@ -16,13 +16,10 @@ namespace sdl2cpp::ui {
  * Camera controls. Steals mouse on right click and accepts other events while
  * the right mouse button is pressed.
  */
-class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
-                         public sdl2cpp::ui::CustomKeyboardInteractable {
+class CameraController : public sdl2cpp::ui::CustomMouseInteractable, public sdl2cpp::ui::CustomKeyboardInteractable {
 public:
-  explicit CameraController(UIManager &guiManager, PerspectiveProjection projection, glm::vec3 position,
-                            glm::vec3 dimensions,
-                            glm::vec3 startingPosition = {0.f, 0.f, 0.f},
-                            glm::vec3 direction = {0.f, 0.f, -1.f});
+  explicit CameraController(UIManager &guiManager, PerspectiveProjection projection, glm::vec3 position, glm::vec3 dimensions,
+                            glm::vec3 startingPosition = {0.f, 0.f, 0.f}, glm::vec3 direction = {0.f, 0.f, -1.f});
 
   /**
    * @return camera position

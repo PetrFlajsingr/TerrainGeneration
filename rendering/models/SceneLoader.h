@@ -13,8 +13,7 @@
 
 class SceneLoader {
 public:
-  explicit SceneLoader(const std::string &assetsPath,
-                       const std::string &sceneName);
+  explicit SceneLoader(const std::string &assetsPath, const std::string &sceneName);
 
   [[nodiscard]] bool isValid() const;
 

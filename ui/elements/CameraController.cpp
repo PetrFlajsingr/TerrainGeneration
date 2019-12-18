@@ -6,14 +6,9 @@
 
 #include <utility>
 
-sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager,
-                                                PerspectiveProjection projection,
-                                                glm::vec3 position,
-                                                glm::vec3 dimensions,
-                                                glm::vec3 startingPosition,
-                                                glm::vec3 direction)
-    : UIObject(guiManager), UIVisible(position, dimensions),
-      camera(std::move(projection), startingPosition) {
+sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager, PerspectiveProjection projection, glm::vec3 position,
+                                                glm::vec3 dimensions, glm::vec3 startingPosition, glm::vec3 direction)
+    : UIObject(guiManager), UIVisible(position, dimensions), camera(std::move(projection), startingPosition) {
   camera.MovementSpeed = 5.f;
 }
 
@@ -63,26 +58,19 @@ void sdl2cpp::ui::CameraController::onKeyDown(const SDL_Event &event) {
   }
 }
 
-glm::vec3 sdl2cpp::ui::CameraController::getPosition() const {
-  return camera.Position;
-}
+glm::vec3 sdl2cpp::ui::CameraController::getPosition() const { return camera.Position; }
 
-glm::mat4 sdl2cpp::ui::CameraController::getViewMatrix() {
-  return camera.GetViewMatrix();
-}
+glm::mat4 sdl2cpp::ui::CameraController::getViewMatrix() { return camera.GetViewMatrix(); }
 
 void sdl2cpp::ui::CameraController::draw(sdl2cpp::ui::GUIRenderer &renderer) {}
 
-void sdl2cpp::ui::CameraController::onVisibilityChanged(
-    sdl2cpp::ui::Visibility visibility) {}
+void sdl2cpp::ui::CameraController::onVisibilityChanged(sdl2cpp::ui::Visibility visibility) {}
 
 void sdl2cpp::ui::CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 
 void sdl2cpp::ui::CameraController::onEnabledChanged(bool enabled) {}
 
-void sdl2cpp::ui::CameraController::onMouseWheel(const SDL_Event &event) {
-    camera.ProcessMouseScroll(event.wheel.y);
-}
+void sdl2cpp::ui::CameraController::onMouseWheel(const SDL_Event &event) { camera.ProcessMouseScroll(event.wheel.y); }
 void sdl2cpp::ui::CameraController::onKeyUp(const SDL_Event &event) {
   auto key = event.key.keysym.sym;
   switch (key) {

@@ -20,26 +20,18 @@
  */
 
 template <typename Container> struct ConfigContainerTraits {
-  template <typename T, typename... Keys>
-  static std::optional<T> find(Container &, const Keys &... value);
+  template <typename T, typename... Keys> static std::optional<T> find(Container &, const Keys &... value);
 
-  template <typename T, typename... Keys>
-  static bool contains(Container &, const T &value, const Keys &... keys);
+  template <typename T, typename... Keys> static bool contains(Container &, const T &value, const Keys &... keys);
 
-  template <typename T, typename... Keys>
-  static void set(Container &, T &&value, const Keys &... key);
+  template <typename T, typename... Keys> static void set(Container &, T &&value, const Keys &... key);
 };
 
-template <typename Container> struct ConfigLoader {
-  Container load(std::string_view path);
-};
+template <typename Container> struct ConfigLoader { Container load(std::string_view path); };
 
-template <typename Container> struct ConfigSaver {
-  void save(Container &config, std::string_view path);
-};
+template <typename Container> struct ConfigSaver { void save(Container &config, std::string_view path); };
 
-template <typename DataContainer, bool ReadOnly, typename Key = std::string>
-class Config {
+template <typename DataContainer, bool ReadOnly, typename Key = std::string> class Config {
   using container_traits = ConfigContainerTraits<DataContainer>;
 
 public:
@@ -51,23 +43,19 @@ public:
    * Get value by key, return std::nullopt for non-existent value.
    * @tparam T requested value type
    */
-  template <typename T, typename... Keys>
-  std::optional<T> get(const Keys &... keys);
+  template <typename T, typename... Keys> std::optional<T> get(const Keys &... keys);
   /**
    * Get value by key, return defaultValue for non-existent value.
    * @tparam T requested value type
    */
-  template <typename T, typename... Keys>
-  T getDefault(const T &defaultValue, const Keys &... keys);
+  template <typename T, typename... Keys> T getDefault(const T &defaultValue, const Keys &... keys);
   /**
    * Set value for key. Allowed only if config is not in ReadOnly mode.
    */
-  template <typename T, bool R = ReadOnly, typename = std::enable_if_t<!R>,
-            typename... Keys>
+  template <typename T, bool R = ReadOnly, typename = std::enable_if_t<!R>, typename... Keys>
   Config &set(const T &value, const Keys &... keys);
 
-  template <typename T, typename... Keys>
-  bool contains(const T &value, const Keys &... keys);
+  template <typename T, typename... Keys> bool contains(const T &value, const Keys &... keys);
   /**
    * Save config to file. Allowed only if config is not in ReadOnly mode.
    */

@@ -24,9 +24,9 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     float positiveViewSpaceZ = depthViewSpace;
     uint cascadeIdx = 0;
 
-    for(uint i = 0; i < numOfCascades - 1; ++i)
+    for (uint i = 0; i < numOfCascades - 1; ++i)
     {
-        if(positiveViewSpaceZ < cascadedSplits[i])
+        if (positiveViewSpaceZ < cascadedSplits[i])
         {
             cascadeIdx = i + 1;
         }
@@ -116,9 +116,9 @@ void main()
 {
     uint cascadeIdx = 0;
 
-    for(uint i = 0; i < numOfCascades - 1; ++i)
+    for (uint i = 0; i < numOfCascades - 1; ++i)
     {
-        if(v2fPosition.z < cascadedSplits[i])
+        if (v2fPosition.z < cascadedSplits[i])
         {
             cascadeIdx = i + 1;
         }

@@ -9,8 +9,7 @@
 
 using namespace MakeRange;
 
-Surroundings::Surroundings(float loadDistance, glm::uvec3 size,
-                           unsigned int chunkPoolSize, float step)
+Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
     : loadDistance(loadDistance), size(size), step(step) {
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
@@ -23,8 +22,7 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size,
 
   using namespace MakeRange;
   const auto areaSize = step * 30.f;
-  for (auto [index, coords] :
-       zip(range(27), range<float, 3>({-1, -1, -1}, {2, 2, 2}, {1, 1, 1}))) {
+  for (auto [index, coords] : zip(range(27), range<float, 3>({-1, -1, -1}, {2, 2, 2}, {1, 1, 1}))) {
     const auto [x, y, z] = coords;
     const auto startPos = glm::vec3{x, y, z} * glm::vec3{size} * areaSize;
     maps[index].init(startPos, startPos + halfDist, size, step);
@@ -58,8 +56,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
 
     for (auto &tile : map.tiles) {
       if (tile.state == ChunkState::NotLoaded) {
-        if (availableCount != 0 && setupCount < computeBatchSize &&
-            glm::distance(tile.center, position) <= loadDistance) {
+        if (availableCount != 0 && setupCount < computeBatchSize && glm::distance(tile.center, position) <= loadDistance) {
           auto chunk = available.front();
           available.remove(chunk);
           --availableCount;
@@ -112,8 +109,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   ++a;
   info = WString::Format(L"Chunks: available {}, used {}, empty {}, setup {}, "
                          L"filled {}, notLoaded {}, maps {}",
-                         available.size(), usedCount, emptyCount, setupCount,
-                         filledCount, notLoadedCount, mapCnt);
+                         available.size(), usedCount, emptyCount, setupCount, filledCount, notLoadedCount, mapCnt);
   return used;
 }
 void Surroundings::setEmpty(Chunk *chunk) {
@@ -133,60 +129,47 @@ void Surroundings::moveSurroundings(SurrMoveDir direction) {
   const auto surroundingsStep = glm::vec3{size} * areaSize;
   using namespace MakeRange;
   for (unsigned int i : range(27)) {
-    partsMap[i] =
-        tmp[static_cast<int>(PosForDir(direction, static_cast<SurrPos>(i)))];
+    partsMap[i] = tmp[static_cast<int>(PosForDir(direction, static_cast<SurrPos>(i)))];
   }
   glm::vec3 newStartPosition;
   glm::vec3 newCenter;
   std::vector<SurrPos> forCoords;
   switch (direction) {
   case SurrMoveDir::Front:
-    forCoords = {
-        SurrPos::FrontLowLeft,  SurrPos::FrontLowMid,  SurrPos::FrontLowRight,
-        SurrPos::FrontMidLeft,  SurrPos::FrontMidMid,  SurrPos::FrontMidRight,
-        SurrPos::FrontHighLeft, SurrPos::FrontHighMid, SurrPos::FrontHighRight};
+    forCoords = {SurrPos::FrontLowLeft,  SurrPos::FrontLowMid,  SurrPos::FrontLowRight,
+                 SurrPos::FrontMidLeft,  SurrPos::FrontMidMid,  SurrPos::FrontMidRight,
+                 SurrPos::FrontHighLeft, SurrPos::FrontHighMid, SurrPos::FrontHighRight};
     break;
   case SurrMoveDir::Back:
-    forCoords = {
-        SurrPos::BackLowLeft,  SurrPos::BackLowMid,  SurrPos::BackLowRight,
-        SurrPos::BackMidLeft,  SurrPos::BackMidMid,  SurrPos::BackMidRight,
-        SurrPos::BackHighLeft, SurrPos::BackHighMid, SurrPos::BackHighRight};
+    forCoords = {SurrPos::BackLowLeft,  SurrPos::BackLowMid,   SurrPos::BackLowRight, SurrPos::BackMidLeft,  SurrPos::BackMidMid,
+                 SurrPos::BackMidRight, SurrPos::BackHighLeft, SurrPos::BackHighMid,  SurrPos::BackHighRight};
 
     break;
   case SurrMoveDir::Right:
-    forCoords = {
-        SurrPos::BackHighRight,  SurrPos::BackLowRight,  SurrPos::BackMidRight,
-        SurrPos::FrontHighRight, SurrPos::FrontLowRight, SurrPos::FrontMidRight,
-        SurrPos::MidHighRight,   SurrPos::MidLowRight,   SurrPos::MidMidRight};
+    forCoords = {SurrPos::BackHighRight,  SurrPos::BackLowRight,  SurrPos::BackMidRight,
+                 SurrPos::FrontHighRight, SurrPos::FrontLowRight, SurrPos::FrontMidRight,
+                 SurrPos::MidHighRight,   SurrPos::MidLowRight,   SurrPos::MidMidRight};
     break;
   case SurrMoveDir::Left:
-    forCoords = {
-        SurrPos::BackHighLeft,  SurrPos::BackLowLeft,  SurrPos::BackMidLeft,
-        SurrPos::FrontHighLeft, SurrPos::FrontLowLeft, SurrPos::FrontMidLeft,
-        SurrPos::MidHighLeft,   SurrPos::MidLowLeft,   SurrPos::MidMidLeft};
+    forCoords = {SurrPos::BackHighLeft, SurrPos::BackLowLeft, SurrPos::BackMidLeft, SurrPos::FrontHighLeft, SurrPos::FrontLowLeft,
+                 SurrPos::FrontMidLeft, SurrPos::MidHighLeft, SurrPos::MidLowLeft,  SurrPos::MidMidLeft};
     break;
   case SurrMoveDir::Down:
-    forCoords = {
-        SurrPos::MidLowLeft,    SurrPos::FrontLowLeft, SurrPos::BackLowLeft,
-        SurrPos::BackLowMid,    SurrPos::BackLowRight, SurrPos::FrontLowMid,
-        SurrPos::FrontLowRight, SurrPos::MidLowMid,    SurrPos::MidLowRight};
+    forCoords = {SurrPos::MidLowLeft,  SurrPos::FrontLowLeft,  SurrPos::BackLowLeft, SurrPos::BackLowMid, SurrPos::BackLowRight,
+                 SurrPos::FrontLowMid, SurrPos::FrontLowRight, SurrPos::MidLowMid,   SurrPos::MidLowRight};
     break;
   case SurrMoveDir::Up:
-    forCoords = {
-        SurrPos::MidHighLeft,    SurrPos::FrontHighLeft, SurrPos::BackHighLeft,
-        SurrPos::BackHighMid,    SurrPos::BackHighRight, SurrPos::FrontHighMid,
-        SurrPos::FrontHighRight, SurrPos::MidHighMid,    SurrPos::MidHighRight};
+    forCoords = {SurrPos::MidHighLeft,    SurrPos::FrontHighLeft, SurrPos::BackHighLeft,
+                 SurrPos::BackHighMid,    SurrPos::BackHighRight, SurrPos::FrontHighMid,
+                 SurrPos::FrontHighRight, SurrPos::MidHighMid,    SurrPos::MidHighRight};
     break;
   }
 
   for (auto pos : forCoords) {
     newStartPosition =
-        partsMap[static_cast<int>(CoordSourceForDir(direction, pos))]
-            ->startPosition +
-        directionVect * surroundingsStep;
+        partsMap[static_cast<int>(CoordSourceForDir(direction, pos))]->startPosition + directionVect * surroundingsStep;
     newCenter = newStartPosition + surroundingsStep / 2.f;
-    const auto tmp = partsMap[static_cast<int>(pos)]->init(
-        newStartPosition, newCenter, size, step);
+    const auto tmp = partsMap[static_cast<int>(pos)]->init(newStartPosition, newCenter, size, step);
     unused.insert(unused.end(), tmp.begin(), tmp.end());
   }
 }
@@ -303,8 +286,7 @@ void Surroundings::rearrangeSurroundings(SurrPos newMid) {
   }
 }
 void Surroundings::checkForMapMove(glm::vec3 cameraPosition) {
-  if (partsMap[static_cast<int>(SurrPos::MidMidMid)]->boundingBox.contains(
-          cameraPosition)) {
+  if (partsMap[static_cast<int>(SurrPos::MidMidMid)]->boundingBox.contains(cameraPosition)) {
     return;
   }
   using namespace MakeRange;
@@ -321,19 +303,14 @@ void Surroundings::checkForMapMove(glm::vec3 cameraPosition) {
   rearrangeSurroundings(cameraIn);
 }
 
-
-bool Map::isInRange(glm::vec3 cameraPosition, float range) {
-  return boundingSphere.distance(cameraPosition) <= range;
-}
-std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center,
-                               glm::uvec3 tileSize, float step) {
+bool Map::isInRange(glm::vec3 cameraPosition, float range) { return boundingSphere.distance(cameraPosition) <= range; }
+std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step) {
   using namespace MakeRange;
   startPosition = start;
   Map::center = center;
   std::vector<Chunk *> result;
   boundingSphere = geo::BoundingSphere<3>{center, glm::distance(start, center)};
-  boundingBox =
-      geo::BoundingBox<3>(start, start + 32.f * step * glm::vec3{tileSize});
+  boundingBox = geo::BoundingBox<3>(start, start + 32.f * step * glm::vec3{tileSize});
   const auto halfDist = 16.f * glm::vec3{step};
   for (auto i : range(tiles.size())) {
     uint x = i % tileSize.x;
@@ -344,8 +321,7 @@ std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center,
     if (tiles[i].ptr != nullptr) {
       result.emplace_back(tiles[i].ptr);
     }
-    tiles[i] = {ChunkState::NotLoaded, nullptr, start + startPosition,
-                center + startPosition};
+    tiles[i] = {ChunkState::NotLoaded, nullptr, start + startPosition, center + startPosition};
   }
   return result;
 }

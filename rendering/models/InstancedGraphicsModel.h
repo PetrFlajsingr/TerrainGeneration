@@ -6,10 +6,6 @@
 #define TERRAINGENERATION_INSTANCEDGRAPHICSMODEL_H
 #include "GraphicsModel.h"
 
-template <typename BufferType = ge::gl::Buffer>
-class InstancedGraphicsModel : public GraphicsModel<BufferType> {
-public:
-};
-
+template <typename BufferType = ge::gl::Buffer> class InstancedGraphicsModel : public GraphicsModel<BufferType> { public: };
 
 #endif // TERRAINGENERATION_INSTANCEDGRAPHICSMODEL_H

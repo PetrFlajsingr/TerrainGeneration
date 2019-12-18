@@ -43,8 +43,7 @@ public:
   void setMaxDistance(float maxDistance);
 
   template <typename F>
-  void renderShadowMap(F renderFunction, const PerspectiveProjection &perspectiveProjection,
-                       const glm::mat4 &cameraView);
+  void renderShadowMap(F renderFunction, const PerspectiveProjection &perspectiveProjection, const glm::mat4 &cameraView);
 
 private:
   std::vector<glm::mat4> lightViewMatrix;
@@ -66,24 +65,22 @@ private:
 
   std::shared_ptr<ge::gl::Program> program;
 
-  void calculateOrthoMatrices(const glm::mat4 &cameraProjection,
-                              const glm::mat4 &cameraView, float cameraNear,
-                              float cameraFar, float aspectRatio,
-                              float fieldOfView);
+  void calculateOrthoMatrices(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, float cameraNear, float cameraFar,
+                              float aspectRatio, float fieldOfView);
 
   void bindCascade(unsigned int index);
 };
 
-template <typename F>
-void CascadedShadowMap::renderShadowMap(F renderFunction, const PerspectiveProjection &perspectiveProjection,
-                                        const glm::mat4 &cameraView) {
+template <typename F> void CascadedShadowMap::renderShadowMap(F renderFunction,
+                                                              const PerspectiveProjection &perspectiveProjection,
+                                                              const glm::mat4 &cameraView) {
   using namespace MakeRange;
-  calculateOrthoMatrices(perspectiveProjection.matrix.getRef(), cameraView, perspectiveProjection.getNear(), perspectiveProjection.getFar(),
-                         perspectiveProjection.getAspectRatio(), perspectiveProjection.getFieldOfView());
+  calculateOrthoMatrices(perspectiveProjection.matrix.getRef(), cameraView, perspectiveProjection.getNear(),
+                         perspectiveProjection.getFar(), perspectiveProjection.getAspectRatio(),
+                         perspectiveProjection.getFieldOfView());
 
   program->use();
-  TempViewportSetter viewportSetter{
-      {0, 0, static_cast<int>(size), static_cast<int>(size)}};
+  TempViewportSetter viewportSetter{{0, 0, static_cast<int>(size), static_cast<int>(size)}};
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
   for (auto i : range(cascadeCount)) {
@@ -93,8 +90,7 @@ void CascadedShadowMap::renderShadowMap(F renderFunction, const PerspectiveProje
     ge::gl::glEnable(GL_DEPTH_CLAMP);
     ge::gl::glCullFace(GL_FRONT);
     const auto lightViewProjection = lightOrthoMatrix[i] * lightViewMatrix[i];
-    program->setMatrix4fv("lightViewProjectionMatrix",
-                          glm::value_ptr(lightViewProjection));
+    program->setMatrix4fv("lightViewProjectionMatrix", glm::value_ptr(lightViewProjection));
     renderFunction(program, bbs[i]);
   }
   ge::gl::glDisable(GL_DEPTH_CLAMP);

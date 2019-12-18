@@ -10,8 +10,7 @@ float FPSCounter::average() const {
 }
 
 float FPSCounter::current() const {
-  return 1.f / lastFrameDuration.count() *
-         std::chrono::duration_cast<std::chrono::milliseconds>(1s).count();
+  return 1.f / lastFrameDuration.count() * std::chrono::duration_cast<std::chrono::milliseconds>(1s).count();
 }
 
 void FPSCounter::frame() {
@@ -30,7 +29,6 @@ void FPSCounter::restart() {
 }
 
 std::ostream &operator<<(std::ostream &stream, const FPSCounter &fpsCounter) {
-  stream << "[FPS]: average: " << fpsCounter.average()
-         << " immediate: " << fpsCounter.current();
+  stream << "[FPS]: average: " << fpsCounter.average() << " immediate: " << fpsCounter.current();
   return stream;
 }

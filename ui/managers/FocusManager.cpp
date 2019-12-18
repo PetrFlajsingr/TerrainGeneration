@@ -4,17 +4,11 @@
 
 #include "FocusManager.h"
 
-sdl2cpp::ui::FocusManager::FocusManager(
-    std::vector<std::weak_ptr<UIObject>> &guiObjects)
-    : guiObjects(guiObjects) {}
+sdl2cpp::ui::FocusManager::FocusManager(std::vector<std::weak_ptr<UIObject>> &guiObjects) : guiObjects(guiObjects) {}
 
-void sdl2cpp::ui::FocusManager::changeFocusTo(
-    const std::shared_ptr<UIObject> &guiObject) {
-  changeFocusTo(guiObject.get());
-}
+void sdl2cpp::ui::FocusManager::changeFocusTo(const std::shared_ptr<UIObject> &guiObject) { changeFocusTo(guiObject.get()); }
 
-void sdl2cpp::ui::FocusManager::changeFocusTo(
-    sdl2cpp::ui::UIObject *guiObject) {
+void sdl2cpp::ui::FocusManager::changeFocusTo(sdl2cpp::ui::UIObject *guiObject) {
   for (auto &guiObj : guiObjects) {
     if (guiObj.expired()) {
       continue;

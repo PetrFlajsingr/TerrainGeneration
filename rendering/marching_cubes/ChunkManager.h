@@ -58,9 +58,7 @@ public:
 
   observable::value<int> drawnCount;
   observable::value<int> computeCount;
-  explicit ChunkManager(
-      std::shared_ptr<sdl2cpp::ui::CameraController> cameraController,
-      JsonConfig<true> config);
+  explicit ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, JsonConfig<true> config);
 
   void generateChunks();
 
@@ -72,13 +70,11 @@ private:
   JsonConfig<true> config;
   void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection);
   void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
-  void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix,
-                      uint step);
+  void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step);
 
   void calculateDensity(const std::vector<Chunk *> &chunks);
 
-  void streamIdxVert(const std::vector<Chunk *> &chunks,
-                     ge::gl::AsynchronousQuery &query);
+  void streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::AsynchronousQuery &query);
 
   Shader generateDensity;
   Shader streamCases;

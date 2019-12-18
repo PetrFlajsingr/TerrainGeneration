@@ -11,23 +11,16 @@
 #include <vector>
 
 namespace StringUtils {
-template <template <class> typename ContainerOut = std::vector,
-          typename StringType>
-ContainerOut<StringType> split(const StringType &str,
-                               const StringType &delimiter);
+template <template <class> typename ContainerOut = std::vector, typename StringType>
+ContainerOut<StringType> split(const StringType &str, const StringType &delimiter);
 
-template <typename To, typename StringType>
-std::optional<To> to(const StringType &str);
+template <typename To, typename StringType> std::optional<To> to(const StringType &str);
 
-template <typename StringType>
-bool startsWith(const StringType &str, const StringType &searched);
+template <typename StringType> bool startsWith(const StringType &str, const StringType &searched);
 
-template <typename StringType>
-bool endsWith(const StringType &str, const StringType &searched);
+template <typename StringType> bool endsWith(const StringType &str, const StringType &searched);
 
-template <typename T, typename StringType> StringType from(const T &value) {
-  return std::to_string(value);
-}
+template <typename T, typename StringType> StringType from(const T &value) { return std::to_string(value); }
 
 std::string getRandomString(size_t length);
 
@@ -57,9 +50,7 @@ public:
 
   template <typename T> inline StringDecorator &operator=(T &&other);
 
-  template <typename T, typename = typename std::enable_if_t<
-                            std::is_convertible_v<StringType, T>>>
-  inline operator T() const;
+  template <typename T, typename = typename std::enable_if_t<std::is_convertible_v<StringType, T>>> inline operator T() const;
 
   inline reference at(size_type pos);
 
@@ -143,11 +134,9 @@ public:
 
   inline iterator erase(const_iterator first, const_iterator last);
 
-  inline size_type find(const StringDecorator &str, size_type pos = 0) const
-      noexcept;
+  inline size_type find(const StringDecorator &str, size_type pos = 0) const noexcept;
 
-  inline size_type find(const StringType &str, size_type pos = 0) const
-      noexcept;
+  inline size_type find(const StringType &str, size_type pos = 0) const noexcept;
 
   inline size_type find(const CharT *s, size_type pos, size_type count) const;
 
@@ -155,14 +144,11 @@ public:
 
   inline size_type find(CharT ch, size_type pos = 0) const noexcept;
 
-  template <class T>
-  inline size_type find(const T &t, size_type pos = 0) const noexcept;
+  template <class T> inline size_type find(const T &t, size_type pos = 0) const noexcept;
 
-  inline size_type rfind(const StringDecorator &str, size_type pos = 0) const
-      noexcept;
+  inline size_type rfind(const StringDecorator &str, size_type pos = 0) const noexcept;
 
-  inline size_type rfind(const StringType &str, size_type pos = 0) const
-      noexcept;
+  inline size_type rfind(const StringType &str, size_type pos = 0) const noexcept;
 
   inline size_type rfind(const CharT *s, size_type pos, size_type count) const;
 
@@ -170,111 +156,81 @@ public:
 
   inline size_type rfind(CharT ch, size_type pos = 0) const noexcept;
 
-  template <typename T>
-  inline size_type rfind(const T &t, size_type pos = 0) const noexcept;
+  template <typename T> inline size_type rfind(const T &t, size_type pos = 0) const noexcept;
 
-  inline size_type find_first_of(const StringType &str, size_type pos = 0) const
-      noexcept;
+  inline size_type find_first_of(const StringType &str, size_type pos = 0) const noexcept;
 
-  inline size_type find_first_of(const StringDecorator &str,
-                                 size_type pos = 0) const noexcept;
+  inline size_type find_first_of(const StringDecorator &str, size_type pos = 0) const noexcept;
 
-  inline size_type find_first_of(const CharT *s, size_type pos,
-                                 size_type count) const;
+  inline size_type find_first_of(const CharT *s, size_type pos, size_type count) const;
 
   inline size_type find_first_of(const CharT *s, size_type pos = 0) const;
 
   inline size_type find_first_of(CharT ch, size_type pos = 0) const noexcept;
 
-  template <class T>
-  inline size_type find_first_of(const T &t, size_type pos = 0) const noexcept;
+  template <class T> inline size_type find_first_of(const T &t, size_type pos = 0) const noexcept;
 
-  inline size_type find_first_not_of(const StringDecorator &str,
-                                     size_type pos = 0) const noexcept;
+  inline size_type find_first_not_of(const StringDecorator &str, size_type pos = 0) const noexcept;
 
-  inline size_type find_first_not_of(const StringType &str,
-                                     size_type pos = 0) const noexcept;
+  inline size_type find_first_not_of(const StringType &str, size_type pos = 0) const noexcept;
 
-  inline size_type find_first_not_of(const CharT *s, size_type pos,
-                                     size_type count) const;
+  inline size_type find_first_not_of(const CharT *s, size_type pos, size_type count) const;
 
   inline size_type find_first_not_of(const CharT *s, size_type pos = 0) const;
 
-  inline size_type find_first_not_of(CharT ch, size_type pos = 0) const
-      noexcept;
+  inline size_type find_first_not_of(CharT ch, size_type pos = 0) const noexcept;
 
-  template <class T>
-  inline size_type find_first_not_of(const T &t, size_type pos = 0) const
-      noexcept;
+  template <class T> inline size_type find_first_not_of(const T &t, size_type pos = 0) const noexcept;
 
-  inline size_type find_last_of(const StringDecorator &str,
-                                size_type pos = npos) const noexcept;
+  inline size_type find_last_of(const StringDecorator &str, size_type pos = npos) const noexcept;
 
-  inline size_type find_last_of(const StringType &str,
-                                size_type pos = npos) const noexcept;
+  inline size_type find_last_of(const StringType &str, size_type pos = npos) const noexcept;
 
-  inline size_type find_last_of(const CharT *s, size_type pos,
-                                size_type count) const;
+  inline size_type find_last_of(const CharT *s, size_type pos, size_type count) const;
 
   inline size_type find_last_of(const CharT *s, size_type pos = npos) const;
 
   inline size_type find_last_of(CharT ch, size_type pos = npos) const noexcept;
 
-  template <class T>
-  inline size_type find_last_of(const T &t, size_type pos = npos) const
-      noexcept;
+  template <class T> inline size_type find_last_of(const T &t, size_type pos = npos) const noexcept;
 
-  inline size_type find_last_not_of(const StringDecorator &str,
-                                    size_type pos = npos) const noexcept;
+  inline size_type find_last_not_of(const StringDecorator &str, size_type pos = npos) const noexcept;
 
-  inline size_type find_last_not_of(const StringType &str,
-                                    size_type pos = npos) const noexcept;
+  inline size_type find_last_not_of(const StringType &str, size_type pos = npos) const noexcept;
 
-  inline size_type find_last_not_of(const CharT *s, size_type pos,
-                                    size_type count) const;
+  inline size_type find_last_not_of(const CharT *s, size_type pos, size_type count) const;
 
   inline size_type find_last_not_of(const CharT *s, size_type pos = npos) const;
 
-  inline size_type find_last_not_of(CharT ch, size_type pos = npos) const
-      noexcept;
+  inline size_type find_last_not_of(CharT ch, size_type pos = npos) const noexcept;
 
-  template <class T>
-  inline size_type find_last_not_of(const T &t, size_type pos = npos) const
-      noexcept;
+  template <class T> inline size_type find_last_not_of(const T &t, size_type pos = npos) const noexcept;
 
   inline StringDecorator &insert(size_type index, size_type count, CharT ch);
 
   inline StringDecorator &insert(size_type index, const CharT *s);
 
-  inline StringDecorator &insert(size_type index, const CharT *s,
-                                 size_type count);
+  inline StringDecorator &insert(size_type index, const CharT *s, size_type count);
 
   inline StringDecorator &insert(size_type index, const StringDecorator &str);
 
   inline StringDecorator &insert(size_type index, const StringType &str);
 
-  inline StringDecorator &insert(size_type index, const StringDecorator &str,
-                                 size_type index_str, size_type count = npos);
+  inline StringDecorator &insert(size_type index, const StringDecorator &str, size_type index_str, size_type count = npos);
 
-  inline StringDecorator &insert(size_type index, const StringType &str,
-                                 size_type index_str, size_type count = npos);
+  inline StringDecorator &insert(size_type index, const StringType &str, size_type index_str, size_type count = npos);
 
   inline iterator insert(const_iterator pos, CharT ch);
 
   inline iterator insert(const_iterator pos, size_type count, CharT ch);
 
-  template <typename InputIt>
-  inline iterator insert(const_iterator pos, InputIt first, InputIt last);
+  template <typename InputIt> inline iterator insert(const_iterator pos, InputIt first, InputIt last);
 
-  inline iterator insert(const_iterator pos,
-                         std::initializer_list<CharT> ilist);
+  inline iterator insert(const_iterator pos, std::initializer_list<CharT> ilist);
 
-  template <typename T>
-  inline StringDecorator &insert(size_type pos, const T &t);
+  template <typename T> inline StringDecorator &insert(size_type pos, const T &t);
 
-  template <typename T>
-  inline StringDecorator &insert(size_type index, const T &t,
-                                 size_type index_str, size_type count = npos);
+  template <typename T> inline StringDecorator &insert(size_type index, const T &t, size_type index_str, size_type count = npos);
 
   inline StringDecorator &append(size_type count, CharT ch);
 
@@ -282,24 +238,19 @@ public:
 
   inline StringDecorator &append(const StringType &str);
 
-  inline StringDecorator &append(const StringDecorator &str, size_type pos,
-                                 size_type count = npos);
+  inline StringDecorator &append(const StringDecorator &str, size_type pos, size_type count = npos);
 
-  inline StringDecorator &append(const StringType &str, size_type pos,
-                                 size_type count = npos);
+  inline StringDecorator &append(const StringType &str, size_type pos, size_type count = npos);
 
   inline StringDecorator &append(const CharT *s, size_type count);
 
   inline StringDecorator &append(const CharT *s);
 
-  template <typename InputIt>
-  inline StringDecorator &append(InputIt first, InputIt last);
+  template <typename InputIt> inline StringDecorator &append(InputIt first, InputIt last);
 
   template <typename T> inline StringDecorator &append(const T &t);
 
-  template <typename T>
-  inline StringDecorator &append(const T &t, size_type pos,
-                                 size_type count = npos);
+  template <typename T> inline StringDecorator &append(const T &t, size_type pos, size_type count = npos);
 
   StringDecorator operator+(const StringDecorator &rhs);
 
@@ -313,87 +264,60 @@ public:
 
   int compare(const StringType &str) const noexcept;
 
-  int compare(size_type pos1, size_type count1,
-              const StringDecorator &str) const;
+  int compare(size_type pos1, size_type count1, const StringDecorator &str) const;
 
   int compare(size_type pos1, size_type count1, const StringType &str) const;
 
-  int compare(size_type pos1, size_type count1, const StringDecorator &str,
-              size_type pos2, size_type count2 = npos) const;
+  int compare(size_type pos1, size_type count1, const StringDecorator &str, size_type pos2, size_type count2 = npos) const;
 
-  int compare(size_type pos1, size_type count1, const StringType &str,
-              size_type pos2, size_type count2 = npos) const;
+  int compare(size_type pos1, size_type count1, const StringType &str, size_type pos2, size_type count2 = npos) const;
 
   int compare(const CharT *s) const;
 
   int compare(size_type pos1, size_type count1, const CharT *s) const;
 
-  int compare(size_type pos1, size_type count1, const CharT *s,
-              size_type count2) const;
+  int compare(size_type pos1, size_type count1, const CharT *s, size_type count2) const;
 
   template <class T> int compare(const T &t) const noexcept;
 
-  template <class T>
-  int compare(size_type pos1, size_type count1, const T &t) const;
+  template <class T> int compare(size_type pos1, size_type count1, const T &t) const;
 
-  template <class T>
-  int compare(size_type pos1, size_type count1, const T &t, size_type pos2,
-              size_type count2 = npos) const;
+  template <class T> int compare(size_type pos1, size_type count1, const T &t, size_type pos2, size_type count2 = npos) const;
 
-  StringDecorator &replace(size_type pos, size_type count,
-                           const StringDecorator &str);
+  StringDecorator &replace(size_type pos, size_type count, const StringDecorator &str);
 
-  StringDecorator &replace(size_type pos, size_type count,
-                           const StringType &str);
+  StringDecorator &replace(size_type pos, size_type count, const StringType &str);
 
-  StringDecorator &replace(const_iterator first, const_iterator last,
-                           const StringDecorator &str);
+  StringDecorator &replace(const_iterator first, const_iterator last, const StringDecorator &str);
 
-  StringDecorator &replace(const_iterator first, const_iterator last,
-                           const StringType &str);
+  StringDecorator &replace(const_iterator first, const_iterator last, const StringType &str);
 
-  StringDecorator &replace(size_type pos, size_type count,
-                           const StringDecorator &str, size_type pos2,
-                           size_type count2 = npos);
+  StringDecorator &replace(size_type pos, size_type count, const StringDecorator &str, size_type pos2, size_type count2 = npos);
 
-  StringDecorator &replace(size_type pos, size_type count,
-                           const StringType &str, size_type pos2,
-                           size_type count2 = npos);
+  StringDecorator &replace(size_type pos, size_type count, const StringType &str, size_type pos2, size_type count2 = npos);
 
-  template <class InputIt>
-  StringDecorator &replace(const_iterator first, const_iterator last,
-                           InputIt first2, InputIt last2);
+  template <class InputIt> StringDecorator &replace(const_iterator first, const_iterator last, InputIt first2, InputIt last2);
 
-  StringDecorator &replace(size_type pos, size_type count, const CharT *cstr,
-                           size_type count2);
+  StringDecorator &replace(size_type pos, size_type count, const CharT *cstr, size_type count2);
 
-  StringDecorator &replace(const_iterator first, const_iterator last,
-                           const CharT *cstr, size_type count2);
+  StringDecorator &replace(const_iterator first, const_iterator last, const CharT *cstr, size_type count2);
 
   StringDecorator &replace(size_type pos, size_type count, const CharT *cstr);
 
-  StringDecorator &replace(const_iterator first, const_iterator last,
-                           const CharT *cstr);
+  StringDecorator &replace(const_iterator first, const_iterator last, const CharT *cstr);
 
-  StringDecorator &replace(size_type pos, size_type count, size_type count2,
-                           CharT ch);
+  StringDecorator &replace(size_type pos, size_type count, size_type count2, CharT ch);
 
-  StringDecorator &replace(const_iterator first, const_iterator last,
-                           size_type count2, CharT ch);
+  StringDecorator &replace(const_iterator first, const_iterator last, size_type count2, CharT ch);
 
-  StringDecorator &replace(const_iterator first, const_iterator last,
-                           std::initializer_list<CharT> ilist);
+  StringDecorator &replace(const_iterator first, const_iterator last, std::initializer_list<CharT> ilist);
 
-  template <class T>
-  StringDecorator &replace(size_type pos, size_type count, const T &t);
+  template <class T> StringDecorator &replace(size_type pos, size_type count, const T &t);
+
+  template <class T> StringDecorator &replace(const_iterator first, const_iterator last, const T &t);
 
   template <class T>
-  StringDecorator &replace(const_iterator first, const_iterator last,
-                           const T &t);
-
-  template <class T>
-  StringDecorator &replace(size_type pos, size_type count, const T &t,
-                           size_type pos2, size_type count2 = npos);
+  StringDecorator &replace(size_type pos, size_type count, const T &t, size_type pos2, size_type count2 = npos);
 
   inline bool operator==(const StringDecorator &rhs) const;
 
@@ -438,38 +362,26 @@ public:
 
   inline const StringType &string() const;
 
-  template <typename... Args>
-  constexpr inline StringDecorator format(Args &&... args) const;
+  template <typename... Args> constexpr inline StringDecorator format(Args &&... args) const;
 
-  template <typename... Args>
-  constexpr static inline StringDecorator Format(const StringType &str,
-                                                 Args &&... args);
+  template <typename... Args> constexpr static inline StringDecorator Format(const StringType &str, Args &&... args);
 
-  template <typename... Args>
-  constexpr static inline StringDecorator Format(const StringDecorator &str,
-                                                 Args &&... args);
+  template <typename... Args> constexpr static inline StringDecorator Format(const StringDecorator &str, Args &&... args);
 
 private:
   StringType _data;
 };
 
-template <typename StringType>
-inline std::ostream &operator<<(std::ostream &os,
-                                const StringDecorator<StringType> &decorator);
+template <typename StringType> inline std::ostream &operator<<(std::ostream &os, const StringDecorator<StringType> &decorator);
 
 template <typename StringType>
-StringDecorator<StringType> operator+(const StringType &lhs,
-                                      const StringDecorator<StringType> &rhs);
+StringDecorator<StringType> operator+(const StringType &lhs, const StringDecorator<StringType> &rhs);
+
+template <typename StringType> StringDecorator<StringType> operator+(const typename StringDecorator<StringType>::CharT *lhs,
+                                                                     const StringDecorator<StringType> &rhs);
 
 template <typename StringType>
-StringDecorator<StringType>
-operator+(const typename StringDecorator<StringType>::CharT *lhs,
-          const StringDecorator<StringType> &rhs);
-
-template <typename StringType>
-StringDecorator<StringType>
-operator+(typename StringDecorator<StringType>::CharT lhs,
-          const StringDecorator<StringType> &rhs);
+StringDecorator<StringType> operator+(typename StringDecorator<StringType>::CharT lhs, const StringDecorator<StringType> &rhs);
 
 // TODO: operators
 

@@ -10,23 +10,20 @@
 #include <freetype-gl++/vertex-buffer+.hpp>
 
 class Text {
-  freetypeglxx::VertexBuffer buffer =
-      freetypeglxx::VertexBuffer("vertex:3f,tex_coord:2f,color:4f");
+  freetypeglxx::VertexBuffer buffer = freetypeglxx::VertexBuffer("vertex:3f,tex_coord:2f,color:4f");
   OBSERVABLE_PROPERTIES(Text);
   friend class TextRenderer;
 
   struct vertex_t {
-    vertex_t(float _x, float _y, float _z, float _s, float _t, float _r,
-             float _g, float _b, float _a)
+    vertex_t(float _x, float _y, float _z, float _s, float _t, float _r, float _g, float _b, float _a)
         : x(_x), y(_y), z(_z), s(_s), t(_t), r(_r), g(_g), b(_b), a(_a) {}
 
-    float x, y, z;     // position
-    float s, t;        // texture
-    float r, g, b, a;  // color
+    float x, y, z;    // position
+    float s, t;       // texture
+    float r, g, b, a; // color
   };
 
-  explicit Text(FontManager &fontManager, const std::wstring &initialValue,
-                Font *font, float fontSize);
+  explicit Text(FontManager &fontManager, const std::wstring &initialValue, Font *font, float fontSize);
 
 public:
   [[nodiscard]] Font &getFont() const;

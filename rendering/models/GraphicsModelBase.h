@@ -23,8 +23,7 @@ public:
   GraphicsModelBase(const GraphicsModelBase &other);
   GraphicsModelBase &operator=(const GraphicsModelBase &other);
 
-  [[nodiscard]] const std::shared_ptr<ge::gl::VertexArray> &
-  getVertexArray() const;
+  [[nodiscard]] const std::shared_ptr<ge::gl::VertexArray> &getVertexArray() const;
   void setId(const Id &id);
   [[nodiscard]] const Id &getId() const;
   [[nodiscard]] Type getType() const;
@@ -54,12 +53,9 @@ public:
         auto ModelMatrix = glm::mat4();
 
         ModelMatrix = glm::translate(ModelMatrix, position);
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.x),
-                                  glm::vec3(1, 0, 0));
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y),
-                                  glm::vec3(0, 1, 0));
-        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z),
-                                  glm::vec3(0, 0, 1));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+        ModelMatrix = glm::rotate(ModelMatrix, glm::radians(rotation.z), glm::vec3(0, 0, 1));
         ModelMatrix = glm::scale(ModelMatrix, scale);
 
         return ModelMatrix;

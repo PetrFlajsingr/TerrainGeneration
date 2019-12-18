@@ -4,8 +4,7 @@
 
 #include "Text.h"
 
-Text::Text(FontManager &fontManager, const std::wstring &initialValue,
-           Font *font, float fontSize)
+Text::Text(FontManager &fontManager, const std::wstring &initialValue, Font *font, float fontSize)
     : font(font), fontSize(fontSize), fontManager(fontManager) {
   text = WString{initialValue};
 }
@@ -57,8 +56,7 @@ void Text::calcText(const WString &str, glm::vec4 color, glm::vec3 pen) {
   std::vector<GLuint> indices(6);
   memcpy(indices.data(), indices_raw, sizeof(indices_raw));
   for (i = 0; i < wcslen(str.c_str()); ++i) {
-    freetypeglxx::TextureGlyph *glyph =
-        font->getData(fontSize)->GetGlyph(str.c_str()[i]);
+    freetypeglxx::TextureGlyph *glyph = font->getData(fontSize)->GetGlyph(str.c_str()[i]);
     if (glyph != nullptr) {
       int kerning = 0;
       if (i > 0) {
@@ -70,18 +68,14 @@ void Text::calcText(const WString &str, glm::vec4 color, glm::vec3 pen) {
       int x1 = static_cast<int>(x0 + glyph->width());
       int y1 = static_cast<int>(y0 - glyph->height());
       std::vector<vertex_t> vertices;
-      vertices.emplace_back(vertex_t(static_cast<float>(x0),
-                                     static_cast<float>(y0), pen.z, glyph->s0(),
-                                     glyph->t0(), r, g, b, a));
-      vertices.emplace_back(vertex_t(static_cast<float>(x0),
-                                     static_cast<float>(y1), pen.z, glyph->s0(),
-                                     glyph->t1(), r, g, b, a));
-      vertices.emplace_back(vertex_t(static_cast<float>(x1),
-                                     static_cast<float>(y1), pen.z, glyph->s1(),
-                                     glyph->t1(), r, g, b, a));
-      vertices.emplace_back(vertex_t(static_cast<float>(x1),
-                                     static_cast<float>(y0), pen.z, glyph->s1(),
-                                     glyph->t0(), r, g, b, a));
+      vertices.emplace_back(
+          vertex_t(static_cast<float>(x0), static_cast<float>(y0), pen.z, glyph->s0(), glyph->t0(), r, g, b, a));
+      vertices.emplace_back(
+          vertex_t(static_cast<float>(x0), static_cast<float>(y1), pen.z, glyph->s0(), glyph->t1(), r, g, b, a));
+      vertices.emplace_back(
+          vertex_t(static_cast<float>(x1), static_cast<float>(y1), pen.z, glyph->s1(), glyph->t1(), r, g, b, a));
+      vertices.emplace_back(
+          vertex_t(static_cast<float>(x1), static_cast<float>(y0), pen.z, glyph->s1(), glyph->t0(), r, g, b, a));
       buffer.PushBack(vertices, indices);
       pen.x += glyph->advance_x();
     }

@@ -5,7 +5,6 @@
 #include "SurroundingsEnums.h"
 #include <error_handling/exceptions.h>
 
-
 // Please excuse this absolute insanity...
 
 glm::vec3 SurrDirToVec(SurrMoveDir direction) {
@@ -401,7 +400,8 @@ SurrPos CoordSourceForDir(SurrMoveDir direction, SurrPos pos) {
       return SurrPos::MidHighMid;
     case SurrPos::FrontHighRight:
       return SurrPos::MidHighRight;
-    default: throw exc::InternalError("Invalid enum value Front");
+    default:
+      throw exc::InternalError("Invalid enum value Front");
     }
   case SurrMoveDir::Back:
     switch (pos) {
@@ -423,7 +423,8 @@ SurrPos CoordSourceForDir(SurrMoveDir direction, SurrPos pos) {
       return SurrPos::MidHighMid;
     case SurrPos::BackHighRight:
       return SurrPos::MidHighRight;
-    default: throw exc::InternalError("Invalid enum value Back");
+    default:
+      throw exc::InternalError("Invalid enum value Back");
     }
   case SurrMoveDir::Right:
     switch (pos) {
@@ -445,7 +446,8 @@ SurrPos CoordSourceForDir(SurrMoveDir direction, SurrPos pos) {
       return SurrPos::MidLowMid;
     case SurrPos::MidMidRight:
       return SurrPos::MidMidMid;
-    default: throw exc::InternalError("Invalid enum value Right");
+    default:
+      throw exc::InternalError("Invalid enum value Right");
     }
   case SurrMoveDir::Left:
     switch (pos) {
@@ -467,7 +469,8 @@ SurrPos CoordSourceForDir(SurrMoveDir direction, SurrPos pos) {
       return SurrPos::MidLowMid;
     case SurrPos::MidMidLeft:
       return SurrPos::MidMidMid;
-    default: throw exc::InternalError("Invalid enum value Left");
+    default:
+      throw exc::InternalError("Invalid enum value Left");
     }
   case SurrMoveDir::Down:
     switch (pos) {
@@ -489,7 +492,8 @@ SurrPos CoordSourceForDir(SurrMoveDir direction, SurrPos pos) {
       return SurrPos::MidMidMid;
     case SurrPos::MidLowRight:
       return SurrPos::MidMidRight;
-    default: throw exc::InternalError("Invalid enum value Down");
+    default:
+      throw exc::InternalError("Invalid enum value Down");
     }
   case SurrMoveDir::Up:
     switch (pos) {
@@ -511,7 +515,8 @@ SurrPos CoordSourceForDir(SurrMoveDir direction, SurrPos pos) {
       return SurrPos::MidMidMid;
     case SurrPos::MidHighRight:
       return SurrPos::MidMidRight;
-    default: throw exc::InternalError("Invalid enum value Up");
+    default:
+      throw exc::InternalError("Invalid enum value Up");
     }
   }
   throw exc::InternalError("Invalid input.");

@@ -17,8 +17,6 @@ public:
 
   void changeFocusTo(const std::shared_ptr<UIObject> &guiObject);
 
-  void changeFocusTo(UIObject *guiObject);
-
   [[nodiscard]] const std::weak_ptr<UIObject> &getFocusedObject() const;
 
 private:

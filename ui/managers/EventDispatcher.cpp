@@ -157,15 +157,15 @@ sdl2cpp::ui::EventDispatcher::findMouseInteractableOnPosition(int x, int y) {
 
 std::optional<std::shared_ptr<sdl2cpp::ui::CustomKeyboardInteractable>>
 sdl2cpp::ui::EventDispatcher::getFocusedKeyboardInteractable() {
-  for (auto iter = keyboardEventListeners.begin(); iter != keyboardEventListeners.end(); ++iter) {
-    if (iter->expired()) {
-      keyboardEventListeners.erase(iter);
-      continue;
-    }
-    auto ptr = iter->lock();
-    if (ptr->focus.get() == Focus::Focused) {
-      return ptr;
-    }
+  if (focusManager.getFocusedObject().expired()) {
+    return std::nullopt;
+  }
+  auto sharedFocusedObject = focusManager.getFocusedObject().lock();
+  if (auto focusedKeyboardInteractable =
+        std::dynamic_pointer_cast<CustomKeyboardInteractable>(
+            sharedFocusedObject);
+      focusedKeyboardInteractable != nullptr) {
+    return focusedKeyboardInteractable;
   }
   return std::nullopt;
 }

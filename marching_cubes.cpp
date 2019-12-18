@@ -6,7 +6,7 @@
 #include "Camera.h"
 #include "rendering/Data.h"
 #include "rendering/models/GraphicsModelBase.h"
-#include "rendering/shading/CascadedShadowMap.h"
+#include "rendering/shadow_maps/CascadedShadowMap.h"
 #include "rendering/utils/DrawTexture.h"
 #include "ui/elements.h"
 #include "ui/managers.h"
@@ -31,7 +31,7 @@ struct UI {
 };
 
 UI initUI(UIManager &uiManager) {
-  auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, glm::degrees(60.f));
+  auto perspective = PerspectiveProjection(0.1f, 1500.f,  1920.f / 1080, glm::degrees(60.f));
   auto cameraController = uiManager.createGUIObject<CameraController>(std::move(perspective),
       glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 

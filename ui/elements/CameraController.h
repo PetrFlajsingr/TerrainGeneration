@@ -42,6 +42,7 @@ protected:
   void onMouseUp(const SDL_Event &event) override;
   void onMouseMove(const SDL_Event &event) override;
   void onKeyDown(const SDL_Event &event) override;
+  void onKeyUp(const SDL_Event &event) override;
 
 private:
   bool lockedToCamera = false;

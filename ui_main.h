@@ -6,7 +6,7 @@
 #define TERRAINGENERATION_UI_MAIN_H
 
 #include "rendering/Data.h"
-#include "rendering/shading/ShadowMap.h"
+#include "rendering/shadow_maps/CascadedShadowMap.h"
 #include "rendering/utils/DrawTexture.h"
 #include "shadow_mapping.h"
 #include "ui/elements.h"

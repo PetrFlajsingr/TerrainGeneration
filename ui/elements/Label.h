@@ -14,6 +14,7 @@ public:
   Label(UIManager &guiManager, glm::vec3 position, glm::vec3 dimensions);
 
   Text text;
+  std::string info() const override;
 
 protected:
   void onFocusChanged(Focus focus) override;

@@ -60,7 +60,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   GraphicsModelBase *bigSphere = modelRenderer.modelById("bigSphere")->get();
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
-  auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, 60.f);
+  auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, 60.f);;
   auto cameraController =
       uiManager.createGUIObject<sdl2cpp::ui::CameraController>(std::move(perspective),
           glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});

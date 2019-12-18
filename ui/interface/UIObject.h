@@ -41,9 +41,11 @@ public:
 
   std::string_view getId() const;
 
+  virtual std::string info() const = 0;
+
 protected:
-  virtual void onFocusChanged(Focus focus) = 0;
-  virtual void onEnabledChanged(bool enabled) = 0;
+  virtual void onFocusChanged(Focus focus);
+  virtual void onEnabledChanged(bool enabled);
 
 private:
   UIManager &guiManager;
@@ -76,7 +78,7 @@ public:
 
 protected:
   virtual void draw(GUIRenderer &renderer) = 0;
-  virtual void onVisibilityChanged(Visibility visibility) = 0;
+  virtual void onVisibilityChanged(Visibility visibility);
 };
 
 } // namespace sdl2cpp::ui

@@ -23,6 +23,7 @@ public:
 
   void setColor(glm::vec4 color);
   const glm::vec4 &getColor() const;
+  std::string info() const override;
 
 protected:
   void draw(GUIRenderer &renderer) override;

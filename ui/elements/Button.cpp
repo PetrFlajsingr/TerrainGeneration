@@ -65,3 +65,4 @@ void sdl2cpp::ui::Button::onMouseOut(sdl2cpp::ui::EventInfo info) {
 }
 void sdl2cpp::ui::Button::setColor(glm::vec4 color) { Button::color = color; }
 const glm::vec4 &sdl2cpp::ui::Button::getColor() const { return color; }
+std::string sdl2cpp::ui::Button::info() const { return "Button"; }

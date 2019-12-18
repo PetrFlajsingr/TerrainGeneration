@@ -27,6 +27,7 @@ public:
   void setStep(T step);
 
   void step();
+  std::string info() const override;
 
 protected:
   void onFocusChanged(Focus focus) override;
@@ -86,6 +87,7 @@ template <typename T> void Slider<T>::onMouseDblClicked(EventInfo info, MouseBut
 template <typename T> void Slider<T>::onMouseOver(EventInfo info) {}
 template <typename T> void Slider<T>::onMouseOut(EventInfo info) {}
 template <typename T> void Slider<T>::onMouseWheel(EventInfo info, ScrollDirection direction, int i) {}
+template <typename T> std::string Slider<T>::info() const { return "Slider"; }
 
 } // namespace sdl2cpp::ui
 

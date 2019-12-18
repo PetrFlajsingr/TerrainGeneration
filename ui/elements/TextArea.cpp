@@ -20,3 +20,4 @@ void sdl2cpp::ui::TextArea::draw(sdl2cpp::ui::GUIRenderer &renderer) {}
 void sdl2cpp::ui::TextArea::setText(const std::string &text) { TextArea::text = text; }
 void sdl2cpp::ui::TextArea::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 void sdl2cpp::ui::TextArea::onVisibilityChanged(sdl2cpp::ui::Visibility visibility) {}
+std::string sdl2cpp::ui::TextArea::info() const { return "Text area"; }

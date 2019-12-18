@@ -21,6 +21,8 @@ public:
 
   void setText(const std::string &text);
 
+  std::string info() const override;
+
 protected:
   void onKeyPressed(EventInfo info, SDL_Keycode keycode) override;
   void onKeyDown(EventInfo info, SDL_Keycode keycode) override;

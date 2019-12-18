@@ -17,6 +17,7 @@ class KeyAction : public CustomKeyboardInteractable {
 
 public:
   explicit KeyAction(UIManager &guiManager, SDL_Keycode key, Action action);
+  std::string info() const override;
 
 protected:
   void onKeyPressed(const SDL_Event &event) override;

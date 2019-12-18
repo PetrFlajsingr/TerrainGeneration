@@ -29,6 +29,8 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
 }
 sdl2cpp::ui::UIManager &sdl2cpp::ui::UIObject::getGUIManager() { return guiManager; }
 std::string_view sdl2cpp::ui::UIObject::getId() const { return id; }
+void sdl2cpp::ui::UIObject::onFocusChanged(sdl2cpp::ui::Focus focus) {}
+void sdl2cpp::ui::UIObject::onEnabledChanged(bool enabled) {}
 
 void sdl2cpp::ui::UIVisible::setVisibility(sdl2cpp::ui::Visibility visibility) {
   if (this->visibility.get() == visibility) {
@@ -43,3 +45,4 @@ sdl2cpp::ui::UIVisible::UIVisible(glm::vec3 position, glm::vec3 dimensions) : po
 void sdl2cpp::ui::UIVisible::setPosition(glm::vec3 position) { this->position = position; }
 
 void sdl2cpp::ui::UIVisible::setDimensions(glm::vec3 dimensions) { this->dimensions = dimensions; }
+void sdl2cpp::ui::UIVisible::onVisibilityChanged(sdl2cpp::ui::Visibility visibility) {}

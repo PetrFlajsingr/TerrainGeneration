@@ -27,15 +27,13 @@ public:
   [[nodiscard]] glm::vec3 getPosition() const;
   [[nodiscard]] glm::mat4 getViewMatrix();
   Camera camera;
+  std::string info() const override;
 
 protected:
   void onMouseWheel(EventInfo info, ScrollDirection direction, int offset) override;
   void onMouseDown(EventInfo info, MouseButton button, SDL_Point position) override;
   void draw(sdl2cpp::ui::GUIRenderer &renderer) override;
-  void onVisibilityChanged(sdl2cpp::ui::Visibility visibility) override;
-  void onFocusChanged(sdl2cpp::ui::Focus focus) override;
 
-  void onEnabledChanged(bool enabled) override;
   void onMouseUp(EventInfo info, MouseButton button, SDL_Point position) override;
   void onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) override;
   void onKeyDown(EventInfo info, SDL_Keycode keycode) override;

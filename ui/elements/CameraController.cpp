@@ -12,25 +12,25 @@ sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager, Perspecti
   camera.MovementSpeed = 5.f;
 }
 
-void sdl2cpp::ui::CameraController::onMouseDown(const SDL_Event &event) {
-  if (event.button.button == SDL_BUTTON_RIGHT) {
+void sdl2cpp::ui::CameraController::onMouseDown(EventInfo info, MouseButton button, SDL_Point position) {
+  if (button == MouseButton::Right) {
     lockedToCamera = true;
     setFocus(sdl2cpp::ui::Focus::Focused);
     SDL_SetRelativeMouseMode(SDL_TRUE);
   }
 }
 
-void sdl2cpp::ui::CameraController::onMouseUp(const SDL_Event &event) {
-  if (event.button.button == SDL_BUTTON_RIGHT) {
+void sdl2cpp::ui::CameraController::onMouseUp(EventInfo info, MouseButton button, SDL_Point position) {
+  if (button == MouseButton::Right) {
     lockedToCamera = false;
     setFocus(sdl2cpp::ui::Focus::NotFocused);
     SDL_SetRelativeMouseMode(SDL_FALSE);
   }
 }
 
-void sdl2cpp::ui::CameraController::onMouseMove(const SDL_Event &event) {
+void sdl2cpp::ui::CameraController::onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
   if (lockedToCamera) {
-    camera.ProcessMouseMovement(event.motion.xrel, -event.motion.yrel, true);
+    camera.ProcessMouseMovement(newPos.x - oldPos.x, -(newPos.y - oldPos.y), true);
   }
 }
 
@@ -69,7 +69,7 @@ void sdl2cpp::ui::CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 
 void sdl2cpp::ui::CameraController::onEnabledChanged(bool enabled) {}
 
-void sdl2cpp::ui::CameraController::onMouseWheel(const SDL_Event &event) { camera.ProcessMouseScroll(event.wheel.y); }
+void sdl2cpp::ui::CameraController::onMouseWheel(EventInfo info, ScrollDirection direction, int offset) { camera.ProcessMouseScroll(offset); }
 void sdl2cpp::ui::CameraController::onKeyUp(EventInfo info, SDL_Keycode keycode) {
   switch (keycode) {
   case SDLK_LSHIFT:

@@ -58,14 +58,14 @@ protected:
   void onMouseOut(const SDL_Event &event) final;
   void onMouseWheel(const SDL_Event &event) final;
 
-  virtual void onMouseDown(EventInfo, MouseButton, SDL_Point) = 0;
-  virtual void onMouseUp(EventInfo, MouseButton, SDL_Point) = 0;
-  virtual void onMouseMove(EventInfo, SDL_Point, SDL_Point) = 0;
-  virtual void onMouseClicked(EventInfo, MouseButton, SDL_Point) = 0;
-  virtual void onMouseDblClicked(EventInfo, MouseButton, SDL_Point) = 0;
-  virtual void onMouseOver(EventInfo) = 0;
-  virtual void onMouseOut(EventInfo) = 0;
-  virtual void onMouseWheel(EventInfo, ScrollDirection, int) = 0;
+  virtual void onMouseDown(EventInfo, MouseButton, SDL_Point);
+  virtual void onMouseUp(EventInfo, MouseButton, SDL_Point);
+  virtual void onMouseMove(EventInfo, SDL_Point, SDL_Point);
+  virtual void onMouseClicked(EventInfo, MouseButton, SDL_Point);
+  virtual void onMouseDblClicked(EventInfo, MouseButton, SDL_Point);
+  virtual void onMouseOver(EventInfo);
+  virtual void onMouseOut(EventInfo);
+  virtual void onMouseWheel(EventInfo, ScrollDirection, int);
 
 private:
   MouseButton buttonFromEvent(const SDL_Event &event) const;

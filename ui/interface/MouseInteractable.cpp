@@ -92,6 +92,14 @@ SDL_Point sdl2cpp::ui::CustomEventMouseInteractable::positionFromEvent(const SDL
 sdl2cpp::ui::MouseButtonState sdl2cpp::ui::CustomEventMouseInteractable::getButtonState(sdl2cpp::ui::MouseButton button) const {
   return buttonStates[static_cast<int>(button)];
 }
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDown(sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton, SDL_Point) {}
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseUp(sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton, SDL_Point) {}
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseMove(sdl2cpp::ui::EventInfo, SDL_Point, SDL_Point) {}
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseClicked(sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton, SDL_Point) {}
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDblClicked(sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton, SDL_Point) {}
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOver(sdl2cpp::ui::EventInfo) {}
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOut(sdl2cpp::ui::EventInfo) {}
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseWheel(sdl2cpp::ui::EventInfo, sdl2cpp::ui::ScrollDirection, int) {}
 
 sdl2cpp::ui::MouseButton sdl2cpp::ui::MouseInteractable::buttonFromEvent(const SDL_Event &event) const {
   switch (event.button.button) {

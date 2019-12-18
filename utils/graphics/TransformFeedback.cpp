@@ -8,12 +8,10 @@ TransformFeedback::TransformFeedback() : ge::gl::OpenGLObject(nullptr) {
   getContext().glGenTransformFeedbacks(1, &feedbackHandle);
 }
 
-void TransformFeedback::changeBuffer(uint index,
-                                     TransformFeedback::Buffer buffer) {
+void TransformFeedback::changeBuffer(uint index, TransformFeedback::Buffer buffer) {
   assert(index < buffers.size());
   getContext().glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackHandle);
-  getContext().glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
-                                buffer->getId());
+  getContext().glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->getId());
   getContext().glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
   buffers[index] = std::move(buffer);
 }

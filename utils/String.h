@@ -12,8 +12,6 @@ using WString = StringDecorator<std::wstring>;
 
 inline String operator""_s(const char *val, size_t) { return String{val}; }
 
-inline WString operator""_sw(const wchar_t *val, size_t) {
-  return WString{val};
-}
+inline WString operator""_sw(const wchar_t *val, size_t) { return WString{val}; }
 
 #endif // TERRAINGENERATION_STRING_H

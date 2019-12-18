@@ -5,8 +5,7 @@
 #include "UIObject.h"
 #include "ui/managers/UIManager.h"
 
-sdl2cpp::ui::UIObject::UIObject(sdl2cpp::ui::UIManager &guiManager)
-    : guiManager(guiManager) {}
+sdl2cpp::ui::UIObject::UIObject(sdl2cpp::ui::UIManager &guiManager) : guiManager(guiManager) {}
 
 void sdl2cpp::ui::UIObject::setEnabled(bool enabled) {
   if (this->enabled.get() == enabled) {
@@ -28,9 +27,7 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
   }
   onFocusChanged(focus);
 }
-sdl2cpp::ui::UIManager &sdl2cpp::ui::UIObject::getGUIManager() {
-  return guiManager;
-}
+sdl2cpp::ui::UIManager &sdl2cpp::ui::UIObject::getGUIManager() { return guiManager; }
 std::string_view sdl2cpp::ui::UIObject::getId() const { return id; }
 
 void sdl2cpp::ui::UIVisible::setVisibility(sdl2cpp::ui::Visibility visibility) {
@@ -41,13 +38,8 @@ void sdl2cpp::ui::UIVisible::setVisibility(sdl2cpp::ui::Visibility visibility) {
   onVisibilityChanged(visibility);
 }
 
-sdl2cpp::ui::UIVisible::UIVisible(glm::vec3 position, glm::vec3 dimensions)
-    : position(position), dimensions(dimensions) {}
+sdl2cpp::ui::UIVisible::UIVisible(glm::vec3 position, glm::vec3 dimensions) : position(position), dimensions(dimensions) {}
 
-void sdl2cpp::ui::UIVisible::setPosition(glm::vec3 position) {
-  this->position = position;
-}
+void sdl2cpp::ui::UIVisible::setPosition(glm::vec3 position) { this->position = position; }
 
-void sdl2cpp::ui::UIVisible::setDimensions(glm::vec3 dimensions) {
-  this->dimensions = dimensions;
-}
+void sdl2cpp::ui::UIVisible::setDimensions(glm::vec3 dimensions) { this->dimensions = dimensions; }

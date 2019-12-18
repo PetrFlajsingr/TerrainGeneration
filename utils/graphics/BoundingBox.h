@@ -25,8 +25,7 @@ template <unsigned int Dimensions = 3> struct BoundingBox {
 
   [[nodiscard]] bool contains(glm::vec3 point) const;
 };
-template <unsigned int Dims>
-std::ostream &operator<<(std::ostream &stream, const BoundingBox<Dims> &aabb);
+template <unsigned int Dims> std::ostream &operator<<(std::ostream &stream, const BoundingBox<Dims> &aabb);
 } // namespace geo
 
 #include "BoundingBox.tpp"

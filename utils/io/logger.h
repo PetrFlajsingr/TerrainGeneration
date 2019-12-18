@@ -35,11 +35,8 @@ struct err {};
 
 template <typename T> constexpr LogLevel modifierToLogLevel();
 
-template <typename T>
-constexpr bool is_logger_stream_modifier_v =
-    is_one_of_v<T, verbose, info, status, debug, warning, error>;
-template <typename T>
-constexpr bool is_logger_flusher_v = std::is_same_v<flush, T>;
+template <typename T> constexpr bool is_logger_stream_modifier_v = is_one_of_v<T, verbose, info, status, debug, warning, error>;
+template <typename T> constexpr bool is_logger_flusher_v = std::is_same_v<flush, T>;
 template <typename T> constexpr bool is_stream_v = is_one_of_v<T, out, err>;
 } // namespace LoggerStreamModifiers
 
@@ -63,17 +60,14 @@ private:
 
   [[nodiscard]] std::string indent(unsigned int level) const;
 
-  template <typename T>
-  void print(const T &value, unsigned int indentLevel = 0) const;
+  template <typename T> void print(const T &value, unsigned int indentLevel = 0) const;
 
   std::unordered_map<std::string, std::any> memory;
 
 public:
   explicit Logger(OutStream &outputStream);
 
-  template <LogLevel Level, bool PrintTime = false, bool PrintNewLine = true,
-            typename... T>
-  void log(const T &... message) const;
+  template <LogLevel Level, bool PrintTime = false, bool PrintNewLine = true, typename... T> void log(const T &... message) const;
 
   void startTime();
 
@@ -105,8 +99,7 @@ public:
   template <typename T> auto operator<<(const T &rhs);
 
   template <typename Callable, typename Resolution = std::chrono::milliseconds>
-  void measure(Callable &&callable, unsigned int iterations,
-               std::string_view name = "");
+  void measure(Callable &&callable, unsigned int iterations, std::string_view name = "");
 };
 
 #include "logger.tpp"

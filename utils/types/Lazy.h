@@ -21,8 +21,7 @@ private:
   std::optional<T> data;
 };
 
-template <typename T>
-std::ostream &operator<<(std::ostream &stream, Lazy<T> &other);
+template <typename T> std::ostream &operator<<(std::ostream &stream, Lazy<T> &other);
 
 #include "Lazy.tpp"
 

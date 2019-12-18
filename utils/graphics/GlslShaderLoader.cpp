@@ -10,8 +10,7 @@
 using namespace std::string_literals;
 std::string loadShaderFile(std::string_view name, ShaderType type) {
   if (shaderLocation.empty()) {
-    throw exc::ProgrammingError(
-        "Shader location for loadShaderFile has not been set");
+    throw exc::ProgrammingError("Shader location for loadShaderFile has not been set");
   }
   std::string extension;
   switch (type) {
@@ -39,8 +38,7 @@ std::string loadShaderFile(std::string_view name, ShaderType type) {
   if (!inStream.is_open()) {
     throw std::runtime_error("Shader opening failed: "s + std::string(name));
   }
-  return std::string(std::istreambuf_iterator<char>(inStream),
-                     std::istreambuf_iterator<char>());
+  return std::string(std::istreambuf_iterator<char>(inStream), std::istreambuf_iterator<char>());
 }
 void setShaderLocation(std::string_view newShaderLocation) {
   shaderLocation = std::string(newShaderLocation);
@@ -54,8 +52,7 @@ LocationResetter setTempShaderLocation(std::string_view newShaderLocation) {
   setShaderLocation(newShaderLocation);
   return result;
 }
-LocationResetter::LocationResetter(std::string oldLocation)
-    : oldLocation(std::move(oldLocation)) {}
+LocationResetter::LocationResetter(std::string oldLocation) : oldLocation(std::move(oldLocation)) {}
 LocationResetter::LocationResetter(LocationResetter &&other) noexcept {
   other.moved = true;
   oldLocation = std::move(other.oldLocation);

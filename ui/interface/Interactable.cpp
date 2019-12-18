@@ -4,14 +4,10 @@
 
 #include "Interactable.h"
 
-bool sdl2cpp::ui::Interactable::areControlsEnabled() const {
-  return controlsEnabled;
-}
+bool sdl2cpp::ui::Interactable::areControlsEnabled() const { return controlsEnabled; }
 
 void sdl2cpp::ui::Interactable::enableControls() { controlsEnabled = true; }
 
 void sdl2cpp::ui::Interactable::disableControls() { controlsEnabled = false; }
 
-void sdl2cpp::ui::Interactable::onEnabledChanged(bool enabled) {
-  enabled ? enableControls() : disableControls();
-}
+void sdl2cpp::ui::Interactable::onEnabledChanged(bool enabled) { enabled ? enableControls() : disableControls(); }

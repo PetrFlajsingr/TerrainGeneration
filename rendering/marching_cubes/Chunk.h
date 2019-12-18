@@ -14,14 +14,10 @@
 #include <glm/vec3.hpp>
 #include <memory>
 
-namespace {
-using Shader = std::shared_ptr<ge::gl::Shader>;
-using Program = GLuint;
-using SBuffer = std::shared_ptr<SparseBuffer>;
-using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
-} // namespace
-
 class Chunk {
+  using SBuffer = std::shared_ptr<SparseBuffer>;
+  using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
+
 public:
   enum Buffers { Density, Vertex, Normal, Index };
   Chunk(glm::vec3 startPosition, float step, uint size);

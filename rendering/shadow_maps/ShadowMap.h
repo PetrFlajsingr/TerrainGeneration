@@ -15,8 +15,8 @@ using namespace ShaderLiterals;
 
 class ShadowMap {
 public:
-  ShadowMap(glm::mat4 lightProjection, glm::vec3 lightPos, glm::vec3 target,
-            unsigned int textureWidth, unsigned int textureHeight);
+  ShadowMap(glm::mat4 lightProjection, glm::vec3 lightPos, glm::vec3 target, unsigned int textureWidth,
+            unsigned int textureHeight);
 
   void begin();
   void end();
@@ -48,13 +48,10 @@ private:
   unsigned int width = 4096;
   unsigned int height = 4096;
 
-  ge::gl::Texture depthMap{GL_TEXTURE_2D, GL_DEPTH_COMPONENT, 0,
-                           static_cast<GLsizei>(width),
-                           static_cast<GLsizei>(height)};
+  ge::gl::Texture depthMap{GL_TEXTURE_2D, GL_DEPTH_COMPONENT, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height)};
 
   ge::gl::Framebuffer depthMapFBO;
-  std::shared_ptr<ge::gl::Program> program = std::make_shared<ge::gl::Program>(
-      "shadow_map/sm"_vert, "shadow_map/sm"_frag);
+  std::shared_ptr<ge::gl::Program> program = std::make_shared<ge::gl::Program>("shadow_map/sm"_vert, "shadow_map/sm"_frag);
 };
 
 #endif // TERRAINGENERATION_SHADOWMAP_H

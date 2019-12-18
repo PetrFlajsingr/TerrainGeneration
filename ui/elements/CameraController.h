@@ -16,13 +16,10 @@ namespace sdl2cpp::ui {
  * Camera controls. Steals mouse on right click and accepts other events while
  * the right mouse button is pressed.
  */
-class CameraController : public sdl2cpp::ui::CustomMouseInteractable,
-                         public sdl2cpp::ui::CustomKeyboardInteractable {
+class CameraController : public sdl2cpp::ui::CustomEventMouseInteractable, public sdl2cpp::ui::CustomEventKeyboardInteractable {
 public:
-  explicit CameraController(UIManager &guiManager, PerspectiveProjection projection, glm::vec3 position,
-                            glm::vec3 dimensions,
-                            glm::vec3 startingPosition = {0.f, 0.f, 0.f},
-                            glm::vec3 direction = {0.f, 0.f, -1.f});
+  explicit CameraController(UIManager &guiManager, PerspectiveProjection projection, glm::vec3 position, glm::vec3 dimensions,
+                            glm::vec3 startingPosition = {0.f, 0.f, 0.f}, glm::vec3 direction = {0.f, 0.f, -1.f});
 
   /**
    * @return camera position
@@ -32,16 +29,17 @@ public:
   Camera camera;
 
 protected:
-  void onMouseWheel(const SDL_Event &event) override;
-  void onMouseDown(const SDL_Event &event) override;
+  void onMouseWheel(EventInfo info, ScrollDirection direction, int offset) override;
+  void onMouseDown(EventInfo info, MouseButton button, SDL_Point position) override;
   void draw(sdl2cpp::ui::GUIRenderer &renderer) override;
   void onVisibilityChanged(sdl2cpp::ui::Visibility visibility) override;
   void onFocusChanged(sdl2cpp::ui::Focus focus) override;
 
   void onEnabledChanged(bool enabled) override;
-  void onMouseUp(const SDL_Event &event) override;
-  void onMouseMove(const SDL_Event &event) override;
-  void onKeyDown(const SDL_Event &event) override;
+  void onMouseUp(EventInfo info, MouseButton button, SDL_Point position) override;
+  void onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) override;
+  void onKeyDown(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
 
 private:
   bool lockedToCamera = false;

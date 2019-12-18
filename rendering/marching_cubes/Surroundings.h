@@ -5,16 +5,16 @@
 #ifndef TERRAINGENERATION_SURROUNDINGS_H
 #define TERRAINGENERATION_SURROUNDINGS_H
 
-#include <unordered_map>
-#include <vector>
-#include <list>
+#include "SurroundingsEnums.h"
 #include "rendering/marching_cubes/Chunk.h"
 #include "utils/various/isin.h"
 #include <String.h>
 #include <glm/glm.hpp>
+#include <list>
 #include <observable/value.hpp>
 #include <types/Range.h>
-#include "SurroundingsEnums.h"
+#include <unordered_map>
+#include <vector>
 
 struct Tile {
   ChunkState state;
@@ -33,14 +33,12 @@ struct Map {
 
   bool isInRange(glm::vec3 cameraPosition, float range);
 
-  std::vector<Chunk *> init(glm::vec3 start, glm::vec3 center,
-                            glm::uvec3 tileSize, float step);
+  std::vector<Chunk *> init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step);
 };
 
 class Surroundings {
 public:
-  Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize,
-               float step);
+  Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step);
 
   observable::value<WString> info;
 
@@ -65,7 +63,7 @@ private:
   bool aggressiveChunkUnloading = true;
   unsigned int computeBatchSize = 100;
 
-  //std::unordered_map<SurrPos, Map *> partsMap;
+  // std::unordered_map<SurrPos, Map *> partsMap;
   std::array<Map *, 27> partsMap;
 
   void checkForMapMove(glm::vec3 cameraPosition);
@@ -75,7 +73,6 @@ private:
   void rearrangeSurroundings(SurrPos newMid);
 
   std::vector<Chunk *> unused;
-
 };
 
 #endif // TERRAINGENERATION_SURROUNDINGS_H

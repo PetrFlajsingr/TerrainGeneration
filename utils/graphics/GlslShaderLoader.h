@@ -8,14 +8,7 @@
 #include <string>
 #include <utility>
 
-enum class ShaderType {
-  Vertex,
-  TesselationControl,
-  TesselationEvaluation,
-  Geometry,
-  Fragment,
-  Compute
-};
+enum class ShaderType { Vertex, TesselationControl, TesselationEvaluation, Geometry, Fragment, Compute };
 
 namespace {
 std::string shaderLocation;

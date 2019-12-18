@@ -30,8 +30,7 @@ using EnabledChangedFnc = std::function<void(EventInfo, bool)>;
 using MouseDownFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
 using MouseUpFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
 using MouseClickedFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
-using MouseDblClickedFnc =
-    std::function<void(EventInfo, MouseButton, SDL_Point)>;
+using MouseDblClickedFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
 using MouseOverFnc = std::function<void(EventInfo)>;
 using MouseOutFnc = std::function<void(EventInfo)>;
 using MouseMoveFnc = std::function<void(EventInfo, SDL_Point, SDL_Point)>;
@@ -58,12 +57,12 @@ enum class Type {
   KeyUp,
   KeyPressed
 };
-}  // namespace Event
+} // namespace Event
 
 struct EventInfo {
   UIObject &sender;
   Event::Type eventType;
 };
-}  // namespace sdl2cpp::ui
+} // namespace sdl2cpp::ui
 
-#endif  // TERRAINGENERATION_UI_TYPES_H
+#endif // TERRAINGENERATION_UI_TYPES_H

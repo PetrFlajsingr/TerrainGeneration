@@ -39,13 +39,13 @@ protected:
 
 class CustomEventKeyboardInteractable : public CustomKeyboardInteractable {
 protected:
-  void onKeyPressed(const SDL_Event &event) override;
-  void onKeyDown(const SDL_Event &event) override;
-  void onKeyUp(const SDL_Event &event) override;
+  void onKeyPressed(const SDL_Event &event) final;
+  void onKeyDown(const SDL_Event &event) final;
+  void onKeyUp(const SDL_Event &event) final;
 
-  virtual void onKeyPressed(EventInfo, SDL_Keycode) = 0;
-  virtual void onKeyDown(EventInfo, SDL_Keycode) = 0;
-  virtual void onKeyUp(EventInfo, SDL_Keycode) = 0;
+  virtual void onKeyPressed(EventInfo, SDL_Keycode);
+  virtual void onKeyDown(EventInfo, SDL_Keycode);
+  virtual void onKeyUp(EventInfo, SDL_Keycode);
 };
 
 /**
@@ -59,8 +59,7 @@ public:
 
   template <SimpleInvocable F> KeyboardInteractable &setOnKeyUp(F onUp);
   template <SimpleInvocable F> KeyboardInteractable &setOnKeyDown(F onDown);
-  template <SimpleInvocable F>
-  KeyboardInteractable &setOnKeyPressed(F onPressed);
+  template <SimpleInvocable F> KeyboardInteractable &setOnKeyPressed(F onPressed);
 
 protected:
   void onKeyPressed(EventInfo info, SDL_Keycode keycode) final;
@@ -73,18 +72,15 @@ private:
   std::optional<Event::KeyPressedFnc> e_keyPressed = std::nullopt;
 };
 
-template <SimpleInvocable F>
-KeyboardInteractable &KeyboardInteractable::setOnKeyUp(F onUp) {
+template <SimpleInvocable F> KeyboardInteractable &KeyboardInteractable::setOnKeyUp(F onUp) {
   e_keyUp = [onUp](EventInfo, SDL_Keycode) { onUp(); };
   return *this;
 }
-template <SimpleInvocable F>
-KeyboardInteractable &KeyboardInteractable::setOnKeyDown(F onDown) {
+template <SimpleInvocable F> KeyboardInteractable &KeyboardInteractable::setOnKeyDown(F onDown) {
   e_keyDown = [onDown](EventInfo, SDL_Keycode) { onDown(); };
   return *this;
 }
-template <SimpleInvocable F>
-KeyboardInteractable &KeyboardInteractable::setOnKeyPressed(F onPressed) {
+template <SimpleInvocable F> KeyboardInteractable &KeyboardInteractable::setOnKeyPressed(F onPressed) {
   e_keyPressed = [onPressed](EventInfo, SDL_Keycode) { onPressed(); };
   return *this;
 }

@@ -13,8 +13,7 @@ namespace exc {
 class Throwable : public std::exception {
 public:
   explicit Throwable(std::string_view msg,
-                     std::experimental::source_location srcLoc =
-                         std::experimental::source_location::current());
+                     std::experimental::source_location srcLoc = std::experimental::source_location::current());
   [[nodiscard]] const char *what() const noexcept override;
 
 protected:
@@ -23,38 +22,32 @@ protected:
 
 class Error : public Throwable {
 public:
-  explicit Error(std::string_view msg,
-                 std::experimental::source_location srcLoc =
-                     std::experimental::source_location::current());
+  explicit Error(std::string_view msg, std::experimental::source_location srcLoc = std::experimental::source_location::current());
 };
 class Exception : public Throwable {
 public:
   explicit Exception(std::string_view msg,
-                     std::experimental::source_location srcLoc =
-                         std::experimental::source_location::current());
+                     std::experimental::source_location srcLoc = std::experimental::source_location::current());
   ;
 };
 
 class SerialisationException : public Exception {
 public:
-  explicit SerialisationException(
-      std::string_view msg, std::experimental::source_location srcLoc =
-                                std::experimental::source_location::current());
+  explicit SerialisationException(std::string_view msg,
+                                  std::experimental::source_location srcLoc = std::experimental::source_location::current());
 };
 
 class ProgrammingError : public Error {
 public:
   explicit ProgrammingError(std::string_view msg,
-                            std::experimental::source_location srcLoc =
-                                std::experimental::source_location::current());
+                            std::experimental::source_location srcLoc = std::experimental::source_location::current());
   ;
 };
 
 class InternalError : public Error {
 public:
   explicit InternalError(std::string_view msg,
-                         std::experimental::source_location srcLoc =
-                             std::experimental::source_location::current());
+                         std::experimental::source_location srcLoc = std::experimental::source_location::current());
   ;
 };
 

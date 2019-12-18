@@ -8,8 +8,7 @@
 #include "GraphicsModelBase.h"
 #include <memory>
 
-template <typename BufferType = ge::gl::Buffer>
-class GraphicsModel : public GraphicsModelBase {
+template <typename BufferType = ge::gl::Buffer> class GraphicsModel : public GraphicsModelBase {
   friend class ObjModelLoader;
   static_assert(std::is_base_of_v<ge::gl::Buffer, BufferType>);
 
@@ -28,34 +27,25 @@ protected:
   std::shared_ptr<BufferType> elementBuffer;
 };
 
-
-template <typename BufferType>
-std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getVertexBuffer() {
+template <typename BufferType> std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getVertexBuffer() {
   return vertexBuffer;
 }
-template <typename BufferType>
-std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getNormalBuffer() {
+template <typename BufferType> std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getNormalBuffer() {
   return normalBuffer;
 }
-template <typename BufferType>
-std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getElementBuffer() {
+template <typename BufferType> std::shared_ptr<ge::gl::Buffer> GraphicsModel<BufferType>::getElementBuffer() {
   return elementBuffer;
 }
 template <typename BufferType>
-GraphicsModel<BufferType>::GraphicsModel(const GraphicsModelBase::Id &id,
-                                         GraphicsModelBase::Type type)
+GraphicsModel<BufferType>::GraphicsModel(const GraphicsModelBase::Id &id, GraphicsModelBase::Type type)
     : GraphicsModelBase(id, type) {}
-template <typename BufferType>
-GraphicsModel<BufferType>::GraphicsModel(const GraphicsModel &other)
-    : GraphicsModelBase(other) {
+template <typename BufferType> GraphicsModel<BufferType>::GraphicsModel(const GraphicsModel &other) : GraphicsModelBase(other) {
   vertexBuffer = other.vertexBuffer;
   normalBuffer = other.normalBuffer;
   elementBuffer = other.elementBuffer;
   vertexArray = other.vertexArray;
 }
-template <typename BufferType>
-GraphicsModel<BufferType> &
-GraphicsModel<BufferType>::operator=(const GraphicsModel &other) {
+template <typename BufferType> GraphicsModel<BufferType> &GraphicsModel<BufferType>::operator=(const GraphicsModel &other) {
   GraphicsModelBase::operator=(other);
   vertexBuffer = other.vertexBuffer;
   normalBuffer = other.normalBuffer;

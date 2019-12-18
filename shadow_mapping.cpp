@@ -10,7 +10,7 @@
 #ifdef OLD_SM
 #include "rendering/shading/ShadowMap.h"
 #else
-#include "rendering/shading/CascadedShadowMap.h"
+#include "rendering/shadow_maps/CascadedShadowMap.h"
 #endif
 
 #include "rendering/utils/DrawTexture.h"

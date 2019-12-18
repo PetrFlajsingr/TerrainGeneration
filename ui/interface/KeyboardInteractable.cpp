@@ -17,6 +17,9 @@ void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(const SDL_Event &ev
 void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(const SDL_Event &event) {
   onKeyUp(EventInfo{*this, Event::Type::KeyPressed}, event.key.keysym.sym);
 }
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(sdl2cpp::ui::EventInfo, SDL_Keycode) {}
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(sdl2cpp::ui::EventInfo, SDL_Keycode) {}
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(sdl2cpp::ui::EventInfo, SDL_Keycode) {}
 
 void sdl2cpp::ui::KeyboardInteractable::onKeyPressed(sdl2cpp::ui::EventInfo info, SDL_Keycode keycode) {
   if (!e_keyPressed.has_value()) {

@@ -34,9 +34,8 @@ void sdl2cpp::ui::CameraController::onMouseMove(const SDL_Event &event) {
   }
 }
 
-void sdl2cpp::ui::CameraController::onKeyDown(const SDL_Event &event) {
-  auto key = event.key.keysym.sym;
-  switch (key) {
+void sdl2cpp::ui::CameraController::onKeyDown(EventInfo info, SDL_Keycode keycode) {
+  switch (keycode) {
   case SDLK_LSHIFT:
   case SDLK_RSHIFT:
     camera.MovementSpeed += 10;
@@ -71,9 +70,8 @@ void sdl2cpp::ui::CameraController::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 void sdl2cpp::ui::CameraController::onEnabledChanged(bool enabled) {}
 
 void sdl2cpp::ui::CameraController::onMouseWheel(const SDL_Event &event) { camera.ProcessMouseScroll(event.wheel.y); }
-void sdl2cpp::ui::CameraController::onKeyUp(const SDL_Event &event) {
-  auto key = event.key.keysym.sym;
-  switch (key) {
+void sdl2cpp::ui::CameraController::onKeyUp(EventInfo info, SDL_Keycode keycode) {
+  switch (keycode) {
   case SDLK_LSHIFT:
   case SDLK_RSHIFT:
     camera.MovementSpeed -= 10;

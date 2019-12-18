@@ -16,7 +16,7 @@ namespace sdl2cpp::ui {
  * Camera controls. Steals mouse on right click and accepts other events while
  * the right mouse button is pressed.
  */
-class CameraController : public sdl2cpp::ui::CustomMouseInteractable, public sdl2cpp::ui::CustomKeyboardInteractable {
+class CameraController : public sdl2cpp::ui::CustomMouseInteractable, public sdl2cpp::ui::CustomEventKeyboardInteractable {
 public:
   explicit CameraController(UIManager &guiManager, PerspectiveProjection projection, glm::vec3 position, glm::vec3 dimensions,
                             glm::vec3 startingPosition = {0.f, 0.f, 0.f}, glm::vec3 direction = {0.f, 0.f, -1.f});
@@ -38,8 +38,8 @@ protected:
   void onEnabledChanged(bool enabled) override;
   void onMouseUp(const SDL_Event &event) override;
   void onMouseMove(const SDL_Event &event) override;
-  void onKeyDown(const SDL_Event &event) override;
-  void onKeyUp(const SDL_Event &event) override;
+  void onKeyDown(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
 
 private:
   bool lockedToCamera = false;

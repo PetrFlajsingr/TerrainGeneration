@@ -14,6 +14,7 @@
 #include <glm/vec3.hpp>
 #include <memory>
 
+#include <geGL/GLSLNoise.h>
 class Chunk {
   using SBuffer = std::shared_ptr<SparseBuffer>;
   using VertexArray = std::shared_ptr<ge::gl::VertexArray>;

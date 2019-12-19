@@ -61,6 +61,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
           available.remove(chunk);
           --availableCount;
           chunk->setComputed(false);
+          chunk->step = step;
           chunk->startPosition = tile.pos;
           chunk->recalc();
           used.emplace_back(chunk);

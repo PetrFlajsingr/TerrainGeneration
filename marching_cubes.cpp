@@ -32,7 +32,7 @@ struct UI {
 };
 
 UI initUI(UIManager &uiManager) {
-  auto perspective = PerspectiveProjection(0.1f, 1500.f, 1920.f / 1080, glm::degrees(60.f));
+  auto perspective = PerspectiveProjection(0.1f, 10000.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
@@ -105,8 +105,8 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   auto renderProgram = std::make_shared<ge::gl::Program>("shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
-  CascadedShadowMap cascadedShadowMap{4, 1024};
-  cascadedShadowMap.setLightDir({0.5, -0.5, 0});
+  CascadedShadowMap cascadedShadowMap{4, 4096};
+  cascadedShadowMap.setLightDir({0.5, -0.9, 0});
 
   chunks.smProgram = renderProgram;
 

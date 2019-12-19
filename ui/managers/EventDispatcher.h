@@ -41,12 +41,17 @@ public:
   void addMouseEventListener(const std::weak_ptr<CustomMouseInteractable> &mouseInteractable);
   void addKeyboardEventListener(const std::weak_ptr<CustomKeyboardInteractable> &keyboardInteractable);
 
+  void setFullControl(std::weak_ptr<Interactable> element);
+  void disableFullControl();
+
 private:
   std::list<TimedEvent> events;
   TimedEvent *clickEvent = nullptr;
 
   std::shared_ptr<Window> window;
   FocusManager &focusManager;
+
+  std::optional<std::weak_ptr<Interactable>> fullControl = std::nullopt;
 
   bool mouseEventHandler(const SDL_Event &event);
   bool keyboardEventHandler(const SDL_Event &event);

@@ -31,6 +31,11 @@ template <typename... Args> void printErr(const Args &... args) {
   detail::printImpl(std::cerr, std::forward<const Args &>(args)...);
 }
 
+template <typename... Args> void printFmt(std::string fmt, const Args &... args) {
+  fmt::print(fmt + '\n', args...);
+}
+
+
 template <typename OutStream> auto make_print(OutStream &stream) { return detail::CustomPrint{stream}; }
 
 /*

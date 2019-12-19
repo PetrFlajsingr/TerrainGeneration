@@ -4,6 +4,7 @@
 
 #include "EventDispatcher.h"
 #include "FocusManager.h"
+#include <io/print.h>
 
 sdl2cpp::ui::EventDispatcher::EventDispatcher(std::shared_ptr<sdl2cpp::Window> window, FocusManager &focusManager)
     : window(std::move(window)), focusManager(focusManager) {
@@ -38,13 +39,15 @@ void sdl2cpp::ui::EventDispatcher::addKeyboardEventListener(
   keyboardEventListeners.emplace_back(keyboardInteractable);
 }
 
+
+
 bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   using namespace std::chrono_literals;
   using namespace std::chrono;
   static auto lastClickTime = 0ms;
   const auto currentTime = now<std::chrono::milliseconds>();
   int x = event.motion.x;
-  int y = event.motion.y;
+  int y = event.motion.y / 1020.f * 1080.f;
 
   if (event.type == SDL_MOUSEWHEEL) {
     if (mouseIn != nullptr) {
@@ -77,7 +80,7 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
     case SDL_MOUSEBUTTONUP:
       element->onMouseUp(event);
       if (mouseDownIn == element.get()) {
-        if ((currentTime - lastClickTime) < 400ms) {
+        if ((currentTime - lastClickTime) < 200ms) {
           if (clickEvent != nullptr) {
             clickEvent->invalidate();
             clickEvent = nullptr;
@@ -90,7 +93,7 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
                 element->onMouseClicked(event);
                 focusManager.changeFocusTo(element);
               },
-              400ms));
+              200ms));
           lastClickTime = currentTime;
         }
       }
@@ -149,6 +152,12 @@ sdl2cpp::ui::EventDispatcher::findMouseInteractableOnPosition(int x, int y) {
     SDL_Rect rect{static_cast<int>(ptr->position.get().x), static_cast<int>(ptr->position.get().y),
                   static_cast<int>(ptr->dimensions.get().x), static_cast<int>(ptr->dimensions.get().y)};
     if (isIn(SDL_Point{x, y}, rect)) {
+      if (fullControl.has_value() && !fullControl->expired()) {
+        auto locked = fullControl->lock();
+        if (ptr != locked) {
+          continue;
+        }
+      }
       return ptr;
     }
   }
@@ -193,4 +202,10 @@ void sdl2cpp::ui::EventDispatcher::checkTimedEvents(std::chrono::milliseconds cu
 sdl2cpp::ui::TimedEvent &sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
   events.emplace_back(event);
   return events.back();
+}
+void sdl2cpp::ui::EventDispatcher::setFullControl(std::weak_ptr<Interactable> element) {
+  fullControl = element;
+}
+void sdl2cpp::ui::EventDispatcher::disableFullControl() {
+  fullControl = std::nullopt;
 }

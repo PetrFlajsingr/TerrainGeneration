@@ -28,6 +28,7 @@ public:
   FontManager &getFontManager();
   FocusManager &getFocusManager();
   TextRenderer &getTextRenderer();
+  EventDispatcher &getEventDispatcher();
 
   template <C_UIObject T = UIObject> std::optional<std::shared_ptr<T>> objectByName(std::string_view name) {
     if (auto iter = std::find_if(objects.begin(), objects.end(),
@@ -63,6 +64,7 @@ private:
   std::vector<std::weak_ptr<UIObject>> objects;
   EventDispatcher eventDispatcher;
   FocusManager focusManager{objects};
+
 
   GUIRenderer renderer;
 };

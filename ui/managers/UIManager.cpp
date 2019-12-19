@@ -40,3 +40,6 @@ void sdl2cpp::ui::UIManager::render(glm::mat4 projection, glm::mat4 view, glm::m
 FontManager &sdl2cpp::ui::UIManager::getFontManager() { return renderer.getTextRenderer().getFontManager(); }
 sdl2cpp::ui::FocusManager &sdl2cpp::ui::UIManager::getFocusManager() { return focusManager; }
 TextRenderer &sdl2cpp::ui::UIManager::getTextRenderer() { return renderer.getTextRenderer(); }
+sdl2cpp::ui::EventDispatcher &sdl2cpp::ui::UIManager::getEventDispatcher() {
+  return eventDispatcher;
+}

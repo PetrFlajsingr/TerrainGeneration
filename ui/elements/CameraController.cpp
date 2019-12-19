@@ -16,6 +16,7 @@ void sdl2cpp::ui::CameraController::onMouseDown(EventInfo info, MouseButton butt
   if (button == MouseButton::Right) {
     lockedToCamera = true;
     setFocus(sdl2cpp::ui::Focus::Focused);
+    enableFullControl();
     SDL_SetRelativeMouseMode(SDL_TRUE);
   }
 }
@@ -24,6 +25,7 @@ void sdl2cpp::ui::CameraController::onMouseUp(EventInfo info, MouseButton button
   if (button == MouseButton::Right) {
     lockedToCamera = false;
     setFocus(sdl2cpp::ui::Focus::NotFocused);
+    disableFullControl();
     SDL_SetRelativeMouseMode(SDL_FALSE);
   }
 }

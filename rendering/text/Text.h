@@ -24,7 +24,6 @@ class Text {
   };
 
   explicit Text(FontManager &fontManager, const std::wstring &initialValue, Font *font, float fontSize);
-
 public:
   [[nodiscard]] Font &getFont() const;
   void setFont(Font &font);

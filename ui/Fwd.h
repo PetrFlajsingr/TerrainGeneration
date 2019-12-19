@@ -13,7 +13,6 @@ struct EventInfo;
 class CustomMouseInteractable;
 class MouseInteractable;
 class CustomKeyboardInteractable;
-class KeyboardInteractable;
 
 class UIManager;
 class EventDispatcher;

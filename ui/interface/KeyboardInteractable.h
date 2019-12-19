@@ -62,9 +62,9 @@ public:
   template <SimpleInvocable F> KeyboardInteractable &setOnKeyPressed(F onPressed);
 
 protected:
-  void onKeyPressed(EventInfo info, SDL_Keycode keycode) final;
-  void onKeyDown(EventInfo info, SDL_Keycode keycode) final;
-  void onKeyUp(EventInfo info, SDL_Keycode keycode) final;
+  void onKeyPressed(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyDown(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
 
 private:
   std::optional<Event::KeyUpFnc> e_keyUp = std::nullopt;

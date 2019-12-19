@@ -88,7 +88,7 @@ template <typename F> void CascadedShadowMap::renderShadowMap(F renderFunction,
     ge::gl::glClear(GL_DEPTH_BUFFER_BIT);
     ge::gl::glEnable(GL_DEPTH_TEST);
     ge::gl::glEnable(GL_DEPTH_CLAMP);
-    ge::gl::glCullFace(GL_BACK);
+    ge::gl::glCullFace(GL_FRONT);
     const auto lightViewProjection = lightOrthoMatrix[i] * lightViewMatrix[i];
     program->setMatrix4fv("lightViewProjectionMatrix", glm::value_ptr(lightViewProjection));
     renderFunction(program, bbs[i]);

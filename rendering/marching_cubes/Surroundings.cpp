@@ -32,6 +32,30 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chu
     available.emplace_back(&chunk);
   }
 }
+
+glm::vec3 forLOD(unsigned int index) {
+  switch (index) {
+  case 0:
+    return glm::vec3{0, 0, 0};
+  case 1:
+    return glm::vec3{0, 0, 1};
+  case 2:
+    return glm::vec3{0, 1, 0};
+  case 3:
+    return glm::vec3{0, 1, 1};
+  case 4:
+    return glm::vec3{1, 0, 0};
+  case 5:
+    return glm::vec3{1, 0, 1};
+  case 6:
+    return glm::vec3{1, 1, 0};
+  case 7:
+    return glm::vec3{1, 1, 1};
+  default:
+    throw exc::InternalError("Invalid input value");
+  }
+}
+
 std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   checkForMapMove(position);
   for (auto ptr : unused) {
@@ -57,6 +81,33 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
     for (auto &tile : map.tiles) {
       if (tile.state == ChunkState::NotLoaded) {
         if (availableCount != 0 && setupCount < computeBatchSize && glm::distance(tile.center, position) <= loadDistance) {
+          const auto lodLevel = tile.getLODlevel(position, loadDistance);
+          if (lodLevel == 1) {
+            const float chunkStep = step / 2;
+
+            unsigned int i = 0;
+            for (auto &ptr : tile.lod.levels[lodLevel - 1]) {
+              auto chunk = available.front();
+              available.remove(chunk);
+              --availableCount;
+              chunk->setComputed(false);
+              chunk->step = chunkStep;
+              chunk->startPosition = tile.pos + chunkStep * forLOD(i) * 30.f;
+              chunk->recalc();
+              ptr = chunk;
+              used.emplace_back(chunk);
+
+              usedChunks[chunk] = &tile;
+
+              tile.state = ChunkState::Setup;
+              tile.lod.highestLevel = chunk;
+              ++setupCount;
+              ++i;
+            }
+            tile.lod.currentLevel = 1;
+            print("Setting lod for not computed");
+            continue;
+          }
           auto chunk = available.front();
           available.remove(chunk);
           --availableCount;
@@ -69,35 +120,141 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
           usedChunks[chunk] = &tile;
 
           tile.state = ChunkState::Setup;
-          tile.ptr = chunk;
+          tile.lod.highestLevel = chunk;
+          tile.lod.currentLevel = 0;
           ++setupCount;
         } else {
           ++notLoadedCount;
         }
       } else if (tile.state == ChunkState::Filled) {
         if ((aggressiveChunkUnloading || availableCount < availableThreshold) &&
-            tile.ptr->boundingSphere.distance(position) > loadDistance) {
-          used.remove(tile.ptr);
+            glm::distance(tile.center, position) > loadDistance) {
+          if (tile.lod.currentLevel == 1 && tile.lod.levels[0][0] != nullptr) {
+            for (auto &level : tile.lod.levels) {
+              for (auto &chunk : level) {
+                used.remove(chunk);
+                usedChunks[chunk] = nullptr;
+                available.emplace_back(chunk);
+                ++availableCount;
+                ++notLoadedCount;
+                chunk = nullptr;
+              }
+            }
+            print("Unsetting lod for filled out of range");
+          }
+          if (tile.lod.highestLevel != nullptr) {
+            used.remove(tile.lod.highestLevel);
 
-          usedChunks[tile.ptr] = nullptr;
+            usedChunks[tile.lod.highestLevel] = nullptr;
 
-          available.emplace_back(tile.ptr);
-          ++availableCount;
-          ++notLoadedCount;
+            available.emplace_back(tile.lod.highestLevel);
+            ++availableCount;
+            ++notLoadedCount;
+            tile.lod.highestLevel = nullptr;
+            print("Unsetting lvl 0");
+          }
+          tile.lod.currentLevel = 0;
           tile.state = ChunkState::NotLoaded;
-          tile.ptr = nullptr;
         } else {
+          const auto lodLevel = tile.getLODlevel(position, loadDistance);
+          if (lodLevel == 1 && tile.lod.currentLevel != 1) {
+            tile.lod.currentLevel = 1;
+            const float chunkStep = step / 2;
+
+            unsigned int i = 0;
+            for (auto &ptr : tile.lod.levels[lodLevel - 1]) {
+              auto chunk = available.front();
+              available.remove(chunk);
+              --availableCount;
+              chunk->setComputed(false);
+              chunk->step = chunkStep;
+              chunk->startPosition = tile.pos + chunkStep * forLOD(i) * 30.f;
+              chunk->recalc();
+              ptr = chunk;
+              used.emplace_back(chunk);
+
+              usedChunks[chunk] = &tile;
+
+              tile.state = ChunkState::Setup;
+              ++setupCount;
+              ++i;
+            }
+            print("Setting lod for filled");
+
+            if (tile.lod.highestLevel != nullptr) {
+              used.remove(tile.lod.highestLevel);
+
+              usedChunks[tile.lod.highestLevel] = nullptr;
+
+              available.emplace_back(tile.lod.highestLevel);
+              ++availableCount;
+              ++notLoadedCount;
+              tile.state = ChunkState::NotLoaded;
+              tile.lod.highestLevel = nullptr;
+              print("Unsetting lvl 0");
+
+            }
+          } else {
+            if (lodLevel == 0 && tile.lod.currentLevel == 1 && tile.lod.levels[0][0] != nullptr) {
+              for (auto &level : tile.lod.levels) {
+                for (auto &chunk : level) {
+                  used.remove(chunk);
+                  usedChunks[chunk] = nullptr;
+                  available.emplace_back(chunk);
+                  ++availableCount;
+                  chunk = nullptr;
+                }
+              }
+              print("Unsetting lod for filled");
+            }
+            if (lodLevel == 0 && tile.lod.currentLevel == 1) {
+              auto chunk = available.front();
+              available.remove(chunk);
+              --availableCount;
+              chunk->setComputed(false);
+              chunk->step = step;
+              chunk->startPosition = tile.pos;
+              chunk->recalc();
+              used.emplace_back(chunk);
+
+              usedChunks[chunk] = &tile;
+
+              tile.state = ChunkState::Setup;
+              tile.lod.highestLevel = chunk;
+              ++setupCount;
+              tile.lod.currentLevel = 0;
+            }
+          }
           ++filledCount;
         }
       } else if (tile.state == ChunkState::Empty) {
-        if (tile.ptr != nullptr) {
-          available.emplace_back(tile.ptr);
-          used.remove(tile.ptr);
+        if (tile.lod.currentLevel == 1 && tile.lod.levels[0][0] != nullptr) {
+          for (auto &chunk : tile.lod.levels[0]) {
+            if (chunk->indexCount > 0) {
+              tile.state = ChunkState::Filled;
+              break;
+            }
+          }
+          if (tile.state == ChunkState::Empty) {
+            for (auto &level : tile.lod.levels) {
+              for (auto &chunk : level) {
+                used.remove(chunk);
+                usedChunks[chunk] = nullptr;
+                available.emplace_back(chunk);
+                ++availableCount;
+                chunk = nullptr;
+              }
+            }
+          }
+        }
+        if (tile.lod.highestLevel != nullptr) {
+          available.emplace_back(tile.lod.highestLevel);
+          used.remove(tile.lod.highestLevel);
 
-          usedChunks[tile.ptr] = nullptr;
+          usedChunks[tile.lod.highestLevel] = nullptr;
 
           ++availableCount;
-          tile.ptr = nullptr;
+          tile.lod.highestLevel = nullptr;
         }
         ++emptyCount;
       } else if (tile.state == ChunkState::Setup) {
@@ -319,10 +476,10 @@ std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 til
     uint z = i / (tileSize.x * tileSize.y) % tileSize.z;
     const auto start = glm::vec3{x, y, z} * step * 30.f;
     const auto center = start + halfDist;
-    if (tiles[i].ptr != nullptr) {
-      result.emplace_back(tiles[i].ptr);
+    if (tiles[i].lod.highestLevel != nullptr) {
+      result.emplace_back(tiles[i].lod.highestLevel);
     }
-    tiles[i] = {ChunkState::NotLoaded, nullptr, start + startPosition, center + startPosition};
+    tiles[i] = {ChunkState::NotLoaded, LOD{1}, start + startPosition, center + startPosition};
   }
   return result;
 }

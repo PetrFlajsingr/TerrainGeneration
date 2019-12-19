@@ -10,17 +10,42 @@
 #include "utils/various/isin.h"
 #include <String.h>
 #include <glm/glm.hpp>
+#include <io/print.h>
 #include <list>
 #include <observable/value.hpp>
 #include <types/Range.h>
 #include <unordered_map>
 #include <vector>
 
+struct LOD {
+  Chunk *highestLevel = nullptr;
+  std::vector<std::vector<Chunk*>> levels;
+  unsigned int currentLevel = 0;
+
+  explicit LOD(unsigned int levelCount) {
+    using namespace MakeRange;
+    levels.resize(levelCount);
+    unsigned int levelSize = 8;
+    for (auto &level : levels) {
+      level.resize(levelSize);
+      levelSize = std::pow(levelSize, 2);
+    }
+  }
+};
+
 struct Tile {
   ChunkState state;
-  Chunk *ptr;
+  LOD lod{0};
   glm::vec3 pos;
   glm::vec3 center;
+
+  unsigned int getLODlevel(glm::vec3 cameraPosition, float viewDistance) {
+    const auto distanceToCenter = glm::distance(cameraPosition, center);
+    if (distanceToCenter < viewDistance / 2) {
+      return 1;
+    }
+    return 0;
+  }
 };
 
 struct Map {

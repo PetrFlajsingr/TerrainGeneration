@@ -9,6 +9,8 @@
 void sdl2cpp::ui::UIManager::render(glm::mat4 projection, glm::mat4 view, glm::mat4 model) {
   eventDispatcher.checkTimedEvents(now<std::chrono::milliseconds>());
   renderer.getProgram()->use();
+  ge::gl::glEnable(GL_BLEND);
+  ge::gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   for (const auto &element : drawable) {
     if (element.expired()) {
       continue;

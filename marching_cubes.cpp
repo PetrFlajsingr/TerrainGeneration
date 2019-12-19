@@ -13,6 +13,7 @@
 #include "ui/managers.h"
 #include "utils/config/JsonConfig.h"
 #include "various/loc_assert.h"
+#include <Colors.h>
 #include <SDL2CPP/MainLoop.h>
 #include <SDL2CPP/Window.h>
 #include <graphics/gl_utils.h>
@@ -28,7 +29,9 @@ struct UI {
   std::shared_ptr<Button> lineFillBtn;
   std::shared_ptr<Label> fpsLbl;
   std::shared_ptr<Label> chunkInfoLbl;
+  std::shared_ptr<Label> speedLbl;
   std::shared_ptr<CameraController> cameraController;
+  std::shared_ptr<Slider<float>> movementSpeedSlider;
 };
 
 UI initUI(UIManager &uiManager) {
@@ -43,11 +46,18 @@ UI initUI(UIManager &uiManager) {
   auto fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1}, glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);
 
+  auto speedLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 620, 1}, glm::vec3{220, 50, 0});
+  speedLbl->text.setFont("arialbd", 10);
+  speedLbl->text.setColor(Color::white);
+
   auto chunkInfoLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1}, glm::vec3{500, 20, 0});
   chunkInfoLbl->text.setFont("arialbd", 10);
   chunkInfoLbl->text.setColor({1, 1, 1, 1});
 
-  return {lineFillBtn, fpsLbl, chunkInfoLbl, cameraController};
+  auto movementSpeedSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 700, 1}, glm::vec3{200, 50, 0});
+  movementSpeedSlider->setColor(Color::transparent(Color::red, 0.5f));
+
+  return {lineFillBtn, fpsLbl, chunkInfoLbl, speedLbl, cameraController, movementSpeedSlider};
 }
 
 void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
@@ -95,6 +105,13 @@ void main_marching_cubes(int argc, char *argv[]) {
     }
     line = !line;
   });
+
+  ui.movementSpeedSlider->setMin(1.0f).setMax(200.0f).setSliderValue(10.0f);
+  ui.movementSpeedSlider->value.subscribe_and_call([&ui](auto sliderValue) {
+    ui.cameraController->setMovementSpeed(sliderValue);
+    ui.speedLbl->text.setText(L"Current speed: {}"_sw.format(sliderValue));
+  });
+
   FPSCounter fpsCounter;
 
   ChunkManager chunks{ui.cameraController, config};

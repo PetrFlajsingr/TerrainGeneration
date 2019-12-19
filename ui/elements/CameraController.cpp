@@ -73,3 +73,6 @@ void sdl2cpp::ui::CameraController::onKeyUp(EventInfo info, SDL_Keycode keycode)
   }
 }
 std::string sdl2cpp::ui::CameraController::info() const { return "camera controller"; }
+void sdl2cpp::ui::CameraController::setMovementSpeed(float movementSpeed) {
+  camera.MovementSpeed = movementSpeed;
+}

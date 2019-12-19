@@ -26,6 +26,9 @@ public:
    */
   [[nodiscard]] glm::vec3 getPosition() const;
   [[nodiscard]] glm::mat4 getViewMatrix();
+
+  void setMovementSpeed(float movementSpeed);
+
   Camera camera;
   std::string info() const override;
 

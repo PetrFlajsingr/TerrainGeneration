@@ -17,32 +17,59 @@
 #include <unordered_map>
 #include <vector>
 
+struct LODData {
+  std::vector<float> distances;
+  const unsigned int levelCount;
+
+  LODData(unsigned int levelCount, float viewDistance) : levelCount(levelCount) {
+    using namespace MakeRange;
+    distances.resize(levelCount + 1);
+    for (auto i : range<float>(levelCount + 1)) {
+      distances[i] = viewDistance / (i + 1);
+    }
+    std::reverse(distances.begin(), distances.end());
+  }
+
+  static unsigned int chunkCountForLevel(unsigned int level) {
+    if (level == 0) {
+      return 1;
+    }
+    return 8 * chunkCountForLevel(level - 1);
+  }
+};
+
 struct LOD {
   Chunk *highestLevel = nullptr;
-  std::vector<std::vector<Chunk*>> levels;
+  std::vector<std::vector<Chunk *>> levels;
+  const LODData *data;
+
   unsigned int currentLevel = 0;
 
-  explicit LOD(unsigned int levelCount) {
-    using namespace MakeRange;
-    levels.resize(levelCount);
+  LOD() = default;
+  explicit LOD(const LODData &data) : data(&data) {
+    levels.resize(data.levelCount);
     unsigned int levelSize = 8;
     for (auto &level : levels) {
       level.resize(levelSize);
       levelSize = std::pow(levelSize, 2);
     }
   }
+
 };
 
 struct Tile {
   ChunkState state;
-  LOD lod{0};
+  LOD lod;
   glm::vec3 pos;
   glm::vec3 center;
 
-  unsigned int getLODlevel(glm::vec3 cameraPosition, float viewDistance) {
+  unsigned int getLODlevel(glm::vec3 cameraPosition) {
+    using namespace MakeRange;
     const auto distanceToCenter = glm::distance(cameraPosition, center);
-    if (distanceToCenter < viewDistance / 2) {
-      return 1;
+    for (auto i : range(lod.data->levelCount)) {
+      if (distanceToCenter < lod.data->distances[i]) {
+        return lod.data->levelCount - i;
+      }
     }
     return 0;
   }
@@ -58,7 +85,7 @@ struct Map {
 
   bool isInRange(glm::vec3 cameraPosition, float range);
 
-  std::vector<Chunk *> init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step);
+  std::vector<Chunk *> init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
 };
 
 class Surroundings {
@@ -78,6 +105,7 @@ public:
   const float step;
 
 private:
+  LODData lodData;
   std::array<Map, 27> maps;
   std::vector<Chunk> chunkPool;
   std::list<Chunk *> available;

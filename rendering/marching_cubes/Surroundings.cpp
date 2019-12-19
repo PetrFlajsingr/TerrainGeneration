@@ -10,7 +10,7 @@
 using namespace MakeRange;
 
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
-    : loadDistance(loadDistance), size(size), step(step) {
+    : lodData(1, loadDistance), loadDistance(loadDistance), size(size), step(step) {
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
   }
@@ -25,7 +25,7 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chu
   for (auto [index, coords] : zip(range(27), range<float, 3>({-1, -1, -1}, {2, 2, 2}, {1, 1, 1}))) {
     const auto [x, y, z] = coords;
     const auto startPos = glm::vec3{x, y, z} * glm::vec3{size} * areaSize;
-    maps[index].init(startPos, startPos + halfDist, size, step);
+    maps[index].init(startPos, startPos + halfDist, size, step, lodData);
     partsMap[index] = &maps[index];
   }
   for (auto &chunk : chunkPool) {
@@ -81,8 +81,8 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
     for (auto &tile : map.tiles) {
       if (tile.state == ChunkState::NotLoaded) {
         if (availableCount != 0 && setupCount < computeBatchSize && glm::distance(tile.center, position) <= loadDistance) {
-          const auto lodLevel = tile.getLODlevel(position, loadDistance);
-          if (lodLevel == 1) {
+          const auto lodLevel = tile.getLODlevel(position);
+          if (lodLevel == 1 && availableCount >= LODData::chunkCountForLevel(lodLevel)) {
             const float chunkStep = step / 2;
 
             unsigned int i = 0;
@@ -134,6 +134,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
               for (auto &chunk : level) {
                 used.remove(chunk);
                 usedChunks[chunk] = nullptr;
+                assert(chunk != nullptr);
                 available.emplace_back(chunk);
                 ++availableCount;
                 ++notLoadedCount;
@@ -147,6 +148,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
 
             usedChunks[tile.lod.highestLevel] = nullptr;
 
+            assert(tile.lod.highestLevel != nullptr);
             available.emplace_back(tile.lod.highestLevel);
             ++availableCount;
             ++notLoadedCount;
@@ -156,7 +158,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
           tile.lod.currentLevel = 0;
           tile.state = ChunkState::NotLoaded;
         } else {
-          const auto lodLevel = tile.getLODlevel(position, loadDistance);
+          const auto lodLevel = tile.getLODlevel(position);
           if (lodLevel == 1 && tile.lod.currentLevel != 1) {
             tile.lod.currentLevel = 1;
             const float chunkStep = step / 2;
@@ -186,6 +188,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
 
               usedChunks[tile.lod.highestLevel] = nullptr;
 
+              assert(tile.lod.highestLevel != nullptr);
               available.emplace_back(tile.lod.highestLevel);
               ++availableCount;
               ++notLoadedCount;
@@ -200,6 +203,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
                 for (auto &chunk : level) {
                   used.remove(chunk);
                   usedChunks[chunk] = nullptr;
+                  assert(chunk != nullptr);
                   available.emplace_back(chunk);
                   ++availableCount;
                   chunk = nullptr;
@@ -240,6 +244,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
               for (auto &chunk : level) {
                 used.remove(chunk);
                 usedChunks[chunk] = nullptr;
+                assert(chunk != nullptr);
                 available.emplace_back(chunk);
                 ++availableCount;
                 chunk = nullptr;
@@ -327,7 +332,7 @@ void Surroundings::moveSurroundings(SurrMoveDir direction) {
     newStartPosition =
         partsMap[static_cast<int>(CoordSourceForDir(direction, pos))]->startPosition + directionVect * surroundingsStep;
     newCenter = newStartPosition + surroundingsStep / 2.f;
-    const auto tmp = partsMap[static_cast<int>(pos)]->init(newStartPosition, newCenter, size, step);
+    const auto tmp = partsMap[static_cast<int>(pos)]->init(newStartPosition, newCenter, size, step, lodData);
     unused.insert(unused.end(), tmp.begin(), tmp.end());
   }
 }
@@ -462,7 +467,7 @@ void Surroundings::checkForMapMove(glm::vec3 cameraPosition) {
 }
 
 bool Map::isInRange(glm::vec3 cameraPosition, float range) { return boundingSphere.distance(cameraPosition) <= range; }
-std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step) {
+std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData) {
   using namespace MakeRange;
   startPosition = start;
   Map::center = center;
@@ -479,7 +484,7 @@ std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 til
     if (tiles[i].lod.highestLevel != nullptr) {
       result.emplace_back(tiles[i].lod.highestLevel);
     }
-    tiles[i] = {ChunkState::NotLoaded, LOD{1}, start + startPosition, center + startPosition};
+    tiles[i] = {ChunkState::NotLoaded, LOD{lodData}, start + startPosition, center + startPosition};
   }
   return result;
 }

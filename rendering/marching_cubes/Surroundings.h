@@ -24,10 +24,12 @@ struct LODData {
   LODData(unsigned int levelCount, float viewDistance) : levelCount(levelCount) {
     using namespace MakeRange;
     distances.resize(levelCount + 1);
-    for (auto i : range<float>(levelCount + 1)) {
-      distances[i] = viewDistance / (i + 1);
+    distances[0] = viewDistance;
+    for (auto i : range<float>(1, levelCount + 1)) {
+      distances[i] = distances[i - 1] / 12;
     }
     std::reverse(distances.begin(), distances.end());
+    print(distances);
   }
 
   static unsigned int chunkCountForLevel(unsigned int level) {
@@ -35,6 +37,13 @@ struct LODData {
       return 1;
     }
     return 8 * chunkCountForLevel(level - 1);
+  }
+
+  static unsigned int lenForLevel(unsigned int level) {
+    if (level == 0) {
+      return 1;
+    }
+    return lenForLevel(level - 1) * 2;
   }
 };
 
@@ -55,6 +64,7 @@ struct LOD {
     }
   }
 
+
 };
 
 struct Tile {
@@ -64,10 +74,11 @@ struct Tile {
   glm::vec3 center;
 
   unsigned int getLODlevel(glm::vec3 cameraPosition) {
+    const float radius = glm::distance(pos, center);
     using namespace MakeRange;
     const auto distanceToCenter = glm::distance(cameraPosition, center);
     for (auto i : range(lod.data->levelCount)) {
-      if (distanceToCenter < lod.data->distances[i]) {
+      if (distanceToCenter - radius < lod.data->distances[i]) {
         return lod.data->levelCount - i;
       }
     }

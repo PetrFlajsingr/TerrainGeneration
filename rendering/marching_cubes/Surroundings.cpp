@@ -10,7 +10,7 @@
 using namespace MakeRange;
 
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
-    : lodData(1, loadDistance), loadDistance(loadDistance), size(size), step(step) {
+    : lodData(2, loadDistance), loadDistance(loadDistance), size(size), step(step) {
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
   }
@@ -33,27 +33,29 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chu
   }
 }
 
-glm::vec3 forLOD(unsigned int index) {
-  float modif = 1;
-  modif *= index / 8 + 1;
+glm::vec3 forLOD(unsigned int index, unsigned int len) {
+  glm::vec3 result{0, 0, 0};
+  if (len > 2) {
+    result = 2.f * forLOD(index / 8, len / 2);
+  }
   index = index % 8;
   switch (index) {
   case 0:
-    return modif * glm::vec3{0, 0, 0};
+    return result + glm::vec3{0, 0, 0};
   case 1:
-    return modif * glm::vec3{0, 0, 1};
+    return result + glm::vec3{0, 0, 1};
   case 2:
-    return modif * glm::vec3{0, 1, 0};
+    return result + glm::vec3{0, 1, 0};
   case 3:
-    return modif * glm::vec3{0, 1, 1};
+    return result + glm::vec3{0, 1, 1};
   case 4:
-    return modif * glm::vec3{1, 0, 0};
+    return result + glm::vec3{1, 0, 0};
   case 5:
-    return modif * glm::vec3{1, 0, 1};
+    return result + glm::vec3{1, 0, 1};
   case 6:
-    return modif * glm::vec3{1, 1, 0};
+    return result + glm::vec3{1, 1, 0};
   case 7:
-    return modif * glm::vec3{1, 1, 1};
+    return result + glm::vec3{1, 1, 1};
   default:
     throw exc::InternalError("Invalid input value");
   }
@@ -101,7 +103,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
               --availableCount;
               chunk->setComputed(false);
               chunk->step = chunkStep;
-              chunk->startPosition = tile.pos + chunkStep * forLOD(i) * 30.f;
+              chunk->startPosition = tile.pos + chunkStep * forLOD(i, LODData::lenForLevel(lodLevel)) * 30.f;
               chunk->recalc();
               ptr = chunk;
               used.emplace_back(chunk);
@@ -199,7 +201,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
               --availableCount;
               chunk->setComputed(false);
               chunk->step = chunkStep;
-              chunk->startPosition = tile.pos + chunkStep * forLOD(i) * 30.f;
+              chunk->startPosition = tile.pos + chunkStep * forLOD(i, LODData::lenForLevel(lodLevel)) * 30.f;
               chunk->recalc();
               ptr = chunk;
               used.emplace_back(chunk);

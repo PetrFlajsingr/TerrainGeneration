@@ -12,6 +12,8 @@
 #include <types/Range.h>
 #include <vector>
 
+enum class LODDir { Lower, Current, Higher };
+
 struct LODData {
   std::vector<float> distances;
   std::vector<float> steps;
@@ -21,8 +23,6 @@ struct LODData {
 
   static unsigned int ChunkCountInRow(unsigned int level);
 };
-
-enum class LODDir { Lower, Current, Higher };
 
 struct LODTreeData {
   Chunk *chunk;

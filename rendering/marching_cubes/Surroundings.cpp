@@ -10,12 +10,19 @@
 using namespace MakeRange;
 
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
-    : loadDistance(loadDistance), size(size), step(step), lodData(2, loadDistance, step) {
+    : loadDistance(loadDistance), size(size), step(step), lodData(2, loadDistance, step),
+      chunkUsageManager(
+          ChunkUsageInitData {
+            chunkPoolSize,
+            100,
+            loadDistance,
+            2,
+            step,
+            Unloading::Aggresive
+          }
+          ) {
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
-  }
-  for ([[maybe_unused]] auto _ : range(chunkPoolSize)) {
-    chunkPool.emplace_back(glm::vec3{-30, -30, -30}, step, 32);
   }
 
   const auto halfDist = 16.f * glm::vec3{step} * glm::vec3{size};
@@ -28,217 +35,42 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chu
     maps[index].init(startPos, startPos + halfDist, size, step, lodData);
     partsMap[index] = &maps[index];
   }
-  for (auto &chunk : chunkPool) {
-    available.emplace_back(&chunk);
-  }
-}
-
-glm::vec3 forLOD(unsigned int index, unsigned int len) {
-  glm::vec3 result{0, 0, 0};
-  if (len > 2) {
-    result = 2.f * forLOD(index / 8, len / 2);
-  }
-  index = index % 8;
-  switch (index) {
-  case 0:
-    return result + glm::vec3{0, 0, 0};
-  case 1:
-    return result + glm::vec3{0, 0, 1};
-  case 2:
-    return result + glm::vec3{0, 1, 0};
-  case 3:
-    return result + glm::vec3{0, 1, 1};
-  case 4:
-    return result + glm::vec3{1, 0, 0};
-  case 5:
-    return result + glm::vec3{1, 0, 1};
-  case 6:
-    return result + glm::vec3{1, 1, 0};
-  case 7:
-    return result + glm::vec3{1, 1, 1};
-  default:
-    throw exc::InternalError("Invalid input value");
-  }
 }
 
 std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   checkForMapMove(position);
   for (auto ptr : unused) {
-    assert(ptr != nullptr);
-    available.emplace_back(ptr);
-    usedChunks[ptr] = nullptr;
-    used.remove(ptr);
+    chunkUsageManager.returnTileChunk(ptr);
   }
   unused.clear();
 
-  struct {
-    unsigned int availableCount = 0;
-    unsigned int emptyCount = 0;
-    unsigned int setupCount = 0;
-    unsigned int filledCount = 0;
-    unsigned int notLoadedCount = 0;
-    unsigned int mapCnt = 0;
-  } counters;
-
-  constexpr uint availableThreshold = 30;
-
-  //  FIXME: some issues with available counting
+  chunkUsageManager.newFrame(position);
   for (auto &map : maps) {
     if (!map.isInRange(position, loadDistance)) {
       continue;
     }
-    ++counters.mapCnt;
-
     for (auto &tile : map.tiles) {
-      counters.availableCount = available.size();
-      assert(counters.availableCount == available.size());
-      if (tile.state == ChunkState::NotLoaded) {
-        if (counters.availableCount != 0 && counters.setupCount < computeBatchSize &&
-            glm::distance(tile.center, position) <= loadDistance) {
-          tile.lod.tree.traverseDepthFirstIf([this, position, &tile, &counters](LODTreeData &data) {
-            const LODDir lodDir = data.getDir(position, lodData);
-            switch (lodDir) {
-            case LODDir::Lower:
-              data.isDivided = false;
-              return false;
-            case LODDir::Current: {
-              data.isCurrent = true;
-              data.isDivided = false;
-              data.chunk = available.front();
-              assert(data.chunk != nullptr);
-              available.remove(data.chunk);
-              data.chunk->setComputed(false);
-              const auto chunkStep = lodData.steps[data.level];
-              data.chunk->step = chunkStep;
-              data.chunk->startPosition = tile.pos + chunkStep * forLOD(data.index, LODData::ChunkCountInRow(data.level)) * 30.f;
-              data.chunk->recalc();
-              used.emplace_back(data.chunk);
-              usedChunks[data.chunk] = &tile;
-              tile.state = ChunkState::Setup;
-              ++counters.setupCount;
-            }
-              return false;
-            case LODDir::Higher:
-              data.isDivided = true;
-              data.isCurrent = false;
-              return true;
-            }
-          });
-        } else {
-          ++counters.notLoadedCount;
-        }
-      } else if (tile.state == ChunkState::Filled) {
-        if ((aggressiveChunkUnloading || counters.availableCount < availableThreshold) &&
-            glm::distance(tile.center, position) > loadDistance) {
-          tile.lod.tree.traverseDepthFirstIf([this, &counters](LODTreeData &data) {
-            if (data.isCurrent) {
-              const auto chunk = data.chunk;
-              used.remove(chunk);
-              usedChunks[chunk] = nullptr;
-              assert(chunk != nullptr);
-              available.emplace_back(chunk);
-              ++counters.availableCount;
-              ++counters.notLoadedCount;
-              data.chunk = nullptr;
-            }
-            return data.isDivided;
-          });
-          tile.state = ChunkState::NotLoaded;
-        } else {
-          tile.lod.tree.traverseDepthFirstIf([this, &counters, &position, &tile](LODTreeData &data) {
-            const auto dir = data.getDir(position, lodData);
-            if (data.isCurrent) {
-              if (dir == LODDir::Current) {
-                return false;
-              }
-              data.isCurrent = false;
-              if (dir == LODDir::Lower) {
-                data.isDivided = true;
-              }
-              bool wasDivided = true;
-              if (dir == LODDir::Higher) {
-                wasDivided = data.isDivided;
-                data.isDivided = false;
-              }
-              assert(data.chunk != nullptr);
-              available.emplace_back(data.chunk);
-              used.remove(data.chunk);
-              usedChunks[data.chunk] = nullptr;
-              ++counters.availableCount;
-              return wasDivided;
-            } else if (dir == LODDir::Current) {
-              const bool wasDivided = data.isDivided;
-              data.isCurrent = true;
-              data.isDivided = false;
-              data.chunk = available.front();
-              assert(data.chunk != nullptr);
-              available.remove(data.chunk);
-              data.chunk->setComputed(false);
-              const auto chunkStep = lodData.steps[data.level];
-              data.chunk->step = chunkStep;
-              data.chunk->startPosition = tile.pos + chunkStep * forLOD(data.index, LODData::ChunkCountInRow(data.level)) * 30.f;
-              data.chunk->recalc();
-              used.emplace_back(data.chunk);
-              usedChunks[data.chunk] = &tile;
-              ++counters.setupCount;
-              return wasDivided;
-            } else if (dir == LODDir::Higher) {
-              data.isDivided = true;
-            }
-            return data.isDivided;
-          });
-          ++counters.filledCount;
-        }
-      } else if (tile.state == ChunkState::MarkedEmpty) {
-        bool isEmpty = true;
-        tile.lod.tree.traverseDepthFirstIf([&isEmpty](LODTreeData &data) {
-          if (data.isCurrent && data.chunk != nullptr && data.chunk->indexCount > 0) {
-            isEmpty = false;
-          }
-          return data.isDivided;
-        });
-
-        if (isEmpty) {
-          tile.state = ChunkState::Empty;
-          tile.lod.tree.traverseDepthFirstIf([this, &counters](LODTreeData &data) {
-            if (data.isCurrent) {
-              const auto chunk = data.chunk;
-              used.remove(chunk);
-              usedChunks[chunk] = nullptr;
-              assert(chunk != nullptr);
-              available.emplace_back(chunk);
-              ++counters.availableCount;
-              ++counters.notLoadedCount;
-              data.chunk = nullptr;
-            }
-            return data.isDivided;
-          });
-        } else {
-          tile.state = ChunkState::Filled;
-        }
-        ++counters.emptyCount;
-      } else if (tile.state == ChunkState::Setup) {
-        ++counters.setupCount;
-      } else if (tile.state == ChunkState::Empty) {
-        ++counters.emptyCount;
-      }
+      chunkUsageManager.manageTile(tile);
     }
   }
-  const uint usedCount = used.size();
-  static int a = 0;
-  ++a;
-  info = WString::Format(L"Chunks: available {}, used {}, empty {}, setup {}, "
-                         L"filled {}, notLoaded {}, maps {}",
-                         available.size(), usedCount, counters.emptyCount, counters.setupCount, counters.filledCount,
-                         counters.notLoadedCount, counters.mapCnt);
+  auto &used = chunkUsageManager.getUsedChunks();
+  auto chunkUsageInfo = chunkUsageManager.getInfo();
+  auto &counters = chunkUsageManager.getCounters();
+
+  info = WString::Format(L"Chunks: available {}, used {}, setup {}, "
+                         L"notLoaded {}",
+                         chunkUsageInfo.availableChunks, chunkUsageInfo.usedChunks, counters.setupCount,
+                         counters.notLoadedCount);
   return used;
 }
 void Surroundings::setEmpty(Chunk *chunk) {
+  auto &usedChunks = chunkUsageManager.getChunkToTileMap();
   if (auto iter = usedChunks.find(chunk); iter != usedChunks.end()) {
     iter->second->state = ChunkState::MarkedEmpty;
   }
 }
 void Surroundings::setFilled(Chunk *chunk) {
+  auto &usedChunks = chunkUsageManager.getChunkToTileMap();
   if (auto iter = usedChunks.find(chunk); iter != usedChunks.end()) {
     iter->second->state = ChunkState::Filled;
   }
@@ -455,7 +287,7 @@ void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float ste
         lastLevel = loddata.level;
         stepForLevel /= 2;
       }
-      const auto st = start + startPosition + stepForLevel * forLOD(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
+      const auto st = start + startPosition + stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
       loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
       loddata.index = perLevelCnt;
@@ -499,7 +331,7 @@ std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 
         lastLevel = loddata.level;
         stepForLevel /= 2;
       }
-      const auto st = start + startPosition + stepForLevel * forLOD(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
+      const auto st = start + startPosition + stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
       loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
       loddata.index = perLevelCnt;

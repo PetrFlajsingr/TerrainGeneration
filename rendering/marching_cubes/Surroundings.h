@@ -5,6 +5,7 @@
 #ifndef TERRAINGENERATION_SURROUNDINGS_H
 #define TERRAINGENERATION_SURROUNDINGS_H
 
+#include "ChunkUsageManager.h"
 #include "LODTypes.h"
 #include "SurroundingsEnums.h"
 #include "rendering/marching_cubes/Chunk.h"
@@ -18,6 +19,8 @@
 #include <types/Range.h>
 #include <unordered_map>
 #include <vector>
+
+class ChunkUsageManager;
 
 struct Tile {
   ChunkState state;
@@ -59,16 +62,9 @@ public:
   const float step;
 
 private:
+  ChunkUsageManager chunkUsageManager;
   LODData lodData;
   std::array<Map, 27> maps;
-  std::vector<Chunk> chunkPool;
-  std::list<Chunk *> available;
-  std::list<Chunk *> used;
-
-  std::unordered_map<Chunk *, Tile *> usedChunks;
-
-  bool aggressiveChunkUnloading = true;
-  unsigned int computeBatchSize = 100;
 
   // std::unordered_map<SurrPos, Map *> partsMap;
   std::array<Map *, 27> partsMap;

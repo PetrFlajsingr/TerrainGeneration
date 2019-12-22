@@ -99,6 +99,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
             const LODDir lodDir = data.getDir(position, lodData);
             switch (lodDir) {
             case LODDir::Lower:
+              data.isDivided = false;
               return false;
             case LODDir::Current: {
               data.isCurrent = true;
@@ -154,7 +155,9 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
               if (dir == LODDir::Lower) {
                 data.isDivided = true;
               }
+              bool wasDivided = true;
               if (dir == LODDir::Higher) {
+                wasDivided = data.isDivided;
                 data.isDivided = false;
               }
               assert(data.chunk != nullptr);
@@ -162,6 +165,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
               used.remove(data.chunk);
               usedChunks[data.chunk] = nullptr;
               ++counters.availableCount;
+              return wasDivided;
             } else if (dir == LODDir::Current) {
               const bool wasDivided = data.isDivided;
               data.isCurrent = true;
@@ -286,7 +290,7 @@ void Surroundings::moveSurroundings(SurrMoveDir direction) {
     newStartPosition =
         partsMap[static_cast<int>(CoordSourceForDir(direction, pos))]->startPosition + directionVect * surroundingsStep;
     newCenter = newStartPosition + surroundingsStep / 2.f;
-    const auto tmp = partsMap[static_cast<int>(pos)]->init(newStartPosition, newCenter, size, step, lodData);
+    const auto tmp = partsMap[static_cast<int>(pos)]->restart(newStartPosition, newCenter, size, step, lodData);
     unused.insert(unused.end(), tmp.begin(), tmp.end());
   }
 }
@@ -421,11 +425,10 @@ void Surroundings::checkForMapMove(glm::vec3 cameraPosition) {
 }
 
 bool Map::isInRange(glm::vec3 cameraPosition, float range) { return boundingSphere.distance(cameraPosition) <= range; }
-std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData) {
+void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData) {
   using namespace MakeRange;
   startPosition = start;
   Map::center = center;
-  std::vector<Chunk *> result;
   boundingSphere = geo::BoundingSphere<3>{center, glm::distance(start, center)};
   boundingBox = geo::BoundingBox<3>(start, start + 32.f * step * glm::vec3{tileSize});
   const auto halfDist = 16.f * glm::vec3{step};
@@ -434,11 +437,6 @@ std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 til
   tileToCopy.lod.initTree(lodData.levelCount);
 
   for (auto i : range(tiles.size())) {
-    tiles[i].lod.tree.traverseDepthFirst([&result](auto &loddata) {
-      if (loddata.chunk != nullptr) {
-        result.emplace_back(loddata.chunk);
-      }
-    });
     uint x = i % tileSize.x;
     uint y = i / tileSize.x % tileSize.y;
     uint z = i / (tileSize.x * tileSize.y) % tileSize.z;
@@ -451,16 +449,61 @@ std::vector<Chunk *> Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 til
     unsigned int lastLevel = 0;
     unsigned int perLevelCnt = 0;
     float stepForLevel = step;
-    tiles[i].lod.tree.traverseBreadthFirst([this, &stepForLevel, halfDist, &lastLevel, &perLevelCnt](LODTreeData &loddata) {
+    tiles[i].lod.tree.traverseBreadthFirst([this, &stepForLevel, start, &lastLevel, &perLevelCnt](LODTreeData &loddata) {
       if (loddata.level != lastLevel) {
         perLevelCnt = 0;
         lastLevel = loddata.level;
         stepForLevel /= 2;
       }
-      const auto start = startPosition + stepForLevel * forLOD(perLevelCnt, LODData::lenForLevel(loddata.level)) * 30.f;
-      const auto center = start + 15.f * stepForLevel;
-      loddata.boundingSphere = geo::BoundingSphere<3>{center, glm::distance(start, center)};
+      const auto st = start + startPosition + stepForLevel * forLOD(perLevelCnt, LODData::lenForLevel(loddata.level)) * 30.f;
+      const auto ctr = st + 15.f * stepForLevel;
+      loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
       loddata.index = perLevelCnt;
+      ++perLevelCnt;
+    });
+  }
+}
+std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData) {
+  using namespace MakeRange;
+  startPosition = start;
+  Map::center = center;
+  std::vector<Chunk *> result;
+  boundingSphere = geo::BoundingSphere<3>{center, glm::distance(start, center)};
+  boundingBox = geo::BoundingBox<3>(start, start + 32.f * step * glm::vec3{tileSize});
+  const auto halfDist = 16.f * glm::vec3{step};
+
+  for (auto i : range(tiles.size())) {
+    tiles[i].lod.tree.traverseDepthFirstIf([&result](LODTreeData &loddata) {
+      if (loddata.chunk != nullptr) {
+        result.emplace_back(loddata.chunk);
+        loddata.chunk = nullptr;
+        loddata.isCurrent = false;
+      }
+      return loddata.isDivided;
+    });
+    uint x = i % tileSize.x;
+    uint y = i / tileSize.x % tileSize.y;
+    uint z = i / (tileSize.x * tileSize.y) % tileSize.z;
+    const auto start = glm::vec3{x, y, z} * step * 30.f;
+    const auto center = start + halfDist;
+    tiles[i].state = ChunkState::NotLoaded;
+    tiles[i].pos = start + startPosition;
+    tiles[i].center = center + startPosition;
+
+    unsigned int lastLevel = 0;
+    unsigned int perLevelCnt = 0;
+    float stepForLevel = step;
+    tiles[i].lod.tree.traverseBreadthFirst([this, &stepForLevel, start, &lastLevel, &perLevelCnt](LODTreeData &loddata) {
+      if (loddata.level != lastLevel) {
+        perLevelCnt = 0;
+        lastLevel = loddata.level;
+        stepForLevel /= 2;
+      }
+      const auto st = start + startPosition + stepForLevel * forLOD(perLevelCnt, LODData::lenForLevel(loddata.level)) * 30.f;
+      const auto ctr = st + 15.f * stepForLevel;
+      loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
+      loddata.index = perLevelCnt;
+      loddata.isDivided = false;
       ++perLevelCnt;
     });
   }

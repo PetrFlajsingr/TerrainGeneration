@@ -74,7 +74,7 @@ struct LODTreeData {
 
   LODDir getDir(glm::vec3 cameraPosition, const LODData &data) {
     const auto distance = boundingSphere.distance(cameraPosition);
-    const auto lowerBound = level == 0 ? 0 : data.distances[level - 1];
+    const auto lowerBound = level == data.levelCount - 1 ? 0 : data.distances[level + 1];
     if (distance < lowerBound) {
       return LODDir::Lower;
     }
@@ -128,7 +128,8 @@ struct Map {
 
   bool isInRange(glm::vec3 cameraPosition, float range);
 
-  std::vector<Chunk *> init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
+  void init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
+  std::vector<Chunk *> restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
 };
 
 class Surroundings {

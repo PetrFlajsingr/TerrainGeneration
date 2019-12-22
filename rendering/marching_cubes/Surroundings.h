@@ -16,19 +16,24 @@
 #include <types/Range.h>
 #include <unordered_map>
 #include <vector>
+#include "utils/containers/Tree.h"
 
 struct LODData {
   std::vector<float> distances;
+  std::vector<float> steps;
   const unsigned int levelCount;
 
-  LODData(unsigned int levelCount, float viewDistance) : levelCount(levelCount) {
+  LODData(unsigned int levelCount, float viewDistance, float chunkStep) : levelCount(levelCount) {
     using namespace MakeRange;
     distances.resize(levelCount + 1);
+    steps.resize(levelCount + 1);
     distances[0] = viewDistance;
+    steps[0] = chunkStep;
     for (auto i : range<float>(1, levelCount + 1)) {
       distances[i] = distances[i - 1] / 12;
+      steps[i] = chunkStep / std::pow(2, i);
     }
-    std::reverse(distances.begin(), distances.end());
+    //std::reverse(distances.begin(), distances.end());
     print(distances);
   }
 
@@ -47,24 +52,61 @@ struct LODData {
   }
 };
 
-struct LOD {
-  Chunk *highestLevel = nullptr;
-  std::vector<std::vector<Chunk *>> levels;
-  const LODData *data;
+enum class LODDir {
+  Lower, Current, Higher
+};
 
-  unsigned int currentLevel = 0;
+struct LODTreeData {
+  Chunk *chunk;
+  geo::BoundingSphere<3> boundingSphere;
+  bool isCurrent = false;
+  bool isDivided = false;
+  unsigned int index;
+  unsigned int level;
 
-  LOD() = default;
-  explicit LOD(const LODData &data) : data(&data) {
-    levels.resize(data.levelCount);
-    unsigned int levelSize = 8;
-    for (auto &level : levels) {
-      level.resize(levelSize);
-      levelSize = std::pow(levelSize, 2);
-    }
+  LODTreeData() : chunk(nullptr){}
+
+  bool isCorrectLOD(glm::vec3 cameraPosition, LODData &data) {
+    const auto distance = boundingSphere.distance(cameraPosition);
+    const auto lowerBound = level == 0 ? 0 : data.distances[level - 1];
+    return lowerBound < distance && distance <= data.distances[level];
   }
 
+  LODDir getDir(glm::vec3 cameraPosition, const LODData &data) {
+    const auto distance = boundingSphere.distance(cameraPosition);
+    const auto lowerBound = level == 0 ? 0 : data.distances[level - 1];
+    if (distance < lowerBound) {
+      return LODDir::Lower;
+    }
+    if (distance <= data.distances[level]) {
+      return LODDir::Current;
+    }
+    return LODDir::Higher;
+  }
+};
 
+struct LOD {
+  Tree<LODTreeData, 8> tree;
+
+  explicit LOD() = default;
+  LOD(const LOD &other) {
+    tree = other.tree;
+  }
+
+  void initTree(std::size_t depth) {
+    tree = Tree<LODTreeData, 8>::BuildTree(depth, LODTreeData{});
+    setLevelInTree(tree.getRoot(), 0, depth);
+  }
+
+  static void setLevelInTree(Leaf<LODTreeData, 8> &node, std::size_t level, std::size_t maxLevel) {
+    node->level = level;
+    if (node.getType() == NodeType::Leaf) {
+      return;
+    }
+    for (auto &child : node.asNode().getChildren()) {
+      setLevelInTree(*child, level + 1, maxLevel);
+    }
+  }
 };
 
 struct Tile {
@@ -72,18 +114,8 @@ struct Tile {
   LOD lod;
   glm::vec3 pos;
   glm::vec3 center;
-
-  unsigned int getLODlevel(glm::vec3 cameraPosition) {
-    const float radius = glm::distance(pos, center);
-    using namespace MakeRange;
-    const auto distanceToCenter = glm::distance(cameraPosition, center);
-    for (auto i : range(lod.data->levelCount)) {
-      if (distanceToCenter - radius < lod.data->distances[i]) {
-        return lod.data->levelCount - i;
-      }
-    }
-    return 0;
-  }
+  Tile() = default;
+  Tile(ChunkState state, LOD lod, glm::vec3 pos, glm::vec3 center) : state(state), lod(lod), pos(pos), center(center) {}
 };
 
 struct Map {

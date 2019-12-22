@@ -110,7 +110,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
               data.chunk->setComputed(false);
               const auto chunkStep = lodData.steps[data.level];
               data.chunk->step = chunkStep;
-              data.chunk->startPosition = tile.pos + chunkStep * forLOD(data.index, LODData::lenForLevel(data.level)) * 30.f;
+              data.chunk->startPosition = tile.pos + chunkStep * forLOD(data.index, LODData::ChunkCountInRow(data.level)) * 30.f;
               data.chunk->recalc();
               used.emplace_back(data.chunk);
               usedChunks[data.chunk] = &tile;
@@ -176,7 +176,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
               data.chunk->setComputed(false);
               const auto chunkStep = lodData.steps[data.level];
               data.chunk->step = chunkStep;
-              data.chunk->startPosition = tile.pos + chunkStep * forLOD(data.index, LODData::lenForLevel(data.level)) * 30.f;
+              data.chunk->startPosition = tile.pos + chunkStep * forLOD(data.index, LODData::ChunkCountInRow(data.level)) * 30.f;
               data.chunk->recalc();
               used.emplace_back(data.chunk);
               usedChunks[data.chunk] = &tile;
@@ -455,7 +455,7 @@ void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float ste
         lastLevel = loddata.level;
         stepForLevel /= 2;
       }
-      const auto st = start + startPosition + stepForLevel * forLOD(perLevelCnt, LODData::lenForLevel(loddata.level)) * 30.f;
+      const auto st = start + startPosition + stepForLevel * forLOD(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
       loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
       loddata.index = perLevelCnt;
@@ -499,7 +499,7 @@ std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 
         lastLevel = loddata.level;
         stepForLevel /= 2;
       }
-      const auto st = start + startPosition + stepForLevel * forLOD(perLevelCnt, LODData::lenForLevel(loddata.level)) * 30.f;
+      const auto st = start + startPosition + stepForLevel * forLOD(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
       loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
       loddata.index = perLevelCnt;

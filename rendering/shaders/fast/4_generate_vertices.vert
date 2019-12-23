@@ -82,12 +82,9 @@ float calculateDensity(vec3 vertex) {
     float result = -vertex.y - 1000 + (
     noise(vertex/1000)*1000
     + noise(vertex/5000)*5000
-    + noise(vertex/200)*500
+    //+ noise(vertex/200)*500
     );
 
-    if (vertex.y > -300) {
-        result *= noise(vertex/100)*100;
-    }
     return result;
 
   /*  float hard_floor_y = 10;

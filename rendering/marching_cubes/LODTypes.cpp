@@ -26,7 +26,7 @@ unsigned int LODData::ChunkCountInRow(unsigned int level) {
 LODTreeData::LODTreeData() : chunk(nullptr) {}
 LODDir LODTreeData::getDir(glm::vec3 cameraPosition, const LODData &data) {
   const auto distance = boundingSphere.distance(cameraPosition);
-  const auto lowerBound = level == data.levelCount - 1 ? 0 : data.distances[level + 1];
+  const auto lowerBound = level == data.levelCount ? 0 : data.distances[level + 1];
   if (distance < lowerBound) {
     return LODDir::Lower;
   }

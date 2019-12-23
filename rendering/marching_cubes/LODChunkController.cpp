@@ -5,6 +5,7 @@
 #include "LODChunkController.h"
 #include "ChunkUsageManager.h"
 #include "Surroundings.h"
+#include <various/loc_assert.h>
 #include <error_handling/exceptions.h>
 
 LODChunkController::LODChunkController(ChunkUsageManager &chunkUsageManager, unsigned int levelCount, float viewDistance,
@@ -61,8 +62,8 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 pos
     const LODDir lodDir = lodData.getDir(position, data);
     switch (lodDir) {
     case LODDir::Lower:
-      lodData.isDivided = false;
-      return false;
+      lodData.isDivided = true;
+      return true;
     case LODDir::Current: {
       lodData.isCurrent = true;
       lodData.isDivided = false;
@@ -79,9 +80,10 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 pos
     }
       return false;
     case LODDir::Higher:
-      lodData.isDivided = true;
+      lodData.isDivided = false;
       lodData.isCurrent = false;
-      return true;
+      loc_assert(false);
+      return false;
     }
   };
 }
@@ -97,7 +99,7 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncRecycle() {
   };
 }
 LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 position, Tile &tile) {
-  return [this, &position, &tile](LODTreeData &lodData) {
+  return [this, position, &tile](LODTreeData &lodData) {
     const auto dir = lodData.getDir(position, data);
     if (lodData.isCurrent) {
       if (dir == LODDir::Current) {
@@ -113,6 +115,7 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
         lodData.isDivided = false;
       }
       assert(lodData.chunk != nullptr);
+      lodData.isCurrent = false;
       chunkUsageManager.returnTileChunk(lodData.chunk);
       return wasDivided;
     } else if (dir == LODDir::Current) {
@@ -130,6 +133,7 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
       return wasDivided;
     } else if (dir == LODDir::Higher) {
       lodData.isDivided = true;
+      loc_assert(false);
     }
     return lodData.isDivided;
   };

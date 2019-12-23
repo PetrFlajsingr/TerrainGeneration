@@ -83,8 +83,8 @@ void ChunkUsageManager::manageUnloadedTile(Tile &tile) {
 
 void ChunkUsageManager::manageFilledTile(Tile &tile) {
   if (glm::distance(tile.center, cameraPosition) > loadingDistance) {
-    //tile.lod.tree.traverseDepthFirstIf(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));
-    //tile.state = ChunkState::NotLoaded;
+    tile.lod.tree.traverseDepthFirstIf(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));
+    tile.state = ChunkState::NotLoaded;
   } else {
     tile.lod.tree.traverseDepthFirstIf(lodController.getTraverseFnc(LODChunkController::Mode::FilledLODCheck, cameraPosition, tile));
   }

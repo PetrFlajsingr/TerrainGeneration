@@ -128,7 +128,7 @@ template <typename T> void Slider<T>::onMouseDown(EventInfo info, MouseButton bu
     const auto sliderWidth = dimensions.get().x;
     const auto percentageTraveled = (point.x - position.get().x) / sliderWidth * 2;
     const auto valueDelta = percentageTraveled * 100 * sliderStep;
-    setSliderValue( valueDelta);
+    setSliderValue(valueDelta);
   }
 }
 template <typename T> void Slider<T>::onMouseUp(EventInfo info, MouseButton button, SDL_Point point) {}
@@ -140,15 +140,10 @@ template <typename T> void Slider<T>::onMouseMove(EventInfo info, SDL_Point newP
     setSliderValue(value.get() + valueDelta);
   }
 }
-template <typename T> void Slider<T>::onMouseClicked(EventInfo info, MouseButton button, SDL_Point point) {
-}
+template <typename T> void Slider<T>::onMouseClicked(EventInfo info, MouseButton button, SDL_Point point) {}
 template <typename T> void Slider<T>::onMouseDblClicked(EventInfo info, MouseButton button, SDL_Point point) {}
-template <typename T> void Slider<T>::onMouseOver(EventInfo info) {
-  setColor({0, 1, 0, 1});
-}
-template <typename T> void Slider<T>::onMouseOut(EventInfo info) {
-  setColor({1, 0, 0, 1});
-}
+template <typename T> void Slider<T>::onMouseOver(EventInfo info) { setColor({0, 1, 0, 1}); }
+template <typename T> void Slider<T>::onMouseOut(EventInfo info) { setColor({1, 0, 0, 1}); }
 template <typename T> void Slider<T>::onMouseWheel(EventInfo info, ScrollDirection direction, int i) {}
 template <typename T> std::string Slider<T>::info() const { return "Slider"; }
 template <typename T> void Slider<T>::setColor(const glm::vec4 &color) { Slider::color = color; }

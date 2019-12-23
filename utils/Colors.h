@@ -16,6 +16,6 @@ inline glm::vec4 transparent(glm::vec4 color, float transparency) {
   assert(transparency >= 0.f && transparency <= 1.f);
   return {color.r, color.g, color.b, transparency};
 }
-}
+} // namespace Color
 
 #endif // TERRAINGENERATION_COLORS_H

@@ -1,4 +1,6 @@
 
+#include <containers/Tree.h>
+
 template <typename T, unsigned int ChildCount, typename F>
 void detail::traverseDepthFirstImpl(Leaf<T, ChildCount> *node, F &callable) {
   if (node == nullptr) {
@@ -27,6 +29,22 @@ void detail::traverseDepthFirstIfImpl(Leaf<T, ChildCount> *node, F &callable) {
     traverseDepthFirstIfImpl(child.get(), callable);
   }
 }
+
+template <typename T, unsigned int ChildCount, typename F>
+void detail::traverseDepthFirstIfNodeImpl(Leaf<T, ChildCount> *node, F &callable) {
+  if (node == nullptr) {
+    return;
+  }
+  const bool shouldContinue = callable(*node);
+  if (node->getType() == NodeType::Leaf || !shouldContinue) {
+    return;
+  }
+  auto notLeafNode = reinterpret_cast<Node<T, ChildCount> *>(node);
+  for (auto &child : notLeafNode->getChildren()) {
+    traverseDepthFirstIfNodeImpl(child.get(), callable);
+  }
+}
+
 template <typename T, unsigned int ChildCount, typename F>
 void detail::traverseBreadthFirstImpl(Leaf<T, ChildCount> *node, F &callable) {
   if (node == nullptr) {
@@ -54,8 +72,7 @@ void detail::traverseBreadthFirstImpl(Leaf<T, ChildCount> *node, F &callable) {
     }
   }
 }
-template <typename T, typename F>
-void detail::preorderImpl(Leaf<T, 2> *node, F &&callable) {
+template <typename T, typename F> void detail::preorderImpl(Leaf<T, 2> *node, F &&callable) {
   if (node == nullptr) {
     return;
   }
@@ -67,8 +84,7 @@ void detail::preorderImpl(Leaf<T, 2> *node, F &&callable) {
   preorderImpl(&notLeafNode->leftChild(), callable);
   preorderImpl(&notLeafNode->rightChild(), callable);
 }
-template <typename T, typename F>
-void detail::inorderImpl(Leaf<T, 2> *node, F &&callable) {
+template <typename T, typename F> void detail::inorderImpl(Leaf<T, 2> *node, F &&callable) {
   if (node == nullptr) {
     return;
   }
@@ -81,8 +97,7 @@ void detail::inorderImpl(Leaf<T, 2> *node, F &&callable) {
     preorderImpl(&notLeafNode->rightChild(), callable);
   }
 }
-template <typename T, typename F>
-void detail::postorderImpl(Leaf<T, 2> *node, F &&callable) {
+template <typename T, typename F> void detail::postorderImpl(Leaf<T, 2> *node, F &&callable) {
   if (node == nullptr) {
     return;
   }
@@ -95,3 +110,4 @@ void detail::postorderImpl(Leaf<T, 2> *node, F &&callable) {
   }
   callable(node->getValue());
 }
+

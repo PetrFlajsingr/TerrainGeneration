@@ -20,7 +20,6 @@ public:
   static ViewFrustum FromProjectionView(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix);
 
   [[nodiscard]] RelativePosition contains(const BoundingBox<3> &aabb) const;
-
   [[nodiscard]] RelativePosition contains(const BoundingSphere<3> &bs) const;
 };
 } // namespace geo

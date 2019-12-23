@@ -2,8 +2,8 @@
 // Created by petr on 11/16/19.
 //
 
-#ifndef TERRAINGENERATION_PRINT_H
-#define TERRAINGENERATION_PRINT_H
+#ifndef UTILITIES_PRINT_H
+#define UTILITIES_PRINT_H
 
 #include "logger.h"
 
@@ -31,20 +31,9 @@ template <typename... Args> void printErr(const Args &... args) {
   detail::printImpl(std::cerr, std::forward<const Args &>(args)...);
 }
 
-template <typename... Args> void printFmt(std::string fmt, const Args &... args) {
-  fmt::print(fmt + '\n', args...);
-}
-
+template <typename... Args> void printFmt(const std::string& fmt, const Args &... args) { fmt::print(fmt + '\n', args...); }
 
 template <typename OutStream> auto make_print(OutStream &stream) { return detail::CustomPrint{stream}; }
 
-/*
-template <typename OutStream>
-auto make_print(OutStream &stream) {
-  return [&stream]<typename ...Args> (Args... args) {
-    detail::printImpl(stream, std::forward<Args>(args)...);
-  };
-}
-*/
 
-#endif // TERRAINGENERATION_PRINT_H
+#endif // UTILITIES_PRINT_H

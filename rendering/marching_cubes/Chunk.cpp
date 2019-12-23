@@ -76,6 +76,9 @@ Chunk::Chunk(const Chunk &other) {
   drawVertexArray->addElementBuffer(indexBuffer);
 }
 Chunk &Chunk::operator=(const Chunk &other) {
+  if (this == &other) {
+    return *this;
+  }
   startPosition = other.startPosition;
   step = other.step;
   size = other.size;
@@ -90,4 +93,5 @@ Chunk &Chunk::operator=(const Chunk &other) {
   drawVertexArray->addAttrib(vertexBuffer, 0, 4, GL_FLOAT, sizeof(float) * 4, 0, GL_FALSE);
   drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT, sizeof(float) * 3, 0, GL_FALSE);
   drawVertexArray->addElementBuffer(indexBuffer);
+  return *this;
 }

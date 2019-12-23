@@ -65,7 +65,6 @@ private:
   EventDispatcher eventDispatcher;
   FocusManager focusManager{objects};
 
-
   GUIRenderer renderer;
 };
 

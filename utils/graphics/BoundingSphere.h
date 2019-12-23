@@ -10,6 +10,7 @@
 
 namespace geo {
 template <unsigned int Dimensions = 3> struct BoundingSphere {
+  static_assert(Dimensions == 2 || Dimensions == 3);
   using Point = std::conditional_t<Dimensions == 3, glm::vec3, glm::vec2>;
   Point center;
   float radius;

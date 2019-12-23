@@ -31,6 +31,21 @@ void detail::traverseDepthFirstIfImpl(Leaf<T, ChildCount> *node, F &callable) {
 }
 
 template <typename T, unsigned int ChildCount, typename F>
+void detail::traverseDepthFirstNodeImpl(Leaf<T, ChildCount> *node, F &callable) {
+  if (node == nullptr) {
+    return;
+  }
+  callable(*node);
+  if (node->getType() == NodeType::Leaf) {
+    return;
+  }
+  auto notLeafNode = reinterpret_cast<Node<T, ChildCount> *>(node);
+  for (auto &child : notLeafNode->getChildren()) {
+    traverseDepthFirstNodeImpl(child.get(), callable);
+  }
+}
+
+template <typename T, unsigned int ChildCount, typename F>
 void detail::traverseDepthFirstIfNodeImpl(Leaf<T, ChildCount> *node, F &callable) {
   if (node == nullptr) {
     return;
@@ -44,7 +59,6 @@ void detail::traverseDepthFirstIfNodeImpl(Leaf<T, ChildCount> *node, F &callable
     traverseDepthFirstIfNodeImpl(child.get(), callable);
   }
 }
-
 template <typename T, unsigned int ChildCount, typename F>
 void detail::traverseBreadthFirstImpl(Leaf<T, ChildCount> *node, F &callable) {
   if (node == nullptr) {
@@ -64,6 +78,33 @@ void detail::traverseBreadthFirstImpl(Leaf<T, ChildCount> *node, F &callable) {
       continue;
     }
     callable(currentNode->getValue());
+    if (currentNode->getType() == NodeType::Leaf) {
+      continue;
+    }
+    for (auto &child : currentNode->getChildren()) {
+      queue.push(reinterpret_cast<Node<T, ChildCount> *>(child.get()));
+    }
+  }
+}
+template <typename T, unsigned int ChildCount, typename F>
+void detail::traverseBreadthFirstNodeImpl(Leaf<T, ChildCount> *node, F &callable) {
+  if (node == nullptr) {
+    return;
+  }
+  if (node->getType() == NodeType::Leaf) {
+    return;
+  }
+
+  std::queue<Node<T, ChildCount> *> queue;
+  queue.push(reinterpret_cast<Node<T, ChildCount> *>(node));
+
+  while (!queue.empty()) {
+    auto currentNode = queue.front();
+    queue.pop();
+    if (currentNode == nullptr) {
+      continue;
+    }
+    callable(*currentNode);
     if (currentNode->getType() == NodeType::Leaf) {
       continue;
     }
@@ -110,4 +151,3 @@ template <typename T, typename F> void detail::postorderImpl(Leaf<T, 2> *node, F
   }
   callable(node->getValue());
 }
-

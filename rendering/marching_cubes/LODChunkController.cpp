@@ -112,6 +112,7 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncRecycle() {
       chunkUsageManager.returnTileChunk(lodData->chunk);
       ++counters.notLoadedCount;
       lodData->chunk = nullptr;
+      lodData->isCurrent = false;
     }
     return lodData->isDivided;
   };
@@ -157,4 +158,4 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
     return lodData->isDivided;
   };
 }
-LODChunkController::TreeTraversalFnc LODChunkController::getEmptyCheck() { return EmptyChunkChecker(); }
+EmptyChunkChecker LODChunkController::getEmptyCheck() { return EmptyChunkChecker(); }

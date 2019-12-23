@@ -3,13 +3,13 @@
 
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount>::Leaf(value_type value) : value(std::move(value)) {}
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount>::Leaf(const Leaf &other)
-    : value(other.value), parent(other.parent) {}
+    : value(other.value), parent(nullptr) {}
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount> &Leaf<T, ChildCount>::operator=(const Leaf &other) {
   if (&other == this) {
     return *this;
   }
   value = other.value;
-  parent = other.parent;
+  parent = nullptr;
   return *this;
 }
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount>::Leaf(Leaf &&other) noexcept
@@ -54,6 +54,14 @@ void Leaf<T, ChildCount>::traverseDepthFirstIfNode(F &&callable) {
 }
 template <typename T, unsigned int ChildCount> bool Leaf<T, ChildCount>::isRoot() const {
   return parent == nullptr;
+}
+template <typename T, unsigned int ChildCount> template <typename F>
+void Leaf<T, ChildCount>::traverseBreadthFirstNode(F &&callable) {
+  detail::traverseBreadthFirstNodeImpl(this, callable);
+}
+template <typename T, unsigned int ChildCount> template <typename F>
+void Leaf<T, ChildCount>::traverseDepthFirstNode(F &&callable) {
+  detail::traverseDepthFirstNodeImpl(this, callable);
 }
 
 template <typename T, unsigned int ChildCount> Node<T, ChildCount>::Node() {

@@ -11,7 +11,7 @@ using namespace MakeRange;
 
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
     : loadDistance(loadDistance), size(size), step(step), lodData(2, loadDistance, step),
-      chunkUsageManager(ChunkUsageInitData{chunkPoolSize, 100, loadDistance, 2, step, Unloading::Aggresive}) {
+      chunkUsageManager(ChunkUsageInitData{chunkPoolSize, 100, loadDistance, 3, step, Unloading::Aggresive}) {
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
   }
@@ -41,6 +41,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
       continue;
     }
     for (auto &tile : map.tiles) {
+      assert(tile.lod.tree.getRoot().isRoot());
       chunkUsageManager.manageTile(tile);
     }
   }

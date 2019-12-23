@@ -95,7 +95,6 @@ void ChunkUsageManager::manageFilledTile(Tile &tile) {
 void ChunkUsageManager::manageMarkedEmptyTile(Tile &tile) {
   auto emptyCheck = LODChunkController::getEmptyCheck();
   tile.lod.tree.traverseDepthFirstIfNode(emptyCheck);
-
   if (emptyCheck) {
     tile.state = ChunkState::Empty;
     tile.lod.tree.traverseDepthFirstIfNode(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));

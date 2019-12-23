@@ -39,7 +39,7 @@ public:
   using TreeTraversalFnc = std::function<bool(Leaf<LODTreeData, 8> &lodData)>;
 
   TreeTraversalFnc getTraverseFnc(Mode mode, glm::vec3 position, Tile &tile);
-  static TreeTraversalFnc getEmptyCheck();
+  static EmptyChunkChecker getEmptyCheck();
 
   [[nodiscard]] LODData &getLODData() { return data; }
   [[nodiscard]] const LODData &getLODData() const { return data; }

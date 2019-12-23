@@ -5,8 +5,8 @@
 #include "LODChunkController.h"
 #include "ChunkUsageManager.h"
 #include "Surroundings.h"
-#include <various/loc_assert.h>
 #include <error_handling/exceptions.h>
+#include <various/loc_assert.h>
 
 LODChunkController::LODChunkController(ChunkUsageManager &chunkUsageManager, unsigned int levelCount, float viewDistance,
                                        float chunkStep)
@@ -22,6 +22,7 @@ LODChunkController::TreeTraversalFnc LODChunkController::getTraverseFnc(LODChunk
   case Mode::FilledLODCheck:
     return fncLODCheck(position, tile);
   }
+  throw exc::InternalError("Invalid state");
 }
 
 void LODChunkController::resetCounters() {
@@ -58,86 +59,102 @@ glm::vec3 LODChunkController::offsetForSubChunk(unsigned int index, unsigned int
 }
 
 LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 position, Tile &tile) {
-  return [this, position, &tile](LODTreeData &lodData) {
-    const LODDir lodDir = lodData.getDir(position, data);
+  return [this, position, &tile](Leaf<LODTreeData, 8> &lodData) {
+    const LODDir lodDir = lodData->getDir(position, data);
     switch (lodDir) {
     case LODDir::Lower:
-      lodData.isDivided = true;
+      lodData->isDivided = true;
+      lodData->isCurrent = false;
       return true;
     case LODDir::Current: {
-      lodData.isCurrent = true;
-      lodData.isDivided = false;
-      lodData.chunk = chunkUsageManager.borrowChunk(tile);
-      assert(lodData.chunk != nullptr);
-      lodData.chunk->setComputed(false);
-      const auto chunkStep = data.steps[lodData.level];
-      lodData.chunk->step = chunkStep;
-      lodData.chunk->startPosition =
-          tile.pos + chunkStep * offsetForSubChunk(lodData.index, LODData::ChunkCountInRow(lodData.level)) * 30.f;
-      lodData.chunk->recalc();
+      lodData->isCurrent = true;
+      lodData->isDivided = false;
+      lodData->chunk = chunkUsageManager.borrowChunk(tile);
+      assert(lodData->chunk != nullptr);
+      lodData->chunk->setComputed(false);
+      const auto chunkStep = data.steps[lodData->level];
+      lodData->chunk->step = chunkStep;
+      lodData->chunk->startPosition =
+          tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f;
+      lodData->chunk->recalc();
       tile.state = ChunkState::Setup;
       ++counters.setupCount;
     }
       return false;
     case LODDir::Higher:
-      lodData.isDivided = false;
-      lodData.isCurrent = false;
-      loc_assert(false);
+      const bool isParentDivided = lodData.isRoot() ? false : lodData.getParent()->isDivided;
+      if (isParentDivided) {
+        lodData->isCurrent = true;
+        lodData->isDivided = false;
+        lodData->chunk = chunkUsageManager.borrowChunk(tile);
+        assert(lodData->chunk != nullptr);
+        lodData->chunk->setComputed(false);
+        const auto chunkStep = data.steps[lodData->level];
+        lodData->chunk->step = chunkStep;
+        lodData->chunk->startPosition =
+            tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f;
+        lodData->chunk->recalc();
+        tile.state = ChunkState::Setup;
+        ++counters.setupCount;
+      } else {
+        lodData->isDivided = false;
+        lodData->isCurrent = false;
+      }
       return false;
     }
+    throw exc::InternalError("Invalid state");
   };
 }
 
 LODChunkController::TreeTraversalFnc LODChunkController::fncRecycle() {
-  return [this](LODTreeData &lodData) {
-    if (lodData.isCurrent) {
-      chunkUsageManager.returnTileChunk(lodData.chunk);
+  return [this](Leaf<LODTreeData, 8> &lodData) {
+    if (lodData->isCurrent) {
+      chunkUsageManager.returnTileChunk(lodData->chunk);
       ++counters.notLoadedCount;
-      lodData.chunk = nullptr;
+      lodData->chunk = nullptr;
     }
-    return lodData.isDivided;
+    return lodData->isDivided;
   };
 }
 LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 position, Tile &tile) {
-  return [this, position, &tile](LODTreeData &lodData) {
-    const auto dir = lodData.getDir(position, data);
-    if (lodData.isCurrent) {
+  return [this, position, &tile](Leaf<LODTreeData, 8> &lodData) {
+    const auto dir = lodData->getDir(position, data);
+    if (lodData->isCurrent) {
       if (dir == LODDir::Current) {
         return false;
       }
-      lodData.isCurrent = false;
+      lodData->isCurrent = false;
       if (dir == LODDir::Lower) {
-        lodData.isDivided = true;
+        lodData->isDivided = true;
       }
       bool wasDivided = true;
       if (dir == LODDir::Higher) {
-        wasDivided = lodData.isDivided;
-        lodData.isDivided = false;
+        wasDivided = lodData->isDivided;
+        lodData->isDivided = false;
       }
-      assert(lodData.chunk != nullptr);
-      lodData.isCurrent = false;
-      chunkUsageManager.returnTileChunk(lodData.chunk);
+      assert(lodData->chunk != nullptr);
+      lodData->isCurrent = false;
+      chunkUsageManager.returnTileChunk(lodData->chunk);
       return wasDivided;
     } else if (dir == LODDir::Current) {
-      const bool wasDivided = lodData.isDivided;
-      lodData.isCurrent = true;
-      lodData.isDivided = false;
-      lodData.chunk = chunkUsageManager.borrowChunk(tile);
-      assert(lodData.chunk != nullptr);
-      lodData.chunk->setComputed(false);
-      const auto chunkStep = data.steps[lodData.level];
-      lodData.chunk->step = chunkStep;
-      lodData.chunk->startPosition = tile.pos + chunkStep * offsetForSubChunk(lodData.index, LODData::ChunkCountInRow(lodData.level)) * 30.f;
-      lodData.chunk->recalc();
+      const bool wasDivided = lodData->isDivided;
+      lodData->isCurrent = true;
+      lodData->isDivided = false;
+      lodData->chunk = chunkUsageManager.borrowChunk(tile);
+      assert(lodData->chunk != nullptr);
+      lodData->chunk->setComputed(false);
+      const auto chunkStep = data.steps[lodData->level];
+      lodData->chunk->step = chunkStep;
+      lodData->chunk->startPosition =
+          tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f;
+      lodData->chunk->recalc();
       ++counters.setupCount;
       return wasDivided;
     } else if (dir == LODDir::Higher) {
-      lodData.isDivided = true;
+      lodData->isDivided = true;
       loc_assert(false);
     }
-    return lodData.isDivided;
+    return lodData->isDivided;
   };
 }
-LODChunkController::TreeTraversalFnc LODChunkController::getEmptyCheck() {
-  return EmptyChunkChecker();
-}
+LODChunkController::TreeTraversalFnc LODChunkController::getEmptyCheck() { return EmptyChunkChecker(); }

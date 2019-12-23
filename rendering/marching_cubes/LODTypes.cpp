@@ -14,6 +14,7 @@ LODData::LODData(unsigned int levelCount, float viewDistance, float chunkStep) :
     distances[i] = distances[i - 1] / 12;
     steps[i] = chunkStep / std::pow(2, i);
   }
+  distances[0] = std::numeric_limits<float>::infinity();
 }
 
 unsigned int LODData::ChunkCountInRow(unsigned int level) {
@@ -24,13 +25,17 @@ unsigned int LODData::ChunkCountInRow(unsigned int level) {
 }
 
 LODTreeData::LODTreeData() : chunk(nullptr) {}
+
+// TODO:
 LODDir LODTreeData::getDir(glm::vec3 cameraPosition, const LODData &data) {
+  const auto distanceIdx = level == 0 ? 0 : level - 1;
   const auto distance = boundingSphere.distance(cameraPosition);
-  const auto lowerBound = level == data.levelCount ? 0 : data.distances[level + 1];
+  const auto lowerBound = level == data.levelCount ? 0 : data.distances[distanceIdx + 1];
   if (distance < lowerBound) {
     return LODDir::Lower;
   }
-  if (distance <= data.distances[level]) {
+  const auto higherBound = data.distances[distanceIdx];
+  if (distance <= higherBound) {
     return LODDir::Current;
   }
   return LODDir::Higher;

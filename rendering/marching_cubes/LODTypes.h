@@ -33,7 +33,6 @@ struct LODTreeData {
   unsigned int level;
 
   LODTreeData();
-
   LODDir getDir(glm::vec3 cameraPosition, const LODData &data);
 };
 

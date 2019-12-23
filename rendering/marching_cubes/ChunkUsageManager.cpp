@@ -77,26 +77,28 @@ void ChunkUsageManager::manageUnloadedTile(Tile &tile) {
   auto &counters = lodController.getCounters();
   if (hasAvailable() && counters.setupCount < chunksPerFrameLimit &&
       glm::distance(tile.center, cameraPosition) <= loadingDistance) {
-    tile.lod.tree.traverseDepthFirstIf(lodController.getTraverseFnc(LODChunkController::Mode::New, cameraPosition, tile));
+    tile.lod.tree.traverseDepthFirstIfNode(lodController.getTraverseFnc(LODChunkController::Mode::New, cameraPosition, tile));
   }
 }
 
 void ChunkUsageManager::manageFilledTile(Tile &tile) {
+  return;
   if (glm::distance(tile.center, cameraPosition) > loadingDistance) {
-    tile.lod.tree.traverseDepthFirstIf(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));
+    tile.lod.tree.traverseDepthFirstIfNode(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));
     tile.state = ChunkState::NotLoaded;
   } else {
-    tile.lod.tree.traverseDepthFirstIf(lodController.getTraverseFnc(LODChunkController::Mode::FilledLODCheck, cameraPosition, tile));
+    tile.lod.tree.traverseDepthFirstIfNode(
+        lodController.getTraverseFnc(LODChunkController::Mode::FilledLODCheck, cameraPosition, tile));
   }
 }
 
 void ChunkUsageManager::manageMarkedEmptyTile(Tile &tile) {
   auto emptyCheck = LODChunkController::getEmptyCheck();
-  tile.lod.tree.traverseDepthFirstIf(emptyCheck);
+  tile.lod.tree.traverseDepthFirstIfNode(emptyCheck);
 
   if (emptyCheck) {
     tile.state = ChunkState::Empty;
-    tile.lod.tree.traverseDepthFirstIf(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));
+    tile.lod.tree.traverseDepthFirstIfNode(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));
   } else {
     tile.state = ChunkState::Filled;
   }

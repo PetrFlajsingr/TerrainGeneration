@@ -12,20 +12,17 @@ class ChunkUsageManager;
 class Tile;
 class EmptyChunkChecker {
 public:
-  bool operator()(LODTreeData &lodData) {
-    if (lodData.isCurrent && lodData.chunk != nullptr && lodData.chunk->indexCount > 0) {
+  bool operator()(Leaf<LODTreeData, 8> &lodData) {
+    if (lodData->isCurrent && lodData->chunk != nullptr && lodData->chunk->indexCount > 0) {
       empty = false;
     }
-    return lodData.isDivided;
+    return lodData->isDivided;
   }
 
-  operator bool() {
-    return empty;
-  }
+  operator bool() { return empty; }
 
-  [[nodiscard]] bool isEmpty() const {
-    return empty;
-  }
+  [[nodiscard]] bool isEmpty() const { return empty; }
+
 private:
   bool empty = true;
 };
@@ -39,7 +36,7 @@ public:
   enum class Mode { New, Recycle, FilledLODCheck };
   LODChunkController(ChunkUsageManager &chunkUsageManager, unsigned int levelCount, float viewDistance, float chunkStep);
 
-  using TreeTraversalFnc = std::function<bool(LODTreeData &lodData)>;
+  using TreeTraversalFnc = std::function<bool(Leaf<LODTreeData, 8> &lodData)>;
 
   TreeTraversalFnc getTraverseFnc(Mode mode, glm::vec3 position, Tile &tile);
   static TreeTraversalFnc getEmptyCheck();
@@ -47,9 +44,7 @@ public:
   [[nodiscard]] LODData &getLODData() { return data; }
   [[nodiscard]] const LODData &getLODData() const { return data; }
 
-  [[nodiscard]] const Counters &getCounters() const {
-    return counters;
-  }
+  [[nodiscard]] const Counters &getCounters() const { return counters; }
   void resetCounters();
 
   static glm::vec3 offsetForSubChunk(unsigned int index, unsigned int maxValue);

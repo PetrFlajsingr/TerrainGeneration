@@ -11,16 +11,7 @@ using namespace MakeRange;
 
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
     : loadDistance(loadDistance), size(size), step(step), lodData(2, loadDistance, step),
-      chunkUsageManager(
-          ChunkUsageInitData {
-            chunkPoolSize,
-            100,
-            loadDistance,
-            2,
-            step,
-            Unloading::Aggresive
-          }
-          ) {
+      chunkUsageManager(ChunkUsageInitData{chunkPoolSize, 100, loadDistance, 2, step, Unloading::Aggresive}) {
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
   }
@@ -59,8 +50,7 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
 
   info = WString::Format(L"Chunks: available {}, used {}, setup {}, "
                          L"notLoaded {}",
-                         chunkUsageInfo.availableChunks, chunkUsageInfo.usedChunks, counters.setupCount,
-                         counters.notLoadedCount);
+                         chunkUsageInfo.availableChunks, chunkUsageInfo.usedChunks, counters.setupCount, counters.notLoadedCount);
   return used;
 }
 void Surroundings::setEmpty(Chunk *chunk) {
@@ -287,7 +277,9 @@ void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float ste
         lastLevel = loddata.level;
         stepForLevel /= 2;
       }
-      const auto st = start + startPosition + stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
+      const auto st =
+          start + startPosition +
+          stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
       loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
       loddata.index = perLevelCnt;
@@ -331,7 +323,9 @@ std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 
         lastLevel = loddata.level;
         stepForLevel /= 2;
       }
-      const auto st = start + startPosition + stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
+      const auto st =
+          start + startPosition +
+          stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
       loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
       loddata.index = perLevelCnt;

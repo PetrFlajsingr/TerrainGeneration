@@ -47,9 +47,7 @@ public:
   void returnChunk(Chunk *chunk);
   void returnTileChunk(Chunk *chunk);
 
-  const ChunkPtrs &getUsedChunks() {
-    return data.used;
-  }
+  const ChunkPtrs &getUsedChunks() { return data.used; }
 
   [[nodiscard]] const ChunkToTileMap &getChunkToTileMap() { return data.chunkToTileMap; }
 
@@ -60,9 +58,7 @@ public:
   };
 
   [[nodiscard]] Info getInfo() const { return {data.available.size(), data.used.size(), unloading}; }
-  [[nodiscard]] const LODChunkController::Counters &getCounters() const {
-    return lodController.getCounters();
-  }
+  [[nodiscard]] const LODChunkController::Counters &getCounters() const { return lodController.getCounters(); }
 
 private:
   ChunkPool chunkPool;

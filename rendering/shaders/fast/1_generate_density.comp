@@ -66,24 +66,24 @@ float calculateDensity() {
 
     return result;
 
-  /*  float hard_floor_y = 10;
-    float rad = 1000;
-    return rad - length(vertex - vec3(1000, 1000, 1000)) + (
-    + noise(vertex/50)*50
-    + noise(vertex/20)*20
-    );
+    /*  float hard_floor_y = 10;
+      float rad = 1000;
+      return rad - length(vertex - vec3(1000, 1000, 1000)) + (
+      + noise(vertex/50)*50
+      + noise(vertex/20)*20
+      );
 
 
-    vertex /= 2;
-    //vertex.y += 10;
-    float result = -vertex.y
-    + (noise(vertex/20)*20
-    + noise(vertex/10)*10
-    + noise(vertex/40)*40
-    + noise(vertex/80)*80
-    + noise(vertex/4)*4
-    ) * 3 * ((sin(vertex.x/50) + sin(vertex.z/50)));
-    return result + clamp((hard_floor_y - vertex.y)*3, 0.0, 1.0)*40;*/
+      vertex /= 2;
+      //vertex.y += 10;
+      float result = -vertex.y
+      + (noise(vertex/20)*20
+      + noise(vertex/10)*10
+      + noise(vertex/40)*40
+      + noise(vertex/80)*80
+      + noise(vertex/4)*4
+      ) * 3 * ((sin(vertex.x/50) + sin(vertex.z/50)));
+      return result + clamp((hard_floor_y - vertex.y)*3, 0.0, 1.0)*40;*/
 }
 
 void main() {

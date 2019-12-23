@@ -69,6 +69,9 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 pos
     case LODDir::Current: {
       lodData->isCurrent = true;
       lodData->isDivided = false;
+      if (!chunkUsageManager.hasAvailable()) {
+        return false;
+      }
       lodData->chunk = chunkUsageManager.borrowChunk(tile);
       assert(lodData->chunk != nullptr);
       lodData->chunk->setComputed(false);
@@ -86,6 +89,9 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 pos
       if (isParentDivided) {
         lodData->isCurrent = true;
         lodData->isDivided = false;
+        if (!chunkUsageManager.hasAvailable()) {
+          return false;
+        }
         lodData->chunk = chunkUsageManager.borrowChunk(tile);
         assert(lodData->chunk != nullptr);
         lodData->chunk->setComputed(false);
@@ -97,6 +103,7 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 pos
         tile.state = ChunkState::Setup;
         ++counters.setupCount;
       } else {
+        loc_assert(lodData.isRoot(), "This should be unreachable as non-root node.");
         lodData->isDivided = false;
         lodData->isCurrent = false;
       }
@@ -109,12 +116,16 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 pos
 LODChunkController::TreeTraversalFnc LODChunkController::fncRecycle() {
   return [this](Leaf<LODTreeData, 8> &lodData) {
     if (lodData->isCurrent) {
-      chunkUsageManager.returnTileChunk(lodData->chunk);
+      if (lodData->chunk != nullptr) {
+        chunkUsageManager.returnTileChunk(lodData->chunk);
+      }
       ++counters.notLoadedCount;
       lodData->chunk = nullptr;
       lodData->isCurrent = false;
     }
-    return lodData->isDivided;
+    const bool wasDivided = lodData->isDivided;
+    lodData->isDivided = false;
+    return wasDivided;
   };
 }
 LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 position, Tile &tile) {
@@ -122,6 +133,9 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
     const auto dir = lodData->getDir(position, data);
     if (lodData->isCurrent) {
       if (dir == LODDir::Current) {
+        if (lodData->chunk == nullptr) {
+          lodData->chunk = chunkUsageManager.borrowChunk(tile);
+        }
         return false;
       }
       lodData->isCurrent = false;
@@ -152,8 +166,28 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
       ++counters.setupCount;
       return wasDivided;
     } else if (dir == LODDir::Higher) {
-      lodData->isDivided = true;
-      loc_assert(false);
+      return lodData->isDivided;
+      const bool isParentDivided = lodData.isRoot() ? false : lodData.getParent()->isDivided;
+      if (isParentDivided) {
+        const bool wasDivided = lodData->isDivided;
+        lodData->isCurrent = true;
+        lodData->isDivided = false;
+        lodData->chunk = chunkUsageManager.borrowChunk(tile);
+        assert(lodData->chunk != nullptr);
+        lodData->chunk->setComputed(false);
+        const auto chunkStep = data.steps[lodData->level];
+        lodData->chunk->step = chunkStep;
+        lodData->chunk->startPosition =
+            tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f;
+        lodData->chunk->recalc();
+        tile.state = ChunkState::Setup;
+        ++counters.setupCount;
+        return wasDivided;
+      } else {
+        loc_assert(lodData.isRoot(), "This should be unreachable as non-root node.");
+        lodData->isDivided = false;
+        lodData->isCurrent = false;
+      }
     }
     return lodData->isDivided;
   };

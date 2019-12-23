@@ -9,9 +9,10 @@
 
 using namespace MakeRange;
 
+constexpr unsigned int lodDepth = 2;
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
-    : loadDistance(loadDistance), size(size), step(step), lodData(2, loadDistance, step),
-      chunkUsageManager(ChunkUsageInitData{chunkPoolSize, 100, loadDistance, 3, step, Unloading::Aggresive}) {
+    : loadDistance(loadDistance), size(size), step(step), lodData(lodDepth, loadDistance, step),
+      chunkUsageManager(ChunkUsageInitData{chunkPoolSize, 100, loadDistance, lodDepth, step, Unloading::Aggresive}) {
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
   }

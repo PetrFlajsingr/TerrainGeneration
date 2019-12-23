@@ -27,6 +27,7 @@ using Conf = JsonConfig<true>;
 
 struct UI {
   std::shared_ptr<Button> lineFillBtn;
+  std::shared_ptr<Button> pauseMCBtn;
   std::shared_ptr<Label> fpsLbl;
   std::shared_ptr<Label> chunkInfoLbl;
   std::shared_ptr<Label> speedLbl;
@@ -35,7 +36,7 @@ struct UI {
 };
 
 UI initUI(UIManager &uiManager) {
-  auto perspective = PerspectiveProjection(0.1f, 10000.f, 1920.f / 1080, glm::degrees(60.f));
+  auto perspective = PerspectiveProjection(0.1f, 20000.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
@@ -45,6 +46,10 @@ UI initUI(UIManager &uiManager) {
 
   auto fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1}, glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);
+
+  auto pauseMCBtn = uiManager.createGUIObject<Button>(glm::vec3{1700, 300, 1}, glm::vec3{220, 20, 0});
+  pauseMCBtn->text.setFont("arialbd", 10);
+  pauseMCBtn->text.setText(L"MC on/off"_sw);
 
   auto speedLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 620, 1}, glm::vec3{220, 50, 0});
   speedLbl->text.setFont("arialbd", 10);
@@ -57,7 +62,7 @@ UI initUI(UIManager &uiManager) {
   auto movementSpeedSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 700, 1}, glm::vec3{200, 50, 0});
   movementSpeedSlider->setColor(Color::transparent(Color::red, 0.5f));
 
-  return {lineFillBtn, fpsLbl, chunkInfoLbl, speedLbl, cameraController, movementSpeedSlider};
+  return {lineFillBtn, pauseMCBtn, fpsLbl, chunkInfoLbl, speedLbl, cameraController, movementSpeedSlider};
 }
 
 void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
@@ -130,6 +135,12 @@ void main_marching_cubes(int argc, char *argv[]) {
   bool showTextures = false;
   auto textureBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 100, 1}, glm::vec3{250, 100, 0});
   textureBtn->setMouseClicked([&showTextures] { showTextures = !showTextures; });
+
+  bool pauseMC = false;
+  ui.pauseMCBtn->setMouseClicked([&pauseMC] {
+    pauseMC = !pauseMC;
+  });
+
   DrawTexture drawTexture;
 
   ge::gl::glEnable(GL_DEPTH_TEST);
@@ -140,7 +151,9 @@ void main_marching_cubes(int argc, char *argv[]) {
     fpsCounter.frame();
     updateFPSLabel(ui, fpsCounter);
 
-    chunks.generateChunks();
+    if (!pauseMC) {
+      chunks.generateChunks();
+    }
 
     chunks.render = false;
     auto renderFnc = [&ui, &chunks, &modelRenderer](const auto &program, const auto &aabb) {

@@ -3,18 +3,21 @@
 //
 
 #include "LODTypes.h"
+#include <io/print.h>
 
 LODData::LODData(unsigned int levelCount, float viewDistance, float chunkStep) : levelCount(levelCount) {
   using namespace MakeRange;
   distances.resize(levelCount + 1);
   steps.resize(levelCount + 1);
-  distances[0] = viewDistance;
+  distances[0] = viewDistance / 2;
   steps[0] = chunkStep;
   for (auto i : range<float>(1, levelCount + 1)) {
-    distances[i] = distances[i - 1] / 6;
+    distances[i] = distances[i - 1] / 2;
     steps[i] = chunkStep / std::pow(2, i);
   }
   distances[0] = std::numeric_limits<float>::infinity();
+
+ print(distances);
 }
 
 unsigned int LODData::ChunkCountInRow(unsigned int level) {
@@ -26,15 +29,13 @@ unsigned int LODData::ChunkCountInRow(unsigned int level) {
 
 LODTreeData::LODTreeData() : chunk(nullptr) {}
 
-// TODO:
 LODDir LODTreeData::getDir(glm::vec3 cameraPosition, const LODData &data) {
-  const auto distanceIdx = level == 0 ? 0 : level - 1;
   const auto distance = boundingSphere.distance(cameraPosition);
-  const auto lowerBound = level == data.levelCount ? 0 : data.distances[distanceIdx + 1];
+  const auto lowerBound = level == data.levelCount ? 0 : data.distances[level + 1];
+  const auto higherBound = data.distances[level];
   if (distance < lowerBound) {
     return LODDir::Lower;
   }
-  const auto higherBound = data.distances[distanceIdx];
   if (distance <= higherBound) {
     return LODDir::Current;
   }

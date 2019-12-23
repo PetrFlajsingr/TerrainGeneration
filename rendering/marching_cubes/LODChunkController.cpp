@@ -147,14 +147,14 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
       }
       if (dir == LODDir::Higher) {
         const bool isParentDivided = lodData.isRoot() ? false : lodData.getParent()->isDivided;
+        const bool wasDivided = lodData->isDivided;
         if(!isParentDivided) {
-          const bool wasDivided = lodData->isDivided;
           lodData->isDivided = false;
           assert(lodData->chunk != nullptr);
           lodData->isCurrent = false;
           chunkUsageManager.returnTileChunk(lodData->chunk);
-          return wasDivided;
         }
+        return wasDivided;
       }
       return false;
     } else if (dir == LODDir::Current) {

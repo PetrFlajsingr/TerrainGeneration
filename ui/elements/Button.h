@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_BUTTON_H
 #define TERRAINGENERATION_BUTTON_H
 
-#include <memory>
 #include "ui/interface/MouseInteractable.h"
+#include <memory>
 
 namespace sdl2cpp::ui {
 
@@ -23,14 +23,14 @@ public:
 
   void setColor(glm::vec4 color);
   const glm::vec4 &getColor() const;
+  std::string info() const override;
 
 protected:
   void draw(GUIRenderer &renderer) override;
   void onVisibilityChanged(Visibility visibility) override;
   void onFocusChanged(Focus focus) override;
   void onEnabledChanged(bool enabled) override;
-  void onMouseDown(EventInfo info, MouseButton button,
-                   SDL_Point point) override;
+  void onMouseDown(EventInfo info, MouseButton button, SDL_Point point) override;
   void onMouseUp(EventInfo info, MouseButton button, SDL_Point point) override;
   void onMouseOver(EventInfo info) override;
   void onMouseOut(EventInfo info) override;

@@ -1,7 +1,6 @@
 
 
-template <typename T>
-constexpr LogLevel LoggerStreamModifiers::modifierToLogLevel() {
+template <typename T> constexpr LogLevel LoggerStreamModifiers::modifierToLogLevel() {
   if constexpr (std::is_same_v<T, LoggerStreamModifiers::verbose>) {
     return LogLevel::Verbose;
   }
@@ -30,37 +29,15 @@ template <typename OutStream> std::string Logger<OutStream>::getTime() const {
   return ss.str();
 }
 
-template <typename OutStream>
-std::string Logger<OutStream>::levelToString(LogLevel level) const {
-  switch (level) {
-  case LogLevel::Verbose:
-    return "";
-  case LogLevel::Info:
-    return "[INFO]";
-  case LogLevel::Status:
-    return "[STATUS]";
-  case LogLevel::Debug:
-    return "[DEBUG]";
-  case LogLevel::Warning:
-    return "[WARNING]";
-  case LogLevel::Error:
-    return "[ERROR]";
-  }
-  throw std::exception();
-}
-
-template <typename OutStream>
-std::string Logger<OutStream>::indent(unsigned int level) const {
+template <typename OutStream> std::string Logger<OutStream>::indent(unsigned int level) const {
   auto cnt = level * 2;
   return std::string(cnt, ' ');
 }
 
-template <typename OutStream>
-template <typename T>
+template <typename OutStream> template <typename T>
 void Logger<OutStream>::print(const T &value, unsigned int indentLevel) const {
   using namespace std::string_literals;
-  if constexpr (is_iterable_v<std::decay_t<T>> &&
-                !is_string_v<std::decay_t<T>>) {
+  if constexpr (is_iterable_v<std::decay_t<T>> && !is_string_v<std::decay_t<T>>) {
     print(indent(indentLevel));
     print("Container, size: "s + std::to_string(value.size()));
     print(" {\n");
@@ -112,12 +89,9 @@ void Logger<OutStream>::print(const T &value, unsigned int indentLevel) const {
   }
 }
 
-template <typename OutStream>
-Logger<OutStream>::Logger(OutStream &outputStream)
-    : outputStream(outputStream) {}
+template <typename OutStream> Logger<OutStream>::Logger(OutStream &outputStream) : outputStream(outputStream) {}
 
-template <typename OutStream>
-template <LogLevel Level, bool PrintTime, bool PrintNewLine, typename... T>
+template <typename OutStream> template <LogLevel Level, bool PrintTime, bool PrintNewLine, typename... T>
 void Logger<OutStream>::log(const T &... message) const {
   if constexpr (Level != LogLevel::Verbose) {
     if constexpr (PrintTime) {
@@ -132,33 +106,20 @@ void Logger<OutStream>::log(const T &... message) const {
   }
 }
 
-template <typename OutStream> void Logger<OutStream>::startTime() {
-  startTimeMs = now<std::chrono::nanoseconds>();
-}
+template <typename OutStream> void Logger<OutStream>::startTime() { startTimeMs = now<std::chrono::nanoseconds>(); }
 
-template <typename OutStream> void Logger<OutStream>::endTime() {
-  endTimeMs = now<std::chrono::nanoseconds>();
-}
+template <typename OutStream> void Logger<OutStream>::endTime() { endTimeMs = now<std::chrono::nanoseconds>(); }
 
 template <typename OutStream> void Logger<OutStream>::printElapsedTime() {
   auto tmp = endTimeMs - startTimeMs;
-  log<LogLevel::Verbose>("Time elapsed: " + std::to_string(tmp.count()) +
-                         " ns");
+  log<LogLevel::Verbose>("Time elapsed: " + std::to_string(tmp.count()) + " ns");
 }
 
-template <typename OutStream>
-void Logger<OutStream>::setDefaultLevel(LogLevel logLevel) {
-  defaultLevel = logLevel;
-}
+template <typename OutStream> void Logger<OutStream>::setDefaultLevel(LogLevel logLevel) { defaultLevel = logLevel; }
 
-template <typename OutStream>
-void Logger<OutStream>::setDefaultPrintTime(bool printTime) {
-  defaultPrintTime = printTime;
-}
+template <typename OutStream> void Logger<OutStream>::setDefaultPrintTime(bool printTime) { defaultPrintTime = printTime; }
 
-template <typename OutStream>
-template <typename T>
-auto Logger<OutStream>::operator<<(const T &rhs) {
+template <typename OutStream> template <typename T> auto Logger<OutStream>::operator<<(const T &rhs) {
   if constexpr (LoggerStreamModifiers::is_logger_stream_modifier_v<T>) {
     return OutOperator<LoggerStreamModifiers::modifierToLogLevel<T>()>(*this);
   } else if constexpr (LoggerStreamModifiers::is_logger_flusher_v<T>) {
@@ -170,10 +131,8 @@ auto Logger<OutStream>::operator<<(const T &rhs) {
   }
 }
 
-template <typename OutStream>
-template <typename Callable, typename Resolution>
-void Logger<OutStream>::measure(Callable &&callable, unsigned int iterations,
-                                std::string_view name) {
+template <typename OutStream> template <typename Callable, typename Resolution>
+void Logger<OutStream>::measure(Callable &&callable, unsigned int iterations, std::string_view name) {
   using namespace MakeRange;
   static_assert(std::is_invocable_v<Callable>, "Callable must be invokable.");
   static_assert(is_duration_v<Resolution>, "Resolution must be duration type.");
@@ -183,24 +142,16 @@ void Logger<OutStream>::measure(Callable &&callable, unsigned int iterations,
   }
   const auto endTime = now<Resolution>();
   const auto totalTime = endTime - startTime;
-  log<LogLevel::Verbose>("Measure time for: '", name, "', ", iterations,
-                         " iterations.");
-  log<LogLevel::Verbose>("Total: ", totalTime.count(), " ",
-                         durationToString<Resolution>());
-  log<LogLevel::Verbose>(
-      "Average: ", totalTime.count() / static_cast<float>(iterations), " ",
-      durationToString<Resolution>());
+  log<LogLevel::Verbose>("Measure time for: '", name, "', ", iterations, " iterations.");
+  log<LogLevel::Verbose>("Total: ", totalTime.count(), " ", durationToString<Resolution>());
+  log<LogLevel::Verbose>("Average: ", totalTime.count() / static_cast<float>(iterations), " ", durationToString<Resolution>());
 }
 
-template <typename OutStream>
-template <typename T>
-void Logger<OutStream>::remember(std::string_view key, const T &value) {
+template <typename OutStream> template <typename T> void Logger<OutStream>::remember(std::string_view key, const T &value) {
   memory[std::string(key)] = value;
 }
 
-template <typename OutStream>
-template <typename T>
-T Logger<OutStream>::recall(std::string_view key) {
+template <typename OutStream> template <typename T> T Logger<OutStream>::recall(std::string_view key) {
   if (memory.count(std::string(key)) == 0) {
     return T{};
   } else {
@@ -208,14 +159,10 @@ T Logger<OutStream>::recall(std::string_view key) {
   }
 }
 
-template <typename OutStream>
-template <LogLevel logLevel>
-Logger<OutStream>::OutOperator<logLevel>::OutOperator(Logger &logger)
+template <typename OutStream> template <LogLevel logLevel> Logger<OutStream>::OutOperator<logLevel>::OutOperator(Logger &logger)
     : logger(logger) {}
 
-template <typename OutStream>
-template <LogLevel logLevel>
-template <typename T>
+template <typename OutStream> template <LogLevel logLevel> template <typename T>
 auto Logger<OutStream>::OutOperator<logLevel>::operator<<(const T &rhs) {
   if constexpr (LoggerStreamModifiers::is_logger_flusher_v<T>) {
     logger.outputStream.flush();

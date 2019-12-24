@@ -16,9 +16,7 @@ using namespace std::chrono_literals;
 
 class TimedEvent {
   enum class Type { SingleShot, Repeated, Infinite };
-  template <SimpleInvocable F>
-  explicit TimedEvent(F f, Type type, std::chrono::milliseconds duration,
-                      unsigned int repetitions)
+  template <SimpleInvocable F> explicit TimedEvent(F f, Type type, std::chrono::milliseconds duration, unsigned int repetitions)
       : event(f), duration(duration), type(type), repetitions(repetitions) {}
 
 public:
@@ -27,8 +25,7 @@ public:
    * @param f function to run
    * @param duration delay for event fire
    */
-  template <SimpleInvocable F>
-  static TimedEvent SingleShot(F f, std::chrono::milliseconds duration) {
+  template <SimpleInvocable F> static TimedEvent SingleShot(F f, std::chrono::milliseconds duration) {
     TimedEvent result{std::move(f), Type::SingleShot, duration, 1};
     return result;
   }
@@ -38,9 +35,7 @@ public:
    * @param duration delay for event fire
    * @param repetitions amount of event fires
    */
-  template <SimpleInvocable F>
-  static TimedEvent Repeated(F f, std::chrono::milliseconds duration,
-                             unsigned int repetitions) {
+  template <SimpleInvocable F> static TimedEvent Repeated(F f, std::chrono::milliseconds duration, unsigned int repetitions) {
     TimedEvent result{std::move(f), Type::Repeated, duration, repetitions};
     return result;
   }
@@ -49,8 +44,7 @@ public:
    * @param f function to run
    * @param duration delay for event fire
    */
-  template <SimpleInvocable F>
-  static TimedEvent Infinite(F f, std::chrono::milliseconds duration) {
+  template <SimpleInvocable F> static TimedEvent Infinite(F f, std::chrono::milliseconds duration) {
     TimedEvent result{std::move(f), Type::Infinite, duration, 0};
     return result;
   }

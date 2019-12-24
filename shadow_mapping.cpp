@@ -10,7 +10,7 @@
 #ifdef OLD_SM
 #include "rendering/shading/ShadowMap.h"
 #else
-#include "rendering/shading/CascadedShadowMap.h"
+#include "rendering/shadow_maps/CascadedShadowMap.h"
 #endif
 
 #include "rendering/utils/DrawTexture.h"
@@ -36,8 +36,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
 
   const auto deviceData = config.get<DeviceData>("device").value();
-  auto window = std::make_shared<sdl2cpp::Window>(deviceData.screen.width,
-                                                  deviceData.screen.height);
+  auto window = std::make_shared<sdl2cpp::Window>(deviceData.screen.width, deviceData.screen.height);
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);
 
@@ -49,8 +48,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 
   setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
 
-  const auto assetPath =
-      config.get<std::string>("paths", "assetsLocation").value();
+  const auto assetPath = config.get<std::string>("paths", "assetsLocation").value();
 
   ModelRenderer modelRenderer;
 
@@ -60,29 +58,24 @@ void main_shadow_mapping(int argc, char *argv[]) {
   GraphicsModelBase *bigSphere = modelRenderer.modelById("bigSphere")->get();
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
-  auto perspective = PerspectiveProjection(0.1f, 500.f,  1920.f / 1080, 60.f);
-  auto cameraController =
-      uiManager.createGUIObject<sdl2cpp::ui::CameraController>(std::move(perspective),
-          glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
+  auto perspective = PerspectiveProjection(0.1f, 500.f, 1920.f / 1080, 60.f);
+  ;
+  auto cameraController = uiManager.createGUIObject<sdl2cpp::ui::CameraController>(std::move(perspective), glm::vec3{0, 0, 0},
+                                                                                   glm::vec3{1920, 1080, 0});
 
   int showFrameBuffer = 0;
-  auto btn = uiManager.createGUIObject<sdl2cpp::ui::Button>(
-      glm::vec3{0, 0, 1}, glm::vec3{300, 100, 0});
+  auto btn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 0, 1}, glm::vec3{300, 100, 0});
   btn->text.setText(L"show/hide light sphere"_sw);
   btn->text.setFont("arialbd", 10);
 
-  btn->setMouseClicked([&modelRenderer](sdl2cpp::ui::EventInfo,
-                                        sdl2cpp::ui::MouseButton, SDL_Point) {
+  btn->setMouseClicked([&modelRenderer](sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton, SDL_Point) {
     auto model = modelRenderer.modelById("light").value();
     model->setDrawn(!model->isDrawn());
   });
 
-  auto btn2 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
-      glm::vec3{0, 110, 1}, glm::vec3{300, 100, 0});
+  auto btn2 = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 110, 1}, glm::vec3{300, 100, 0});
 
-  btn2->setMouseClicked([&showFrameBuffer](sdl2cpp::ui::EventInfo,
-                                           sdl2cpp::ui::MouseButton,
-                                           SDL_Point) {
+  btn2->setMouseClicked([&showFrameBuffer](sdl2cpp::ui::EventInfo, sdl2cpp::ui::MouseButton, SDL_Point) {
     showFrameBuffer = (showFrameBuffer + 1) % 4;
   });
   btn2->text.setText(L"show/hide depth texture"_sw);
@@ -91,8 +84,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
 #ifdef OLD_SM
   const float near_plane = .1f;
   const float far_plane = 70.5f;
-  const glm::mat4 lightProjection =
-      glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
+  const glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
 
   ShadowMap sm{lightProjection, {0.f, 5.0f, 0.0}, {0.0, 0, 0}, 4096, 4096};
 #else
@@ -105,8 +97,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
   const auto aspectRatio = 1920.f / 1080;
   const auto fieldOfView = 45.0f;
   auto projection = glm::perspective(fieldOfView, aspectRatio, near, far);
-  auto renderProgram = std::make_shared<ge::gl::Program>(
-      "shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
+  auto renderProgram = std::make_shared<ge::gl::Program>("shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
   bool shrink = true;
 
@@ -169,8 +160,7 @@ void main_shadow_mapping(int argc, char *argv[]) {
     sm.begin();
     ge::gl::glEnable(GL_CULL_FACE);
     ge::gl::glCullFace(GL_FRONT);
-    modelRenderer.render(sm.getProgram(), cameraController->getViewMatrix(),
-                         false);
+    modelRenderer.render(sm.getProgram(), cameraController->getViewMatrix(), false);
     ge::gl::glCullFace(GL_BACK);
     sm.end();
     ge::gl::glDisable(GL_CULL_FACE);
@@ -182,29 +172,24 @@ void main_shadow_mapping(int argc, char *argv[]) {
       ge::gl::glActiveTexture(GL_TEXTURE0);
       ge::gl::glBindTexture(GL_TEXTURE_2D, sm.getDepthMap().getId());
 
-      ge::gl::glUniform1i(
-          ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"), 0);
+      ge::gl::glUniform1i(ge::gl::glGetUniformLocation(renderProgram->getId(), "shadowMap"), 0);
 
       renderProgram->set3fv("lightPos", &sm.getLightPos()[0]);
       renderProgram->set3fv("viewPos", &cameraController->getPosition()[0]);
       renderProgram->setMatrix4fv("projection", &projection[0][0]);
-      renderProgram->setMatrix4fv("lightSpaceMatrix",
-                                  &sm.getLightSpaceMatrix()[0][0]);
+      renderProgram->setMatrix4fv("lightSpaceMatrix", &sm.getLightSpaceMatrix()[0][0]);
 
-      modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
-                           true);
+      modelRenderer.render(renderProgram, cameraController->getViewMatrix(), true);
     }
 #else
     ge::gl::glEnable(GL_CULL_FACE);
-    auto renderFnc = [&modelRenderer, &cameraController](
-                         const std::shared_ptr<ge::gl::Program> &program,
-                         const auto &) {
+    auto renderFnc = [&modelRenderer, &cameraController](const std::shared_ptr<ge::gl::Program> &program, const auto &) {
       modelRenderer.render(program, cameraController->getViewMatrix(), false);
     };
 
-  /*  cascadedShadowMap.renderShadowMap(renderFnc, projection,
-                                      cameraController->getViewMatrix(), near,
-                                      far, aspectRatio, fieldOfView);*/
+    /*  cascadedShadowMap.renderShadowMap(renderFnc, projection,
+                                        cameraController->getViewMatrix(), near,
+                                        far, aspectRatio, fieldOfView);*/
 
     ge::gl::glCullFace(GL_BACK);
 
@@ -216,17 +201,12 @@ void main_shadow_mapping(int argc, char *argv[]) {
       renderProgram->use();
       cascadedShadowMap.bindRender(renderProgram);
 
-      renderProgram->setMatrix4fv(
-          "inverseViewMatrix",
-          glm::value_ptr(glm::inverse(cameraController->getViewMatrix())));
+      renderProgram->setMatrix4fv("inverseViewMatrix", glm::value_ptr(glm::inverse(cameraController->getViewMatrix())));
 
-      renderProgram->set3fv("lightDir",
-                            glm::value_ptr(cascadedShadowMap.getLightDir()));
+      renderProgram->set3fv("lightDir", glm::value_ptr(cascadedShadowMap.getLightDir()));
       renderProgram->setMatrix4fv("projection", glm::value_ptr(projection));
-      ge::gl::glUniform1i(
-          renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
-      modelRenderer.render(renderProgram, cameraController->getViewMatrix(),
-                           true);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
+      modelRenderer.render(renderProgram, cameraController->getViewMatrix(), true);
     }
 
 #endif

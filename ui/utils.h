@@ -9,8 +9,6 @@
 #include <experimental/array>
 #include <glm/vec3.hpp>
 
-std::array<glm::vec3, 4> sdlRectToGLCoordinates(const SDL_Rect &rect,
-                                                unsigned int screenWidth,
-                                                unsigned int screenHeight);
+std::array<glm::vec3, 4> sdlRectToGLCoordinates(const SDL_Rect &rect, unsigned int screenWidth, unsigned int screenHeight);
 
 #endif // TERRAINGENERATION_UTILS_H

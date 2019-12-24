@@ -4,15 +4,9 @@
 
 #include "GraphicsModelBase.h"
 
-GraphicsModelBase::GraphicsModelBase(GraphicsModelBase::Id id,
-                                     GraphicsModelBase::Type type)
-    : id(std::move(id)), type(type) {}
+GraphicsModelBase::GraphicsModelBase(GraphicsModelBase::Id id, GraphicsModelBase::Type type) : id(std::move(id)), type(type) {}
 
-
-const std::shared_ptr<ge::gl::VertexArray> &
-GraphicsModelBase::getVertexArray() const {
-  return vertexArray;
-}
+const std::shared_ptr<ge::gl::VertexArray> &GraphicsModelBase::getVertexArray() const { return vertexArray; }
 const GraphicsModelBase::Id &GraphicsModelBase::getId() const { return id; }
 GraphicsModelBase::Type GraphicsModelBase::getType() const { return type; }
 
@@ -64,8 +58,7 @@ GraphicsModelBase::GraphicsModelBase(const GraphicsModelBase &other) {
   rotation = other.rotation;
   updateModelMatrix = true;
 }
-GraphicsModelBase &
-GraphicsModelBase::operator=(const GraphicsModelBase &other) {
+GraphicsModelBase &GraphicsModelBase::operator=(const GraphicsModelBase &other) {
   id = other.id;
   type = other.type;
   scale = other.scale;
@@ -74,6 +67,4 @@ GraphicsModelBase::operator=(const GraphicsModelBase &other) {
   updateModelMatrix = true;
   return *this;
 }
-void GraphicsModelBase::setId(const GraphicsModelBase::Id &id) {
-  GraphicsModelBase::id = id;
-}
+void GraphicsModelBase::setId(const GraphicsModelBase::Id &id) { GraphicsModelBase::id = id; }

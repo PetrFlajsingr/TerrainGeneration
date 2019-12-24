@@ -4,8 +4,7 @@
 
 #include "KeyAction.h"
 
-sdl2cpp::ui::KeyAction::KeyAction(UIManager &guiManager, SDL_Keycode key,
-                                  KeyAction::Action action)
+sdl2cpp::ui::KeyAction::KeyAction(UIManager &guiManager, SDL_Keycode key, KeyAction::Action action)
     : UIObject(guiManager), key(key), action(std::move(action)) {
   setFocus(sdl2cpp::ui::Focus::Focused);
 }
@@ -22,3 +21,4 @@ void sdl2cpp::ui::KeyAction::onKeyUp(const SDL_Event &event) {}
 void sdl2cpp::ui::KeyAction::onFocusChanged(sdl2cpp::ui::Focus focus) {}
 
 void sdl2cpp::ui::KeyAction::onEnabledChanged(bool enabled) {}
+std::string sdl2cpp::ui::KeyAction::info() const { return "Key action"; }

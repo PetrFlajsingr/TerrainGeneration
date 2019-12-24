@@ -14,8 +14,7 @@ DrawTexture::DrawTexture()
       }),
       quadVBO(sizeof(float) * quadVertices.size(), quadVertices.data()) {
   quadVAO.addAttrib(&quadVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), 0);
-  quadVAO.addAttrib(&quadVBO, 1, 2, GL_FLOAT, 5 * sizeof(float),
-                    (3 * sizeof(float)));
+  quadVAO.addAttrib(&quadVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), (3 * sizeof(float)));
 }
 void DrawTexture::draw(GLint texture) {
   program.use();
@@ -33,11 +32,9 @@ void DrawTexture::drawCasc(GLuint texture) {
   glm::mat4 modelMatrix = glm::mat4(1.0f);
   modelMatrix = glm::scale(modelMatrix, glm::vec3(0.25f, 0.25f, 0.25f));
   modelMatrix = glm::translate(modelMatrix, glm::vec3(-2.9f, 2.9f, 1.0f));
-  ge::gl::glUniformMatrix4fv(programCasc.getUniformLocation("modelMatrix"), 1,
-                             GL_FALSE, &modelMatrix[0][0]);
+  ge::gl::glUniformMatrix4fv(programCasc.getUniformLocation("modelMatrix"), 1, GL_FALSE, &modelMatrix[0][0]);
   ge::gl::glActiveTexture(GL_TEXTURE1);
-  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE,
-                          GL_NONE);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_NONE);
   ge::gl::glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
   ge::gl::glBlendEquation(GL_FUNC_ADD);
   ge::gl::glBlendFunc(GL_ONE, GL_ONE);
@@ -50,8 +47,7 @@ void DrawTexture::drawCasc(GLuint texture) {
   modelMatrix = glm::mat4(1.0f);
   modelMatrix = glm::scale(modelMatrix, glm::vec3(0.25f, 0.25f, 0.25f));
   modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 2.9f, 1.0f));
-  ge::gl::glUniformMatrix4fv(programCasc.getUniformLocation("modelMatrix"), 1,
-                             GL_FALSE, &modelMatrix[0][0]);
+  ge::gl::glUniformMatrix4fv(programCasc.getUniformLocation("modelMatrix"), 1, GL_FALSE, &modelMatrix[0][0]);
   ge::gl::glActiveTexture(GL_TEXTURE1);
   ge::gl::glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
   ge::gl::glBlendEquation(GL_FUNC_ADD);
@@ -65,8 +61,7 @@ void DrawTexture::drawCasc(GLuint texture) {
   modelMatrix = glm::mat4(1.0f);
   modelMatrix = glm::scale(modelMatrix, glm::vec3(0.25f, 0.25f, 0.25f));
   modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, -2.9f, 1.0f));
-  ge::gl::glUniformMatrix4fv(programCasc.getUniformLocation("modelMatrix"), 1,
-                             GL_FALSE, &modelMatrix[0][0]);
+  ge::gl::glUniformMatrix4fv(programCasc.getUniformLocation("modelMatrix"), 1, GL_FALSE, &modelMatrix[0][0]);
   ge::gl::glActiveTexture(GL_TEXTURE1);
   ge::gl::glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
   ge::gl::glBlendEquation(GL_FUNC_ADD);
@@ -80,8 +75,7 @@ void DrawTexture::drawCasc(GLuint texture) {
   modelMatrix = glm::mat4(1.0f);
   modelMatrix = glm::scale(modelMatrix, glm::vec3(0.25f, 0.25f, 0.25f));
   modelMatrix = glm::translate(modelMatrix, glm::vec3(-2.9f, -2.9f, 1.0f));
-  ge::gl::glUniformMatrix4fv(programCasc.getUniformLocation("modelMatrix"), 1,
-                             GL_FALSE, &modelMatrix[0][0]);
+  ge::gl::glUniformMatrix4fv(programCasc.getUniformLocation("modelMatrix"), 1, GL_FALSE, &modelMatrix[0][0]);
   ge::gl::glActiveTexture(GL_TEXTURE1);
   ge::gl::glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
   ge::gl::glBlendEquation(GL_FUNC_ADD);

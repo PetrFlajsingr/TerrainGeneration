@@ -40,8 +40,7 @@ private:
   void checkAndRecalculate();
 };
 
-template <typename T>
-std::ostream &operator<<(std::ostream &stream, CachedProperty<T> &other);
+template <typename T> std::ostream &operator<<(std::ostream &stream, CachedProperty<T> &other);
 
 #include "CachedProperty.tpp"
 

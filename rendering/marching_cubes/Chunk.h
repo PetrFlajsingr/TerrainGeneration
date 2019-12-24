@@ -14,19 +14,17 @@
 #include <glm/vec3.hpp>
 #include <memory>
 
-namespace {
-using Shader = std::shared_ptr<ge::gl::Shader>;
-using Program = GLuint;
-using SBuffer = std::shared_ptr<SparseBuffer>;
-using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
-} // namespace
-
+#include <geGL/GLSLNoise.h>
 class Chunk {
+  using SBuffer = std::shared_ptr<SparseBuffer>;
+  using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
+
 public:
   enum Buffers { Density, Vertex, Normal, Index };
   Chunk(glm::vec3 startPosition, float step, uint size);
 
-  Chunk(const Chunk &other) = delete;
+  Chunk(const Chunk &other);
+  Chunk &operator=(const Chunk &other);
   Chunk(Chunk &&other) = default;
 
   glm::vec3 startPosition;

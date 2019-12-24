@@ -11,9 +11,9 @@
 #include "ui/interface/MouseInteractable.h"
 #include <SDL2CPP/Window.h>
 #include <list>
+#include <memory>
 #include <meta/meta.h>
 #include <set>
-#include <memory>
 #include <vector>
 
 namespace sdl2cpp::ui {
@@ -24,8 +24,7 @@ class EventDispatcher {
   friend class UIManager;
 
 public:
-  explicit EventDispatcher(std::shared_ptr<Window> window,
-                           FocusManager &focusManager);
+  explicit EventDispatcher(std::shared_ptr<Window> window, FocusManager &focusManager);
 
   /**
    * Add event to timed event list.
@@ -39,10 +38,11 @@ public:
    */
   void checkTimedEvents(std::chrono::milliseconds currentTime);
 
-  void addMouseEventListener(
-      const std::weak_ptr<CustomMouseInteractable> &mouseInteractable);
-  void addKeyboardEventListener(
-      const std::weak_ptr<CustomKeyboardInteractable> &keyboardInteractable);
+  void addMouseEventListener(const std::weak_ptr<CustomMouseInteractable> &mouseInteractable);
+  void addKeyboardEventListener(const std::weak_ptr<CustomKeyboardInteractable> &keyboardInteractable);
+
+  void setFullControl(std::weak_ptr<Interactable> element);
+  void disableFullControl();
 
 private:
   std::list<TimedEvent> events;
@@ -50,6 +50,8 @@ private:
 
   std::shared_ptr<Window> window;
   FocusManager &focusManager;
+
+  std::optional<std::weak_ptr<Interactable>> fullControl = std::nullopt;
 
   bool mouseEventHandler(const SDL_Event &event);
   bool keyboardEventHandler(const SDL_Event &event);
@@ -66,26 +68,21 @@ private:
    * @return mouse interactable on position or std::nullopt if none was found on
    * given position
    */
-  std::optional<std::shared_ptr<CustomMouseInteractable>>
-  findMouseInteractableOnPosition(int x, int y);
+  std::optional<std::shared_ptr<CustomMouseInteractable>> findMouseInteractableOnPosition(int x, int y);
   /**
    * Find keyboard interactable currently in focus.
    * @return focused keyobard interactable or std::nullopt if no element has
    * focus
    */
-  std::optional<std::shared_ptr<CustomKeyboardInteractable>>
-  getFocusedKeyboardInteractable();
+  std::optional<std::shared_ptr<CustomKeyboardInteractable>> getFocusedKeyboardInteractable();
 
   void registerWindowEvents();
 
   std::vector<std::weak_ptr<CustomMouseInteractable>> mouseEventListeners;
   std::vector<std::weak_ptr<CustomKeyboardInteractable>> keyboardEventListeners;
 
-  std::set<Window::EventType> keyboardEvents{SDL_KEYDOWN, SDL_KEYUP,
-                                             SDL_TEXTEDITING, SDL_TEXTINPUT,
-                                             SDL_KEYMAPCHANGED};
-  std::set<Window::EventType> mouseEvents{SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN,
-                                          SDL_MOUSEBUTTONUP, SDL_MOUSEWHEEL};
+  std::set<Window::EventType> keyboardEvents{SDL_KEYDOWN, SDL_KEYUP, SDL_TEXTEDITING, SDL_TEXTINPUT, SDL_KEYMAPCHANGED};
+  std::set<Window::EventType> mouseEvents{SDL_MOUSEMOTION, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP, SDL_MOUSEWHEEL};
 };
 } // namespace sdl2cpp::ui
 

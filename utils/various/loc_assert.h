@@ -9,11 +9,9 @@
 #include <experimental/source_location>
 
 inline void loc_assert(bool cond, std::string msg = "",
-                       std::experimental::source_location sourceLocation =
-                           std::experimental::source_location::current()) {
+                       std::experimental::source_location sourceLocation = std::experimental::source_location::current()) {
   if (!cond) {
-    printErr("Assert error on ", sourceLocation.file_name(), ", ",
-             sourceLocation.function_name(), ", ", sourceLocation.line());
+    printErr("Assert error on ", sourceLocation.file_name(), ", ", sourceLocation.function_name(), ", ", sourceLocation.line());
     printErr(msg);
     std::terminate();
   }

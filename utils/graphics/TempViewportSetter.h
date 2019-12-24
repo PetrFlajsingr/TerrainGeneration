@@ -5,8 +5,8 @@
 #ifndef TERRAINGENERATION_TEMPVIEWPORTSETTER_H
 #define TERRAINGENERATION_TEMPVIEWPORTSETTER_H
 
-#include <array>
 #include "geGL/StaticCalls.h"
+#include <array>
 
 class TempViewportSetter final {
 public:

@@ -6,16 +6,13 @@
 #include "ModelRenderer.h"
 #include "SceneLoader.h"
 
-ObjModelLoader::ObjModelLoader(std::string assetsPath)
-    : assetsPath(std::move(assetsPath)) {}
+ObjModelLoader::ObjModelLoader(std::string assetsPath) : assetsPath(std::move(assetsPath)) {}
 
-GraphicsModelBase &
-ModelRenderer::addModel(std::shared_ptr<GraphicsModelBase> model) {
+GraphicsModelBase &ModelRenderer::addModel(std::shared_ptr<GraphicsModelBase> model) {
   models.emplace_back(std::move(model));
   return *models.back().get();
 }
-void ModelRenderer::render(const std::shared_ptr<ge::gl::Program> &program,
-                           glm::mat4 view, bool wa) {
+void ModelRenderer::render(const std::shared_ptr<ge::gl::Program> &program, glm::mat4 view, bool wa) {
   for (auto &model : models) {
     if (!model->isDrawn()) {
       continue;
@@ -28,15 +25,11 @@ void ModelRenderer::render(const std::shared_ptr<ge::gl::Program> &program,
       program->setMatrix4fv("model", &modelMatrix[0][0]);
     }
     model->getVertexArray()->bind();
-    ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(),
-                           GL_UNSIGNED_INT, nullptr);
+    ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(), GL_UNSIGNED_INT, nullptr);
   }
 }
-std::optional<std::shared_ptr<GraphicsModelBase>>
-ModelRenderer::modelById(const GraphicsModelBase::Id &id) {
-  if (auto iter = std::find_if(
-          models.begin(), models.end(),
-          [id](const auto &model) { return model->getId() == id; });
+std::optional<std::shared_ptr<GraphicsModelBase>> ModelRenderer::modelById(const GraphicsModelBase::Id &id) {
+  if (auto iter = std::find_if(models.begin(), models.end(), [id](const auto &model) { return model->getId() == id; });
       iter != models.end()) {
     return *iter;
   }
@@ -48,8 +41,7 @@ void ModelRenderer::plainRender() {
       continue;
     }
     model->getVertexArray()->bind();
-    ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(),
-                           GL_UNSIGNED_INT, nullptr);
+    ge::gl::glDrawElements(GL_TRIANGLES, model->getElementBuffer()->getSize(), GL_UNSIGNED_INT, nullptr);
   }
 }
 void ModelRenderer::loadScene(SceneLoader &&sceneLoader) {
@@ -59,7 +51,4 @@ void ModelRenderer::loadScene(SceneLoader &&sceneLoader) {
     }
   }
 }
-const std::vector<std::shared_ptr<GraphicsModelBase>> &
-ModelRenderer::getModels() const {
-  return models;
-}
+const std::vector<std::shared_ptr<GraphicsModelBase>> &ModelRenderer::getModels() const { return models; }

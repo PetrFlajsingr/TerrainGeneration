@@ -4,32 +4,27 @@
 
 #include "EventDispatcher.h"
 #include "FocusManager.h"
+#include <io/print.h>
 
-sdl2cpp::ui::EventDispatcher::EventDispatcher(
-    std::shared_ptr<sdl2cpp::Window> window, FocusManager &focusManager)
+sdl2cpp::ui::EventDispatcher::EventDispatcher(std::shared_ptr<sdl2cpp::Window> window, FocusManager &focusManager)
     : window(std::move(window)), focusManager(focusManager) {
   registerWindowEvents();
 }
 
 void sdl2cpp::ui::EventDispatcher::registerWindowEvents() {
   for (auto event : keyboardEvents) {
-    window->setEventCallback(event, [this](const auto &event) {
-      return keyboardEventHandler(event);
-    });
+    window->setEventCallback(event, [this](const auto &event) { return keyboardEventHandler(event); });
   }
   for (auto event : mouseEvents) {
-    window->setEventCallback(
-        event, [this](const auto &event) { return mouseEventHandler(event); });
+    window->setEventCallback(event, [this](const auto &event) { return mouseEventHandler(event); });
   }
 }
 
 void sdl2cpp::ui::EventDispatcher::addMouseEventListener(
-    const std::weak_ptr<sdl2cpp::ui::CustomMouseInteractable>
-        &mouseInteractable) {
+    const std::weak_ptr<sdl2cpp::ui::CustomMouseInteractable> &mouseInteractable) {
   mouseEventListeners.emplace_back(mouseInteractable);
   std::sort(mouseEventListeners.begin(), mouseEventListeners.end(),
-            [](std::weak_ptr<CustomMouseInteractable> &a,
-               std::weak_ptr<CustomMouseInteractable> &b) {
+            [](std::weak_ptr<CustomMouseInteractable> &a, std::weak_ptr<CustomMouseInteractable> &b) {
               if (a.expired() || b.expired()) {
                 return false; // FIXME: can loop
               }
@@ -40,8 +35,7 @@ void sdl2cpp::ui::EventDispatcher::addMouseEventListener(
 }
 
 void sdl2cpp::ui::EventDispatcher::addKeyboardEventListener(
-    const std::weak_ptr<sdl2cpp::ui::CustomKeyboardInteractable>
-        &keyboardInteractable) {
+    const std::weak_ptr<sdl2cpp::ui::CustomKeyboardInteractable> &keyboardInteractable) {
   keyboardEventListeners.emplace_back(keyboardInteractable);
 }
 
@@ -51,7 +45,7 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   static auto lastClickTime = 0ms;
   const auto currentTime = now<std::chrono::milliseconds>();
   int x = event.motion.x;
-  int y = event.motion.y;
+  int y = event.motion.y / 1020.f * 1080.f;
 
   if (event.type == SDL_MOUSEWHEEL) {
     if (mouseIn != nullptr) {
@@ -84,7 +78,7 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
     case SDL_MOUSEBUTTONUP:
       element->onMouseUp(event);
       if (mouseDownIn == element.get()) {
-        if ((currentTime - lastClickTime) < 400ms) {
+        if ((currentTime - lastClickTime) < 200ms) {
           if (clickEvent != nullptr) {
             clickEvent->invalidate();
             clickEvent = nullptr;
@@ -97,7 +91,7 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
                 element->onMouseClicked(event);
                 focusManager.changeFocusTo(element);
               },
-              400ms));
+              200ms));
           lastClickTime = currentTime;
         }
       }
@@ -117,13 +111,11 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   }
   return false;
 }
-bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(
-    const SDL_Event &event) {
+bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(const SDL_Event &event) {
   static auto wasKeyDown = false;
   if (auto el = getFocusedKeyboardInteractable(); el.has_value()) {
     auto &element = el.value();
-    if (!element->areControlsEnabled() ||
-        !element->areKeyboardControlsEnabled()) {
+    if (!element->areControlsEnabled() || !element->areKeyboardControlsEnabled()) {
       return true;
     }
     switch (event.key.type) {
@@ -145,23 +137,25 @@ bool sdl2cpp::ui::EventDispatcher::keyboardEventHandler(
 }
 
 bool isIn(SDL_Point point, SDL_Rect rect) {
-  return rect.x <= point.x && point.x <= (rect.x + rect.w) &&
-         rect.y <= point.y && point.y <= (rect.y + rect.h);
+  return rect.x <= point.x && point.x <= (rect.x + rect.w) && rect.y <= point.y && point.y <= (rect.y + rect.h);
 }
 
 std::optional<std::shared_ptr<sdl2cpp::ui::CustomMouseInteractable>>
 sdl2cpp::ui::EventDispatcher::findMouseInteractableOnPosition(int x, int y) {
-  for (auto iter = mouseEventListeners.begin();
-       iter != mouseEventListeners.end(); ++iter) {
+  for (auto iter = mouseEventListeners.begin(); iter != mouseEventListeners.end(); ++iter) {
     if (iter->expired()) {
       mouseEventListeners.erase(iter);
     }
     auto ptr = iter->lock();
-    SDL_Rect rect{static_cast<int>(ptr->position.get().x),
-                  static_cast<int>(ptr->position.get().y),
-                  static_cast<int>(ptr->dimensions.get().x),
-                  static_cast<int>(ptr->dimensions.get().y)};
+    SDL_Rect rect{static_cast<int>(ptr->position.get().x), static_cast<int>(ptr->position.get().y),
+                  static_cast<int>(ptr->dimensions.get().x), static_cast<int>(ptr->dimensions.get().y)};
     if (isIn(SDL_Point{x, y}, rect)) {
+      if (fullControl.has_value() && !fullControl->expired()) {
+        auto locked = fullControl->lock();
+        if (ptr != locked) {
+          continue;
+        }
+      }
       return ptr;
     }
   }
@@ -174,17 +168,14 @@ sdl2cpp::ui::EventDispatcher::getFocusedKeyboardInteractable() {
     return std::nullopt;
   }
   auto sharedFocusedObject = focusManager.getFocusedObject().lock();
-  if (auto focusedKeyboardInteractable =
-          std::dynamic_pointer_cast<CustomKeyboardInteractable>(
-              sharedFocusedObject);
+  if (auto focusedKeyboardInteractable = std::dynamic_pointer_cast<CustomKeyboardInteractable>(sharedFocusedObject);
       focusedKeyboardInteractable != nullptr) {
     return focusedKeyboardInteractable;
   }
   return std::nullopt;
 }
 
-void sdl2cpp::ui::EventDispatcher::checkTimedEvents(
-    std::chrono::milliseconds currentTime) {
+void sdl2cpp::ui::EventDispatcher::checkTimedEvents(std::chrono::milliseconds currentTime) {
   bool anyFired = false;
   for (auto &event : events) {
     if (event.shouldFire(currentTime)) {
@@ -204,8 +195,9 @@ void sdl2cpp::ui::EventDispatcher::checkTimedEvents(
   }
 }
 
-sdl2cpp::ui::TimedEvent &
-sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
-  events.emplace_back(std::move(event));
+sdl2cpp::ui::TimedEvent &sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::TimedEvent &&event) {
+  events.emplace_back(event);
   return events.back();
 }
+void sdl2cpp::ui::EventDispatcher::setFullControl(std::weak_ptr<Interactable> element) { fullControl = element; }
+void sdl2cpp::ui::EventDispatcher::disableFullControl() { fullControl = std::nullopt; }

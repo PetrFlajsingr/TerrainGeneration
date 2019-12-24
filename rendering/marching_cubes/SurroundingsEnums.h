@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 
-enum class ChunkState { NotLoaded, Setup, Empty, Filled };
+enum class ChunkState { NotLoaded, Setup, MarkedEmpty, Filled, Empty };
 
 enum class SurrMoveDir : unsigned int { Front, Back, Left, Right, Up, Down };
 

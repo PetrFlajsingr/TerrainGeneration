@@ -24,6 +24,10 @@ public:
    */
   void disableControls();
 
+  void enableFullControl();
+
+  void disableFullControl();
+
 protected:
   void onEnabledChanged(bool enabled) override;
 

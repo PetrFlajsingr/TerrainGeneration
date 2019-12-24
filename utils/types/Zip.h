@@ -15,12 +15,10 @@ public:
   explicit Zip(const T &... vals);
 
   struct iterator {
-    using value_type = std::tuple<std::decay_t<decltype(
-        *std::declval<decltype(std::begin(std::declval<T>()))>())>...>;
+    using value_type = std::tuple<std::decay_t<decltype(*std::declval<decltype(std::begin(std::declval<T>()))>())>...>;
     std::tuple<decltype(std::begin(std::declval<T>()))...> iters;
 
-    explicit iterator(
-        std::tuple<decltype(std::begin(std::declval<T>()))...> iters);
+    explicit iterator(std::tuple<decltype(std::begin(std::declval<T>()))...> iters);
 
     iterator(const iterator &other) = default;
     iterator(iterator &&other) noexcept = default;

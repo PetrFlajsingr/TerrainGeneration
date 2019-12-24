@@ -7,9 +7,9 @@
 
 #include <freetype-gl++/texture-font+.hpp>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
 
 class FontManager;
 class Font {

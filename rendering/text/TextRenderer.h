@@ -13,8 +13,7 @@
 
 class TextRenderer {
 public:
-  explicit TextRenderer(const String &fontPath,
-                        glm::uvec3 atlasSize = {4096, 4096, 1});
+  explicit TextRenderer(const String &fontPath, glm::uvec3 atlasSize = {4096, 4096, 1});
 
   void begin(glm::mat4 projection, glm::mat4 view, glm::mat4 model);
 
@@ -22,8 +21,7 @@ public:
 
   void end();
 
-  Text createText(const std::wstring &initialValue = L"", Font *font = nullptr,
-                  float fontSize = 10);
+  Text createText(const std::wstring &initialValue = L"", Font *font = nullptr, float fontSize = 10);
 
   FontManager &getFontManager();
 

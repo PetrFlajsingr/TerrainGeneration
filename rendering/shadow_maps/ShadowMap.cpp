@@ -5,14 +5,11 @@
 #include "ShadowMap.h"
 #include <geGL/StaticCalls.h>
 
-ShadowMap::ShadowMap(glm::mat4 lightProjection, glm::vec3 lightPos,
-                     glm::vec3 target, unsigned int textureWidth,
+ShadowMap::ShadowMap(glm::mat4 lightProjection, glm::vec3 lightPos, glm::vec3 target, unsigned int textureWidth,
                      unsigned int textureHeight)
-    : lightProjection(lightProjection), lightPos(lightPos), target(target),
-      width(textureWidth), height(textureHeight) {
-  ge::gl::glTextureImage2DEXT(depthMap.getId(), GL_TEXTURE_2D, 0,
-                              GL_DEPTH_COMPONENT, width, height, 0,
-                              GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    : lightProjection(lightProjection), lightPos(lightPos), target(target), width(textureWidth), height(textureHeight) {
+  ge::gl::glTextureImage2DEXT(depthMap.getId(), GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT,
+                              GL_FLOAT, nullptr);
   depthMap.texParameteri(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   depthMap.texParameteri(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   depthMap.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -46,26 +43,12 @@ void ShadowMap::end() {
 unsigned int ShadowMap::getWidth() const { return width; }
 unsigned int ShadowMap::getHeight() const { return height; }
 const ge::gl::Texture &ShadowMap::getDepthMap() const { return depthMap; }
-const ge::gl::Framebuffer &ShadowMap::getDepthMapFbo() const {
-  return depthMapFBO;
-}
-const glm::mat4 &ShadowMap::getLightProjection() const {
-  return lightProjection;
-}
-void ShadowMap::setLightProjection(const glm::mat4 &lightProjection) {
-  ShadowMap::lightProjection = lightProjection;
-}
+const ge::gl::Framebuffer &ShadowMap::getDepthMapFbo() const { return depthMapFBO; }
+const glm::mat4 &ShadowMap::getLightProjection() const { return lightProjection; }
+void ShadowMap::setLightProjection(const glm::mat4 &lightProjection) { ShadowMap::lightProjection = lightProjection; }
 const glm::vec3 &ShadowMap::getLightPos() const { return lightPos; }
-void ShadowMap::setLightPos(const glm::vec3 &lightPos) {
-  ShadowMap::lightPos = lightPos;
-}
+void ShadowMap::setLightPos(const glm::vec3 &lightPos) { ShadowMap::lightPos = lightPos; }
 const glm::vec3 &ShadowMap::getTarget() const { return target; }
-void ShadowMap::setTarget(const glm::vec3 &target) {
-  ShadowMap::target = target;
-}
-const std::shared_ptr<ge::gl::Program> &ShadowMap::getProgram() const {
-  return program;
-}
-const glm::mat4 &ShadowMap::getLightSpaceMatrix() const {
-  return lightSpaceMatrix;
-}
+void ShadowMap::setTarget(const glm::vec3 &target) { ShadowMap::target = target; }
+const std::shared_ptr<ge::gl::Program> &ShadowMap::getProgram() const { return program; }
+const glm::mat4 &ShadowMap::getLightSpaceMatrix() const { return lightSpaceMatrix; }

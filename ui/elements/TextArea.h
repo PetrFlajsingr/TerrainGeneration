@@ -15,12 +15,13 @@ namespace sdl2cpp::ui {
 class TextArea : public CustomEventKeyboardInteractable, public UIVisible {
   OBSERVABLE_PROPERTIES(TextArea)
 public:
-  TextArea(UIManager &guiManager, const glm::vec3 &position,
-           const glm::vec3 &dimensions);
+  TextArea(UIManager &guiManager, const glm::vec3 &position, const glm::vec3 &dimensions);
 
   observable_property<std::string> text;
 
   void setText(const std::string &text);
+
+  std::string info() const override;
 
 protected:
   void onKeyPressed(EventInfo info, SDL_Keycode keycode) override;

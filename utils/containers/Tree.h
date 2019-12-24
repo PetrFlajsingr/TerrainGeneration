@@ -214,6 +214,7 @@ private:
   std::unique_ptr<Root> root;
 
   static void initChildren(Node<T, ChildCount> *node, const_reference_type initValue, std::size_t depth);
+  void setParent(Node<T, ChildCount> *parent, Leaf<T, ChildCount> *node);
 };
 
 #include "detail/Tree.tpp"

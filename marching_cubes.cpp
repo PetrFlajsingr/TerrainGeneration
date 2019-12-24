@@ -21,6 +21,7 @@
 #include <rendering/models/ModelRenderer.h>
 #include <time/FPSCounter.h>
 #include <types.h>
+#include <ui/elements/Switch.h>
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
@@ -33,6 +34,7 @@ struct UI {
   std::shared_ptr<Label> speedLbl;
   std::shared_ptr<CameraController> cameraController;
   std::shared_ptr<Slider<float>> movementSpeedSlider;
+  std::shared_ptr<Switch> uiSwitch;
 };
 
 UI initUI(UIManager &uiManager) {
@@ -63,7 +65,9 @@ UI initUI(UIManager &uiManager) {
   auto movementSpeedSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 700, 1}, glm::vec3{200, 50, 0});
   movementSpeedSlider->setColor(Color::transparent(Color::red, 0.5f));
 
-  return {lineFillBtn, pauseMCBtn, fpsLbl, chunkInfoLbl, speedLbl, cameraController, movementSpeedSlider};
+  auto uiSwitch = uiManager.createGUIObject<Switch>(glm::vec3{50, 800, 1}, glm::vec3{50, 50, 0}, true);
+
+  return {lineFillBtn, pauseMCBtn, fpsLbl, chunkInfoLbl, speedLbl, cameraController, movementSpeedSlider, uiSwitch};
 }
 
 void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
@@ -147,6 +151,26 @@ void main_marching_cubes(int argc, char *argv[]) {
   DrawTexture drawTexture;
 
   ge::gl::glEnable(GL_DEPTH_TEST);
+
+  ui.uiSwitch->isOn.subscribe_and_call([&ui] (const auto &value) {
+    if (!value) {
+      ui.lineFillBtn->setVisibility(Visibility::Invisible);
+      ui.pauseMCBtn->setVisibility(Visibility::Invisible);
+      ui.fpsLbl->setVisibility(Visibility::Invisible);
+      ui.chunkInfoLbl->setVisibility(Visibility::Invisible);
+      ui.speedLbl->setVisibility(Visibility::Invisible);
+      ui.cameraController->setVisibility(Visibility::Invisible);
+      ui.movementSpeedSlider->setVisibility(Visibility::Invisible);
+    } else {
+      ui.lineFillBtn->setVisibility(Visibility::Visible);
+      ui.pauseMCBtn->setVisibility(Visibility::Visible);
+      ui.fpsLbl->setVisibility(Visibility::Visible);
+      ui.chunkInfoLbl->setVisibility(Visibility::Visible);
+      ui.speedLbl->setVisibility(Visibility::Visible);
+      ui.cameraController->setVisibility(Visibility::Visible);
+      ui.movementSpeedSlider->setVisibility(Visibility::Visible);
+    }
+  });
 
   printT(LogLevel::Status, "All set, starting main loop");
   mainLoop->setIdleCallback([&]() {

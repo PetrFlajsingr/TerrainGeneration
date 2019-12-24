@@ -1,23 +1,26 @@
-template <typename T> template <typename U, typename V> Range<T>::Range(T start, U end, V step)
+
+template <typename T> template <typename U, typename V> constexpr Range<T>::Range(T start, U end, V step)
     : _start(start), _end(end), _step(step) {}
 
-template <typename T> typename Range<T>::iterator Range<T>::begin() const {
+template <typename T> constexpr typename Range<T>::iterator Range<T>::begin() const {
   return iterator{_start, _step, _end, _start <= _end};
 }
 
-template <typename T> typename Range<T>::iterator Range<T>::end() const { return iterator{_end, _step, _end, _start <= _end}; }
+template <typename T> constexpr typename Range<T>::iterator Range<T>::end() const {
+  return iterator{_end, _step, _end, _start <= _end};
+}
 
-template <typename T> Range<T>::iterator::iterator(T value, T step, T endValue, bool up)
+template <typename T> constexpr Range<T>::iterator::iterator(value_type value, value_type step, value_type endValue, bool up)
     : value(value), step(step), endValue(endValue), up(up) {}
 
-template <typename T> Range<T>::iterator::iterator(const Range::iterator &other) {
+template <typename T> constexpr Range<T>::iterator::iterator(const Range::iterator &other) {
   value = other.value;
   endValue = other.endValue;
   step = other.step;
   up = other.up;
 }
 
-template <typename T> typename Range<T>::iterator &Range<T>::iterator::operator=(const Range::iterator &other) {
+template <typename T> constexpr typename Range<T>::iterator &Range<T>::iterator::operator=(const Range::iterator &other) {
   value = other.value;
   endValue = other.endValue;
   step = other.step;
@@ -30,7 +33,7 @@ template <typename T> bool Range<T>::iterator::operator!=(const Range::iterator 
 
 template <typename T> T Range<T>::iterator::operator*() const { return value; }
 
-template <typename T> T *Range<T>::iterator::operator->() { return &value; }
+template <typename T> typename Range<T>::iterator::const_pointer Range<T>::iterator::operator->() { return &value; }
 
 template <typename T> typename Range<T>::iterator &Range<T>::iterator::operator++() {
   value += step;
@@ -48,35 +51,35 @@ template <typename T> typename Range<T>::iterator Range<T>::iterator::operator++
   return tmp;
 }
 
-template <typename T, typename U, typename V> Range<T> MakeRange::until(T start, U end, V step) {
+template <typename T, typename U, typename V> constexpr Range<T> MakeRange::until(T start, U end, V step) {
   assert(step >= V{0});
   assert(start <= end);
   return Range{start, end, step};
 }
 
-template <typename T, typename U, typename V> Range<T> MakeRange::to(T start, U end, V step) {
+template <typename T, typename U, typename V> constexpr Range<T> MakeRange::to(T start, U end, V step) {
   assert(step >= V{0});
   assert(start <= end);
   return Range{start, end + 1, step};
 }
 
-template <typename T, typename U, typename V> Range<T> MakeRange::downTo(T start, U end, V step) {
+template <typename T, typename U, typename V> constexpr Range<T> MakeRange::downTo(T start, U end, V step) {
   assert(step >= V{0});
   assert(start >= end);
   return Range{start, end - 1, -step};
 }
 
-template <typename T, typename U, typename V> Range<T> MakeRange::downUntil(T start, U end, V step) {
+template <typename T, typename U, typename V> constexpr Range<T> MakeRange::downUntil(T start, U end, V step) {
   assert(step >= V{0});
   assert(start >= end);
   return Range{start, end, -step};
 }
 
-template <typename T, typename U, typename V, typename ValueType> Range<ValueType> MakeRange::range(T start, U end, V step) {
-  if (step == V{0}) {
-    step = std::numeric_limits<V>::max();
-  }
-  if (static_cast<ValueType>(step) < static_cast<ValueType>(V{0})) {
+template <typename T, typename U, typename V, typename ValueType>
+constexpr Range<ValueType> MakeRange::range(T start, U end, V step) {
+  constexpr auto zeroVal = static_cast<ValueType>(V{0});
+  assert(static_cast<ValueType>(step) != zeroVal);
+  if (static_cast<ValueType>(step) < zeroVal) {
     assert(static_cast<ValueType>(start) >= static_cast<ValueType>(end));
     return Range<ValueType>{static_cast<ValueType>(start), static_cast<ValueType>(end), static_cast<ValueType>(step)};
   } else {
@@ -85,8 +88,8 @@ template <typename T, typename U, typename V, typename ValueType> Range<ValueTyp
   }
 }
 
-template <typename T> Range<T> MakeRange::range(T start) {
-  const auto end = T{0};
+template <typename T> constexpr Range<T> MakeRange::range(T start) {
+  constexpr auto end = T{0};
   if (start <= end) {
     return Range{end, start, -T{1}};
   } else {
@@ -98,11 +101,7 @@ template <typename T, unsigned int Dimensions>
 MultiDimRange<T, Dimensions> MakeRange::range(typename MultiDimRange<T, Dimensions>::value_type start,
                                               typename MultiDimRange<T, Dimensions>::value_type end,
                                               typename MultiDimRange<T, Dimensions>::value_type step) {
-  std::for_each(step.begin(), step.end(), [](auto &val) {
-    if (val == 0) {
-      val = std::numeric_limits<T>::max();
-    }
-  });
+  assert(std::all_of(step.begin(), step.end(), [](const auto &val) { return val != 0; }));
   for (unsigned int i = 0; i < Dimensions; ++i) {
     assert((start[i] < end[i]) == (step[i] > 0));
   }
@@ -171,14 +170,12 @@ template <typename T, unsigned int Dimensions>
 typename MultiDimRange<T, Dimensions>::iterator &MultiDimRange<T, Dimensions>::iterator::operator++() {
   bool isLast = true;
   for (unsigned int i = 0; i < Dimensions; ++i) {
-    // if (value[i] < endValue[i] - 1) {
     if (comp[i](value[i], endValue[i] - 1)) {
       value[i] += step[i];
       if (i > 0) {
         for (unsigned int j = 0; j < i; ++j)
           value[j] = startValue[j];
       }
-      // if (value[i] > endValue[i]) {
       if (!comp[i](value[i], endValue[i])) {
         value[i] = endValue[i];
         continue;

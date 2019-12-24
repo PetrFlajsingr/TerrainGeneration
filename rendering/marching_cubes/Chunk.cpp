@@ -59,3 +59,39 @@ void Chunk::recalc() {
   boundingSphere = calcBS();
   boundingBox = calcAABB();
 }
+Chunk::Chunk(const Chunk &other) {
+  startPosition = other.startPosition;
+  step = other.step;
+  size = other.size;
+  boundingBox = other.boundingBox;
+  boundingSphere = other.boundingSphere;
+
+  densityBuffer = createSparseBuffer<float>(std::pow(size, 3));
+  vertexBuffer = createSparseBuffer<glm::vec4>(std::pow(size, 3) * 5);
+  normalBuffer = createSparseBuffer<glm::vec3>(std::pow(size, 3) * 5);
+  indexBuffer = createSparseBuffer<glm::uvec3>(std::pow(size, 3) * 5);
+  drawVertexArray = std::make_shared<ge::gl::VertexArray>();
+  drawVertexArray->addAttrib(vertexBuffer, 0, 4, GL_FLOAT, sizeof(float) * 4, 0, GL_FALSE);
+  drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT, sizeof(float) * 3, 0, GL_FALSE);
+  drawVertexArray->addElementBuffer(indexBuffer);
+}
+Chunk &Chunk::operator=(const Chunk &other) {
+  if (this == &other) {
+    return *this;
+  }
+  startPosition = other.startPosition;
+  step = other.step;
+  size = other.size;
+  boundingBox = other.boundingBox;
+  boundingSphere = other.boundingSphere;
+
+  densityBuffer = createSparseBuffer<float>(std::pow(size, 3));
+  vertexBuffer = createSparseBuffer<glm::vec4>(std::pow(size, 3) * 5);
+  normalBuffer = createSparseBuffer<glm::vec3>(std::pow(size, 3) * 5);
+  indexBuffer = createSparseBuffer<glm::uvec3>(std::pow(size, 3) * 5);
+  drawVertexArray = std::make_shared<ge::gl::VertexArray>();
+  drawVertexArray->addAttrib(vertexBuffer, 0, 4, GL_FLOAT, sizeof(float) * 4, 0, GL_FALSE);
+  drawVertexArray->addAttrib(normalBuffer, 1, 3, GL_FLOAT, sizeof(float) * 3, 0, GL_FALSE);
+  drawVertexArray->addElementBuffer(indexBuffer);
+  return *this;
+}

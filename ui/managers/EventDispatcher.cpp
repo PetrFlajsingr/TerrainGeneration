@@ -39,8 +39,6 @@ void sdl2cpp::ui::EventDispatcher::addKeyboardEventListener(
   keyboardEventListeners.emplace_back(keyboardInteractable);
 }
 
-
-
 bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   using namespace std::chrono_literals;
   using namespace std::chrono;
@@ -170,9 +168,7 @@ sdl2cpp::ui::EventDispatcher::getFocusedKeyboardInteractable() {
     return std::nullopt;
   }
   auto sharedFocusedObject = focusManager.getFocusedObject().lock();
-  if (auto focusedKeyboardInteractable =
-        std::dynamic_pointer_cast<CustomKeyboardInteractable>(
-            sharedFocusedObject);
+  if (auto focusedKeyboardInteractable = std::dynamic_pointer_cast<CustomKeyboardInteractable>(sharedFocusedObject);
       focusedKeyboardInteractable != nullptr) {
     return focusedKeyboardInteractable;
   }
@@ -203,9 +199,5 @@ sdl2cpp::ui::TimedEvent &sdl2cpp::ui::EventDispatcher::addEvent(sdl2cpp::ui::Tim
   events.emplace_back(event);
   return events.back();
 }
-void sdl2cpp::ui::EventDispatcher::setFullControl(std::weak_ptr<Interactable> element) {
-  fullControl = element;
-}
-void sdl2cpp::ui::EventDispatcher::disableFullControl() {
-  fullControl = std::nullopt;
-}
+void sdl2cpp::ui::EventDispatcher::setFullControl(std::weak_ptr<Interactable> element) { fullControl = element; }
+void sdl2cpp::ui::EventDispatcher::disableFullControl() { fullControl = std::nullopt; }

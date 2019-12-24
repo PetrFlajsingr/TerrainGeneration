@@ -5,8 +5,11 @@
 #ifndef TERRAINGENERATION_SURROUNDINGS_H
 #define TERRAINGENERATION_SURROUNDINGS_H
 
+#include "ChunkUsageManager.h"
+#include "LODTypes.h"
 #include "SurroundingsEnums.h"
 #include "rendering/marching_cubes/Chunk.h"
+#include "utils/containers/Tree.h"
 #include "utils/various/isin.h"
 #include <String.h>
 #include <glm/glm.hpp>
@@ -17,35 +20,15 @@
 #include <unordered_map>
 #include <vector>
 
-struct LOD {
-  Chunk *highestLevel = nullptr;
-  std::vector<std::vector<Chunk*>> levels;
-  unsigned int currentLevel = 0;
-
-  explicit LOD(unsigned int levelCount) {
-    using namespace MakeRange;
-    levels.resize(levelCount);
-    unsigned int levelSize = 8;
-    for (auto &level : levels) {
-      level.resize(levelSize);
-      levelSize = std::pow(levelSize, 2);
-    }
-  }
-};
+class ChunkUsageManager;
 
 struct Tile {
   ChunkState state;
-  LOD lod{0};
+  LOD lod;
   glm::vec3 pos;
   glm::vec3 center;
-
-  unsigned int getLODlevel(glm::vec3 cameraPosition, float viewDistance) {
-    const auto distanceToCenter = glm::distance(cameraPosition, center);
-    if (distanceToCenter < viewDistance / 2) {
-      return 1;
-    }
-    return 0;
-  }
+  Tile() = default;
+  Tile(ChunkState state, LOD lod, glm::vec3 pos, glm::vec3 center) : state(state), lod(lod), pos(pos), center(center) {}
 };
 
 struct Map {
@@ -58,7 +41,8 @@ struct Map {
 
   bool isInRange(glm::vec3 cameraPosition, float range);
 
-  std::vector<Chunk *> init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step);
+  void init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
+  std::vector<Chunk *> restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
 };
 
 class Surroundings {
@@ -78,15 +62,9 @@ public:
   const float step;
 
 private:
+  ChunkUsageManager chunkUsageManager;
+  LODData lodData;
   std::array<Map, 27> maps;
-  std::vector<Chunk> chunkPool;
-  std::list<Chunk *> available;
-  std::list<Chunk *> used;
-
-  std::unordered_map<Chunk *, Tile *> usedChunks;
-
-  bool aggressiveChunkUnloading = true;
-  unsigned int computeBatchSize = 100;
 
   // std::unordered_map<SurrPos, Map *> partsMap;
   std::array<Map *, 27> partsMap;

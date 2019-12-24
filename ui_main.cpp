@@ -14,8 +14,7 @@ void ui_main(int argc, char *argv[]) {
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
 
   const auto deviceData = config.get<DeviceData>("device").value();
-  auto window = std::make_shared<sdl2cpp::Window>(deviceData.screen.width,
-                                                  deviceData.screen.height);
+  auto window = std::make_shared<sdl2cpp::Window>(deviceData.screen.width, deviceData.screen.height);
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);
 
@@ -27,32 +26,27 @@ void ui_main(int argc, char *argv[]) {
 
   setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
 
-  const auto assetPath =
-      config.get<std::string>("paths", "assetsLocation").value();
+  const auto assetPath = config.get<std::string>("paths", "assetsLocation").value();
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
 
-  auto btn1 = uiManager.createGUIObject<sdl2cpp::ui::Button>(
-      glm::vec3{0, 0, 1}, glm::vec3{500, 500, 0});
+  auto btn1 = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 0, 1}, glm::vec3{500, 500, 0});
 
-  btn1->setMouseDblClicked([] { print("dbl clicked"); })
-      .setMouseClicked([] { print("clicked"); })
-      .setMouseOut([] { print("out"); });
+  btn1->setMouseDblClicked([] { print("dbl clicked"); }).setMouseClicked([] { print("clicked"); }).setMouseOut([] {
+    print("out");
+  });
 
-  auto btn2 = uiManager.createGUIObject<Button>(glm::vec3{500, 500, 1},
-                                                glm::vec3{400, 100, 0});
+  auto btn2 = uiManager.createGUIObject<Button>(glm::vec3{500, 500, 1}, glm::vec3{400, 100, 0});
   btn2->setMouseClicked([&btn1] { btn1->setEnabled(!btn1->enabled.get()); });
 
-  btn1->setMouseMove([&btn1](EventInfo info, SDL_Point newPos,
-                             SDL_Point oldPos) {
+  btn1->setMouseMove([&btn1](EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
     if (btn1->getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
       float i = newPos.x > oldPos.x ? 1 : -1;
       btn1->setColor(btn1->getColor() + i * glm::vec4{0.01, 0, 0.01, 0});
     }
   });
 
-  auto s = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 500, 1},
-                                                    glm::vec3{500, 500, 0});
+  auto s = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 500, 1}, glm::vec3{500, 500, 0});
 
   s->value.subscribe([&btn1](const auto &value) {
     float c = value / 100.0f;

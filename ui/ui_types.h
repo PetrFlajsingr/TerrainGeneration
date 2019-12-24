@@ -58,8 +58,7 @@ enum class Type {
   KeyPressed
 };
 
-template <Type type, Type ...types>
-constexpr bool is_one_of_v = ((type == types) || ...);
+template <Type type, Type... types> constexpr bool is_one_of_v = ((type == types) || ...);
 } // namespace Event
 
 struct EventInfo {

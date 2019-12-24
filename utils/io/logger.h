@@ -40,15 +40,32 @@ template <typename T> constexpr bool is_logger_flusher_v = std::is_same_v<flush,
 template <typename T> constexpr bool is_stream_v = is_one_of_v<T, out, err>;
 } // namespace LoggerStreamModifiers
 
+[[nodiscard]] inline std::string levelToString(LogLevel level) {
+  switch (level) {
+  case LogLevel::Verbose:
+    return "";
+  case LogLevel::Info:
+    return "[INFO]";
+  case LogLevel::Status:
+    return "[STATUS]";
+  case LogLevel::Debug:
+    return "[DEBUG]";
+  case LogLevel::Warning:
+    return "[WARNING]";
+  case LogLevel::Error:
+    return "[ERROR]";
+  }
+  throw std::exception();
+}
+
 template <typename OutStream> class Logger {
 private:
+
   /**
    *
    * @return Current time as HH-MM-SS
    */
   [[nodiscard]] std::string getTime() const;
-
-  [[nodiscard]] std::string levelToString(LogLevel level) const;
 
   std::chrono::nanoseconds startTimeMs;
   std::chrono::nanoseconds endTimeMs;

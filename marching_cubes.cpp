@@ -21,21 +21,25 @@
 #include <rendering/models/ModelRenderer.h>
 #include <time/FPSCounter.h>
 #include <types.h>
+#include <ui/elements/Switch.h>
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
 
 struct UI {
   std::shared_ptr<Button> lineFillBtn;
+  std::shared_ptr<Button> pauseMCBtn;
   std::shared_ptr<Label> fpsLbl;
   std::shared_ptr<Label> chunkInfoLbl;
   std::shared_ptr<Label> speedLbl;
   std::shared_ptr<CameraController> cameraController;
   std::shared_ptr<Slider<float>> movementSpeedSlider;
+  std::shared_ptr<Switch> uiSwitch;
 };
 
 UI initUI(UIManager &uiManager) {
-  auto perspective = PerspectiveProjection(0.1f, 10000.f, 1920.f / 1080, glm::degrees(60.f));
+  printT(LogLevel::Info, "Initialising UI");
+  auto perspective = PerspectiveProjection(0.1f, 1000000.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
@@ -45,6 +49,10 @@ UI initUI(UIManager &uiManager) {
 
   auto fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1}, glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);
+
+  auto pauseMCBtn = uiManager.createGUIObject<Button>(glm::vec3{1700, 300, 1}, glm::vec3{220, 20, 0});
+  pauseMCBtn->text.setFont("arialbd", 10);
+  pauseMCBtn->text.setText(L"MC on/off"_sw);
 
   auto speedLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 620, 1}, glm::vec3{220, 50, 0});
   speedLbl->text.setFont("arialbd", 10);
@@ -57,7 +65,9 @@ UI initUI(UIManager &uiManager) {
   auto movementSpeedSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 700, 1}, glm::vec3{200, 50, 0});
   movementSpeedSlider->setColor(Color::transparent(Color::red, 0.5f));
 
-  return {lineFillBtn, fpsLbl, chunkInfoLbl, speedLbl, cameraController, movementSpeedSlider};
+  auto uiSwitch = uiManager.createGUIObject<Switch>(glm::vec3{50, 800, 1}, glm::vec3{50, 50, 0}, true);
+
+  return {lineFillBtn, pauseMCBtn, fpsLbl, chunkInfoLbl, speedLbl, cameraController, movementSpeedSlider, uiSwitch};
 }
 
 void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
@@ -70,8 +80,8 @@ void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
 
 void main_marching_cubes(int argc, char *argv[]) {
   loc_assert(argc != 1, "Provide path for config");
+  printT(LogLevel::Info, "Loading config");
   Conf config{argv[1]};
-  // create window
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
 
   const auto deviceData = config.get<DeviceData>("device").value();
@@ -79,7 +89,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);
 
-  // init OpenGL
+  printT(LogLevel::Status, "Initialising OpenGL");
   ge::gl::init(SDL_GL_GetProcAddress);
   ge::gl::setHighDebugMessage();
 
@@ -106,7 +116,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     line = !line;
   });
 
-  ui.movementSpeedSlider->setMin(1.0f).setMax(200.0f).setSliderValue(10.0f);
+  ui.movementSpeedSlider->setMin(1.0f).setMax(2000.0f).setSliderValue(10.0f);
   ui.movementSpeedSlider->value.subscribe_and_call([&ui](auto sliderValue) {
     ui.cameraController->setMovementSpeed(sliderValue);
     ui.speedLbl->text.setText(L"Current speed: {}"_sw.format(sliderValue));
@@ -114,9 +124,11 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   FPSCounter fpsCounter;
 
+  printT(LogLevel::Status, "Initialising chunk manager");
   ChunkManager chunks{ui.cameraController, config};
   chunks.surr.info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
 
+  printT(LogLevel::Status, "Initialising models");
   ModelRenderer modelRenderer;
   initModels(modelRenderer, assetPath);
 
@@ -130,17 +142,46 @@ void main_marching_cubes(int argc, char *argv[]) {
   bool showTextures = false;
   auto textureBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 100, 1}, glm::vec3{250, 100, 0});
   textureBtn->setMouseClicked([&showTextures] { showTextures = !showTextures; });
+
+  bool pauseMC = false;
+  ui.pauseMCBtn->setMouseClicked([&pauseMC] {
+    pauseMC = !pauseMC;
+  });
+
   DrawTexture drawTexture;
 
   ge::gl::glEnable(GL_DEPTH_TEST);
 
+  ui.uiSwitch->isOn.subscribe_and_call([&ui] (const auto &value) {
+    if (!value) {
+      ui.lineFillBtn->setVisibility(Visibility::Invisible);
+      ui.pauseMCBtn->setVisibility(Visibility::Invisible);
+      ui.fpsLbl->setVisibility(Visibility::Invisible);
+      ui.chunkInfoLbl->setVisibility(Visibility::Invisible);
+      ui.speedLbl->setVisibility(Visibility::Invisible);
+      ui.cameraController->setVisibility(Visibility::Invisible);
+      ui.movementSpeedSlider->setVisibility(Visibility::Invisible);
+    } else {
+      ui.lineFillBtn->setVisibility(Visibility::Visible);
+      ui.pauseMCBtn->setVisibility(Visibility::Visible);
+      ui.fpsLbl->setVisibility(Visibility::Visible);
+      ui.chunkInfoLbl->setVisibility(Visibility::Visible);
+      ui.speedLbl->setVisibility(Visibility::Visible);
+      ui.cameraController->setVisibility(Visibility::Visible);
+      ui.movementSpeedSlider->setVisibility(Visibility::Visible);
+    }
+  });
+
+  printT(LogLevel::Status, "All set, starting main loop");
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     fpsCounter.frame();
     updateFPSLabel(ui, fpsCounter);
 
-    chunks.generateChunks();
+    if (!pauseMC) {
+      chunks.generateChunks();
+    }
 
     chunks.render = false;
     auto renderFnc = [&ui, &chunks, &modelRenderer](const auto &program, const auto &aabb) {

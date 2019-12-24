@@ -76,6 +76,7 @@ template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setSliderV
 
 template <typename T> T sdl2cpp::ui::Slider<T>::getMin() const { return min; }
 template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setMin(T min) {
+  Slider::sliderStep = (max - min) / 100;
   Slider::min = min;
   return *this;
 }
@@ -83,6 +84,7 @@ template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setMin(T m
 template <typename T> T sdl2cpp::ui::Slider<T>::getMax() const { return max; }
 
 template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setMax(T max) {
+  Slider::sliderStep = (max - min) / 100;
   Slider::max = max;
   return *this;
 }
@@ -93,6 +95,7 @@ template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setStep(T 
   Slider::sliderStep = step;
   return *this;
 }
+
 
 template <typename T> void Slider<T>::draw(GUIRenderer &renderer) {
   const auto valueRange = max - min;
@@ -110,7 +113,6 @@ template <typename T> void Slider<T>::draw(GUIRenderer &renderer) {
   ge::gl::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   vao->unbind();
 }
-
 template <typename T> void Slider<T>::step() {
   auto newValue = value.get() + sliderStep;
   setSliderValue(newValue);
@@ -118,27 +120,22 @@ template <typename T> void Slider<T>::step() {
 template <typename T> void Slider<T>::onMouseDown(EventInfo info, MouseButton button, SDL_Point point) {
   if (getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
     const auto sliderWidth = dimensions.get().x;
-    const auto percentageTraveled = (point.x - position.get().x) / sliderWidth * 2;
-    const auto valueDelta = percentageTraveled * 100 * sliderStep;
-    setSliderValue( valueDelta);
+    const auto percentageTraveled = (point.x - position.get().x) / sliderWidth;
+    const auto valueDelta = min + percentageTraveled * 100 * sliderStep;
+    setSliderValue(valueDelta);
   }
 }
 template <typename T> void Slider<T>::onMouseUp(EventInfo info, MouseButton button, SDL_Point point) {}
 template <typename T> void Slider<T>::onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
   if (getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
     const auto sliderWidth = dimensions.get().x;
-    const auto percentageTraveled = (newPos.x - oldPos.x) / sliderWidth * 2;
+    const auto percentageTraveled = (newPos.x - oldPos.x) / sliderWidth;
     const auto valueDelta = percentageTraveled * 100 * sliderStep;
     setSliderValue(value.get() + valueDelta);
   }
 }
-
-template <typename T> void Slider<T>::onMouseOver(EventInfo info) {
-  setColor({0, 1, 0, 1});
-}
-template <typename T> void Slider<T>::onMouseOut(EventInfo info) {
-  setColor({1, 0, 0, 1});
-}
+template <typename T> void Slider<T>::onMouseOver(EventInfo info) { setColor({0, 1, 0, 1}); }
+template <typename T> void Slider<T>::onMouseOut(EventInfo info) { setColor({1, 0, 0, 1}); }
 template <typename T> std::string Slider<T>::info() const { return "Slider"; }
 template <typename T> void Slider<T>::setColor(const glm::vec4 &color) { Slider::color = color; }
 

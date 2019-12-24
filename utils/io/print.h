@@ -6,6 +6,7 @@
 #define UTILITIES_PRINT_H
 
 #include "logger.h"
+#include <fmt/chrono.h>
 
 namespace detail {
 template <typename OutStream, typename... Args> void printImpl(OutStream &stream, const Args &... args) {
@@ -27,13 +28,23 @@ template <typename... Args> void print(const Args &... args) {
   detail::printImpl(std::cout, std::forward<const Args &>(args)...);
 }
 
+template <typename... Args> void printT(const Args &... args) {
+  const auto currentTime = now<std::chrono::seconds>();
+  detail::printImpl(std::cout, fmt::format("[{:%H:%M:%S}]\t", currentTime), std::forward<const Args &>(args)...);
+}
+
+template <typename... Args> void printT(LogLevel level, const Args &... args) {
+  const auto currentTime = now<std::chrono::seconds>();
+  detail::printImpl(std::cout, fmt::format("[{:%H:%M:%S}]\t", currentTime), levelToString(level), '\t',
+                    std::forward<const Args &>(args)...);
+}
+
 template <typename... Args> void printErr(const Args &... args) {
   detail::printImpl(std::cerr, std::forward<const Args &>(args)...);
 }
 
-template <typename... Args> void printFmt(const std::string& fmt, const Args &... args) { fmt::print(fmt + '\n', args...); }
+template <typename... Args> void printFmt(const std::string &fmt, const Args &... args) { fmt::print(fmt + '\n', args...); }
 
 template <typename OutStream> auto make_print(OutStream &stream) { return detail::CustomPrint{stream}; }
-
 
 #endif // UTILITIES_PRINT_H

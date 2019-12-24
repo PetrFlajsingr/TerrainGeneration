@@ -58,10 +58,8 @@ float distToSphere(vec3 vertex, vec3 center, float radius) {
 float calculateDensity() {
     vec3 vertex = getPosition();
 
-    float result = -vertex.y - 1000 + (
-    noise(vertex/1000)*1000
-    + noise(vertex/4000)*4000
-    + noise(vertex/500)*500
+    float result = -vertex.y - 10000 + (
+    fbm(vertex / 100000, 10) * 500000
     );
 
     return result;

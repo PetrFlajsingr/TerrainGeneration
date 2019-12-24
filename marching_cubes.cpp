@@ -36,7 +36,8 @@ struct UI {
 };
 
 UI initUI(UIManager &uiManager) {
-  auto perspective = PerspectiveProjection(0.1f, 20000.f, 1920.f / 1080, glm::degrees(60.f));
+  printT(LogLevel::Info, "Initialising UI");
+  auto perspective = PerspectiveProjection(0.1f, 1000000.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
@@ -75,8 +76,8 @@ void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
 
 void main_marching_cubes(int argc, char *argv[]) {
   loc_assert(argc != 1, "Provide path for config");
+  printT(LogLevel::Info, "Loading config");
   Conf config{argv[1]};
-  // create window
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
 
   const auto deviceData = config.get<DeviceData>("device").value();
@@ -84,7 +85,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);
 
-  // init OpenGL
+  printT(LogLevel::Status, "Initialising OpenGL");
   ge::gl::init(SDL_GL_GetProcAddress);
   ge::gl::setHighDebugMessage();
 
@@ -111,7 +112,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     line = !line;
   });
 
-  ui.movementSpeedSlider->setMin(1.0f).setMax(200.0f).setSliderValue(10.0f);
+  ui.movementSpeedSlider->setMin(1.0f).setMax(2000.0f).setSliderValue(10.0f);
   ui.movementSpeedSlider->value.subscribe_and_call([&ui](auto sliderValue) {
     ui.cameraController->setMovementSpeed(sliderValue);
     ui.speedLbl->text.setText(L"Current speed: {}"_sw.format(sliderValue));
@@ -119,9 +120,11 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   FPSCounter fpsCounter;
 
+  printT(LogLevel::Status, "Initialising chunk manager");
   ChunkManager chunks{ui.cameraController, config};
   chunks.surr.info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
 
+  printT(LogLevel::Status, "Initialising models");
   ModelRenderer modelRenderer;
   initModels(modelRenderer, assetPath);
 
@@ -145,6 +148,7 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   ge::gl::glEnable(GL_DEPTH_TEST);
 
+  printT(LogLevel::Status, "All set, starting main loop");
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -9,10 +9,10 @@ LODData::LODData(unsigned int levelCount, float viewDistance, float chunkStep) :
   using namespace MakeRange;
   distances.resize(levelCount + 1);
   steps.resize(levelCount + 1);
-  distances[0] = viewDistance / 2;
+  distances[0] = viewDistance * 0.6;
   steps[0] = chunkStep;
   for (auto i : range<float>(1, levelCount + 1)) {
-    distances[i] = distances[i - 1] / 2;
+    distances[i] = distances[i - 1] * 0.6;
     steps[i] = chunkStep / std::pow(2, i);
   }
   distances[0] = std::numeric_limits<float>::infinity();

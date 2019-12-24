@@ -29,24 +29,6 @@ template <typename OutStream> std::string Logger<OutStream>::getTime() const {
   return ss.str();
 }
 
-template <typename OutStream> std::string Logger<OutStream>::levelToString(LogLevel level) const {
-  switch (level) {
-  case LogLevel::Verbose:
-    return "";
-  case LogLevel::Info:
-    return "[INFO]";
-  case LogLevel::Status:
-    return "[STATUS]";
-  case LogLevel::Debug:
-    return "[DEBUG]";
-  case LogLevel::Warning:
-    return "[WARNING]";
-  case LogLevel::Error:
-    return "[ERROR]";
-  }
-  throw std::exception();
-}
-
 template <typename OutStream> std::string Logger<OutStream>::indent(unsigned int level) const {
   auto cnt = level * 2;
   return std::string(cnt, ' ');

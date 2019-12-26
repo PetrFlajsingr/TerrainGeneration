@@ -42,10 +42,10 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
       continue;
     }
     for (auto &tile : map.tiles) {
-      assert(tile.lod.tree.getRoot().isRoot());
       chunkUsageManager.manageTile(tile);
     }
   }
+
   auto &used = chunkUsageManager.getUsedChunks();
   auto chunkUsageInfo = chunkUsageManager.getInfo();
   auto &counters = chunkUsageManager.getCounters();

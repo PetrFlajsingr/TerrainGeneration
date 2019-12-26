@@ -39,7 +39,7 @@ struct UI {
 
 UI initUI(UIManager &uiManager) {
   printT(LogLevel::Info, "Initialising UI");
-  auto perspective = PerspectiveProjection(0.1f, 1000000.f, 1920.f / 1080, glm::degrees(60.f));
+  auto perspective = PerspectiveProjection(0.1f, 10000.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
@@ -116,7 +116,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     line = !line;
   });
 
-  ui.movementSpeedSlider->setMin(1.0f).setMax(2000.0f).setSliderValue(10.0f);
+  ui.movementSpeedSlider->setMin(1.0f).setMax(50.0f).setSliderValue(10.0f);
   ui.movementSpeedSlider->value.subscribe_and_call([&ui](auto sliderValue) {
     ui.cameraController->setMovementSpeed(sliderValue);
     ui.speedLbl->text.setText(L"Current speed: {}"_sw.format(sliderValue));

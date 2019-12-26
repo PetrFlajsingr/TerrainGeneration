@@ -19,6 +19,7 @@
 #include <types/Range.h>
 #include <unordered_map>
 #include <vector>
+#include "utils/parallel/ThreadPool.h"
 
 class ChunkUsageManager;
 
@@ -65,8 +66,6 @@ private:
   ChunkUsageManager chunkUsageManager;
   LODData lodData;
   std::array<Map, 27> maps;
-
-  // std::unordered_map<SurrPos, Map *> partsMap;
   std::array<Map *, 27> partsMap;
 
   void checkForMapMove(glm::vec3 cameraPosition);

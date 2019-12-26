@@ -80,10 +80,10 @@ float distToSphere(vec3 vertex, vec3 center, float radius) {
 
 float calculateDensity(vec3 vertex) {
     return -vertex.y + (
-    + noise(vertex/40)*40
-    + noise(vertex/80)*80
     + noise(vertex/200)*200
-    ) * 3;
+    + noise(vertex/400)*400
+    + noise(vertex/1000)*1000
+    ) * 1.5;
 
     /*  float hard_floor_y = 10;
       float rad = 3;

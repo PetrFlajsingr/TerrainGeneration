@@ -18,7 +18,7 @@
     }
   },
   "render": {
-    "viewDistance": 10000,
+    "viewDistance": 4000,
     "levelOfDetail": 0,
     "viewFrustumCulling": true,
     "shadows": {
@@ -26,8 +26,8 @@
     }
   },
   "marching_cubes": {
-    "chunkSize": 100,
-    "surroundingSize": 5,
+    "chunkSize": 10,
+    "surroundingSize": 10,
     "chunkPoolSize": 1600,
     "aggressiveChunkUnloading": false,
     "computeBatchSize": 256

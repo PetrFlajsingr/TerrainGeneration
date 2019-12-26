@@ -12,6 +12,10 @@ uniform float screenHeight;
 
 uniform sampler2DArrayShadow cascadedDepthTexture;
 
+uniform sampler2D textureX;
+uniform sampler2D textureY;
+uniform sampler2D textureZ;
+
 in vec3 v2fNormal;
 in vec3 v2fPosition;
 in vec3 FragPos;
@@ -68,7 +72,16 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
 }
 
 vec3 chessBoard(vec3 pos) {
-    pos /= 5;
+    float xWeight = abs(v2fNormal.x);
+    float yWeight = abs(v2fNormal.y);
+    float zWeight = abs(v2fNormal.z);
+
+    vec3 color1 = vec3(0.5, 0, 0);
+    vec3 color2 = vec3(0, 0.5, 0);
+    vec3 color3 = vec3(0, 0, 0.5);
+
+    return xWeight * texture(textureX, pos.yz).rgb + yWeight * texture(textureY, pos.xz).rgb + zWeight * texture(textureZ, pos.xy).rgb;
+    /*pos /= 5;
     uint x = uint(abs(floor(pos.x)));
     uint y = uint(abs(floor(pos.y)));
     uint z = uint(abs(floor(pos.z)));
@@ -78,7 +91,7 @@ vec3 chessBoard(vec3 pos) {
     if (x/10 % 2 == 0 ^^ z/10 % 2 == 0) {
         return color1;
     }
-    return color2;
+    return color2;*/
 }
 
 
@@ -94,7 +107,7 @@ vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDir
     float diff = max(dot(lightDirection, normal), 0.0);
     vec3 diffuse = diff * lightColor;
     // specular
-    vec3 viewDir = normalize(viewPosition - FragPos);
+    vec3 viewDir = normalize(-viewPosition + FragPos);
     vec3 reflectDir = reflect(-lightDirection, normal);
     float spec = 0.0;
     vec3 halfwayDir = normalize(lightDirection + viewDir);
@@ -106,11 +119,9 @@ vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDir
     return vec4(lighting, 1.0);
 }
 
-void main()
-{
+void main() {
     vec3 lightDirection = normalize(vec3(lightDir));
     vec4 col = calculateDirectionalLight(v2fPosition.xyz, v2fNormal, lightDirection);
-
 
     color = col;
 }

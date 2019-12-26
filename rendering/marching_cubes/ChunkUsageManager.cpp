@@ -77,14 +77,12 @@ void ChunkUsageManager::manageUnloadedTile(Tile &tile) {
   auto &counters = lodController.getCounters();
   if (hasAvailable() && counters.setupCount < chunksPerFrameLimit &&
       tile.lod.tree.getRoot()->boundingSphere.distance(cameraPosition) <= loadingDistance) {
-    // glm::distance(tile.center, cameraPosition) <= loadingDistance) {
     tile.lod.tree.traverseDepthFirstIfNode(lodController.getTraverseFnc(LODChunkController::Mode::New, cameraPosition, tile));
   }
 }
 
 void ChunkUsageManager::manageFilledTile(Tile &tile) {
   if (tile.lod.tree.getRoot()->boundingSphere.distance(cameraPosition) > loadingDistance) {
-    // glm::distance(tile.center, cameraPosition) <= loadingDistance) {
     tile.lod.tree.traverseDepthFirstIfNode(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));
     tile.state = ChunkState::NotLoaded;
   } else {

@@ -18,9 +18,7 @@ in vec3 FragPos;
 
 out vec4 color;
 
-vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 viewPosition)
-{
-
+vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 viewPosition) {
     float positiveViewSpaceZ = depthViewSpace;
     uint cascadeIdx = 0;
 
@@ -38,21 +36,14 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
 
     vec2 TexCoord = gl_FragCoord.xy / vec2(1920, 1080);
     vec4 tex_coord = vec4(TexCoord.x, TexCoord.y, cascadeIdx, 1.0);
-
     vec4 fragmentModelViewPosition = vec4(viewPosition, 1.0f);
-
     vec4 fragmentModelPosition = inverseViewMatrix * fragmentModelViewPosition;
-
     vec4 fragmentShadowPosition = lightViewProjectionMatrix * fragmentModelPosition;
-
     vec3 projCoords = fragmentShadowPosition.xyz /= fragmentShadowPosition.w;
 
-    //Remap the -1 to 1 NDC to the range of 0 to 1
     projCoords = projCoords * 0.5f + 0.5f;
 
-    // Get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
-
     projCoords.z = cascadeIdx;
 
     float bias = max(angleBias * (1.0 - dot(normal, lightDirection)), 0.0008);
@@ -77,14 +68,17 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
 }
 
 vec3 chessBoard(vec3 pos) {
+    pos /= 5;
     uint x = uint(abs(floor(pos.x)));
     uint y = uint(abs(floor(pos.y)));
     uint z = uint(abs(floor(pos.z)));
+    vec3 color1 = vec3(0.5, 0, 0);
+    vec3 color2 = vec3(0, 0.5, 0);
 
     if (x/10 % 2 == 0 ^^ z/10 % 2 == 0) {
-        return vec3(0.5, 0, 0);
+        return color1;
     }
-    return vec3(0, 0.5, 0);
+    return color2;
 }
 
 
@@ -108,35 +102,15 @@ vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDir
     vec3 specular = spec * lightColor;
     // calculate shad
     vec3 negatedLightDirection = lightDirection*-1.0f;
-    vec3 lighting = (ambient + (1.0 - readShadowMap(negatedLightDirection, viewNormal, FragPos.z, viewPosition)) * (diffuse + specular)) * color;
+    vec3 lighting = (ambient + (1.0 - readShadowMap(negatedLightDirection, viewNormal, v2fPosition.z, viewPosition)) * (diffuse + specular)) * color;
     return vec4(lighting, 1.0);
 }
 
 void main()
 {
-    uint cascadeIdx = 0;
-
-    for (uint i = 0; i < numOfCascades - 1; ++i)
-    {
-        if (v2fPosition.z < cascadedSplits[i])
-        {
-            cascadeIdx = i + 1;
-        }
-    }
-
     vec3 lightDirection = normalize(vec3(lightDir));
     vec4 col = calculateDirectionalLight(v2fPosition.xyz, v2fNormal, lightDirection);
 
-    vec4 c;
-    if (cascadeIdx == 0) {
-        c = vec4(0.2, 0, 0, 0);
-    } else if (cascadeIdx == 1) {
-        c = vec4(0, 0.2, 0, 0);
-    } else if (cascadeIdx == 2) {
-        c = vec4(0, 0, 0.2, 0);
-    } else if (cascadeIdx == 3) {
-        c = vec4(0.2, 0, 0, 0);
-    }
 
-    color = col + c;
+    color = col;
 }

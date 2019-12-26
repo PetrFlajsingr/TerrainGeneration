@@ -1,7 +1,7 @@
 //
 // Created by petr on 11/30/19.
 //
-
+#define STB_IMAGE_IMPLEMENTATION
 #include "marching_cubes.h"
 #include "Camera.h"
 #include "rendering/Data.h"
@@ -13,12 +13,14 @@
 #include "ui/managers.h"
 #include "utils/config/JsonConfig.h"
 #include "various/loc_assert.h"
+#include <BMP.h>
 #include <Colors.h>
 #include <SDL2CPP/MainLoop.h>
 #include <SDL2CPP/Window.h>
 #include <graphics/gl_utils.h>
 #include <rendering/marching_cubes/ChunkManager.h>
 #include <rendering/models/ModelRenderer.h>
+#include <stb_image.h>
 #include <time/FPSCounter.h>
 #include <types.h>
 #include <ui/elements/Switch.h>
@@ -39,7 +41,7 @@ struct UI {
 
 UI initUI(UIManager &uiManager) {
   printT(LogLevel::Info, "Initialising UI");
-  auto perspective = PerspectiveProjection(0.1f, 10000.f, 1920.f / 1080, glm::degrees(60.f));
+  auto perspective = PerspectiveProjection(0.1f, 100000.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
@@ -93,7 +95,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   ge::gl::init(SDL_GL_GetProcAddress);
   ge::gl::setHighDebugMessage();
 
-  ge::gl::glClearColor(0, 0, 0, 1);
+  ge::gl::glClearColor(0, 0.2, 0, 1);
 
   setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
 
@@ -116,7 +118,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     line = !line;
   });
 
-  ui.movementSpeedSlider->setMin(1.0f).setMax(50.0f).setSliderValue(10.0f);
+  ui.movementSpeedSlider->setMin(1.0f).setMax(5000.0f).setSliderValue(10.0f);
   ui.movementSpeedSlider->value.subscribe_and_call([&ui](auto sliderValue) {
     ui.cameraController->setMovementSpeed(sliderValue);
     ui.speedLbl->text.setText(L"Current speed: {}"_sw.format(sliderValue));
@@ -172,8 +174,92 @@ void main_marching_cubes(int argc, char *argv[]) {
     }
   });
 
+
+ /* BMP bmp1{assetPath + "/textures/grey.bmp"};
+  BMP bmp2{assetPath + "/textures/green.bmp"};
+  BMP bmp3{assetPath + "/textures/orange.bmp"};*/
+
+  int width, height, channels;
+  unsigned char *image1 = stbi_load((assetPath + "/textures/rock_soil.jpg").c_str(),
+                                    &width,
+                                    &height,
+                                    &channels,
+                                    STBI_rgb);
+  printFmt("W:{}, H:{}, CH:{}", width, height, channels);
+  unsigned char *image2 = stbi_load((assetPath + "/textures/grass.jpg").c_str(),
+                                    &width,
+                                    &height,
+                                    &channels,
+                                    STBI_rgb);
+  printFmt("W:{}, H:{}, CH:{}", width, height, channels);
+/*  unsigned char *image3 = stbi_load((assetPath + "/textures/rock_soil.jpg").c_str(),
+                                    &width,
+                                    &height,
+                                    &channels,
+                                    STBI_rgb);
+  printFmt("W:{}, H:{}, CH:{}", width, height, channels);*/
+
+
+
+  unsigned int tex1;
+  ge::gl::glGenTextures(1, &tex1);
+  ge::gl::glBindTexture(GL_TEXTURE_2D, tex1);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
+  ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
+  unsigned int tex2;
+  ge::gl::glGenTextures(1, &tex2);
+  ge::gl::glBindTexture(GL_TEXTURE_2D, tex2);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
+  ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
+  unsigned int tex3;
+  ge::gl::glGenTextures(1, &tex3);
+  ge::gl::glBindTexture(GL_TEXTURE_2D, tex3);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
+  ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
+
+/*  ge::gl::Texture tex1{	GL_TEXTURE_2D, GL_RGBA, 0, 1024, 1024};
+  tex1.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  tex1.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  tex1.texParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
+  tex1.texParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
+  tex1.setData2D(image1, GL_RGBA);
+  ge::gl::Texture tex2{	GL_TEXTURE_2D, GL_RGBA, 0, 1024, 1024};
+  tex2.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  tex2.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  tex2.texParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
+  tex2.texParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
+  tex2.setData2D(image2, GL_RGBA);
+  ge::gl::Texture tex3{	GL_TEXTURE_2D, GL_RGBA, 0, 1024, 1024};
+  tex3.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  tex3.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  tex3.texParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
+  tex3.texParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
+  tex3.setData2D(image3, GL_RGBA);*/
+
+  stbi_image_free(image1);
+  stbi_image_free(image2);
+//  stbi_image_free(image3);
+
+  using namespace std::chrono_literals;
+  std::chrono::milliseconds t = 0ms;
+  int c = 0;
+
   printT(LogLevel::Status, "All set, starting main loop");
   mainLoop->setIdleCallback([&]() {
+    auto start = now<std::chrono::milliseconds>();
+
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     fpsCounter.frame();
@@ -193,11 +279,24 @@ void main_marching_cubes(int argc, char *argv[]) {
     cascadedShadowMap.renderShadowMap(renderFnc, ui.cameraController->camera.projection, ui.cameraController->getViewMatrix());
 
     if (showTextures) {
-      drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
+      //drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
+      drawTexture.draw(tex1);
     } else {
       chunks.render = true;
 
       renderProgram->use();
+
+      ge::gl::glActiveTexture(GL_TEXTURE5);
+      ge::gl::glBindTexture(GL_TEXTURE_2D, tex1);
+      ge::gl::glActiveTexture(GL_TEXTURE4);
+      ge::gl::glBindTexture(GL_TEXTURE_2D, tex2);
+      ge::gl::glActiveTexture(GL_TEXTURE3);
+      ge::gl::glBindTexture(GL_TEXTURE_2D, tex3);
+
+
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureX"), tex1);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureY"), tex2);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureZ"), tex3);
       cascadedShadowMap.bindRender(renderProgram);
       renderProgram->setMatrix4fv("inverseViewMatrix", glm::value_ptr(glm::inverse(ui.cameraController->getViewMatrix())));
 
@@ -215,6 +314,13 @@ void main_marching_cubes(int argc, char *argv[]) {
     uiManager.render(ortho);
 
     window->swap();
+
+    auto end = now<std::chrono::milliseconds>();
+    t += end - start;
+    ++c;
+    print(ui.cameraController->getPosition());
+
+    print(t.count() / static_cast<float>(c));
   });
 
   (*mainLoop)();

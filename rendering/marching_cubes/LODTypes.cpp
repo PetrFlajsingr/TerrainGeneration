@@ -6,7 +6,7 @@
 #include <io/print.h>
 
 LODData::LODData(unsigned int levelCount, float viewDistance, float chunkStep) : levelCount(levelCount) {
-  constexpr float multiplier = 0.3;
+  constexpr float multiplier = 0.5;
   using namespace MakeRange;
   distances.resize(levelCount + 1);
   steps.resize(levelCount + 1);

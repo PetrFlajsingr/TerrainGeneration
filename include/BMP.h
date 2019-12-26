@@ -48,6 +48,7 @@ struct BMP {
     BMP(const char *fname) {
         read(fname);
     }
+    BMP(const std::string &str) : BMP(str.c_str()) {}
 
     void read(const char *fname) {
         std::ifstream inp{ fname, std::ios_base::binary };

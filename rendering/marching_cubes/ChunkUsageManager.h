@@ -7,7 +7,9 @@
 
 #include "Chunk.h"
 #include "LODChunkController.h"
+#include <condition_variable>
 #include <list>
+#include <mutex>
 #include <vector>
 
 enum class Unloading { Aggresive, Relaxed };
@@ -28,6 +30,19 @@ struct ChunkUsageInitData {
   float chunkStep;
 };
 
+namespace detail {
+//TODO
+struct DefaultChunkBorrowingPolicy {
+
+};
+
+struct ThreadSafeChunkBorrowingPolicy {
+
+};
+
+}
+
+//template <typename ChunkBorrowingPolicy = detail::DefaultChunkBorrowingPolicy>
 class ChunkUsageManager {
   // list because of frequent deletion in random places
   using ChunkPtrs = std::list<Chunk *>;
@@ -66,6 +81,8 @@ private:
   Unloading unloading;
   float loadingDistance;
   glm::vec3 cameraPosition{0, 0, 0};
+
+  std::mutex mtx;
 
   LODChunkController lodController;
   struct {

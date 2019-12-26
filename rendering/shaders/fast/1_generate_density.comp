@@ -62,11 +62,16 @@ float saturate(float val) {
 float calculateDensity() {
     vec3 vertex = getPosition();
 
-    return -vertex.y + (
-    + noise(vertex/200)*200
-    + noise(vertex/400)*400
-    + noise(vertex/1000)*1000
-    ) * 1.5;
+    if (vertex.y > 12000) {
+        return distToSphere(vertex, vec3(0, 150000, 0), 100000);
+    }
+
+    return -vertex.y - 200 + (
+    //+ noise(vertex/200)*200
+    //+ noise(vertex/400)*400
+    + noise(vertex/3000)*3000
+    + noise(vertex/10000)*10000
+    );
 
     /*  float hard_floor_y = 10;
       float rad = 1000;

@@ -195,7 +195,6 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
       }
     }
   }
-  drawnCount = visibleChunks.size();
 
   drawChunk(visibleChunks, projection);
   if (drawOptions.drawNormals) {
@@ -355,6 +354,7 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
     chunk->setComputed(true);
     if (chunk->indexCount != 0) {
       surr.setFilled(chunk);
+      densityBuffer->pageCommitment(0, densityBuffer->getSize(), false);
     } else {
       surr.setEmpty(chunk);
     }
@@ -373,7 +373,6 @@ void ChunkManager::generateChunks() {
   if (ptrs.empty()) {
     return;
   }
-  computeCount = ptrs.size();
   ge::gl::glEnable(GL_RASTERIZER_DISCARD);
   calculateDensity(ptrs);
 
@@ -385,14 +384,9 @@ void ChunkManager::generateChunks() {
 void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
   std::vector<Chunk *> visibleChunks;
   for (auto &chunk : chunks) {
-    // if (aabb.contains(chunk->boundingBox) !=
-    //        geo::RelativePosition::Outside ||
-    //        chunk->boundingBox.contains(aabb) !=
-    //        geo::RelativePosition::Outside) {
     if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance && chunk->indexCount != 0) {
       visibleChunks.emplace_back(chunk);
     }
-    //}
   }
   for (auto &chunk : visibleChunks) {
     chunk->getVA()->bind();

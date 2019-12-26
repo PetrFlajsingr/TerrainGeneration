@@ -72,13 +72,11 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
 }
 
 vec3 chessBoard(vec3 pos) {
+    pos /= 500;
     float xWeight = abs(v2fNormal.x);
     float yWeight = abs(v2fNormal.y);
     float zWeight = abs(v2fNormal.z);
 
-    vec3 color1 = vec3(0.5, 0, 0);
-    vec3 color2 = vec3(0, 0.5, 0);
-    vec3 color3 = vec3(0, 0, 0.5);
 
     return xWeight * texture(textureX, pos.yz).rgb + yWeight * texture(textureY, pos.xz).rgb + zWeight * texture(textureZ, pos.xy).rgb;
     /*pos /= 5;

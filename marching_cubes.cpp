@@ -228,6 +228,33 @@ void main_marching_cubes(int argc, char *argv[]) {
   ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
   ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
+  unsigned int tex4;
+  ge::gl::glGenTextures(1, &tex4);
+  ge::gl::glBindTexture(GL_TEXTURE_2D, tex4);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
+  ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
+  unsigned int tex5;
+  ge::gl::glGenTextures(1, &tex5);
+  ge::gl::glBindTexture(GL_TEXTURE_2D, tex5);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
+  ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
+  unsigned int tex6;
+  ge::gl::glGenTextures(1, &tex6);
+  ge::gl::glBindTexture(GL_TEXTURE_2D, tex6);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
+  ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
 
 /*  ge::gl::Texture tex1{	GL_TEXTURE_2D, GL_RGBA, 0, 1024, 1024};
   tex1.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -279,8 +306,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     cascadedShadowMap.renderShadowMap(renderFnc, ui.cameraController->camera.projection, ui.cameraController->getViewMatrix());
 
     if (showTextures) {
-      //drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
-      drawTexture.draw(tex1);
+      drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
     } else {
       chunks.render = true;
 
@@ -292,11 +318,20 @@ void main_marching_cubes(int argc, char *argv[]) {
       ge::gl::glBindTexture(GL_TEXTURE_2D, tex2);
       ge::gl::glActiveTexture(GL_TEXTURE3);
       ge::gl::glBindTexture(GL_TEXTURE_2D, tex3);
+      ge::gl::glActiveTexture(GL_TEXTURE7);
+      ge::gl::glBindTexture(GL_TEXTURE_2D, tex1);
+      ge::gl::glActiveTexture(GL_TEXTURE8);
+      ge::gl::glBindTexture(GL_TEXTURE_2D, tex2);
+      ge::gl::glActiveTexture(GL_TEXTURE9);
+      ge::gl::glBindTexture(GL_TEXTURE_2D, tex3);
 
 
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureX"), tex1);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureY"), tex2);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureZ"), tex3);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusX"), tex1);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusY"), tex2);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusZ"), tex3);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusX"), tex4);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusY"), tex5);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusZ"), tex6);
       cascadedShadowMap.bindRender(renderProgram);
       renderProgram->setMatrix4fv("inverseViewMatrix", glm::value_ptr(glm::inverse(ui.cameraController->getViewMatrix())));
 

@@ -12,15 +12,36 @@ uniform float screenHeight;
 
 uniform sampler2DArrayShadow cascadedDepthTexture;
 
-uniform sampler2D textureX;
-uniform sampler2D textureY;
-uniform sampler2D textureZ;
+uniform sampler2D texturePlusX;
+uniform sampler2D texturePlusY;
+uniform sampler2D texturePlusZ;
+uniform sampler2D textureMinusX;
+uniform sampler2D textureMinusY;
+uniform sampler2D textureMinusZ;
 
 in vec3 v2fNormal;
 in vec3 v2fPosition;
 in vec3 FragPos;
 
 out vec4 color;
+
+float hash(float n) { return fract(sin(n) * 1e4); }
+float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
+
+float noise(vec3 x) {
+    const vec3 step = vec3(110, 241, 171);
+
+    vec3 i = floor(x);
+    vec3 f = fract(x);
+
+    float n = dot(i, step);
+
+    vec3 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
+    mix(hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
+    mix(mix(hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
+    mix(hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
+}
 
 vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 viewPosition) {
     float positiveViewSpaceZ = depthViewSpace;
@@ -72,24 +93,31 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
 }
 
 vec3 chessBoard(vec3 pos) {
-    pos /= 500;
-    float xWeight = abs(v2fNormal.x);
-    float yWeight = abs(v2fNormal.y);
-    float zWeight = abs(v2fNormal.z);
 
+    pos /= 5000;
+    const float xPlusWeight = float(v2fNormal.x > 0) * v2fNormal.x;
+    const float yPlusWeight = float(v2fNormal.y > 0) * v2fNormal.y;
+    const float zPlusWeight = float(v2fNormal.z > 0) * v2fNormal.z;
+    const float xMinusWeight = float(v2fNormal.x < 0) * v2fNormal.x;
+    const float yMinusWeight = float(v2fNormal.y < 0) * v2fNormal.y;
+    const float zMinusWeight = float(v2fNormal.z < 0) * v2fNormal.z;
 
-    return xWeight * texture(textureX, pos.yz).rgb + yWeight * texture(textureY, pos.xz).rgb + zWeight * texture(textureZ, pos.xy).rgb;
-    /*pos /= 5;
-    uint x = uint(abs(floor(pos.x)));
-    uint y = uint(abs(floor(pos.y)));
-    uint z = uint(abs(floor(pos.z)));
-    vec3 color1 = vec3(0.5, 0, 0);
-    vec3 color2 = vec3(0, 0.5, 0);
+    return xPlusWeight * texture(texturePlusX, pos.yz).rgb
+    + xMinusWeight * texture(textureMinusX, pos.yz).rgb
+    + yPlusWeight * texture(texturePlusY, pos.xz).rgb
+    + yMinusWeight * texture(textureMinusY, pos.xz).rgb
+    + zPlusWeight * texture(texturePlusZ, pos.xy).rgb
+    + zMinusWeight * texture(textureMinusZ, pos.xy).rgb;
+}
 
-    if (x/10 % 2 == 0 ^^ z/10 % 2 == 0) {
-        return color1;
-    }
-    return color2;*/
+float calculateFog() {
+    const float distance = abs(v2fPosition.z);
+    const float fogStart = 0;
+    const float fogEnd = 100000;
+
+    float fogFactor = (fogEnd - distance) / (fogEnd - fogStart);
+    fogFactor = clamp(fogFactor, 0, 1);
+    return fogFactor;
 }
 
 
@@ -121,5 +149,6 @@ void main() {
     vec3 lightDirection = normalize(vec3(lightDir));
     vec4 col = calculateDirectionalLight(v2fPosition.xyz, v2fNormal, lightDirection);
 
-    color = col;
+    const float f = calculateFog();
+    color = (1 - f) * vec4(0.5, 0.5, 0.5, 1.0) + f * col;
 }

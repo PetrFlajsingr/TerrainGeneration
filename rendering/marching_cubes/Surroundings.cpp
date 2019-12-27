@@ -9,7 +9,7 @@
 
 using namespace MakeRange;
 
-constexpr unsigned int lodDepth = 2;
+constexpr unsigned int lodDepth = 1;
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
     : loadDistance(loadDistance), size(size), step(step), lodData(lodDepth, loadDistance, step),
       chunkUsageManager(ChunkUsageInitData{chunkPoolSize, 100, loadDistance, lodDepth, step, Unloading::Aggresive}) {

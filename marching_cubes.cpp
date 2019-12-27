@@ -41,7 +41,7 @@ struct UI {
 
 UI initUI(UIManager &uiManager) {
   printT(LogLevel::Info, "Initialising UI");
-  auto perspective = PerspectiveProjection(0.1f, 100000.f, 1920.f / 1080, glm::degrees(60.f));
+  auto perspective = PerspectiveProjection(0.1f, 300000.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 

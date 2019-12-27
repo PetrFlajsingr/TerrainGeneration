@@ -92,7 +92,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     return vec3(shadow);
 }
 
-vec3 chessBoard(vec3 pos) {
+vec3 textureValueForPos(vec3 pos) {
 
     pos /= 5000;
     const float xPlusWeight = float(v2fNormal.x > 0) * v2fNormal.x;
@@ -124,7 +124,7 @@ float calculateFog() {
 vec4 calculateDirectionalLight(vec3 viewPosition, vec3 viewNormal, vec3 lightDirection)
 {
     lightDirection = -lightDirection;
-    vec3 color = chessBoard(FragPos);
+    vec3 color = textureValueForPos(FragPos);
     vec3 normal = normalize(viewNormal);
     vec3 lightColor = vec3(0.3);
     // ambient

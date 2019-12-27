@@ -113,7 +113,7 @@ vec3 textureValueForPos(vec3 pos) {
 float calculateFog() {
     const float distance = abs(v2fPosition.z);
     const float fogStart = 0;
-    const float fogEnd = 100000;
+    const float fogEnd = 300000;
 
     float fogFactor = (fogEnd - distance) / (fogEnd - fogStart);
     fogFactor = clamp(fogFactor, 0, 1);

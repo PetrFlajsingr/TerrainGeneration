@@ -170,29 +170,6 @@ void main_marching_cubes(int argc, char *argv[]) {
     }
   });
 
-  /* BMP bmp1{assetPath + "/textures/grey.bmp"};
-   BMP bmp2{assetPath + "/textures/green.bmp"};
-   BMP bmp3{assetPath + "/textures/orange.bmp"};*/
-
-  /*  int width, height, channels;
-    unsigned char *image1 = stbi_load((assetPath + "/textures/rock_soil.jpg").c_str(),
-                                      &width,
-                                      &height,
-                                      &channels,
-                                      STBI_rgb);
-    printFmt("W:{}, H:{}, CH:{}", width, height, channels);
-    unsigned char *image2 = stbi_load((assetPath + "/textures/grass.jpg").c_str(),
-                                      &width,
-                                      &height,
-                                      &channels,
-                                      STBI_rgb);
-    printFmt("W:{}, H:{}, CH:{}", width, height, channels);*/
-  /*  unsigned char *image3 = stbi_load((assetPath + "/textures/rock_soil.jpg").c_str(),
-                                      &width,
-                                      &height,
-                                      &channels,
-                                      STBI_rgb);
-    printFmt("W:{}, H:{}, CH:{}", width, height, channels);*/
   FileTextureLoader textureLoader{assetPath};
   TexOptions texOptions{GL_TEXTURE_2D,
                         GL_RGB,
@@ -206,83 +183,6 @@ void main_marching_cubes(int argc, char *argv[]) {
   unsigned int tex2 = textureLoader.loadTexture("grass.jpg", texOptions);
   unsigned int tex1 = textureLoader.loadTexture("rock_soil.jpg", texOptions);
 
-  /*  unsigned int tex1;
-    ge::gl::glGenTextures(1, &tex1);
-    ge::gl::glBindTexture(GL_TEXTURE_2D, tex1);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
-    ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
-    unsigned int tex2;
-    ge::gl::glGenTextures(1, &tex2);
-    ge::gl::glBindTexture(GL_TEXTURE_2D, tex2);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
-    ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
-    unsigned int tex3;
-    ge::gl::glGenTextures(1, &tex3);
-    ge::gl::glBindTexture(GL_TEXTURE_2D, tex3);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
-    ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
-    unsigned int tex4;
-    ge::gl::glGenTextures(1, &tex4);
-    ge::gl::glBindTexture(GL_TEXTURE_2D, tex4);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
-    ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
-    unsigned int tex5;
-    ge::gl::glGenTextures(1, &tex5);
-    ge::gl::glBindTexture(GL_TEXTURE_2D, tex5);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
-    ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
-    unsigned int tex6;
-    ge::gl::glGenTextures(1, &tex6);
-    ge::gl::glBindTexture(GL_TEXTURE_2D, tex6);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    ge::gl::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    ge::gl::glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
-    ge::gl::glGenerateMipmap(GL_TEXTURE_2D);*/
-
-  /*  ge::gl::Texture tex1{	GL_TEXTURE_2D, GL_RGBA, 0, 1024, 1024};
-    tex1.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    tex1.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    tex1.texParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
-    tex1.texParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
-    tex1.setData2D(image1, GL_RGBA);
-    ge::gl::Texture tex2{	GL_TEXTURE_2D, GL_RGBA, 0, 1024, 1024};
-    tex2.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    tex2.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    tex2.texParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
-    tex2.texParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
-    tex2.setData2D(image2, GL_RGBA);
-    ge::gl::Texture tex3{	GL_TEXTURE_2D, GL_RGBA, 0, 1024, 1024};
-    tex3.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    tex3.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    tex3.texParameteri(GL_TEXTURE_WRAP_S, GL_REPEAT);
-    tex3.texParameteri(GL_TEXTURE_WRAP_T, GL_REPEAT);
-    tex3.setData2D(image3, GL_RGBA);*/
-
-  /* stbi_image_free(image1);
-   stbi_image_free(image2);*/
-  //  stbi_image_free(image3);
 
   using namespace std::chrono_literals;
   std::chrono::milliseconds t = 0ms;

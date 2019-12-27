@@ -9,7 +9,7 @@
 
 using namespace MakeRange;
 
-constexpr unsigned int lodDepth = 2;
+constexpr unsigned int lodDepth = 1;
 Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
     : loadDistance(loadDistance), size(size), step(step), lodData(lodDepth, loadDistance, step),
       chunkUsageManager(ChunkUsageInitData{chunkPoolSize, 100, loadDistance, lodDepth, step, Unloading::Aggresive}) {
@@ -29,6 +29,7 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chu
   }
 }
 
+//ThreadPool tPool{4};
 std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   checkForMapMove(position);
   for (auto ptr : unused) {
@@ -36,16 +37,33 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   }
   unused.clear();
 
+
   chunkUsageManager.newFrame(position);
   for (auto &map : maps) {
+  /*  if (!map.isInRange(position, loadDistance)) {
+      continue;
+    }
+    tPool.push(std::packaged_task<void()>{[&map, this] {
+      for (auto &tile : map.tiles) {
+        chunkUsageManager.manageTile(tile);
+      }
+    }});*/
+
     if (!map.isInRange(position, loadDistance)) {
       continue;
     }
     for (auto &tile : map.tiles) {
-      assert(tile.lod.tree.getRoot().isRoot());
       chunkUsageManager.manageTile(tile);
     }
+
   }
+
+
+/*  auto syncFuture = tPool.push(std::packaged_task<void()>{[] {
+    return 0;
+  }});
+  syncFuture.wait();*/
+
   auto &used = chunkUsageManager.getUsedChunks();
   auto chunkUsageInfo = chunkUsageManager.getInfo();
   auto &counters = chunkUsageManager.getCounters();
@@ -254,10 +272,10 @@ void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float ste
   startPosition = start;
   Map::center = center;
   boundingSphere = geo::BoundingSphere<3>{center, glm::distance(start, center)};
-  boundingBox = geo::BoundingBox<3>(start, start + 32.f * step * glm::vec3{tileSize});
-  const auto halfDist = 16.f * glm::vec3{step};
+  boundingBox = geo::BoundingBox<3>(start, start + 30.f * step * glm::vec3{tileSize});
+  const auto halfDist = 15.f * glm::vec3{step};
 
-  Tile tileToCopy{ChunkState::NotLoaded, LOD{}, start + startPosition, center + startPosition};
+  Tile tileToCopy{ChunkState::NotLoaded, LOD{}, start, center};
   tileToCopy.lod.initTree(lodData.levelCount);
 
   for (auto i : range(tiles.size())) {

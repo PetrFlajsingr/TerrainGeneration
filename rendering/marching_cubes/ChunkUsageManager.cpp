@@ -45,9 +45,11 @@ void ChunkUsageManager::manageTile(Tile &tile) {
   }
 }
 
-bool ChunkUsageManager::hasAvailable() const { return !data.available.empty(); }
+bool ChunkUsageManager::hasAvailable() const {
+  return !data.available.empty(); }
 
 Chunk *ChunkUsageManager::borrowChunk() {
+  std::unique_lock lck{mtx};
   auto result = data.available.front();
   data.used.emplace_back(result);
   data.available.remove(result);
@@ -57,12 +59,14 @@ Chunk *ChunkUsageManager::borrowChunk() {
 
 Chunk *ChunkUsageManager::borrowChunk(Tile &tile) {
   auto result = borrowChunk();
+  std::unique_lock lck{mtx};
   data.chunkToTileMap[result] = &tile;
   assert(result != nullptr);
   return result;
 }
 
 void ChunkUsageManager::returnChunk(Chunk *chunk) {
+  std::unique_lock lck{mtx};
   assert(chunk != nullptr);
   data.available.emplace_back(chunk);
   data.used.remove(chunk);
@@ -70,6 +74,7 @@ void ChunkUsageManager::returnChunk(Chunk *chunk) {
 
 void ChunkUsageManager::returnTileChunk(Chunk *chunk) {
   returnChunk(chunk);
+  std::unique_lock lck{mtx};
   data.chunkToTileMap[chunk] = nullptr;
 }
 
@@ -77,14 +82,12 @@ void ChunkUsageManager::manageUnloadedTile(Tile &tile) {
   auto &counters = lodController.getCounters();
   if (hasAvailable() && counters.setupCount < chunksPerFrameLimit &&
       tile.lod.tree.getRoot()->boundingSphere.distance(cameraPosition) <= loadingDistance) {
-    // glm::distance(tile.center, cameraPosition) <= loadingDistance) {
     tile.lod.tree.traverseDepthFirstIfNode(lodController.getTraverseFnc(LODChunkController::Mode::New, cameraPosition, tile));
   }
 }
 
 void ChunkUsageManager::manageFilledTile(Tile &tile) {
   if (tile.lod.tree.getRoot()->boundingSphere.distance(cameraPosition) > loadingDistance) {
-    // glm::distance(tile.center, cameraPosition) <= loadingDistance) {
     tile.lod.tree.traverseDepthFirstIfNode(lodController.getTraverseFnc(LODChunkController::Mode::Recycle, cameraPosition, tile));
     tile.state = ChunkState::NotLoaded;
   } else {

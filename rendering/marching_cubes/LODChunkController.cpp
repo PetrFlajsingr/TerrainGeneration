@@ -193,9 +193,11 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
       } else if (!lodData.isRoot()){
         const bool wasDivided = lodData->isDivided;
         lodData->isDivided = false;
-        assert(lodData->chunk != nullptr);
-        lodData->isCurrent = false;
-        chunkUsageManager.returnTileChunk(lodData->chunk);
+        if (lodData->isCurrent) {
+          assert(lodData->chunk != nullptr);
+          lodData->isCurrent = false;
+          chunkUsageManager.returnTileChunk(lodData->chunk);
+        }
         return wasDivided;
       }
       return lodData->isDivided;

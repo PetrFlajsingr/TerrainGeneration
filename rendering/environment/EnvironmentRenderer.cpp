@@ -38,6 +38,7 @@ void EnvironmentRenderer::render(sdl2cpp::ui::CameraController &cameraController
   cloudModel->getVertexArray()->bind();
   ge::gl::glDrawElements(GL_TRIANGLES, cloudModel->getElementBuffer()->getSize(), GL_UNSIGNED_INT, nullptr);
 
+  return;
   waterProgram->use();
 
   waterProgram->setMatrix4fv("model", glm::value_ptr(waterModel->modelMatrix.getRef()));

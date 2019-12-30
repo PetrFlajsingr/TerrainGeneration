@@ -3,7 +3,7 @@
 //
 
 #include "Font.h"
-#include "rendering/text/FontManager.h"
+#include "text/FontManager.h"
 #include <algorithm>
 
 Font::Font(std::string name, FontManager &fontManager) : name(std::move(name)), fontManager(fontManager) {}

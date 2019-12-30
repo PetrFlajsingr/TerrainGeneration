@@ -33,7 +33,7 @@ void SparseBuffer::pageCommitment(GLbitfield offset, GLbitfield size, bool commi
 std::pair<int, int> SparseBuffer::alignToPageSize(int offset, int size, bool alignOffsetUp, bool alignSizeDown) {
   const auto alignedOffset =
       alignOffsetUp ? offset + (sparsePageSize - offset % sparsePageSize) : offset - (offset % sparsePageSize);
-  if (offset + size == getSize()) {
+  if (offset + size >= getSize()) {
     return {alignedOffset, size};
   }
   const auto alignedSize = size + (sparsePageSize - size % sparsePageSize);

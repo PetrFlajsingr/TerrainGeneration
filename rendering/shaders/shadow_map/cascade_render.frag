@@ -94,7 +94,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
 
 vec3 textureValueForPos(vec3 pos) {
 
-    pos /= 5000;
+    pos /= 1000;
     const float xPlusWeight = float(v2fNormal.x > 0) * v2fNormal.x;
     const float yPlusWeight = float(v2fNormal.y > 0) * v2fNormal.y;
     const float zPlusWeight = float(v2fNormal.z > 0) * v2fNormal.z;
@@ -113,7 +113,7 @@ vec3 textureValueForPos(vec3 pos) {
 float calculateFog() {
     const float distance = abs(v2fPosition.z);
     const float fogStart = 0;
-    const float fogEnd = 300000;
+    const float fogEnd = 50000;
 
     float fogFactor = (fogEnd - distance) / (fogEnd - fogStart);
     fogFactor = clamp(fogFactor, 0, 1);

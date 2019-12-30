@@ -306,6 +306,8 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
         auto normalBuffer = chunk->getBuffer(Chunk::Normal);
         vertexBuffer->pageCommitment(0, edgeCount * sizeof(float) * 4 /*vertexBuffer->getSize()*/, true);
         normalBuffer->pageCommitment(0, edgeCount * sizeof(float) * 3 /*normalBuffer->getSize()*/, true);
+        vertexBuffer->pageCommitment(edgeCount * sizeof(float) * 4, vertexBuffer->getSize(), false);
+        normalBuffer->pageCommitment(edgeCount * sizeof(float) * 3, normalBuffer->getSize(), false);
         transformFeedback3.setBuffers(vertexBuffer, normalBuffer);
         transformFeedback3.begin(GL_POINTS);
         query.begin();
@@ -357,12 +359,12 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
       densityBuffer->pageCommitment(0, densityBuffer->getSize(), false);
     } else {
       surr.setEmpty(chunk);
+      densityBuffer->pageCommitment(0, densityBuffer->getSize(), false);
     }
   }
 }
 
 void ChunkManager::generateChunks() {
-
   std::vector<Chunk *> ptrs;
   chunks = surr.getForCompute(cameraController->camera.Position);
   for (auto chunk : chunks) {

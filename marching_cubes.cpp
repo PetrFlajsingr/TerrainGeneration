@@ -24,6 +24,40 @@
 #include <types.h>
 #include <ui/elements/Switch.h>
 
+
+
+
+
+
+
+float hash(float n) { return glm::fract(glm::sin(n) * 1e4f); }
+float hash(glm::vec2 p) { return glm::fract(1e4 * glm::sin(17.0 * p.x + p.y * 0.1) * (0.1 + glm::abs(glm::sin(p.y * 13.0 + p.x)))); }
+
+float noise(glm::vec3 x) {
+  using namespace glm;
+  const vec3 step = vec3(110, 241, 171);
+
+  vec3 i = floor(x);
+  vec3 f = fract(x);
+
+  float n = dot(i, step);
+
+  vec3 u = f * f * (3.0f - 2.0f * f);
+  return mix(mix(mix(hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
+                 mix(hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
+             mix(mix(hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
+                 mix(hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
+}
+
+
+
+
+float calculateDensity(glm::vec3 vertex) {
+    return -vertex.y - 200.f + (+noise(vertex / 1000.f) * 1000.f + noise(vertex / 5000.f) * 5000.f) * 2.f;
+}
+
+
+
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
 
@@ -40,7 +74,7 @@ struct UI {
 
 UI initUI(UIManager &uiManager) {
   printT(LogLevel::Info, "Initialising UI");
-  auto perspective = PerspectiveProjection(0.1f, 300000.f, 1920.f / 1080, glm::degrees(60.f));
+  auto perspective = PerspectiveProjection(0.1f, 500000.f, 1920.f / 1080, glm::degrees(60.f));
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
@@ -181,24 +215,22 @@ void main_marching_cubes(int argc, char *argv[]) {
                         GL_RGB,
                         true,
                         {
-                            {GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT},
-                            {GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT},
+                            {GL_TEXTURE_WRAP_S, GL_REPEAT},
+                            {GL_TEXTURE_WRAP_T, GL_REPEAT},
                             {GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR},
                             {GL_TEXTURE_MAG_FILTER, GL_LINEAR},
                         }};
-  unsigned int tex2 = textureLoader.loadTexture("grass.jpg", texOptions);
-  unsigned int tex1 = textureLoader.loadTexture("rock_soil.jpg", texOptions);
-
+  unsigned int tex2 = textureLoader.loadTexture("Grass Green Textures/GrassGreenTexture0003.jpg", texOptions);
+  unsigned int tex1 = textureLoader.loadTexture("Seamless ground rock.jpg", texOptions);
+  unsigned int tex3 = textureLoader.loadTexture("desert sand.jpg", texOptions);
 
   using namespace std::chrono_literals;
-  std::chrono::milliseconds t = 0ms;
-  int c = 0;
   float time = 0;
 
   printT(LogLevel::Status, "All set, starting main loop");
-  mainLoop->setIdleCallback([&]() {
-    auto start = now<std::chrono::milliseconds>();
 
+  mainLoop->setIdleCallback([&]() {
+    auto start = now<std::chrono::microseconds>();
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     fpsCounter.frame();
@@ -219,21 +251,24 @@ void main_marching_cubes(int argc, char *argv[]) {
     if (showTextures) {
       drawTexture.drawCasc(cascadedShadowMap.getDepthMap());
     } else {
+      ge::gl::glDisable(GL_BLEND);
       chunks.render = true;
 
       renderProgram->use();
 
-      ge::gl::glActiveTexture(GL_TEXTURE4);
+      ge::gl::glActiveTexture(GL_TEXTURE0 + 1);
       ge::gl::glBindTexture(GL_TEXTURE_2D, tex1);
-      ge::gl::glActiveTexture(GL_TEXTURE3);
+      ge::gl::glActiveTexture(GL_TEXTURE0 + 2);
       ge::gl::glBindTexture(GL_TEXTURE_2D, tex2);
+      ge::gl::glActiveTexture(GL_TEXTURE0 + 3);
+      ge::gl::glBindTexture(GL_TEXTURE_2D, tex3);
 
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusX"), tex1);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusY"), tex2);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusZ"), tex1);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusX"), tex1);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusY"), tex1);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusZ"), tex1);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusX"), 3);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusY"), 2);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusZ"), 3);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusX"), 3);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusY"), 1);
+      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusZ"), 3);
       cascadedShadowMap.bindRender(renderProgram);
       renderProgram->setMatrix4fv("inverseViewMatrix", glm::value_ptr(glm::inverse(ui.cameraController->getViewMatrix())));
 
@@ -248,17 +283,12 @@ void main_marching_cubes(int argc, char *argv[]) {
       modelRenderer.render(renderProgram, ui.cameraController->getViewMatrix(), true);
     }
     envRenderer.render(*ui.cameraController, time);
+    auto end = now<std::chrono::microseconds>();
+    print("Chunk avg: ", (end - start).count());
     auto ortho = glm::ortho<float>(0, 1000, 0, 562.5, -1, 1);
     uiManager.render(ortho);
 
     window->swap();
-
-    auto end = now<std::chrono::milliseconds>();
-    t += end - start;
-    ++c;
-    print(ui.cameraController->getPosition());
-
-    print(t.count() / static_cast<float>(c));
 
     time += 0.008;
   });

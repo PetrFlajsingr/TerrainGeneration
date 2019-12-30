@@ -55,23 +55,32 @@ float distToSphere(vec3 vertex, vec3 center, float radius) {
     return -(sqrt(pow(center.x-vertex.x, 2) + pow(center.y-vertex.y, 2) + pow(center.z-vertex.z, 2)) - radius);
 }
 
+
+
+
 float saturate(float val) {
     return clamp(val, 0.0, 1.0);
 }
 
+
+
+
+
+
 float calculateDensity() {
     vec3 vertex = getPosition();
-    //vertex.x = vertex.x - int(vertex.x) % 1000;
-    //vertex.y = vertex.y - int(vertex.y) % 5000;
-    //vertex.z = vertex.z - int(vertex.z) % 1000;
 
+    float result = 1;
+    if (vertex.y < 0) {
 
-    return -vertex.y - 200 + (
-    //+ noise(vertex/200)*200
-    //+ noise(vertex/400)*400
-    + noise(vertex/3000)*3000
-    + noise(vertex/10000)*10000
-    )*2;
+    }
+    vertex.y += 5000;
+    return
+    -vertex.y + (
+    //distToSphere(vertex, vec3(0, 0, 0), 200000) + (
+    + noise(vertex/1000)*1000
+    + noise(vertex/5000)*15000
+    );
 
     /*  float hard_floor_y = 10;
       float rad = 1000;

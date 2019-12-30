@@ -5,7 +5,7 @@
 #ifndef TERRAINGENERATION_GUIRENDERER_H
 #define TERRAINGENERATION_GUIRENDERER_H
 
-#include "rendering/text/TextRenderer.h"
+#include "text/TextRenderer.h"
 #include <String.h>
 #include <geGL/Program.h>
 #include <memory>

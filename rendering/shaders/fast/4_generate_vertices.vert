@@ -79,14 +79,15 @@ float distToSphere(vec3 vertex, vec3 center, float radius) {
 }
 
 float calculateDensity(vec3 vertex) {
+    float result = 1;
+    if (vertex.y < 0) {
 
-    return -vertex.y - 200 + (
-    //+ noise(vertex/200)*200
-    //+ noise(vertex/400)*400
-    + noise(vertex/3000)*3000
-    + noise(vertex/10000)*10000
-    )*2;
-
+    }
+    vertex.y += 5000;
+    return -vertex.y + (
+    + noise(vertex/1000)*1000
+    + noise(vertex/5000)*15000
+    );
 }
 
 void main() {
@@ -107,7 +108,7 @@ void main() {
 
     Position = vec4(v0 + diff * abs(perc), 1);
 
-    float d = 1.0/(32);
+    float d = 1.0/(1);
     vec3 grad;
     grad.x = calculateDensity(Position.xyz + vec3(d, 0, 0)) - calculateDensity(Position.xyz + vec3(-d, 0, 0));
     grad.y = calculateDensity(Position.xyz + vec3(0, d, 0)) - calculateDensity(Position.xyz + vec3(0, -d, 0));

@@ -123,6 +123,7 @@ float cloudNoise(vec3 Position) {
 }
 
 vec3 calcNormal(vec3 Position) {
+    Position.y = 0;
     const float d = 100;
     vec3 grad;
     grad.x = cloudNoise(Position.xyz + vec3(d, 0, 0)) - cloudNoise(Position.xyz + vec3(-d, 0, 0));

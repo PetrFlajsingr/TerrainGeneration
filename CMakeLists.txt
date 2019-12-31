@@ -18,6 +18,8 @@ FetchContent_Declare(SDL2CPP GIT_REPOSITORY https://github.com/dormon/SDL2CPP.gi
 FetchContent_Declare(geGL GIT_REPOSITORY https://github.com/dormon/geGL.git)
 FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git)
 FetchContent_Declare(observable GIT_REPOSITORY https://github.com/ddinu/observable.git)
+FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG 0.9.8.5)
 
 FetchContent_Declare(nlohmann_json
         URL https://github.com/nlohmann/json/releases/download/v3.1.2/include.zip
@@ -28,23 +30,25 @@ if (NOT SDL2CPP_POPULATED)
     FetchContent_Populate(SDL2CPP)
     add_subdirectory(${sdl2cpp_SOURCE_DIR} ${sdl2cpp_BINARY_DIR})
 endif ()
-
 FetchContent_GetProperties(geGL)
 if (NOT geGL_POPULATED)
     FetchContent_Populate(geGL)
     add_subdirectory(${gegl_SOURCE_DIR} ${gegl_BINARY_DIR})
 endif ()
-
 FetchContent_GetProperties(fmt)
 if (NOT fmt_POPULATED)
     FetchContent_Populate(fmt)
     add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR})
 endif ()
-
 FetchContent_GetProperties(observable)
 if (NOT observable_POPULATED)
     FetchContent_Populate(observable)
     add_subdirectory(${observable_SOURCE_DIR} ${observable_BINARY_DIR})
+endif ()
+FetchContent_GetProperties(glm)
+if (NOT glm_POPULATED)
+    FetchContent_Populate(glm)
+    add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
 endif ()
 
 FetchContent_GetProperties(nlohmann_json)
@@ -54,6 +58,7 @@ endif ()
 
 include_directories(${fmt_SOURCE_DIR}/include)
 include_directories(${observable_SOURCE_DIR}/observable/include)
+include_directories(${glm_SOURCE_DIR})
 
 add_library(nlohmann_json INTERFACE)
 

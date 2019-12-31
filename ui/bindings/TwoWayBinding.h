@@ -6,7 +6,7 @@
 #define UTILITIES_TWOWAYBINDING_H
 
 #include <functional>
-#include <include/observable/value.hpp>
+#include <observable/value.hpp>
 
 template <typename T, typename U> class TwoWayBinding {
   using TransformAtoBfnc = std::function<U(const T &)>;

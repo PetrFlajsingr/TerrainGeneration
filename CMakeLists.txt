@@ -17,6 +17,7 @@ find_package(Freetype REQUIRED)
 FetchContent_Declare(SDL2CPP GIT_REPOSITORY https://github.com/dormon/SDL2CPP.git)
 FetchContent_Declare(geGL GIT_REPOSITORY https://github.com/dormon/geGL.git)
 FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git)
+FetchContent_Declare(observable GIT_REPOSITORY https://github.com/ddinu/observable.git)
 
 FetchContent_GetProperties(SDL2CPP)
 if (NOT SDL2CPP_POPULATED)
@@ -36,7 +37,14 @@ if (NOT fmt_POPULATED)
     add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR})
 endif ()
 
+FetchContent_GetProperties(observable)
+if (NOT observable_POPULATED)
+    FetchContent_Populate(observable)
+    add_subdirectory(${observable_SOURCE_DIR} ${observable_BINARY_DIR})
+endif ()
+
 include_directories(${fmt_SOURCE_DIR}/include)
+include_directories(${observable_SOURCE_DIR}/observable/include)
 
 include_directories(include)
 include_directories(utils)

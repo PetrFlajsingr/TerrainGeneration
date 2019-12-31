@@ -19,6 +19,10 @@ FetchContent_Declare(geGL GIT_REPOSITORY https://github.com/dormon/geGL.git)
 FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git)
 FetchContent_Declare(observable GIT_REPOSITORY https://github.com/ddinu/observable.git)
 
+FetchContent_Declare(nlohmann_json
+        URL https://github.com/nlohmann/json/releases/download/v3.1.2/include.zip
+        )
+
 FetchContent_GetProperties(SDL2CPP)
 if (NOT SDL2CPP_POPULATED)
     FetchContent_Populate(SDL2CPP)
@@ -43,8 +47,15 @@ if (NOT observable_POPULATED)
     add_subdirectory(${observable_SOURCE_DIR} ${observable_BINARY_DIR})
 endif ()
 
+FetchContent_GetProperties(nlohmann_json)
+if (NOT nlohmann_json_POPULATED)
+    FetchContent_Populate(nlohmann_json)
+endif ()
+
 include_directories(${fmt_SOURCE_DIR}/include)
 include_directories(${observable_SOURCE_DIR}/observable/include)
+
+add_library(nlohmann_json INTERFACE)
 
 include_directories(include)
 include_directories(utils)
@@ -57,6 +68,8 @@ file(GLOB_RECURSE ui_src "ui/*.cpp")
 file(GLOB_RECURSE utils_src "utils/*.cpp")
 file(GLOB_RECURSE ft_src "include/freetype-gl++/*.cpp")
 file(GLOB_RECURSE ft_src2 "include/freetype-gl++/freetype-gl/*.c")
+
+target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR})
 
 add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src} ${ft_src} ${ft_src2}
         ${fmt_SOURCE_DIR}/src/format.cc
@@ -76,6 +89,7 @@ add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src} ${ft_src} ${ft_
 
 target_link_libraries(TerrainGeneration geGL::geGL SDL2CPP::SDL2CPP
         ${FREETYPE_LIBRARIES}
-        ${TINYOBJLOADER_LIBRARIES})
+        ${TINYOBJLOADER_LIBRARIES}
+        nlohmann_json)
 
 

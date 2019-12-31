@@ -10,7 +10,6 @@
 #include <ui/utils.h>
 
 namespace sdl2cpp::ui {
-
 #define template_observable_property \
     typename ::observable::detail::prop_<Observable_Property_EnclosingType_>::template type
 

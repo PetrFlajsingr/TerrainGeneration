@@ -16,6 +16,7 @@ find_package(Freetype REQUIRED)
 
 FetchContent_Declare(SDL2CPP GIT_REPOSITORY https://github.com/dormon/SDL2CPP.git)
 FetchContent_Declare(geGL GIT_REPOSITORY https://github.com/dormon/geGL.git)
+FetchContent_Declare(fmt GIT_REPOSITORY https://github.com/fmtlib/fmt.git)
 
 FetchContent_GetProperties(SDL2CPP)
 if (NOT SDL2CPP_POPULATED)
@@ -29,6 +30,13 @@ if (NOT geGL_POPULATED)
     add_subdirectory(${gegl_SOURCE_DIR} ${gegl_BINARY_DIR})
 endif ()
 
+FetchContent_GetProperties(fmt)
+if (NOT fmt_POPULATED)
+    FetchContent_Populate(fmt)
+    add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR})
+endif ()
+
+include_directories(${fmt_SOURCE_DIR}/include)
 
 include_directories(include)
 include_directories(utils)
@@ -43,7 +51,8 @@ file(GLOB_RECURSE ft_src "include/freetype-gl++/*.cpp")
 file(GLOB_RECURSE ft_src2 "include/freetype-gl++/freetype-gl/*.c")
 
 add_executable(TerrainGeneration main.cpp ${ui_src} ${utils_src} ${ft_src} ${ft_src2}
-        include/fmt/format.cc include/fmt/posix.cc
+        ${fmt_SOURCE_DIR}/src/format.cc
+        ${fmt_SOURCE_DIR}/src/os.cc
         include/gltext.cpp
         include/Camera.cpp
         utils/graphics/Geometry.cpp

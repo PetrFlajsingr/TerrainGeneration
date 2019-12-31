@@ -7,7 +7,7 @@
 
 #include "rendering/Data.h"
 #include "rendering/shadow_maps/CascadedShadowMap.h"
-#include "rendering/utils/DrawTexture.h"
+#include "rendering/textures/DrawTexture.h"
 #include "shadow_mapping.h"
 #include "ui/elements.h"
 #include "ui/managers.h"

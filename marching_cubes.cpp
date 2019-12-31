@@ -6,8 +6,8 @@
 #include "Camera.h"
 #include "rendering/Data.h"
 #include "rendering/shadow_maps/CascadedShadowMap.h"
+#include "rendering/textures/DrawTexture.h"
 #include "rendering/textures/FileTextureLoader.h"
-#include "rendering/utils/DrawTexture.h"
 #include "ui/bindings/Binding.h"
 #include "ui/elements.h"
 #include "ui/managers.h"
@@ -23,12 +23,6 @@
 #include <time/FPSCounter.h>
 #include <types.h>
 #include <ui/elements/Switch.h>
-
-
-
-
-
-
 
 float hash(float n) { return glm::fract(glm::sin(n) * 1e4f); }
 float hash(glm::vec2 p) { return glm::fract(1e4 * glm::sin(17.0 * p.x + p.y * 0.1) * (0.1 + glm::abs(glm::sin(p.y * 13.0 + p.x)))); }

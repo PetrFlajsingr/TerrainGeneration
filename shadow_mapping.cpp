@@ -13,7 +13,7 @@
 #include "rendering/shadow_maps/CascadedShadowMap.h"
 #endif
 
-#include "rendering/utils/DrawTexture.h"
+#include "rendering/textures/DrawTexture.h"
 #include "ui/elements.h"
 #include "ui/managers.h"
 #include "various/loc_assert.h"

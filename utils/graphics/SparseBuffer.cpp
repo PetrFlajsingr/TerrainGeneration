@@ -34,7 +34,8 @@ std::pair<int, int> SparseBuffer::alignToPageSize(int offset, int size, bool ali
   const auto alignedOffset =
       alignOffsetUp ? offset + (sparsePageSize - offset % sparsePageSize) : offset - (offset % sparsePageSize);
   if (offset + size >= getSize()) {
-    return {alignedOffset, size};
+    const auto tillEnd = getSize() - alignedOffset;
+    return {alignedOffset, tillEnd};
   }
   const auto alignedSize = size + (sparsePageSize - size % sparsePageSize);
   return {alignedOffset, alignedSize};

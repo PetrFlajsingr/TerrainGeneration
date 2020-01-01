@@ -55,7 +55,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
         }
     }
 
-    float angleBias = 0.006f * (cascadeIdx);
+    float angleBias = 0.06f * (cascadeIdx);
 
     mat4 lightViewProjectionMatrix = lightViewProjectionMatrices[cascadeIdx];
 

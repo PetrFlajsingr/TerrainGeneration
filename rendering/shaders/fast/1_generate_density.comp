@@ -146,14 +146,15 @@ uniform float heightScale;
 float nTest(vec3 x, uint numOctaves) {
     float result = 0;
     const float Ia = 1;
-    const float If = 0.00001;
-    const float Ss = .5;
+    const float If = 0.0000001;
+    const float Ss = -1;
     const float Se = 0;
-    const float Sh = 0.3;
-    float g = 30000;
-    float l = 2;
-    float eps = Ia * g;
+    const float Sh = 5;
+    float g = 10;
+    float l = 8;
     for (uint i = 0; i < numOctaves; ++i) {
+        const float g = pow(g, i);
+        const float l = pow(l, i);
         const float eps = Ia * g;
         const float lambda = If * l;
 
@@ -166,14 +167,12 @@ float nTest(vec3 x, uint numOctaves) {
         } else {
             const float billowNoiseValue = abs(perlinNoiseValue);
             const float ridgeNoiseValue = 1.0f - billowNoiseValue;
-            noiseValue = mix(perlinNoiseValue, ridgeNoiseValue, Ss);
+            noiseValue = mix(perlinNoiseValue, ridgeNoiseValue, abs(Ss));
         }
 
         const float resultNoiseValue = noiseValue * pow(abs(noiseValue), Se) * Sh;
 
         result += resultNoiseValue;
-        g /= 2;
-        l *= 2;
     }
     return result;
 }

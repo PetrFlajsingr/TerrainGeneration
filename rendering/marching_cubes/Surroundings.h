@@ -52,17 +52,22 @@ public:
 
   observable::value<WString> info;
 
-  std::list<Chunk *> getForCompute(glm::vec3 position);
+  void checkDistances(glm::vec3 position);
 
   void setEmpty(Chunk *chunk);
 
   void setFilled(Chunk *chunk);
+
+  const std::list<Chunk *> &getUsedChunks() const {
+    return chunkUsageManager.getUsedChunks();
+  }
 
   const float loadDistance;
   const glm::uvec3 size;
   const float step;
 
 private:
+  glm::vec3 lastCameraPosition {std::numeric_limits<float>::infinity()};
   ChunkUsageManager chunkUsageManager;
   LODData lodData;
   std::array<Map, 27> maps;

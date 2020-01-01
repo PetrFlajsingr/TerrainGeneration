@@ -31,31 +31,21 @@ void LODChunkController::resetCounters() {
 }
 
 glm::vec3 LODChunkController::offsetForSubChunk(unsigned int index, unsigned int maxValue) {
+  static const std::array<const glm::vec3, 8> offsetsForSubChunks{glm::vec3{0, 0, 0},
+                                                           glm::vec3{0, 0, 1},
+                                                           glm::vec3{0, 1, 0},
+                                                           glm::vec3{0, 1, 1},
+                                                           glm::vec3{1, 0, 0},
+                                                           glm::vec3{1, 0, 1},
+                                                           glm::vec3{1, 1, 0},
+                                                           glm::vec3{1, 1, 1}
+  };
   glm::vec3 result{0, 0, 0};
   if (maxValue > 2) {
     result = 2.f * offsetForSubChunk(index / 8, maxValue / 2);
   }
   index = index % 8;
-  switch (index) {
-  case 0:
-    return result + glm::vec3{0, 0, 0};
-  case 1:
-    return result + glm::vec3{0, 0, 1};
-  case 2:
-    return result + glm::vec3{0, 1, 0};
-  case 3:
-    return result + glm::vec3{0, 1, 1};
-  case 4:
-    return result + glm::vec3{1, 0, 0};
-  case 5:
-    return result + glm::vec3{1, 0, 1};
-  case 6:
-    return result + glm::vec3{1, 1, 0};
-  case 7:
-    return result + glm::vec3{1, 1, 1};
-  default:
-    throw exc::InternalError("Invalid input value");
-  }
+  return result + offsetsForSubChunks[index];
 }
 
 LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 position, Tile &tile) {

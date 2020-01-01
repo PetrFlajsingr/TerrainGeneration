@@ -62,7 +62,7 @@ public:
   void returnChunk(Chunk *chunk);
   void returnTileChunk(Chunk *chunk);
 
-  const ChunkPtrs &getUsedChunks() { return data.used; }
+  const ChunkPtrs &getUsedChunks() const { return data.used; }
 
   [[nodiscard]] const ChunkToTileMap &getChunkToTileMap() { return data.chunkToTileMap; }
 

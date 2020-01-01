@@ -18,22 +18,7 @@ Chunk::Chunk(glm::vec3 startPosition, float step, uint size)
   drawVertexArray->addElementBuffer(indexBuffer);
 }
 
-Chunk::SBuffer Chunk::getBuffer(Chunk::Buffers bufferType) {
-  switch (bufferType) {
-  case Density:
-    return densityBuffer;
-  case Vertex:
-    return vertexBuffer;
-  case Normal:
-    return normalBuffer;
-  case Index:
-    return indexBuffer;
-  default:
-    throw exc::InternalError("Invalid enum value.");
-  }
-}
-
-Chunk::VertexArray Chunk::getVA() { return drawVertexArray; }
+const Chunk::VertexArray & Chunk::getVA() { return drawVertexArray; }
 
 geo::BoundingBox<3> Chunk::calcAABB() {
   geo::BoundingBox<3> result;
@@ -95,3 +80,7 @@ Chunk &Chunk::operator=(const Chunk &other) {
   drawVertexArray->addElementBuffer(indexBuffer);
   return *this;
 }
+const Chunk::SBuffer &Chunk::getDensityBuffer() const { return densityBuffer; }
+const Chunk::SBuffer &Chunk::getVertexBuffer() const { return vertexBuffer; }
+const Chunk::SBuffer &Chunk::getNormalBuffer() const { return normalBuffer; }
+const Chunk::SBuffer &Chunk::getIndexBuffer() const { return indexBuffer; }

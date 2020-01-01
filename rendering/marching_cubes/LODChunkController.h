@@ -15,6 +15,7 @@ public:
   bool operator()(Leaf<LODTreeData, 8> &lodData) {
     if (lodData->isCurrent && lodData->chunk != nullptr && lodData->chunk->indexCount > 0) {
       empty = false;
+      return false;
     }
     return lodData->isDivided;
   }

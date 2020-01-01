@@ -41,7 +41,6 @@ constexpr float step = 2;
 constexpr uint size = 32;
 class ChunkManager {
 public:
-  std::list<Chunk *> chunks;
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 
   BlinnPhongLight light{

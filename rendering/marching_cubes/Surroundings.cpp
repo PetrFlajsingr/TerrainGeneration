@@ -30,7 +30,11 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chu
 }
 
 //ThreadPool tPool{4};
-std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
+void Surroundings::checkDistances(glm::vec3 position) {
+  if (chunkUsageManager.getCounters().setupCount < 100 && position == lastCameraPosition) {
+    return;
+  }
+  lastCameraPosition = position;
   checkForMapMove(position);
   for (auto ptr : unused) {
     chunkUsageManager.returnTileChunk(ptr);
@@ -71,7 +75,6 @@ std::list<Chunk *> Surroundings::getForCompute(glm::vec3 position) {
   info = WString::Format(L"Chunks: available {}, used {}, setup {}, "
                          L"notLoaded {}",
                          chunkUsageInfo.availableChunks, chunkUsageInfo.usedChunks, counters.setupCount, counters.notLoadedCount);
-  return used;
 }
 void Surroundings::setEmpty(Chunk *chunk) {
   auto &usedChunks = chunkUsageManager.getChunkToTileMap();

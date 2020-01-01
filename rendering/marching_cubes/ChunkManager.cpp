@@ -188,7 +188,8 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   geo::ViewFrustum viewFrustum = geo::ViewFrustum::FromProjectionView(view, projection);
 
   std::vector<Chunk *> visibleChunks;
-  for (auto &chunk : chunks) {
+  visibleChunks.reserve(surr.getUsedChunks().size() / 2);
+  for (auto &chunk : surr.getUsedChunks()) {
     if (!renderData.viewFrustumCulling || viewFrustum.contains(chunk->boundingBox) != geo::RelativePosition::Outside) {
       if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance && chunk->indexCount != 0) {
         visibleChunks.emplace_back(chunk);
@@ -259,9 +260,8 @@ void ChunkManager::calculateDensity(const std::vector<Chunk *> &chunks) {
   ge::gl::glUseProgram(generateDensityProgram);
 
   for (auto &chunk : chunks) {
-    auto densityBuffer = chunk->getBuffer(Chunk::Density);
-    densityBuffer->pageCommitment(0, densityBuffer->getSize(), true);
-    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    chunk->getDensityBuffer()->pageCommitment(0, chunk->getDensityBuffer()->getSize(), true);
+    chunk->getDensityBuffer()->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
     ge::gl::glUniform1f(stepLocation, chunk->step);
     ge::gl::glUniform3fv(startLocation, 1, &chunk->startPosition[0]);
     ge::gl::glDispatchCompute(4, 4, 4);
@@ -272,8 +272,7 @@ void ChunkManager::calculateDensity(const std::vector<Chunk *> &chunks) {
 void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::AsynchronousQuery &query) {
   for (auto chunk : chunks) {
     ge::gl::glUseProgram(streamCasesProgram);
-    auto densityBuffer = chunk->getBuffer(Chunk::Density);
-    densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+    chunk->getDensityBuffer()->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
     chunkCoordVertexArray->bind();
     transformFeedback1.begin(GL_POINTS);
     query.begin();
@@ -298,17 +297,15 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
         ge::gl::glUseProgram(generateVerticesProgram);
         edgeMarkersVertexArray->bind();
         edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-        densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+        chunk->getDensityBuffer()->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
         ge::gl::glUniform1f(ge::gl::glGetUniformLocation(generateVerticesProgram, "chunkStep"), chunk->step);
         ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1, &chunk->startPosition[0]);
 
-        auto vertexBuffer = chunk->getBuffer(Chunk::Vertex);
-        auto normalBuffer = chunk->getBuffer(Chunk::Normal);
-        vertexBuffer->pageCommitment(0, edgeCount * sizeof(float) * 4 /*vertexBuffer->getSize()*/, true);
-        normalBuffer->pageCommitment(0, edgeCount * sizeof(float) * 3 /*normalBuffer->getSize()*/, true);
-        vertexBuffer->pageCommitment(edgeCount * sizeof(float) * 4, vertexBuffer->getSize(), false);
-        normalBuffer->pageCommitment(edgeCount * sizeof(float) * 3, normalBuffer->getSize(), false);
-        transformFeedback3.setBuffers(vertexBuffer, normalBuffer);
+        chunk->getVertexBuffer()->pageCommitment(0, edgeCount * sizeof(float) * 4 /*vertexBuffer->getSize()*/, true);
+        chunk->getNormalBuffer()->pageCommitment(0, edgeCount * sizeof(float) * 3 /*normalBuffer->getSize()*/, true);
+        chunk->getVertexBuffer()->pageCommitment(edgeCount * sizeof(float) * 4, chunk->getVertexBuffer()->getSize(), false);
+        chunk->getNormalBuffer()->pageCommitment(edgeCount * sizeof(float) * 3, chunk->getNormalBuffer()->getSize(), false);
+        transformFeedback3.setBuffers(chunk->getVertexBuffer(), chunk->getNormalBuffer());
         transformFeedback3.begin(GL_POINTS);
         query.begin();
 
@@ -330,16 +327,15 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
         ge::gl::glDrawArrays(GL_POINTS, 0, edgeCount);
 
         ge::gl::glUseProgram(generateIndicesProgram);
-        densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
+        chunk->getDensityBuffer()->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
         polyCountLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
         edgeLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 2);
         edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 3);
         vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 4);
 
-        auto indexBuffer = chunk->getBuffer(Chunk::Index);
         const auto a = caseCount * 5 * 3 * sizeof(int);
-        indexBuffer->pageCommitment(0, a /*indexBuffer->getSize()*/, true);
-        transformFeedback4.setBuffers(indexBuffer);
+        chunk->getIndexBuffer()->pageCommitment(0, a /*indexBuffer->getSize()*/, true);
+        transformFeedback4.setBuffers(chunk->getIndexBuffer());
         transformFeedback4.begin(GL_POINTS);
         caseMarkersVertexArray->bind();
         query.begin();
@@ -356,18 +352,18 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
     chunk->setComputed(true);
     if (chunk->indexCount != 0) {
       surr.setFilled(chunk);
-      densityBuffer->pageCommitment(0, densityBuffer->getSize(), false);
+      chunk->getDensityBuffer()->pageCommitment(false);
     } else {
       surr.setEmpty(chunk);
-      densityBuffer->pageCommitment(0, densityBuffer->getSize(), false);
+      chunk->getDensityBuffer()->pageCommitment(false);
     }
   }
 }
 
 void ChunkManager::generateChunks() {
   std::vector<Chunk *> ptrs;
-  chunks = surr.getForCompute(cameraController->camera.Position);
-  for (auto chunk : chunks) {
+  surr.checkDistances(cameraController->camera.Position);
+  for (auto chunk : surr.getUsedChunks()) {
     if (!chunk->isComputed()) {
       ptrs.emplace_back(chunk);
     }
@@ -385,8 +381,10 @@ void ChunkManager::generateChunks() {
 }
 void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
   std::vector<Chunk *> visibleChunks;
-  for (auto &chunk : chunks) {
-    if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance
+  visibleChunks.reserve(surr.getUsedChunks().size() / 4);
+  for (auto &chunk : surr.getUsedChunks()) {
+    //if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance
+    if (aabb.contains(chunk->boundingBox) != geo::RelativePosition::Outside
     && chunk->indexCount != 0) {
       visibleChunks.emplace_back(chunk);
     }

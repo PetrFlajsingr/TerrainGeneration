@@ -34,9 +34,13 @@ public:
   geo::BoundingBox<3> boundingBox;
   geo::BoundingSphere<3> boundingSphere;
 
-  SBuffer getBuffer(Buffers bufferType);
 
-  VertexArray getVA();
+  [[nodiscard]] const SBuffer &getDensityBuffer() const;
+  [[nodiscard]] const SBuffer &getVertexBuffer() const;
+  [[nodiscard]] const SBuffer &getNormalBuffer() const;
+  [[nodiscard]] const SBuffer &getIndexBuffer() const;
+
+  const VertexArray &getVA();
 
   [[nodiscard]] bool isComputed() const;
 

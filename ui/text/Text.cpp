@@ -11,38 +11,42 @@ Text::Text(FontManager &fontManager, const std::wstring &initialValue, Font *fon
 
 const glm::vec4 &Text::getColor() const { return color; }
 
-void Text::setColor(const glm::vec4 &color) {
+Text & Text::setColor(const glm::vec4 &color) {
   Text::color = color;
   calcText(text.get(), color, position);
+  return *this;
 }
 
 const glm::vec3 &Text::getPosition() const { return position; }
 
-void Text::setPosition(const glm::vec3 &position) {
+Text & Text::setPosition(const glm::vec3 &position) {
   Text::position = position;
   calcText(text.get(), color, position);
+  return *this;
 }
 
 Font &Text::getFont() const { return *font; }
 
-void Text::setFont(Font &font) {
+Text & Text::setFont(Font &font) {
   Text::font = &font;
   calcText(text.get(), color, position);
+  return *this;
 }
 
 float Text::getFontSize() const { return fontSize; }
 
-void Text::setFontSize(float fontSize) {
+Text & Text::setFontSize(float fontSize) {
   Text::fontSize = fontSize;
   calcText(text.get(), color, position);
+  return *this;
 }
 
-void Text::setText(const WString &text) {
-  if (text == Text::text.get()) {
-    return;
+Text & Text::setText(const WString &text) {
+  if (text != Text::text.get()) {
+    Text::text.set(text);
+    calcText(text, color, position);
   }
-  Text::text.set(text);
-  calcText(text, color, position);
+  return *this;
 }
 
 void Text::calcText(const WString &str, glm::vec4 color, glm::vec3 pen) {
@@ -81,12 +85,14 @@ void Text::calcText(const WString &str, glm::vec4 color, glm::vec3 pen) {
     }
   }
 }
-void Text::setFont(const std::string &name) {
+Text & Text::setFont(const std::string &name) {
   font = &fontManager.getFont(name);
   calcText(text.get(), color, position);
+  return *this;
 }
-void Text::setFont(const std::string &name, float size) {
+Text & Text::setFont(const std::string &name, float size) {
   font = &fontManager.getFont(name);
   fontSize = size;
   calcText(text.get(), color, position);
+  return *this;
 }

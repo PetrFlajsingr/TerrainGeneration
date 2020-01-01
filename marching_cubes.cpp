@@ -24,34 +24,6 @@
 #include <types.h>
 #include <ui/elements/Switch.h>
 
-float hash(float n) { return glm::fract(glm::sin(n) * 1e4f); }
-float hash(glm::vec2 p) { return glm::fract(1e4 * glm::sin(17.0 * p.x + p.y * 0.1) * (0.1 + glm::abs(glm::sin(p.y * 13.0 + p.x)))); }
-
-float noise(glm::vec3 x) {
-  using namespace glm;
-  const vec3 step = vec3(110, 241, 171);
-
-  vec3 i = floor(x);
-  vec3 f = fract(x);
-
-  float n = dot(i, step);
-
-  vec3 u = f * f * (3.0f - 2.0f * f);
-  return mix(mix(mix(hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
-                 mix(hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
-             mix(mix(hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
-                 mix(hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
-}
-
-
-
-
-float calculateDensity(glm::vec3 vertex) {
-    return -vertex.y - 200.f + (+noise(vertex / 1000.f) * 1000.f + noise(vertex / 5000.f) * 5000.f) * 2.f;
-}
-
-
-
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
 
@@ -64,6 +36,29 @@ struct UI {
   std::shared_ptr<CameraController> cameraController;
   std::shared_ptr<Slider<float>> movementSpeedSlider;
   std::shared_ptr<Switch> uiSwitch;
+
+  struct {
+    std::shared_ptr<Label> octavesLbl;
+    std::shared_ptr<Label> gainLbl;
+    std::shared_ptr<Label> lacunarityLbl;
+    std::shared_ptr<Label> sharpnessLbl;
+    std::shared_ptr<Label> valleyScaleLbl;
+    std::shared_ptr<Label> heightScaleLbl;
+
+    std::shared_ptr<Label> octavesValLbl;
+    std::shared_ptr<Label> gainValLbl;
+    std::shared_ptr<Label> lacunarityValLbl;
+    std::shared_ptr<Label> sharpnessValLbl;
+    std::shared_ptr<Label> valleyScaleValLbl;
+    std::shared_ptr<Label> heightScaleValLbl;
+
+    std::shared_ptr<Slider<unsigned int>> octavesSlider;
+    std::shared_ptr<Slider<float>> gainSlider;
+    std::shared_ptr<Slider<float>> lacunaritySlider;
+    std::shared_ptr<Slider<float>> sharpnessSlider;
+    std::shared_ptr<Slider<float>> valleyScaleSlider;
+    std::shared_ptr<Slider<float>> heightScaleSlider;
+  } terrain;
 };
 
 UI initUI(UIManager &uiManager) {
@@ -72,31 +67,94 @@ UI initUI(UIManager &uiManager) {
   auto cameraController =
       uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
 
-  auto lineFillBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 0, 1}, glm::vec3{250, 100, 0});
-  lineFillBtn->text.setFont("arialbd", 60);
-  lineFillBtn->text.setText(L"Line"_sw);
+  auto lineFillBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 0, 1}, glm::vec3{150, 60, 0});
+  lineFillBtn->text.setFont("arialbd", 40).setText(L"Line"_sw);
 
   auto fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1}, glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);
 
-  auto pauseMCBtn = uiManager.createGUIObject<Button>(glm::vec3{1700, 300, 1}, glm::vec3{220, 20, 0});
-  pauseMCBtn->text.setFont("arialbd", 10);
-  pauseMCBtn->text.setText(L"MC on/off"_sw);
+  auto pauseMCBtn = uiManager.createGUIObject<Button>(glm::vec3{1700, 20, 1}, glm::vec3{150, 20, 0});
+  pauseMCBtn->text.setFont("arialbd", 10).setText(L"MC on/off"_sw);
 
   auto speedLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 620, 1}, glm::vec3{220, 50, 0});
-  speedLbl->text.setFont("arialbd", 10);
-  speedLbl->text.setColor(Color::white);
-
-  auto chunkInfoLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1}, glm::vec3{500, 20, 0});
-  chunkInfoLbl->text.setFont("arialbd", 10);
-  chunkInfoLbl->text.setColor({1, 1, 1, 1});
-
+  speedLbl->text.setFont("arialbd", 10).setColor(Color::white);
   auto movementSpeedSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 700, 1}, glm::vec3{200, 50, 0});
   movementSpeedSlider->setColor(Color::transparent(Color::red, 0.5f));
 
+  auto chunkInfoLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1}, glm::vec3{500, 20, 0});
+  chunkInfoLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+
+  auto octavesLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 500, 1}, glm::vec3{70, 30, 0});
+  octavesLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Octaves:"_sw);
+  auto gainLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 530, 1}, glm::vec3{70, 30, 0});
+  gainLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Gain:"_sw);
+  auto lacunarityLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 560, 1}, glm::vec3{70, 30, 0});
+  lacunarityLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Lacunarity:"_sw);
+  auto sharpnessLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 590, 1}, glm::vec3{70, 30, 0});
+  sharpnessLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Sharpness:"_sw);
+  auto valleyScaleLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 620, 1}, glm::vec3{70, 30, 0});
+  valleyScaleLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Valley scale:"_sw);
+  auto heightScaleLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 650, 1}, glm::vec3{70, 30, 0});
+  heightScaleLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Height scale:"_sw);
+
+  auto octavesValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 500, 1}, glm::vec3{100, 30, 0});
+  octavesValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  auto gainValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 530, 1}, glm::vec3{100, 30, 0});
+  gainValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  auto lacunarityValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 560, 1}, glm::vec3{100, 30, 0});
+  lacunarityValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  auto sharpnessValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 590, 1}, glm::vec3{100, 30, 0});
+  sharpnessValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  auto valleyScaleValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 620, 1}, glm::vec3{100, 30, 0});
+  valleyScaleValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  auto heightScaleValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 650, 1}, glm::vec3{100, 30, 0});
+  heightScaleValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+
+  auto octavesSlider = uiManager.createGUIObject<Slider<unsigned int>>(glm::vec3{1520, 365 + 500, 1}, glm::vec3{315, 20, 0});
+  octavesSlider->value.subscribe_and_call(
+      [octavesValLbl](const auto &value) { octavesValLbl->text.setText(WString{std::to_wstring(value)}); });
+  octavesSlider->setMin(1).setMax(10).setSliderValue(4);
+  auto gainSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 530, 1}, glm::vec3{315, 20, 0});
+  gainSlider->value.subscribe_and_call(
+      [gainValLbl](const auto &value) { gainValLbl->text.setText(WString{std::to_wstring(value)}); });
+  gainSlider->setMin(0.1).setMax(100000).setSliderValue(30000);
+  auto lacunaritySlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 560, 1}, glm::vec3{315, 20, 0});
+  lacunaritySlider->value.subscribe_and_call(
+      [lacunarityValLbl](const auto &value) { lacunarityValLbl->text.setText(WString{std::to_wstring(value)}); });
+  lacunaritySlider->setMin(0.1).setMax(1000).setSliderValue(2);
+  auto sharpnessSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 590, 1}, glm::vec3{315, 20, 0});
+  sharpnessSlider->value.subscribe_and_call(
+      [sharpnessValLbl](const auto &value) { sharpnessValLbl->text.setText(WString{std::to_wstring(value)}); });
+  sharpnessSlider->setMin(-1).setMax(1).setSliderValue(0);
+  auto valleyScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 620, 1}, glm::vec3{315, 20, 0});
+  valleyScaleSlider->value.subscribe_and_call(
+      [valleyScaleValLbl](const auto &value) { valleyScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
+  valleyScaleSlider->setMin(0.00001).setMax(10).setSliderValue(0);
+  auto heightScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 650, 1}, glm::vec3{315, 20, 0});
+  heightScaleSlider->value.subscribe_and_call(
+      [heightScaleValLbl](const auto &value) { heightScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
+  heightScaleSlider->setMin(0).setMax(1000).setSliderValue(1);
+
   auto uiSwitch = uiManager.createGUIObject<Switch>(glm::vec3{50, 800, 1}, glm::vec3{50, 50, 0}, true);
 
-  return {lineFillBtn, pauseMCBtn, fpsLbl, chunkInfoLbl, speedLbl, cameraController, movementSpeedSlider, uiSwitch};
+  return {lineFillBtn,
+          pauseMCBtn,
+          fpsLbl,
+          chunkInfoLbl,
+          speedLbl,
+          cameraController,
+          movementSpeedSlider,
+          uiSwitch,
+          {
+              octavesLbl, gainLbl, lacunarityLbl, sharpnessLbl, valleyScaleLbl, heightScaleLbl, octavesValLbl, gainValLbl,
+              lacunarityValLbl, sharpnessValLbl, valleyScaleValLbl, heightScaleValLbl,
+              octavesSlider,
+              gainSlider,
+              lacunaritySlider,
+              sharpnessSlider,
+              valleyScaleSlider,
+              heightScaleSlider
+          }};
 }
 
 void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
@@ -122,7 +180,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   ge::gl::init(SDL_GL_GetProcAddress);
   ge::gl::setHighDebugMessage();
 
-  ge::gl::glClearColor(0, 153.0f/255, 203.0f/255, 1);
+  ge::gl::glClearColor(0, 153.0f / 255, 203.0f / 255, 1);
 
   setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
 
@@ -224,7 +282,6 @@ void main_marching_cubes(int argc, char *argv[]) {
   printT(LogLevel::Status, "All set, starting main loop");
 
   mainLoop->setIdleCallback([&]() {
-    auto start = now<std::chrono::microseconds>();
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     fpsCounter.frame();
@@ -277,8 +334,6 @@ void main_marching_cubes(int argc, char *argv[]) {
       modelRenderer.render(renderProgram, ui.cameraController->getViewMatrix(), true);
     }
     envRenderer.render(*ui.cameraController, time);
-    auto end = now<std::chrono::microseconds>();
-    print("Chunk avg: ", (end - start).count());
     auto ortho = glm::ortho<float>(0, 1000, 0, 562.5, -1, 1);
     uiManager.render(ortho);
 

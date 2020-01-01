@@ -236,7 +236,7 @@ void ChunkManager::drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVP
 void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step) {
   ge::gl::glUseProgram(drawCubeBoundariesProgram);
   for (auto &chunk : chunks) {
-    ge::gl::glUniform1f(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "step"), chunk->step);
+    ge::gl::glUniform1f(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "chunkStep"), chunk->step);
     ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "start"), 1, &chunk->startPosition[0]);
     ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "mvpUniform"), 1, GL_FALSE,
                                &MVPmatrix[0][0]);
@@ -254,7 +254,7 @@ void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 
 }
 
 void ChunkManager::calculateDensity(const std::vector<Chunk *> &chunks) {
-  static auto stepLocation = ge::gl::glGetUniformLocation(generateDensityProgram, "step");
+  static auto stepLocation = ge::gl::glGetUniformLocation(generateDensityProgram, "chunkStep");
   static auto startLocation = ge::gl::glGetUniformLocation(generateDensityProgram, "start");
   ge::gl::glUseProgram(generateDensityProgram);
 
@@ -299,7 +299,7 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
         edgeMarkersVertexArray->bind();
         edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
         densityBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
-        ge::gl::glUniform1f(ge::gl::glGetUniformLocation(generateVerticesProgram, "step"), chunk->step);
+        ge::gl::glUniform1f(ge::gl::glGetUniformLocation(generateVerticesProgram, "chunkStep"), chunk->step);
         ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1, &chunk->startPosition[0]);
 
         auto vertexBuffer = chunk->getBuffer(Chunk::Vertex);

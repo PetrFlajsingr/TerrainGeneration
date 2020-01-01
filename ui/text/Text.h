@@ -27,19 +27,19 @@ class Text {
 
 public:
   [[nodiscard]] Font &getFont() const;
-  void setFont(Font &font);
-  void setFont(const std::string &name);
-  void setFont(const std::string &name, float size);
+  Text &setFont(Font &font);
+  Text &setFont(const std::string &name);
+  Text &setFont(const std::string &name, float size);
 
   [[nodiscard]] float getFontSize() const;
-  void setFontSize(float fontSize);
+  Text & setFontSize(float fontSize);
 
-  void setText(const WString &text);
+  Text & setText(const WString &text);
 
   const glm::vec4 &getColor() const;
-  void setColor(const glm::vec4 &color);
+  Text & setColor(const glm::vec4 &color);
   const glm::vec3 &getPosition() const;
-  void setPosition(const glm::vec3 &position);
+  Text & setPosition(const glm::vec3 &position);
 
   observable_property<WString> text;
 

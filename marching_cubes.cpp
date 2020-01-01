@@ -82,56 +82,56 @@ UI initUI(UIManager &uiManager) {
   movementSpeedSlider->setColor(Color::transparent(Color::red, 0.5f));
 
   auto chunkInfoLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1}, glm::vec3{500, 20, 0});
-  chunkInfoLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  chunkInfoLbl->text.setFont("arialbd", 10).setColor(Color::white);
 
   auto octavesLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 500, 1}, glm::vec3{70, 30, 0});
-  octavesLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Octaves:"_sw);
+  octavesLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Octaves:"_sw);
   auto gainLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 530, 1}, glm::vec3{70, 30, 0});
-  gainLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Gain:"_sw);
+  gainLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Gain:"_sw);
   auto lacunarityLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 560, 1}, glm::vec3{70, 30, 0});
-  lacunarityLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Lacunarity:"_sw);
+  lacunarityLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Lacunarity:"_sw);
   auto sharpnessLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 590, 1}, glm::vec3{70, 30, 0});
-  sharpnessLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Sharpness:"_sw);
+  sharpnessLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Sharpness:"_sw);
   auto valleyScaleLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 620, 1}, glm::vec3{70, 30, 0});
-  valleyScaleLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Valley scale:"_sw);
+  valleyScaleLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Valley scale:"_sw);
   auto heightScaleLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 650, 1}, glm::vec3{70, 30, 0});
-  heightScaleLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1}).setText(L"Height scale:"_sw);
+  heightScaleLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Height scale:"_sw);
 
   auto octavesValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 500, 1}, glm::vec3{100, 30, 0});
-  octavesValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  octavesValLbl->text.setFont("arialbd", 10).setColor(Color::white);
   auto gainValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 530, 1}, glm::vec3{100, 30, 0});
-  gainValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  gainValLbl->text.setFont("arialbd", 10).setColor(Color::white);
   auto lacunarityValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 560, 1}, glm::vec3{100, 30, 0});
-  lacunarityValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  lacunarityValLbl->text.setFont("arialbd", 10).setColor(Color::white);
   auto sharpnessValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 590, 1}, glm::vec3{100, 30, 0});
-  sharpnessValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  sharpnessValLbl->text.setFont("arialbd", 10).setColor(Color::white);
   auto valleyScaleValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 620, 1}, glm::vec3{100, 30, 0});
-  valleyScaleValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  valleyScaleValLbl->text.setFont("arialbd", 10).setColor(Color::white);
   auto heightScaleValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 650, 1}, glm::vec3{100, 30, 0});
-  heightScaleValLbl->text.setFont("arialbd", 10).setColor({1, 1, 1, 1});
+  heightScaleValLbl->text.setFont("arialbd", 10).setColor(Color::white);
 
   auto octavesSlider = uiManager.createGUIObject<Slider<unsigned int>>(glm::vec3{1520, 365 + 500, 1}, glm::vec3{315, 20, 0});
-  octavesSlider->value.subscribe_and_call(
+  octavesSlider->value.subscribe(
       [octavesValLbl](const auto &value) { octavesValLbl->text.setText(WString{std::to_wstring(value)}); });
   octavesSlider->setMin(1).setMax(10).setSliderValue(4);
   auto gainSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 530, 1}, glm::vec3{315, 20, 0});
-  gainSlider->value.subscribe_and_call(
+  gainSlider->value.subscribe(
       [gainValLbl](const auto &value) { gainValLbl->text.setText(WString{std::to_wstring(value)}); });
   gainSlider->setMin(0.1).setMax(100000).setSliderValue(30000);
   auto lacunaritySlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 560, 1}, glm::vec3{315, 20, 0});
-  lacunaritySlider->value.subscribe_and_call(
+  lacunaritySlider->value.subscribe(
       [lacunarityValLbl](const auto &value) { lacunarityValLbl->text.setText(WString{std::to_wstring(value)}); });
   lacunaritySlider->setMin(0.1).setMax(1000).setSliderValue(2);
   auto sharpnessSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 590, 1}, glm::vec3{315, 20, 0});
-  sharpnessSlider->value.subscribe_and_call(
+  sharpnessSlider->value.subscribe(
       [sharpnessValLbl](const auto &value) { sharpnessValLbl->text.setText(WString{std::to_wstring(value)}); });
   sharpnessSlider->setMin(-1).setMax(1).setSliderValue(0);
   auto valleyScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 620, 1}, glm::vec3{315, 20, 0});
-  valleyScaleSlider->value.subscribe_and_call(
+  valleyScaleSlider->value.subscribe(
       [valleyScaleValLbl](const auto &value) { valleyScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
   valleyScaleSlider->setMin(0.00001).setMax(10).setSliderValue(0);
   auto heightScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 650, 1}, glm::vec3{315, 20, 0});
-  heightScaleSlider->value.subscribe_and_call(
+  heightScaleSlider->value.subscribe(
       [heightScaleValLbl](const auto &value) { heightScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
   heightScaleSlider->setMin(0).setMax(1000).setSliderValue(1);
 

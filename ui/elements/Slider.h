@@ -7,6 +7,7 @@
 
 #include "ui/interface/MouseInteractable.h"
 #include <graphics/geGL_utils.h>
+#include <io/print.h>
 #include <ui/utils.h>
 
 namespace sdl2cpp::ui {
@@ -54,8 +55,8 @@ protected:
 private:
   T min = T{0};
   T max = T{100};
-  T sliderStep = T{1};
-  T internalValue = T{0};
+  double sliderStep = T{1};
+  double internalValue = T{0};
 
   const float margin = 0.1f;
 
@@ -73,12 +74,13 @@ template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setSliderV
   } else {
     value = sliderValue;
   }
+  internalValue = value.get();
   return *this;
 }
 
 template <typename T> T sdl2cpp::ui::Slider<T>::getMin() const { return min; }
 template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setMin(T min) {
-  Slider::sliderStep = (max - min) / 100;
+  Slider::sliderStep = (max - min) / 100.0;
   Slider::min = min;
   return *this;
 }
@@ -86,7 +88,7 @@ template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setMin(T m
 template <typename T> T sdl2cpp::ui::Slider<T>::getMax() const { return max; }
 
 template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setMax(T max) {
-  Slider::sliderStep = (max - min) / 100;
+  Slider::sliderStep = (max - min) / 100.0;
   Slider::max = max;
   return *this;
 }
@@ -101,7 +103,7 @@ template <typename T> sdl2cpp::ui::Slider<T> &sdl2cpp::ui::Slider<T>::setStep(T 
 
 template <typename T> void Slider<T>::draw(GUIRenderer &renderer) {
   const auto valueRange = max - min;
-  const auto percentage = (valueRange - value.get()) / valueRange;
+  const auto percentage = (valueRange - value.get() + min) / static_cast<double>(valueRange);
   const auto width = dimensions.get().x * (1.f - percentage);
   const auto position = this->position.get();
   const auto dimensions = this->dimensions.get();
@@ -124,16 +126,18 @@ template <typename T> void Slider<T>::onMouseDown(EventInfo info, MouseButton bu
     const auto sliderWidth = dimensions.get().x;
     const auto percentageTraveled = (point.x - position.get().x) / sliderWidth;
     const auto valueDelta = min + percentageTraveled * 100 * sliderStep;
-    setSliderValue(valueDelta);
+    internalValue = valueDelta;
+    setSliderValue(internalValue);
   }
 }
 template <typename T> void Slider<T>::onMouseUp(EventInfo info, MouseButton button, SDL_Point point) {}
 template <typename T> void Slider<T>::onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
   if (getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
     const auto sliderWidth = dimensions.get().x;
-    const auto percentageTraveled = (newPos.x - oldPos.x) / sliderWidth;
-    const auto valueDelta = percentageTraveled * 100 * sliderStep;
-    setSliderValue(value.get() + valueDelta);
+    const auto percentageTraveled = (newPos.x - position.get().x) / sliderWidth;
+    const auto valueDelta = min + percentageTraveled * 100 * sliderStep;
+    internalValue = valueDelta;
+    setSliderValue(internalValue);
   }
 }
 template <typename T> void Slider<T>::onMouseOver(EventInfo info) { setColor({0, 1, 0, 1}); }

@@ -49,24 +49,22 @@ bool ChunkUsageManager::hasAvailable() const {
   return !data.available.empty(); }
 
 Chunk *ChunkUsageManager::borrowChunk() {
-  std::unique_lock lck{mtx};
-  auto result = data.available.front();
+  auto result = *data.available.begin();
   data.used.emplace_back(result);
-  data.available.remove(result);
+  data.available.erase(data.available.begin());
+  //data.available.remove(result);
   assert(result != nullptr);
   return result;
 }
 
 Chunk *ChunkUsageManager::borrowChunk(Tile &tile) {
   auto result = borrowChunk();
-  std::unique_lock lck{mtx};
   data.chunkToTileMap[result] = &tile;
   assert(result != nullptr);
   return result;
 }
 
 void ChunkUsageManager::returnChunk(Chunk *chunk) {
-  std::unique_lock lck{mtx};
   assert(chunk != nullptr);
   data.available.emplace_back(chunk);
   data.used.remove(chunk);
@@ -74,7 +72,6 @@ void ChunkUsageManager::returnChunk(Chunk *chunk) {
 
 void ChunkUsageManager::returnTileChunk(Chunk *chunk) {
   returnChunk(chunk);
-  std::unique_lock lck{mtx};
   data.chunkToTileMap[chunk] = nullptr;
 }
 

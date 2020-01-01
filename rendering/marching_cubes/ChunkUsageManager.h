@@ -30,25 +30,15 @@ struct ChunkUsageInitData {
   float chunkStep;
 };
 
-namespace detail {
-//TODO
-struct DefaultChunkBorrowingPolicy {
+class DefaultChunkBorrowingPolicy;
 
-};
-
-struct ThreadSafeChunkBorrowingPolicy {
-
-};
-
-}
-
-//template <typename ChunkBorrowingPolicy = detail::DefaultChunkBorrowingPolicy>
+//template <typename ChunkBorrowingPolicy = DefaultChunkBorrowingPolicy>
 class ChunkUsageManager {
   // list because of frequent deletion in random places
+public:
   using ChunkPtrs = std::list<Chunk *>;
   using ChunkToTileMap = std::unordered_map<Chunk *, Tile *>;
 
-public:
   explicit ChunkUsageManager(ChunkUsageInitData initData);
 
   void newFrame(glm::vec3 cameraPosition);
@@ -96,5 +86,39 @@ private:
   void manageFilledTile(Tile &tile);
   void manageMarkedEmptyTile(Tile &tile);
 };
+
+class DefaultChunkBorrowingPolicy {
+ protected:
+  using ChunkPtrs = ChunkUsageManager::ChunkPtrs;
+  Chunk *borrowChunk(ChunkPtrs &available, ChunkPtrs &used) {
+    auto result = available.front();
+    used.emplace_back(result);
+    available.remove(result);
+    assert(result != nullptr);
+    return result;
+  }
+
+  void returnChunk(ChunkPtrs &available, ChunkPtrs &used, Chunk *chunk) {
+    assert(chunk != nullptr);
+    available.emplace_back(chunk);
+    used.remove(chunk);
+  }
+};
+
+class ThreadSafeChunkBorrowingPolicy : DefaultChunkBorrowingPolicy {
+ protected:
+  using ChunkPtrs = ChunkUsageManager::ChunkPtrs;
+  Chunk *borrowChunk(ChunkPtrs &available, ChunkPtrs &used) {
+    std::unique_lock lck{mtx};
+    return DefaultChunkBorrowingPolicy::borrowChunk(available, used);
+  }
+  void returnChunk(ChunkPtrs &available, ChunkPtrs &used, Chunk *chunk) {
+    std::unique_lock lck{mtx};
+    DefaultChunkBorrowingPolicy::returnChunk(available, used, chunk);
+  }
+ private:
+  std::mutex mtx;
+};
+
 
 #endif // TERRAINGENERATION_CHUNKUSAGEMANAGER_H

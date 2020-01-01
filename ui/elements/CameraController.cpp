@@ -13,11 +13,17 @@ sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager, Perspecti
 }
 
 void sdl2cpp::ui::CameraController::onMouseDown(EventInfo info, MouseButton button, SDL_Point position) {
-  if (button == MouseButton::Right) {
+  switch (button) {
+  case MouseButton::Left:
+    break;
+  case MouseButton::Right:
     lockedToCamera = true;
     setFocus(sdl2cpp::ui::Focus::Focused);
     enableFullControl();
     SDL_SetRelativeMouseMode(SDL_TRUE);
+    break;
+  case MouseButton::Middle:
+    break;
   }
 }
 

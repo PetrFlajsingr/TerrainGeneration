@@ -143,15 +143,16 @@ uniform float sharpness;
 uniform float valleyScale;
 uniform float heightScale;
 
+
 float nTest(vec3 x, uint numOctaves) {
     float result = 0;
     const float Ia = 1;
     const float If = 0.0000001;
     const float Ss = -1;
-    const float Se = 0;
+    const float Se = 0.1;
     const float Sh = 5;
-    float g = 10;
-    float l = 8;
+    float g = 15;
+    float l = 6;
     for (uint i = 0; i < numOctaves; ++i) {
         const float g = pow(g, i);
         const float l = pow(l, i);
@@ -178,40 +179,8 @@ float nTest(vec3 x, uint numOctaves) {
 }
 
 float calculateDensity() {
-    vec3 vertex = getPosition();
-
+    const vec3 vertex = getPosition();
     return -vertex.y + nTest(vertex, 4);
-
-   /* float result = 1;
-    if (vertex.y < 0) {
-
-    }
-    vertex.y += 5000;
-    return
-    -vertex.y + (
-    //distToSphere(vertex, vec3(0, 0, 0), 200000) + (
-    + noise(vertex/1000)*1000
-    + noise(vertex/5000)*15000
-    );*/
-
-    /*  float hard_floor_y = 10;
-      float rad = 1000;
-      return rad - length(vertex - vec3(1000, 1000, 1000)) + (
-      + noise(vertex/50)*50
-      + noise(vertex/20)*20
-      );
-
-
-      vertex /= 2;
-      //vertex.y += 10;
-      float result = -vertex.y
-      + (noise(vertex/20)*20
-      + noise(vertex/10)*10
-      + noise(vertex/40)*40
-      + noise(vertex/80)*80
-      + noise(vertex/4)*4
-      ) * 3 * ((sin(vertex.x/50) + sin(vertex.z/50)));
-      return result + clamp((hard_floor_y - vertex.y)*3, 0.0, 1.0)*40;*/
 }
 
 void main() {

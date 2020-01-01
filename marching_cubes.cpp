@@ -125,14 +125,39 @@ void main_marching_cubes(int argc, char *argv[]) {
                             {GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR},
                             {GL_TEXTURE_MAG_FILTER, GL_LINEAR},
                         }};
-  unsigned int tex2 = textureLoader.loadTexture("Grass Green Textures/GrassGreenTexture0003.jpg", texOptions);
-  unsigned int tex1 = textureLoader.loadTexture("Seamless ground rock.jpg", texOptions);
-  unsigned int tex3 = textureLoader.loadTexture("desert sand.jpg", texOptions);
+
+  struct {
+    unsigned int tex2;
+    unsigned int tex1;
+    unsigned int tex3;
+  } sandTex;
+
+  sandTex.tex2 = textureLoader.loadTexture("sand/sand_ripples.jpg", texOptions);
+  sandTex.tex1 = textureLoader.loadTexture("Seamless ground rock.jpg", texOptions);
+  sandTex.tex3 = textureLoader.loadTexture("desert sand.jpg", texOptions);
+
+  struct {
+    unsigned int tex2;
+    unsigned int tex1;
+    unsigned int tex3;
+  } grassTex;
+
+  grassTex.tex2 = textureLoader.loadTexture("Grass Green Textures/GrassGreenTexture0003.jpg", texOptions);
+  grassTex.tex1 = textureLoader.loadTexture("Seamless ground rock.jpg", texOptions);
+  grassTex.tex3 = textureLoader.loadTexture("desert sand.jpg", texOptions);
+
 
   using namespace std::chrono_literals;
   float time = 0;
 
   printT(LogLevel::Status, "All set, starting main loop");
+
+  bool useGrassTex = true;
+
+  auto texBtn = uiManager.createGUIObject<Button>(glm::vec3{550, 0, 1}, glm::vec3{100, 50, 0});
+  texBtn->setMouseClicked([&useGrassTex] {
+    useGrassTex = !useGrassTex;
+  });
 
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -160,12 +185,23 @@ void main_marching_cubes(int argc, char *argv[]) {
 
       renderProgram->use();
 
-      ge::gl::glActiveTexture(GL_TEXTURE0 + 1);
-      ge::gl::glBindTexture(GL_TEXTURE_2D, tex1);
-      ge::gl::glActiveTexture(GL_TEXTURE0 + 2);
-      ge::gl::glBindTexture(GL_TEXTURE_2D, tex2);
-      ge::gl::glActiveTexture(GL_TEXTURE0 + 3);
-      ge::gl::glBindTexture(GL_TEXTURE_2D, tex3);
+      if (useGrassTex) {
+        ge::gl::glActiveTexture(GL_TEXTURE0 + 1);
+        ge::gl::glBindTexture(GL_TEXTURE_2D, grassTex.tex1);
+        ge::gl::glActiveTexture(GL_TEXTURE0 + 2);
+        ge::gl::glBindTexture(GL_TEXTURE_2D, grassTex.tex2);
+        ge::gl::glActiveTexture(GL_TEXTURE0 + 3);
+        ge::gl::glBindTexture(GL_TEXTURE_2D, grassTex.tex3);
+      } else {
+        {
+          ge::gl::glActiveTexture(GL_TEXTURE0 + 1);
+          ge::gl::glBindTexture(GL_TEXTURE_2D, sandTex.tex1);
+          ge::gl::glActiveTexture(GL_TEXTURE0 + 2);
+          ge::gl::glBindTexture(GL_TEXTURE_2D, sandTex.tex2);
+          ge::gl::glActiveTexture(GL_TEXTURE0 + 3);
+          ge::gl::glBindTexture(GL_TEXTURE_2D, sandTex.tex3);
+        }
+      }
 
       ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusX"), 3);
       ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusY"), 2);

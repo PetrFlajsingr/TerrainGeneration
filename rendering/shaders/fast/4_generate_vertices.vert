@@ -162,15 +162,17 @@ uniform float sharpness;
 uniform float valleyScale;
 uniform float heightScale;
 
+
+
 float nTest(vec3 x, uint numOctaves) {
     float result = 0;
     const float Ia = 1;
     const float If = 0.0000001;
     const float Ss = -1;
-    const float Se = 0;
+    const float Se = 0.1;
     const float Sh = 5;
-    float g = 10;
-    float l = 8;
+    float g = 15;
+    float l = 6;
     for (uint i = 0; i < numOctaves; ++i) {
         const float g = pow(g, i);
         const float l = pow(l, i);

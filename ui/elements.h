@@ -10,5 +10,6 @@
 #include "elements/KeyAction.h"
 #include "elements/Label.h"
 #include "elements/Slider.h"
+#include "elements/Switch.h"
 
 #endif // TERRAINGENERATION_ELEMENTS_H

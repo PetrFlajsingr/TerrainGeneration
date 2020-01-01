@@ -23,139 +23,11 @@
 #include <time/FPSCounter.h>
 #include <types.h>
 #include <ui/elements/Switch.h>
+#include "MarchingCubesUI.h"
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
 
-struct UI {
-  std::shared_ptr<Button> lineFillBtn;
-  std::shared_ptr<Button> pauseMCBtn;
-  std::shared_ptr<Label> fpsLbl;
-  std::shared_ptr<Label> chunkInfoLbl;
-  std::shared_ptr<Label> speedLbl;
-  std::shared_ptr<CameraController> cameraController;
-  std::shared_ptr<Slider<float>> movementSpeedSlider;
-  std::shared_ptr<Switch> uiSwitch;
-
-  struct {
-    std::shared_ptr<Label> octavesLbl;
-    std::shared_ptr<Label> gainLbl;
-    std::shared_ptr<Label> lacunarityLbl;
-    std::shared_ptr<Label> sharpnessLbl;
-    std::shared_ptr<Label> valleyScaleLbl;
-    std::shared_ptr<Label> heightScaleLbl;
-
-    std::shared_ptr<Label> octavesValLbl;
-    std::shared_ptr<Label> gainValLbl;
-    std::shared_ptr<Label> lacunarityValLbl;
-    std::shared_ptr<Label> sharpnessValLbl;
-    std::shared_ptr<Label> valleyScaleValLbl;
-    std::shared_ptr<Label> heightScaleValLbl;
-
-    std::shared_ptr<Slider<unsigned int>> octavesSlider;
-    std::shared_ptr<Slider<float>> gainSlider;
-    std::shared_ptr<Slider<float>> lacunaritySlider;
-    std::shared_ptr<Slider<float>> sharpnessSlider;
-    std::shared_ptr<Slider<float>> valleyScaleSlider;
-    std::shared_ptr<Slider<float>> heightScaleSlider;
-  } terrain;
-};
-
-UI initUI(UIManager &uiManager) {
-  printT(LogLevel::Info, "Initialising UI");
-  auto perspective = PerspectiveProjection(0.1f, 500000.f, 1920.f / 1080, glm::degrees(60.f));
-  auto cameraController =
-      uiManager.createGUIObject<CameraController>(std::move(perspective), glm::vec3{0, 0, 0}, glm::vec3{1920, 1080, 0});
-
-  auto lineFillBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 0, 1}, glm::vec3{150, 60, 0});
-  lineFillBtn->text.setFont("arialbd", 40).setText(L"Line"_sw);
-
-  auto fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1}, glm::vec3{220, 20, 0});
-  fpsLbl->text.setFont("arialbd", 10);
-
-  auto pauseMCBtn = uiManager.createGUIObject<Button>(glm::vec3{1700, 20, 1}, glm::vec3{150, 20, 0});
-  pauseMCBtn->text.setFont("arialbd", 10).setText(L"MC on/off"_sw);
-
-  auto speedLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 620, 1}, glm::vec3{220, 50, 0});
-  speedLbl->text.setFont("arialbd", 10).setColor(Color::white);
-  auto movementSpeedSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 700, 1}, glm::vec3{200, 50, 0});
-  movementSpeedSlider->setColor(Color::transparent(Color::red, 0.5f));
-
-  auto chunkInfoLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1}, glm::vec3{500, 20, 0});
-  chunkInfoLbl->text.setFont("arialbd", 10).setColor(Color::white);
-
-  auto octavesLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 500, 1}, glm::vec3{70, 30, 0});
-  octavesLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Octaves:"_sw);
-  auto gainLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 530, 1}, glm::vec3{70, 30, 0});
-  gainLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Gain:"_sw);
-  auto lacunarityLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 560, 1}, glm::vec3{70, 30, 0});
-  lacunarityLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Lacunarity:"_sw);
-  auto sharpnessLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 590, 1}, glm::vec3{70, 30, 0});
-  sharpnessLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Sharpness:"_sw);
-  auto valleyScaleLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 620, 1}, glm::vec3{70, 30, 0});
-  valleyScaleLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Valley scale:"_sw);
-  auto heightScaleLbl = uiManager.createGUIObject<Label>(glm::vec3{1400, 350 + 650, 1}, glm::vec3{70, 30, 0});
-  heightScaleLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Height scale:"_sw);
-
-  auto octavesValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 500, 1}, glm::vec3{100, 30, 0});
-  octavesValLbl->text.setFont("arialbd", 10).setColor(Color::white);
-  auto gainValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 530, 1}, glm::vec3{100, 30, 0});
-  gainValLbl->text.setFont("arialbd", 10).setColor(Color::white);
-  auto lacunarityValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 560, 1}, glm::vec3{100, 30, 0});
-  lacunarityValLbl->text.setFont("arialbd", 10).setColor(Color::white);
-  auto sharpnessValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 590, 1}, glm::vec3{100, 30, 0});
-  sharpnessValLbl->text.setFont("arialbd", 10).setColor(Color::white);
-  auto valleyScaleValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 620, 1}, glm::vec3{100, 30, 0});
-  valleyScaleValLbl->text.setFont("arialbd", 10).setColor(Color::white);
-  auto heightScaleValLbl = uiManager.createGUIObject<Label>(glm::vec3{1840, 350 + 650, 1}, glm::vec3{100, 30, 0});
-  heightScaleValLbl->text.setFont("arialbd", 10).setColor(Color::white);
-
-  auto octavesSlider = uiManager.createGUIObject<Slider<unsigned int>>(glm::vec3{1520, 365 + 500, 1}, glm::vec3{315, 20, 0});
-  octavesSlider->value.subscribe(
-      [octavesValLbl](const auto &value) { octavesValLbl->text.setText(WString{std::to_wstring(value)}); });
-  octavesSlider->setMin(1).setMax(10).setSliderValue(4);
-  auto gainSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 530, 1}, glm::vec3{315, 20, 0});
-  gainSlider->value.subscribe(
-      [gainValLbl](const auto &value) { gainValLbl->text.setText(WString{std::to_wstring(value)}); });
-  gainSlider->setMin(0.1).setMax(100000).setSliderValue(30000);
-  auto lacunaritySlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 560, 1}, glm::vec3{315, 20, 0});
-  lacunaritySlider->value.subscribe(
-      [lacunarityValLbl](const auto &value) { lacunarityValLbl->text.setText(WString{std::to_wstring(value)}); });
-  lacunaritySlider->setMin(0.1).setMax(1000).setSliderValue(2);
-  auto sharpnessSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 590, 1}, glm::vec3{315, 20, 0});
-  sharpnessSlider->value.subscribe(
-      [sharpnessValLbl](const auto &value) { sharpnessValLbl->text.setText(WString{std::to_wstring(value)}); });
-  sharpnessSlider->setMin(-1).setMax(1).setSliderValue(0);
-  auto valleyScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 620, 1}, glm::vec3{315, 20, 0});
-  valleyScaleSlider->value.subscribe(
-      [valleyScaleValLbl](const auto &value) { valleyScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
-  valleyScaleSlider->setMin(0.00001).setMax(10).setSliderValue(0);
-  auto heightScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 650, 1}, glm::vec3{315, 20, 0});
-  heightScaleSlider->value.subscribe(
-      [heightScaleValLbl](const auto &value) { heightScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
-  heightScaleSlider->setMin(0).setMax(1000).setSliderValue(1);
-
-  auto uiSwitch = uiManager.createGUIObject<Switch>(glm::vec3{50, 800, 1}, glm::vec3{50, 50, 0}, true);
-
-  return {lineFillBtn,
-          pauseMCBtn,
-          fpsLbl,
-          chunkInfoLbl,
-          speedLbl,
-          cameraController,
-          movementSpeedSlider,
-          uiSwitch,
-          {
-              octavesLbl, gainLbl, lacunarityLbl, sharpnessLbl, valleyScaleLbl, heightScaleLbl, octavesValLbl, gainValLbl,
-              lacunarityValLbl, sharpnessValLbl, valleyScaleValLbl, heightScaleValLbl,
-              octavesSlider,
-              gainSlider,
-              lacunaritySlider,
-              sharpnessSlider,
-              valleyScaleSlider,
-              heightScaleSlider
-          }};
-}
 
 void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
 
@@ -188,7 +60,7 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
 
-  UI ui = initUI(uiManager);
+  UI ui{uiManager};
 
   auto drawMode = DrawMode::Polygon;
   ui.lineFillBtn->setMouseClicked([&drawMode, &ui](sdl2cpp::ui::EventInfo info, sdl2cpp::ui::MouseButton button, SDL_Point pos) {
@@ -227,8 +99,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   chunks.smProgram = renderProgram;
 
   bool showTextures = false;
-  auto textureBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 100, 1}, glm::vec3{250, 100, 0});
-  textureBtn->setMouseClicked([&showTextures] { showTextures = !showTextures; });
+  ui.shadowMapsBtn->setMouseClicked([&showTextures] { showTextures = !showTextures; });
 
   bool pauseMC = false;
   ui.pauseMCBtn->setMouseClicked([&pauseMC] { pauseMC = !pauseMC; });
@@ -242,25 +113,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   envRenderer.setCloudRelativePosition(20000);
   envRenderer.setWaterLevel(8500);
 
-  ui.uiSwitch->isOn.subscribe_and_call([&ui](const auto &value) {
-    if (!value) {
-      ui.lineFillBtn->setVisibility(Visibility::Invisible);
-      ui.pauseMCBtn->setVisibility(Visibility::Invisible);
-      ui.fpsLbl->setVisibility(Visibility::Invisible);
-      ui.chunkInfoLbl->setVisibility(Visibility::Invisible);
-      ui.speedLbl->setVisibility(Visibility::Invisible);
-      ui.cameraController->setVisibility(Visibility::Invisible);
-      ui.movementSpeedSlider->setVisibility(Visibility::Invisible);
-    } else {
-      ui.lineFillBtn->setVisibility(Visibility::Visible);
-      ui.pauseMCBtn->setVisibility(Visibility::Visible);
-      ui.fpsLbl->setVisibility(Visibility::Visible);
-      ui.chunkInfoLbl->setVisibility(Visibility::Visible);
-      ui.speedLbl->setVisibility(Visibility::Visible);
-      ui.cameraController->setVisibility(Visibility::Visible);
-      ui.movementSpeedSlider->setVisibility(Visibility::Visible);
-    }
-  });
+  ui.uiSwitch->isOn.subscribe_and_call([&ui](const auto &value) { ui.setVisible(value); });
 
   FileTextureLoader textureLoader{assetPath};
   TexOptions texOptions{GL_TEXTURE_2D,

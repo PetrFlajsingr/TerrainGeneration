@@ -59,9 +59,7 @@ public:
   explicit ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, JsonConfig<true> config);
 
   void generateChunks();
-
   void draw(DrawMode mode, DrawOptions = {false, false, 0});
-
   void drawToShadowMap(const geo::BoundingBox<3> &aabb);
 
 private:

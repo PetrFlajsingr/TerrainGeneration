@@ -350,7 +350,8 @@ std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 
           start + startPosition +
           stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
-      loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
+      const auto boundingSphereRadius = glm::sqrt(glm::pow(stepForLevel * 14.f + stepForLevel / 2.f, 2.f) * 3.f);
+      loddata.boundingSphere = geo::BoundingSphere<3>{ctr, boundingSphereRadius};
       loddata.index = perLevelCnt;
       loddata.isDivided = false;
       ++perLevelCnt;

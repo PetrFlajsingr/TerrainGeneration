@@ -92,7 +92,7 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   auto renderProgram = std::make_shared<ge::gl::Program>("shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
-  CascadedShadowMap cascadedShadowMap{4, 1024};
+  CascadedShadowMap cascadedShadowMap{4, 4096};
   cascadedShadowMap.setLightDir({0.9, -0.9, 0});
 
   chunks.smProgram = renderProgram;
@@ -182,7 +182,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     updateFPSLabel(ui, fpsCounter);
 
     if (!pauseMC) {
-      chunks.generateChunks();
+        chunks.generateChunks();
     }
     chunks.render = false;
     auto renderFnc = [&ui, &chunks, &modelRenderer](const auto &program, const auto &aabb) {

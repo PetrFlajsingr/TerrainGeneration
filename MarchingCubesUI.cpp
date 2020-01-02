@@ -14,7 +14,7 @@ UI::UI(UIManager &uiManager) {
   lineFillBtn->text.setFont("arialbd", 40).setText(L"Line"_sw);
 
   shadowMapsBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 60, 1}, glm::vec3{160, 60, 0});
-  shadowMapsBtn->text.setFont("arialbd", 20).setText(L"shad. maps"_sw);
+  shadowMapsBtn->text.setFont("arialbd", 15).setText(L"shad. maps"_sw);
 
   fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1}, glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);

@@ -34,8 +34,8 @@ class DefaultChunkBorrowingPolicy;
 
 // template <typename ChunkBorrowingPolicy = DefaultChunkBorrowingPolicy>
 class ChunkUsageManager {
-  // list because of frequent deletion in random places
 public:
+  // list because of frequent deletion in random places
   using ChunkPtrs = std::list<Chunk *>;
   using ChunkToTileMap = std::unordered_map<Chunk *, Tile *>;
 

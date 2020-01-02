@@ -117,7 +117,7 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
     const auto dir = lodData->getDir(position, data);
     if (lodData->isCurrent) {
       if (dir == LODDir::Current) {
-        if (lodData->chunk == nullptr) {
+        if (lodData->chunk == nullptr && chunkUsageManager.hasAvailable()) {
           lodData->chunk = chunkUsageManager.borrowChunk(tile);
         }
         return false;
@@ -145,6 +145,9 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
       const bool wasDivided = lodData->isDivided;
       lodData->isCurrent = true;
       lodData->isDivided = false;
+      if (!chunkUsageManager.hasAvailable()) {
+        return wasDivided;
+      }
       lodData->chunk = chunkUsageManager.borrowChunk(tile);
       lodData->chunk->setComputed(false);
       const auto chunkStep = data.steps[lodData->level];

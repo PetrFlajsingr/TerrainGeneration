@@ -65,7 +65,6 @@ void Surroundings::checkDistances(glm::vec3 position) {
     }});
     syncFuture.wait();*/
 
-  auto &used = chunkUsageManager.getUsedChunks();
   auto chunkUsageInfo = chunkUsageManager.getInfo();
   auto &counters = chunkUsageManager.getCounters();
 
@@ -275,11 +274,10 @@ void Surroundings::invalidate() {
   for (auto &map : maps) {
     const auto chunksForRecycle = map.restartChunks();
     for (auto chunk : chunksForRecycle) {
-      chunk->setComputed(false);
       chunkUsageManager.returnTileChunk(chunk);
     }
   }
-  lastCameraPosition = glm::vec3{std::numeric_limits<float>::infinity()};
+  lastCameraPosition += 0.01f;
 }
 
 bool Map::isInRange(glm::vec3 cameraPosition, float range) { return boundingSphere.distance(cameraPosition) <= range; }
@@ -315,10 +313,12 @@ void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float ste
       }
       const auto st =
           start + startPosition +
-          stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
+              stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
-      loddata.boundingSphere = geo::BoundingSphere<3>{ctr, glm::distance(st, ctr)};
+      const auto boundingSphereRadius = glm::sqrt(glm::pow(stepForLevel * 14.f + stepForLevel / 2.f, 2.f) * 3.f);
+      loddata.boundingSphere = geo::BoundingSphere<3>{ctr, boundingSphereRadius};
       loddata.index = perLevelCnt;
+      loddata.isDivided = false;
       ++perLevelCnt;
     });
   }
@@ -375,18 +375,17 @@ std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 
 std::vector<Chunk *> Map::restartChunks() {
   using namespace MakeRange;
   std::vector<Chunk *> result;
-  for (auto i : range(tiles.size())) {
-    tiles[i].lod.tree.traverseDepthFirstIf([&result](LODTreeData &loddata) {
-      if (loddata.chunk != nullptr) {
-        result.emplace_back(loddata.chunk);
-        loddata.chunk = nullptr;
-        loddata.isCurrent = false;
+  for (auto tile : tiles) {
+    tile.lod.tree.traverseDepthFirstIfNode([&result](Leaf<LODTreeData, 8> &loddata) {
+      if (loddata->chunk != nullptr) {
+        result.emplace_back(loddata->chunk);
+        loddata->chunk = nullptr;
       }
-      const auto wasDivided = loddata.isDivided;
-      loddata.isDivided = false;
-      return wasDivided;
+      loddata->isCurrent = false;
+      loddata->isDivided = false;
+      return true;
     });
-    tiles[i].state = ChunkState::NotLoaded;
+    tile.state = ChunkState::NotLoaded;
   }
   return result;
 }

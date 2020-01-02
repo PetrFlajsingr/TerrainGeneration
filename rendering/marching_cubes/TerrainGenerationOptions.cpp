@@ -3,6 +3,8 @@
 //
 
 #include <random>
+
+#include <geGL/StaticCalls.h>
 #include "TerrainGenerationOptions.h"
 
 TerrainGenerationOptions::TerrainGenerationOptions(unsigned int octaves, float gain, float lacunarity, float sharpness,
@@ -69,4 +71,13 @@ void TerrainGenerationOptions::randomize() {
     std::uniform_real_distribution<> dist(-1, 1);
     sharpness = dist(rng);
   }
+}
+
+void TerrainGenerationOptions::setUniforms(GLuint program) {
+  ge::gl::glUniform1ui(ge::gl::glGetUniformLocation(program, "octaves"), octaves);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "gain"), gain);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "lacunarity"), lacunarity);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "sharpness"), sharpness);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "valleyScale"), valleyScale);
+  ge::gl::glUniform1f(ge::gl::glGetUniformLocation(program, "heightScale"), heightScale);
 }

@@ -5,7 +5,6 @@
 #ifndef TERRAINGENERATION_TERRAINGENERATIONOPTIONS_H
 #define TERRAINGENERATION_TERRAINGENERATIONOPTIONS_H
 
-
 class TerrainGenerationOptions {
 public:
   TerrainGenerationOptions() = default;
@@ -23,6 +22,8 @@ public:
   TerrainGenerationOptions & setValleyScale(float valleyScale);
   [[nodiscard]] float getHeightScale() const;
   TerrainGenerationOptions & setHeightScale(float heightScale);
+
+  void setUniforms(GLuint program);
 
   void randomize();
 

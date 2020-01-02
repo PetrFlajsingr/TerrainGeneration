@@ -21,7 +21,7 @@ public:
 
 private:
   int sparsePageSize;
-  std::pair<int, int> alignToPageSize(int offset, int size, bool alignOffsetUp, bool alignSizeDown);
+  std::pair<int, int> alignToPageSize(int offset, int size, bool alignOffsetUp);
 };
 
 #endif // TERRAINGENERATION_SPARSEBUFFER_H

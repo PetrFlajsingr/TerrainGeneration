@@ -43,10 +43,10 @@ void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDblClicked(const SDL_Even
   SDL_Point position = positionFromEvent(event);
   onMouseDblClicked(EventInfo{*this, Event::Type::MouseDblClicked}, button, position);
 }
-void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOver(const SDL_Event &event) {
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOver([[maybe_unused]] const SDL_Event &event) {
   onMouseOver(EventInfo{*this, Event::Type::MouseOver});
 }
-void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOut(const SDL_Event &event) {
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOut([[maybe_unused]] const SDL_Event &event) {
   buttonStates[static_cast<int>(MouseButton::Left)] = MouseButtonState::Released;
   buttonStates[static_cast<int>(MouseButton::Middle)] = MouseButtonState::Released;
   buttonStates[static_cast<int>(MouseButton::Right)] = MouseButtonState::Released;

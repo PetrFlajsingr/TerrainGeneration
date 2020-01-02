@@ -18,7 +18,7 @@ Chunk::Chunk(glm::vec3 startPosition, float step, uint size)
   drawVertexArray->addElementBuffer(indexBuffer);
 }
 
-const Chunk::VertexArray & Chunk::getVA() { return drawVertexArray; }
+const Chunk::VertexArray &Chunk::getVA() { return drawVertexArray; }
 
 geo::BoundingBox<3> Chunk::calcAABB() {
   geo::BoundingBox<3> result;

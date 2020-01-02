@@ -29,7 +29,7 @@ Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chu
   }
 }
 
-//ThreadPool tPool{4};
+// ThreadPool tPool{4};
 void Surroundings::checkDistances(glm::vec3 position) {
   if (chunkUsageManager.getCounters().setupCount < 100 && position == lastCameraPosition) {
     return;
@@ -41,17 +41,16 @@ void Surroundings::checkDistances(glm::vec3 position) {
   }
   unused.clear();
 
-
   chunkUsageManager.newFrame(position);
   for (auto &map : maps) {
-  /*  if (!map.isInRange(position, loadDistance)) {
-      continue;
-    }
-    tPool.push(std::packaged_task<void()>{[&map, this] {
-      for (auto &tile : map.tiles) {
-        chunkUsageManager.manageTile(tile);
+    /*  if (!map.isInRange(position, loadDistance)) {
+        continue;
       }
-    }});*/
+      tPool.push(std::packaged_task<void()>{[&map, this] {
+        for (auto &tile : map.tiles) {
+          chunkUsageManager.manageTile(tile);
+        }
+      }});*/
 
     if (!map.isInRange(position, loadDistance)) {
       continue;
@@ -59,14 +58,12 @@ void Surroundings::checkDistances(glm::vec3 position) {
     for (auto &tile : map.tiles) {
       chunkUsageManager.manageTile(tile);
     }
-
   }
 
-
-/*  auto syncFuture = tPool.push(std::packaged_task<void()>{[] {
-    return 0;
-  }});
-  syncFuture.wait();*/
+  /*  auto syncFuture = tPool.push(std::packaged_task<void()>{[] {
+      return 0;
+    }});
+    syncFuture.wait();*/
 
   auto &used = chunkUsageManager.getUsedChunks();
   auto chunkUsageInfo = chunkUsageManager.getInfo();

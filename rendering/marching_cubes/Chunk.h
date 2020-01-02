@@ -34,7 +34,6 @@ public:
   geo::BoundingBox<3> boundingBox;
   geo::BoundingSphere<3> boundingSphere;
 
-
   [[nodiscard]] const SBuffer &getDensityBuffer() const;
   [[nodiscard]] const SBuffer &getVertexBuffer() const;
   [[nodiscard]] const SBuffer &getNormalBuffer() const;

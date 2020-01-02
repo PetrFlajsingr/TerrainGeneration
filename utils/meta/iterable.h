@@ -14,4 +14,5 @@ struct is_iterable<T, std::void_t<decltype(std::begin(std::declval<T>())), declt
 
 template <typename T> constexpr bool is_iterable_v = is_iterable<T>::value;
 
+template <typename T> concept Iterable = is_duration_v<T>;
 #endif // UTILITIES_ITERABLE_H

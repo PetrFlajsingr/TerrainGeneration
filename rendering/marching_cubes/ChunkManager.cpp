@@ -383,9 +383,8 @@ void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
   std::vector<Chunk *> visibleChunks;
   visibleChunks.reserve(surr.getUsedChunks().size() / 4);
   for (auto &chunk : surr.getUsedChunks()) {
-    //if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance
-    if (aabb.contains(chunk->boundingBox) != geo::RelativePosition::Outside
-    && chunk->indexCount != 0) {
+    // if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance
+    if (aabb.contains(chunk->boundingBox) != geo::RelativePosition::Outside && chunk->indexCount != 0) {
       visibleChunks.emplace_back(chunk);
     }
   }

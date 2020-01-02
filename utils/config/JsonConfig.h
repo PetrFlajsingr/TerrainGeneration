@@ -38,7 +38,7 @@ template <typename T, typename... Keys> void setJsonNode(nlohmann::json &contain
   for (unsigned int i : range(0, tmpKeys.size() - 1)) {
     if (std::find(tmp.items().begin(), tmp.items().end(), tmpKeys[i]) != tmp.items().end()) {
       tmp = tmp[tmpKeys[i]];
-    }else {
+    } else {
       tmp[tmpKeys[i]] = nlohmann::json::object();
     }
   }

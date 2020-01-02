@@ -26,8 +26,8 @@ void EnvironmentRenderer::render(sdl2cpp::ui::CameraController &cameraController
 
   glm::mat4 projection = cameraController.camera.projection.matrix;
   cloudModel->setPosition(cameraController.getPosition() + glm::vec3{0, cloudRelativePosition, 0});
-  const glm::vec3 waterPos {waterModel->getPosition().x, waterLevel, waterModel->getPosition().z};
-    waterModel->setPosition(waterPos);
+  const glm::vec3 waterPos{waterModel->getPosition().x, waterLevel, waterModel->getPosition().z};
+  waterModel->setPosition(waterPos);
   cloudProgram->use();
 
   cloudProgram->setMatrix4fv("model", glm::value_ptr(cloudModel->modelMatrix.getRef()));

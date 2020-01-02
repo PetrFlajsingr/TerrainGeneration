@@ -30,6 +30,7 @@ public:
   explicit FileTextureLoader(std::string assetsPath);
 
   [[nodiscard]] GLuint loadTexture(const std::string &name, const TexOptions &texOptions);
+
 private:
   std::string assetsPath;
 };

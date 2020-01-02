@@ -10,11 +10,7 @@ GLuint FileTextureLoader::loadTexture(const std::string &name, const TexOptions 
   loc_assert(isIn(texOptions.internalFormat, {GL_RGB, GL_RGBA}));
   int desiredFormat = texOptions.internalFormat == GL_RGBA ? STBI_rgb_alpha : STBI_rgb;
   int width, height, channels;
-  unsigned char *image1 = stbi_load((assetsPath + name).c_str(),
-                                    &width,
-                                    &height,
-                                    &channels,
-                                    desiredFormat);
+  unsigned char *image1 = stbi_load((assetsPath + name).c_str(), &width, &height, &channels, desiredFormat);
 
   GLuint result;
   ge::gl::glGenTextures(1, &result);
@@ -22,7 +18,8 @@ GLuint FileTextureLoader::loadTexture(const std::string &name, const TexOptions 
   for (const auto &parI : texOptions.parI) {
     ge::gl::glTexParameteri(texOptions.target, parI.pName, parI.param);
   }
-  ge::gl::glTexImage2D(texOptions.target, 0, texOptions.internalFormat, width, height, 0, texOptions.internalFormat, GL_UNSIGNED_BYTE, image1);
+  ge::gl::glTexImage2D(texOptions.target, 0, texOptions.internalFormat, width, height, 0, texOptions.internalFormat,
+                       GL_UNSIGNED_BYTE, image1);
   if (texOptions.useMipMaps) {
     ge::gl::glGenerateMipmap(GL_TEXTURE_2D);
   }

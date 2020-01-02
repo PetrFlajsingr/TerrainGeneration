@@ -15,4 +15,5 @@ template <typename T> constexpr bool is_vec_specialisation_v = is_vec_specializa
                                                                is_vec_specialization<std::decay_t<T>, glm::tvec3>::value ||
                                                                is_vec_specialization<std::decay_t<T>, glm::tvec2>::value;
 
+template <typename T> concept VecSpecilisation = is_vec_specialisation_v<T>;
 #endif // UTILITIES_GLM_H

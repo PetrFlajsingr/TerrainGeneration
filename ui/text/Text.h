@@ -32,14 +32,14 @@ public:
   Text &setFont(const std::string &name, float size);
 
   [[nodiscard]] float getFontSize() const;
-  Text & setFontSize(float fontSize);
+  Text &setFontSize(float fontSize);
 
-  Text & setText(const WString &text);
+  Text &setText(const WString &text);
 
   const glm::vec4 &getColor() const;
-  Text & setColor(const glm::vec4 &color);
+  Text &setColor(const glm::vec4 &color);
   const glm::vec3 &getPosition() const;
-  Text & setPosition(const glm::vec3 &position);
+  Text &setPosition(const glm::vec3 &position);
 
   observable_property<WString> text;
 

@@ -18,6 +18,7 @@ public:
   void pageCommitment(GLbitfield offset, GLbitfield size, bool commit, bool alignOffsetUp = false, bool alignSizeDown = false);
 
   void pageCommitment(bool commit);
+
 private:
   int sparsePageSize;
   std::pair<int, int> alignToPageSize(int offset, int size, bool alignOffsetUp, bool alignSizeDown);

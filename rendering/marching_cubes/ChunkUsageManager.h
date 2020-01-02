@@ -32,7 +32,7 @@ struct ChunkUsageInitData {
 
 class DefaultChunkBorrowingPolicy;
 
-//template <typename ChunkBorrowingPolicy = DefaultChunkBorrowingPolicy>
+// template <typename ChunkBorrowingPolicy = DefaultChunkBorrowingPolicy>
 class ChunkUsageManager {
   // list because of frequent deletion in random places
 public:
@@ -88,7 +88,7 @@ private:
 };
 
 class DefaultChunkBorrowingPolicy {
- protected:
+protected:
   using ChunkPtrs = ChunkUsageManager::ChunkPtrs;
   Chunk *borrowChunk(ChunkPtrs &available, ChunkPtrs &used) {
     auto result = available.front();
@@ -106,7 +106,7 @@ class DefaultChunkBorrowingPolicy {
 };
 
 class ThreadSafeChunkBorrowingPolicy : DefaultChunkBorrowingPolicy {
- protected:
+protected:
   using ChunkPtrs = ChunkUsageManager::ChunkPtrs;
   Chunk *borrowChunk(ChunkPtrs &available, ChunkPtrs &used) {
     std::unique_lock lck{mtx};
@@ -116,9 +116,9 @@ class ThreadSafeChunkBorrowingPolicy : DefaultChunkBorrowingPolicy {
     std::unique_lock lck{mtx};
     DefaultChunkBorrowingPolicy::returnChunk(available, used, chunk);
   }
- private:
+
+private:
   std::mutex mtx;
 };
-
 
 #endif // TERRAINGENERATION_CHUNKUSAGEMANAGER_H

@@ -40,6 +40,4 @@ std::pair<int, int> SparseBuffer::alignToPageSize(int offset, int size, bool ali
   const auto alignedSize = size + (sparsePageSize - size % sparsePageSize);
   return {alignedOffset, alignedSize};
 }
-void SparseBuffer::pageCommitment(bool commit) {
-  pageCommitment(0, getSize(), commit);
-}
+void SparseBuffer::pageCommitment(bool commit) { pageCommitment(0, getSize(), commit); }

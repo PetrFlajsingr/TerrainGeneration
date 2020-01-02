@@ -21,10 +21,13 @@ template <unsigned int Count> static constexpr bool is_binary_tree = Count == 2;
 template <unsigned int Count> using enabled_for_binary = std::enable_if_t<is_binary_tree<Count>>;
 template <typename T, unsigned int ChildCount, typename F> void traverseDepthFirstImpl(Leaf<T, ChildCount> *node, F &callable);
 template <typename T, unsigned int ChildCount, typename F> void traverseDepthFirstIfImpl(Leaf<T, ChildCount> *node, F &callable);
-template <typename T, unsigned int ChildCount, typename F> void traverseDepthFirstNodeImpl(Leaf<T, ChildCount> *node, F &callable);
-template <typename T, unsigned int ChildCount, typename F> void traverseDepthFirstIfNodeImpl(Leaf<T, ChildCount> *node, F &callable);
+template <typename T, unsigned int ChildCount, typename F>
+void traverseDepthFirstNodeImpl(Leaf<T, ChildCount> *node, F &callable);
+template <typename T, unsigned int ChildCount, typename F>
+void traverseDepthFirstIfNodeImpl(Leaf<T, ChildCount> *node, F &callable);
 template <typename T, unsigned int ChildCount, typename F> void traverseBreadthFirstImpl(Leaf<T, ChildCount> *node, F &callable);
-template <typename T, unsigned int ChildCount, typename F> void traverseBreadthFirstNodeImpl(Leaf<T, ChildCount> *node, F &callable);
+template <typename T, unsigned int ChildCount, typename F>
+void traverseBreadthFirstNodeImpl(Leaf<T, ChildCount> *node, F &callable);
 template <typename T, typename F> void preorderImpl(Leaf<T, 2> *node, F &&callable);
 template <typename T, typename F> void inorderImpl(Leaf<T, 2> *node, F &&callable);
 template <typename T, typename F> void postorderImpl(Leaf<T, 2> *node, F &&callable);
@@ -33,6 +36,7 @@ template <typename T, typename F> void postorderImpl(Leaf<T, 2> *node, F &&calla
 template <typename T, unsigned int ChildCount> class Leaf {
   friend class Node<T, ChildCount>;
   friend class Tree<T, ChildCount>;
+
 public:
   using value_type = T;
   using pointer_type = T *;
@@ -109,7 +113,7 @@ public:
   /**
    * Undefined behavior if the node has no parent.
    */
-  [[nodiscard]]Node<T, ChildCount> &getParent();
+  [[nodiscard]] Node<T, ChildCount> &getParent();
   [[nodiscard]] bool isRoot() const;
 
   Node<T, ChildCount> &asNode();

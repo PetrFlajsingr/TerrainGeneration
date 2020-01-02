@@ -64,29 +64,24 @@ template <typename T, unsigned int ChildCount> Tree<T, ChildCount>::Tree(const T
     setParent(nullptr, root.get());
   }
 
- /* std::vector<Leaf<T, ChildCount>*> parentPtrs;
-  std::size_t levelSize = 1;
-  std::size_t previousLevelSize = 0;
-  std::size_t previousLevelsSize = 0;
-  std::size_t currentIndex = 0;
-  root->traverseBreadthFirstNode([this, &parentPtrs, &levelSize, &previousLevelsSize, &previousLevelSize, &currentIndex] (Leaf<T, ChildCount> &node) {
-    parentPtrs.emplace_back(&node);
-    if (currentIndex == 0) {
-      node.parent = nullptr;
-    } else {
-      const auto indexInLevel = currentIndex - previousLevelsSize;
-      const auto parentIndexInLevel = indexInLevel / ChildCount;
-      const auto previousLevelStartIndex = previousLevelsSize - previousLevelSize;
-      const auto parentIndex = previousLevelStartIndex + parentIndexInLevel;
-      node.parent = reinterpret_cast<Node<T, ChildCount>*>(parentPtrs[parentIndex]);
-    }
-    if (currentIndex == previousLevelsSize + levelSize) {
-      previousLevelSize = levelSize;
-      previousLevelsSize += levelSize;
-      levelSize *= ChildCount;
-    }
-    ++currentIndex;
-  });*/
+  /* std::vector<Leaf<T, ChildCount>*> parentPtrs;
+   std::size_t levelSize = 1;
+   std::size_t previousLevelSize = 0;
+   std::size_t previousLevelsSize = 0;
+   std::size_t currentIndex = 0;
+   root->traverseBreadthFirstNode([this, &parentPtrs, &levelSize, &previousLevelsSize, &previousLevelSize, &currentIndex] (Leaf<T,
+   ChildCount> &node) { parentPtrs.emplace_back(&node); if (currentIndex == 0) { node.parent = nullptr; } else { const auto
+   indexInLevel = currentIndex - previousLevelsSize; const auto parentIndexInLevel = indexInLevel / ChildCount; const auto
+   previousLevelStartIndex = previousLevelsSize - previousLevelSize; const auto parentIndex = previousLevelStartIndex +
+   parentIndexInLevel; node.parent = reinterpret_cast<Node<T, ChildCount>*>(parentPtrs[parentIndex]);
+     }
+     if (currentIndex == previousLevelsSize + levelSize) {
+       previousLevelSize = levelSize;
+       previousLevelsSize += levelSize;
+       levelSize *= ChildCount;
+     }
+     ++currentIndex;
+   });*/
 }
 template <typename T, unsigned int ChildCount> Tree<T, ChildCount> &Tree<T, ChildCount>::operator=(const Tree &other) {
   if (&other == this) {

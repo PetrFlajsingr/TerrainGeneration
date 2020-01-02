@@ -60,7 +60,6 @@ template <typename T> constexpr bool is_stream_v = is_one_of_v<T, out, err>;
 
 template <typename OutStream> class Logger {
 private:
-
   /**
    *
    * @return Current time as HH-MM-SS

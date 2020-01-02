@@ -4,6 +4,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "marching_cubes.h"
 #include "Camera.h"
+#include "MarchingCubesUI.h"
 #include "rendering/Data.h"
 #include "rendering/shadow_maps/CascadedShadowMap.h"
 #include "rendering/textures/DrawTexture.h"
@@ -23,11 +24,9 @@
 #include <time/FPSCounter.h>
 #include <types.h>
 #include <ui/elements/Switch.h>
-#include "MarchingCubesUI.h"
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
-
 
 void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
 
@@ -146,7 +145,6 @@ void main_marching_cubes(int argc, char *argv[]) {
   grassTex.tex1 = textureLoader.loadTexture("Seamless ground rock.jpg", texOptions);
   grassTex.tex3 = textureLoader.loadTexture("desert sand.jpg", texOptions);
 
-
   using namespace std::chrono_literals;
   float time = 0;
 
@@ -155,9 +153,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   bool useGrassTex = true;
 
   auto texBtn = uiManager.createGUIObject<Button>(glm::vec3{550, 0, 1}, glm::vec3{100, 50, 0});
-  texBtn->setMouseClicked([&useGrassTex] {
-    useGrassTex = !useGrassTex;
-  });
+  texBtn->setMouseClicked([&useGrassTex] { useGrassTex = !useGrassTex; });
 
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

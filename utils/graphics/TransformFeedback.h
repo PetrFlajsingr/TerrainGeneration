@@ -7,6 +7,7 @@
 
 #include <geGL/Buffer.h>
 #include <geGL/OpenGLObject.h>
+#include <meta/geGL.h>
 #include <utility>
 #include <vector>
 
@@ -18,11 +19,11 @@ public:
 
   void changeBuffer(uint index, Buffer buffer);
 
-  template <typename... Buffers> void setBuffers(const Buffers &... buffers) {
-    //this->buffers = std::vector<Buffer>{buffers...};
+  // zabije gcc:
+  // template <geGLBufferShared... Buffers> void setBuffers(Buffers &... buffers) {
+  template <typename... Buffers> void setBuffers(Buffers &... buffers) {
     getContext().glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedbackHandle);
     uint idx = 0;
-    //for (auto &buffer : this->buffers) {
     for (auto &buffer : {buffers...}) {
       getContext().glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, idx, buffer->getId());
       ++idx;
@@ -31,12 +32,7 @@ public:
   }
 
   void begin(GLenum primitiveType);
-
   void end();
-
-  ge::gl::Buffer *getBuffer(uint index);
-
-  [[nodiscard]] uint bufferCount() const;
 
 private:
   GLuint feedbackHandle;

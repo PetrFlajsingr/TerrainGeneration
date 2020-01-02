@@ -10,6 +10,7 @@
 #include "SurroundingsEnums.h"
 #include "rendering/marching_cubes/Chunk.h"
 #include "utils/containers/Tree.h"
+#include "utils/parallel/ThreadPool.h"
 #include "utils/various/isin.h"
 #include <String.h>
 #include <glm/glm.hpp>
@@ -19,7 +20,6 @@
 #include <types/Range.h>
 #include <unordered_map>
 #include <vector>
-#include "utils/parallel/ThreadPool.h"
 
 class ChunkUsageManager;
 
@@ -58,16 +58,14 @@ public:
 
   void setFilled(Chunk *chunk);
 
-  const std::list<Chunk *> &getUsedChunks() const {
-    return chunkUsageManager.getUsedChunks();
-  }
+  const std::list<Chunk *> &getUsedChunks() const { return chunkUsageManager.getUsedChunks(); }
 
   const float loadDistance;
   const glm::uvec3 size;
   const float step;
 
 private:
-  glm::vec3 lastCameraPosition {std::numeric_limits<float>::infinity()};
+  glm::vec3 lastCameraPosition{std::numeric_limits<float>::infinity()};
   ChunkUsageManager chunkUsageManager;
   LODData lodData;
   std::array<Map, 27> maps;

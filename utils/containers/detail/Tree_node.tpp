@@ -42,8 +42,7 @@ template <typename T, unsigned int ChildCount> template <typename F, unsigned in
 void Leaf<T, ChildCount>::postorder(F &&callable) {
   detail::preorderImpl(this, callable);
 }
-template <typename T, unsigned int ChildCount> Node<T, ChildCount>
-    &Leaf<T, ChildCount>::getParent() { return *parent; }
+template <typename T, unsigned int ChildCount> Node<T, ChildCount> &Leaf<T, ChildCount>::getParent() { return *parent; }
 template <typename T, unsigned int ChildCount> Node<T, ChildCount> &Leaf<T, ChildCount>::asNode() {
   assert(getType() == NodeType::Node);
   return reinterpret_cast<Node<T, ChildCount> &>(*this);
@@ -52,9 +51,7 @@ template <typename T, unsigned int ChildCount> template <typename F>
 void Leaf<T, ChildCount>::traverseDepthFirstIfNode(F &&callable) {
   detail::traverseDepthFirstIfNodeImpl(this, callable);
 }
-template <typename T, unsigned int ChildCount> bool Leaf<T, ChildCount>::isRoot() const {
-  return parent == nullptr;
-}
+template <typename T, unsigned int ChildCount> bool Leaf<T, ChildCount>::isRoot() const { return parent == nullptr; }
 template <typename T, unsigned int ChildCount> template <typename F>
 void Leaf<T, ChildCount>::traverseBreadthFirstNode(F &&callable) {
   detail::traverseBreadthFirstNodeImpl(this, callable);

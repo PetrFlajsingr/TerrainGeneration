@@ -45,14 +45,13 @@ void ChunkUsageManager::manageTile(Tile &tile) {
   }
 }
 
-bool ChunkUsageManager::hasAvailable() const {
-  return !data.available.empty(); }
+bool ChunkUsageManager::hasAvailable() const { return !data.available.empty(); }
 
 Chunk *ChunkUsageManager::borrowChunk() {
   auto result = *data.available.begin();
   data.used.emplace_back(result);
   data.available.erase(data.available.begin());
-  //data.available.remove(result);
+  // data.available.remove(result);
   assert(result != nullptr);
   return result;
 }

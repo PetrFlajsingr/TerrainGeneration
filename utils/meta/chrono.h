@@ -10,20 +10,21 @@
 
 template <typename T> static inline constexpr bool is_duration_v = is_specialization<T, std::chrono::duration>::value;
 
-template <typename Duration> constexpr auto durationToString() {
+template <typename T> concept Duration = is_duration_v<T>;
+
+template <Duration Dur> constexpr auto durationToString() {
   using namespace std::chrono;
-  static_assert(is_duration_v<Duration>);
-  if constexpr (std::is_same_v<Duration, nanoseconds>) {
+  if constexpr (std::is_same_v<Dur, nanoseconds>) {
     return "ns";
-  } else if constexpr (std::is_same_v<Duration, microseconds>) {
+  } else if constexpr (std::is_same_v<Dur, microseconds>) {
     return "us";
-  } else if constexpr (std::is_same_v<Duration, milliseconds>) {
+  } else if constexpr (std::is_same_v<Dur, milliseconds>) {
     return "ms";
-  } else if constexpr (std::is_same_v<Duration, seconds>) {
+  } else if constexpr (std::is_same_v<Dur, seconds>) {
     return "s";
-  } else if constexpr (std::is_same_v<Duration, minutes>) {
+  } else if constexpr (std::is_same_v<Dur, minutes>) {
     return "m";
-  } else if constexpr (std::is_same_v<Duration, hours>) {
+  } else if constexpr (std::is_same_v<Dur, hours>) {
     return "h";
   }
   return "";

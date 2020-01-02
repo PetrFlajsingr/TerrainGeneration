@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "Surroundings.h"
+#include "TerrainGenerationOptions.h"
 #include "rendering/Data.h"
 #include "rendering/Light.h"
 #include "types.h"
@@ -62,6 +63,7 @@ public:
   void drawToShadowMap(const geo::BoundingBox<3> &aabb);
 
 private:
+  TerrainGenerationOptions generationOptions;
   JsonConfig<true> config;
   void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection);
   void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);

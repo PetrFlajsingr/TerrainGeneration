@@ -31,7 +31,7 @@ private:
   unsigned int octaves = 4;
   float gain = 15;
   float lacunarity = 6;
-  float sharpness = 0;
+  float sharpness = 0.000001;
   float valleyScale = 0.1;
   float heightScale = 5;
 };

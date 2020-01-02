@@ -258,7 +258,7 @@ void ChunkManager::calculateDensity(const std::vector<Chunk *> &chunks) {
   static auto stepLocation = ge::gl::glGetUniformLocation(generateDensityProgram, "chunkStep");
   static auto startLocation = ge::gl::glGetUniformLocation(generateDensityProgram, "start");
   ge::gl::glUseProgram(generateDensityProgram);
-
+  generationOptions.setUniforms(generateDensityProgram);
   for (auto &chunk : chunks) {
     chunk->getDensityBuffer()->pageCommitment(0, chunk->getDensityBuffer()->getSize(), true);
     chunk->getDensityBuffer()->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
@@ -295,6 +295,7 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
       if (edgeCount != 0) {
 
         ge::gl::glUseProgram(generateVerticesProgram);
+        generationOptions.setUniforms(generateVerticesProgram);
         edgeMarkersVertexArray->bind();
         edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
         chunk->getDensityBuffer()->bindBase(GL_SHADER_STORAGE_BUFFER, 1);

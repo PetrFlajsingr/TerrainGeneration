@@ -17,7 +17,7 @@ class TransformFeedback : public ge::gl::OpenGLObject {
 public:
   TransformFeedback();
 
-  void changeBuffer(uint index, Buffer buffer);
+  void changeBuffer(uint index, const Buffer &buffer);
 
   // zabije gcc:
   // template <geGLBufferShared... Buffers> void setBuffers(Buffers &... buffers) {

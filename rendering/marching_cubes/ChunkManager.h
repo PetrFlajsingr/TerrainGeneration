@@ -39,22 +39,16 @@ struct DrawOptions {
 };
 
 constexpr float step = 2;
-constexpr uint size = 32;
+constexpr unsigned int size = 32;
 class ChunkManager {
 public:
   ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, JsonConfig<true> config);
 
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
-  BlinnPhongLight light{
-      {1, 1, 1}, {500, 500, 500}, 50000, {1, 1, 1}, {1, 1, 1}, {1, 1, 1},
-  };
-
-  BlinnPhongMaterial material{10, {1, 1, 1}};
 
   RenderData renderData;
   bool render = true;
   std::shared_ptr<ge::gl::Program> smProgram;
-  std::shared_ptr<ge::gl::Texture> texture;
 
   void generateChunks();
 
@@ -68,9 +62,9 @@ public:
 
 private:
   TerrainGenerationOptions generationOptions;
-  JsonConfig<true> config;
   ChunkUsageManager chunkUsageManager;
   std::unique_ptr<Surroundings> surr;
+  JsonConfig<true> config;
   void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection);
   void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
   void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step);

@@ -27,8 +27,6 @@ public:
 
 protected:
   void draw(GUIRenderer &renderer) override;
-  void onVisibilityChanged(Visibility visibility) override;
-  void onFocusChanged(Focus focus) override;
   void onEnabledChanged(bool enabled) override;
   void onMouseDown(EventInfo info, MouseButton button, SDL_Point point) override;
   void onMouseUp(EventInfo info, MouseButton button, SDL_Point point) override;

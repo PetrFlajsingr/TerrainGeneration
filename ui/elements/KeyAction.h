@@ -21,10 +21,6 @@ public:
 
 protected:
   void onKeyPressed(const SDL_Event &event) override;
-  void onKeyDown(const SDL_Event &event) override;
-  void onKeyUp(const SDL_Event &event) override;
-  void onFocusChanged(sdl2cpp::ui::Focus focus) override;
-  void onEnabledChanged(bool enabled) override;
 
 private:
   SDL_Keycode key;

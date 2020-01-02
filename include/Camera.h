@@ -2,10 +2,10 @@
 #define CAMERA_H
 
 #include "utils/types/CachedProperty.h"
-#include <SDL_opengl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include <geGL/geGL.h>
 
 enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT };
 

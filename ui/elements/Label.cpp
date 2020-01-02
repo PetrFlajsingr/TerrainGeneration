@@ -11,8 +11,5 @@ sdl2cpp::ui::Label::Label(sdl2cpp::ui::UIManager &guiManager, glm::vec3 position
   text.setColor({0, 0, 1, 1});
 }
 
-void sdl2cpp::ui::Label::draw(sdl2cpp::ui::GUIRenderer &renderer) {}
-void sdl2cpp::ui::Label::onVisibilityChanged(sdl2cpp::ui::Visibility visibility) {}
-void sdl2cpp::ui::Label::onFocusChanged(sdl2cpp::ui::Focus focus) {}
-void sdl2cpp::ui::Label::onEnabledChanged(bool enabled) {}
+void sdl2cpp::ui::Label::draw([[maybe_unused]] sdl2cpp::ui::GUIRenderer &renderer) {}
 std::string sdl2cpp::ui::Label::info() const { return "Label"; }

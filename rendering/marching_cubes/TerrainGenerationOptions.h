@@ -8,20 +8,21 @@
 class TerrainGenerationOptions {
 public:
   TerrainGenerationOptions() = default;
-  TerrainGenerationOptions(unsigned int octaves, float gain, float lacunarity, float sharpness, float valleyScale, float heightScale);
+  TerrainGenerationOptions(unsigned int octaves, float gain, float lacunarity, float sharpness, float valleyScale,
+                           float heightScale);
 
   [[nodiscard]] unsigned int getOctaves() const;
   TerrainGenerationOptions &setOctaves(unsigned int octaves);
   [[nodiscard]] float getGain() const;
-  TerrainGenerationOptions & setGain(float gain);
+  TerrainGenerationOptions &setGain(float gain);
   [[nodiscard]] float getLacunarity() const;
-  TerrainGenerationOptions & setLacunarity(float lacunarity);
+  TerrainGenerationOptions &setLacunarity(float lacunarity);
   [[nodiscard]] float getSharpness() const;
-  TerrainGenerationOptions & setSharpness(float sharpness);
+  TerrainGenerationOptions &setSharpness(float sharpness);
   [[nodiscard]] float getValleyScale() const;
-  TerrainGenerationOptions & setValleyScale(float valleyScale);
+  TerrainGenerationOptions &setValleyScale(float valleyScale);
   [[nodiscard]] float getHeightScale() const;
-  TerrainGenerationOptions & setHeightScale(float heightScale);
+  TerrainGenerationOptions &setHeightScale(float heightScale);
 
   void setUniforms(GLuint program);
 

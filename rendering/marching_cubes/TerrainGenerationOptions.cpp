@@ -4,12 +4,13 @@
 
 #include <random>
 
-#include <geGL/StaticCalls.h>
 #include "TerrainGenerationOptions.h"
+#include <geGL/StaticCalls.h>
 
 TerrainGenerationOptions::TerrainGenerationOptions(unsigned int octaves, float gain, float lacunarity, float sharpness,
                                                    float valleyScale, float heightScale)
-    : octaves(octaves), gain(gain), lacunarity(lacunarity), sharpness(sharpness), valleyScale(valleyScale), heightScale(heightScale){}
+    : octaves(octaves), gain(gain), lacunarity(lacunarity), sharpness(sharpness), valleyScale(valleyScale),
+      heightScale(heightScale) {}
 
 unsigned int TerrainGenerationOptions::getOctaves() const { return octaves; }
 

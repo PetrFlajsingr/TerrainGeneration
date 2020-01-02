@@ -29,7 +29,6 @@ protected:
   void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
   void draw(GUIRenderer &renderer) override;
   void onFocusChanged(Focus focus) override;
-  void onVisibilityChanged(Visibility visibility) override;
 
 private:
 };

@@ -41,6 +41,7 @@ struct LOD {
 
   explicit LOD() = default;
   LOD(const LOD &other);
+  LOD &operator=(const LOD &other);
 
   void initTree(std::size_t depth);
 

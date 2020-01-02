@@ -10,9 +10,10 @@ sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager, Perspecti
                                                 glm::vec3 dimensions, glm::vec3 startingPosition, glm::vec3 direction)
     : UIObject(guiManager), UIVisible(position, dimensions), camera(std::move(projection), startingPosition) {
   camera.MovementSpeed = 5.f;
+  camera.Front = direction;
 }
 
-void sdl2cpp::ui::CameraController::onMouseDown(EventInfo info, MouseButton button, SDL_Point position) {
+void sdl2cpp::ui::CameraController::onMouseDown(EventInfo info, MouseButton button, [[maybe_unused]] SDL_Point position) {
   switch (button) {
   case MouseButton::Left:
     break;
@@ -27,7 +28,7 @@ void sdl2cpp::ui::CameraController::onMouseDown(EventInfo info, MouseButton butt
   }
 }
 
-void sdl2cpp::ui::CameraController::onMouseUp(EventInfo info, MouseButton button, SDL_Point position) {
+void sdl2cpp::ui::CameraController::onMouseUp(EventInfo info, MouseButton button, [[maybe_unused]] SDL_Point position) {
   if (button == MouseButton::Right) {
     lockedToCamera = false;
     setFocus(sdl2cpp::ui::Focus::NotFocused);
@@ -38,7 +39,7 @@ void sdl2cpp::ui::CameraController::onMouseUp(EventInfo info, MouseButton button
 
 void sdl2cpp::ui::CameraController::onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
   if (lockedToCamera) {
-    camera.ProcessMouseMovement(newPos.x - oldPos.x, -(newPos.y - oldPos.y), true);
+    camera.ProcessMouseMovement(static_cast<float>(newPos.x - oldPos.x), static_cast<float>(-(newPos.y - oldPos.y)), true);
   }
 }
 
@@ -69,16 +70,18 @@ glm::vec3 sdl2cpp::ui::CameraController::getPosition() const { return camera.Pos
 
 glm::mat4 sdl2cpp::ui::CameraController::getViewMatrix() { return camera.GetViewMatrix(); }
 
-void sdl2cpp::ui::CameraController::draw(sdl2cpp::ui::GUIRenderer &renderer) {}
+void sdl2cpp::ui::CameraController::draw([[maybe_unused]] sdl2cpp::ui::GUIRenderer &renderer) {}
 
-void sdl2cpp::ui::CameraController::onMouseWheel(EventInfo info, ScrollDirection direction, int offset) {
-  camera.ProcessMouseScroll(offset);
+void sdl2cpp::ui::CameraController::onMouseWheel(EventInfo info, [[maybe_unused]] ScrollDirection direction, int offset) {
+  camera.ProcessMouseScroll(static_cast<float>(offset));
 }
 void sdl2cpp::ui::CameraController::onKeyUp(EventInfo info, SDL_Keycode keycode) {
   switch (keycode) {
   case SDLK_LSHIFT:
   case SDLK_RSHIFT:
     camera.MovementSpeed -= 10;
+    break;
+  default:
     break;
   }
 }

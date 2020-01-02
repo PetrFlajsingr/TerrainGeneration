@@ -3,7 +3,7 @@
 
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount>::Leaf(value_type value) : value(std::move(value)) {}
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount>::Leaf(const Leaf &other)
-    : value(other.value), parent(nullptr) {}
+    : parent(nullptr), value(other.value) {}
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount> &Leaf<T, ChildCount>::operator=(const Leaf &other) {
   if (&other == this) {
     return *this;
@@ -13,7 +13,7 @@ template <typename T, unsigned int ChildCount> Leaf<T, ChildCount> &Leaf<T, Chil
   return *this;
 }
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount>::Leaf(Leaf &&other) noexcept
-    : value(std::move(other.value)), parent(other.parent) {}
+    : parent(other.parent), value(std::move(other.value)) {}
 template <typename T, unsigned int ChildCount> Leaf<T, ChildCount> &Leaf<T, ChildCount>::operator=(Leaf &&other) noexcept {
   value = std::move(other.value);
   parent = other.parent;

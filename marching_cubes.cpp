@@ -28,8 +28,6 @@
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
 
-void initModels(ModelRenderer &modelRenderer, const std::string &assetPath) {}
-
 void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
   auto [available, _] = getGPUMemoryUsage();
   ui.fpsLbl->text.setText(WString(L"FPS: " + std::to_wstring(fpsCounter.current()) + L" Avg: " +
@@ -62,7 +60,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   UI ui{uiManager};
 
   auto drawMode = DrawMode::Polygon;
-  ui.lineFillBtn->setMouseClicked([&drawMode, &ui](sdl2cpp::ui::EventInfo info, sdl2cpp::ui::MouseButton button, SDL_Point pos) {
+  ui.lineFillBtn->setMouseClicked([&drawMode, &ui] {
     static auto line = true;
     if (line) {
       drawMode = DrawMode::Line;
@@ -88,7 +86,6 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   printT(LogLevel::Status, "Initialising models");
   ModelRenderer modelRenderer;
-  initModels(modelRenderer, assetPath);
 
   auto renderProgram = std::make_shared<ge::gl::Program>("shadow_map/cascade_render"_vert, "shadow_map/cascade_render"_frag);
 
@@ -184,7 +181,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     updateFPSLabel(ui, fpsCounter);
 
     if (!pauseMC) {
-        chunks.generateChunks();
+      chunks.generateChunks();
     }
     chunks.render = false;
     auto renderFnc = [&ui, &chunks, &modelRenderer](const auto &program, const auto &aabb) {

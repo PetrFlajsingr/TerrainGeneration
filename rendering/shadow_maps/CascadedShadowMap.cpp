@@ -58,7 +58,7 @@ void CascadedShadowMap::bindRender(const std::shared_ptr<ge::gl::Program> &progr
 }
 
 void CascadedShadowMap::calculateOrthoMatrices(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, float cameraNear,
-                                               float cameraFar, float aspectRatio, float fieldOfView) {
+                                               float cameraFar) {
   std::vector<float> cascadeSplits;
   cascadeSplits.resize(cascadeCount);
 

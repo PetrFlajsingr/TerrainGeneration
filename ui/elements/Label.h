@@ -17,10 +17,7 @@ public:
   std::string info() const override;
 
 protected:
-  void onFocusChanged(Focus focus) override;
-  void onEnabledChanged(bool enabled) override;
   void draw(GUIRenderer &renderer) override;
-  void onVisibilityChanged(Visibility visibility) override;
 };
 } // namespace sdl2cpp::ui
 

@@ -32,7 +32,7 @@ struct ChunkUsageInitData {
 
 class DefaultChunkBorrowingPolicy;
 
-//template <typename ChunkBorrowingPolicy = DefaultChunkBorrowingPolicy>
+// template <typename ChunkBorrowingPolicy = DefaultChunkBorrowingPolicy>
 class ChunkUsageManager {
 public:
   // list because of frequent deletion in random places

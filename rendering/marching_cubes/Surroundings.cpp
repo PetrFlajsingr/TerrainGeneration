@@ -131,7 +131,7 @@ void Surroundings::moveSurroundings(SurrMoveDir direction) {
     newStartPosition =
         partsMap[static_cast<int>(CoordSourceForDir(direction, pos))]->startPosition + directionVect * surroundingsStep;
     newCenter = newStartPosition + surroundingsStep / 2.f;
-    const auto tmp = partsMap[static_cast<int>(pos)]->restart(newStartPosition, newCenter, size, step, lodData);
+    const auto tmp = partsMap[static_cast<int>(pos)]->restart(newStartPosition, newCenter, size, step);
     unused.insert(unused.end(), tmp.begin(), tmp.end());
   }
 }
@@ -274,15 +274,14 @@ void Surroundings::invalidate() {
   for (auto &map : maps) {
     const auto chunksForRecycle = map.restartChunks();
     /*for (auto chunk : chunksForRecycle) {
-      if (std::find(chunkUsageManager.getAvailabled().begin(), chunkUsageManager.getAvailabled().end(), chunk) != chunkUsageManager.getAvailabled().end()) {
-        print("Skip");
-        continue;
+      if (std::find(chunkUsageManager.getAvailabled().begin(), chunkUsageManager.getAvailabled().end(), chunk) !=
+    chunkUsageManager.getAvailabled().end()) { print("Skip"); continue;
       }
       chunkUsageManager.returnTileChunk(chunk);
     }*/
   }
   chunkUsageManager.reset();
-  //chunkUsageManager.getChunkToTileMap().clear();
+  // chunkUsageManager.getChunkToTileMap().clear();
   lastCameraPosition += 0.01f;
 }
 
@@ -319,7 +318,7 @@ void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float ste
       }
       const auto st =
           start + startPosition +
-              stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
+          stepForLevel * LODChunkController::offsetForSubChunk(perLevelCnt, LODData::ChunkCountInRow(loddata.level)) * 30.f;
       const auto ctr = st + 15.f * stepForLevel;
       const auto boundingSphereRadius = glm::sqrt(glm::pow(stepForLevel * 14.f + stepForLevel / 2.f, 2.f) * 3.f);
       loddata.boundingSphere = geo::BoundingSphere<3>{ctr, boundingSphereRadius};
@@ -329,7 +328,7 @@ void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float ste
     });
   }
 }
-std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData) {
+std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step) {
   using namespace MakeRange;
   startPosition = start;
   Map::center = center;

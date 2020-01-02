@@ -45,11 +45,18 @@ LODDir LODTreeData::getDir(glm::vec3 cameraPosition, const LODData &data) {
 
 LOD::LOD(const LOD &other) { tree = other.tree; }
 
+LOD &LOD::operator=(const LOD &other) {
+  if (&other == this) {
+    return *this;
+  }
+  tree = other.tree;
+  return *this;
+}
+
 void LOD::initTree(std::size_t depth) {
   tree = Tree<LODTreeData, 8>::BuildTree(depth, LODTreeData{});
   setLevelInTree(tree.getRoot(), 0, depth);
 }
-
 void LOD::setLevelInTree(Leaf<LODTreeData, 8> &node, std::size_t level, std::size_t maxLevel) {
   node->level = level;
   if (node.getType() == NodeType::Leaf) {

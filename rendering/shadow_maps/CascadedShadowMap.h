@@ -5,7 +5,7 @@
 #ifndef TERRAINGENERATION_CASCADEDSHADOWMAP_H
 #define TERRAINGENERATION_CASCADEDSHADOWMAP_H
 
-#include "glm/gtc//type_ptr.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include <Camera.h>
 #include <geGL/StaticCalls.h>
 #include <geGL/geGL.h>
@@ -65,8 +65,7 @@ private:
 
   std::shared_ptr<ge::gl::Program> program;
 
-  void calculateOrthoMatrices(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, float cameraNear, float cameraFar,
-                              float aspectRatio, float fieldOfView);
+  void calculateOrthoMatrices(const glm::mat4 &cameraProjection, const glm::mat4 &cameraView, float cameraNear, float cameraFar);
 
   void bindCascade(unsigned int index);
 };
@@ -76,8 +75,7 @@ template <typename F> void CascadedShadowMap::renderShadowMap(F renderFunction,
                                                               const glm::mat4 &cameraView) {
   using namespace MakeRange;
   calculateOrthoMatrices(perspectiveProjection.matrix.getRef(), cameraView, perspectiveProjection.getNear(),
-                         perspectiveProjection.getFar(), perspectiveProjection.getAspectRatio(),
-                         perspectiveProjection.getFieldOfView());
+                         perspectiveProjection.getFar());
 
   program->use();
   TempViewportSetter viewportSetter{{0, 0, static_cast<int>(size), static_cast<int>(size)}};

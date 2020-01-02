@@ -23,7 +23,12 @@ void Switch::draw(sdl2cpp::ui::GUIRenderer &renderer) {
   ge::gl::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   vao->unbind();
 }
-void Switch::onMouseClicked(sdl2cpp::ui::EventInfo info, sdl2cpp::ui::MouseButton button, SDL_Point point) { isOn = !isOn.get(); }
+
+void Switch::onMouseClicked(sdl2cpp::ui::EventInfo info, [[maybe_unused]] sdl2cpp::ui::MouseButton button,
+                            [[maybe_unused]] SDL_Point point) {
+  isOn = !isOn.get();
+}
+
 glm::vec4 Switch::colorForState() {
   if (isOn) {
     return Color::green;

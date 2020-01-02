@@ -31,10 +31,6 @@ void sdl2cpp::ui::Button::draw(GUIRenderer &renderer) {
   vao->unbind();
 }
 
-void sdl2cpp::ui::Button::onVisibilityChanged(Visibility visibility) {}
-
-void sdl2cpp::ui::Button::onFocusChanged(Focus focus) {}
-
 void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {
   Interactable::onEnabledChanged(enabled);
   if (!enabled) {

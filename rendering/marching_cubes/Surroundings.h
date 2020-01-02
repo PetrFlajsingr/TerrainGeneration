@@ -43,7 +43,7 @@ struct Map {
   bool isInRange(glm::vec3 cameraPosition, float range);
 
   void init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
-  std::vector<Chunk *> restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
+  std::vector<Chunk *> restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step);
   std::vector<Chunk *> restartChunks();
 };
 

@@ -23,9 +23,8 @@ ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> camera
                                            config.get<unsigned int>("render", "levelOfDetail").value(),
                                            config.get<float>("marching_cubes", "chunkSize").value(), Unloading::Aggresive}),
       surr(std::make_unique<Surroundings>(config.get<float>("render", "viewDistance").value(),
-            glm::uvec3{config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
-            chunkUsageManager,
-            config.get<float>("marching_cubes", "chunkSize").value())),
+                                          glm::uvec3{config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
+                                          chunkUsageManager, config.get<float>("marching_cubes", "chunkSize").value())),
       config(config) {
   loadShaders();
   createPrograms();
@@ -399,15 +398,12 @@ void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
     ge::gl::glDrawElements(GL_TRIANGLES, chunk->indexCount, GL_UNSIGNED_INT, nullptr);
   }
 }
-TerrainGenerationOptions &ChunkManager::getGenerationOptions() {
-  return generationOptions;
-}
+TerrainGenerationOptions &ChunkManager::getGenerationOptions() { return generationOptions; }
 void ChunkManager::invalidate() {
-  //surr->invalidate();
+  // surr->invalidate();
   chunkUsageManager.reset();
   surr = std::make_unique<Surroundings>(config.get<float>("render", "viewDistance").value(),
                                         glm::uvec3{config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
-                                        chunkUsageManager,
-                                        config.get<float>("marching_cubes", "chunkSize").value());
+                                        chunkUsageManager, config.get<float>("marching_cubes", "chunkSize").value());
 }
-Surroundings &ChunkManager::getSurroundings() { return *surr;}
+Surroundings &ChunkManager::getSurroundings() { return *surr; }

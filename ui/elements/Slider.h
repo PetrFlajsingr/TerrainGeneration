@@ -46,7 +46,6 @@ protected:
   void draw(GUIRenderer &renderer) override;
 
   void onMouseDown(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseUp(EventInfo info, MouseButton button, SDL_Point point) override;
   void onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) override;
   void onMouseOver(EventInfo info) override;
   void onMouseOut(EventInfo info) override;
@@ -120,7 +119,7 @@ template <typename T> void Slider<T>::step() {
   setSliderValue(newValue);
 }
 template <typename T> void Slider<T>::onMouseDown(EventInfo info, MouseButton button, SDL_Point point) {
-  if (getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
+  if (button == MouseButton::Left) {
     const auto sliderWidth = dimensions.get().x;
     const auto percentageTraveled = (point.x - position.get().x) / sliderWidth;
     const auto valueDelta = min + percentageTraveled * 100 * sliderStep;
@@ -128,8 +127,8 @@ template <typename T> void Slider<T>::onMouseDown(EventInfo info, MouseButton bu
     setSliderValue(internalValue);
   }
 }
-template <typename T> void Slider<T>::onMouseUp(EventInfo info, MouseButton button, SDL_Point point) {}
-template <typename T> void Slider<T>::onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) {
+
+template <typename T> void Slider<T>::onMouseMove(EventInfo info, SDL_Point newPos, [[maybe_unused]] SDL_Point oldPos) {
   if (getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
     const auto sliderWidth = dimensions.get().x;
     const auto percentageTraveled = (newPos.x - position.get().x) / sliderWidth;

@@ -13,7 +13,7 @@ ChunkPool initPool(ChunkPool::size_type chunkCount) {
 ChunkUsageInitData::ChunkUsageInitData(std::size_t chunkPoolSize, std::size_t chunksPerFrameLimit, float loadingDistance,
                                        std::size_t LODlevelCount, float chunkStep, Unloading unloading)
     : chunkPoolSize(chunkPoolSize), chunksPerFrameLimit(chunksPerFrameLimit), loadingDistance(loadingDistance),
-      LODlevelCount(LODlevelCount), chunkStep(chunkStep), unloading(unloading) {}
+      LODlevelCount(LODlevelCount), unloading(unloading), chunkStep(chunkStep) {}
 
 ChunkUsageManager::ChunkUsageManager(ChunkUsageInitData initData)
     : chunkPool(initPool(initData.chunkPoolSize)), chunksPerFrameLimit(initData.chunksPerFrameLimit),

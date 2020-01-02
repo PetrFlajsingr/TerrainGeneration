@@ -49,7 +49,7 @@ struct Map {
 
 class Surroundings {
 public:
-  Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step);
+  Surroundings(float loadDistance, glm::uvec3 size, ChunkUsageManager &, float step);
 
   observable::value<WString> info;
 
@@ -60,8 +60,6 @@ public:
   void setFilled(Chunk *chunk);
   void setNotLoaded(Chunk *chunk);
 
-  const std::list<Chunk *> &getUsedChunks() const { return chunkUsageManager.getUsedChunks(); }
-
   void invalidate();
   const float loadDistance;
   const glm::uvec3 size;
@@ -69,10 +67,10 @@ public:
 
 private:
   glm::vec3 lastCameraPosition{std::numeric_limits<float>::infinity()};
-  ChunkUsageManager chunkUsageManager;
   LODData lodData;
   std::array<Map, 27> maps;
   std::array<Map *, 27> partsMap;
+  ChunkUsageManager &chunkUsageManager;
 
   void checkForMapMove(glm::vec3 cameraPosition);
 

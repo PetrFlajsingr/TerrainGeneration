@@ -84,7 +84,7 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   printT(LogLevel::Status, "Initialising chunk manager");
   ChunkManager chunks{ui.cameraController, config};
-  chunks.surr.info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
+  chunks.getSurroundings().info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
 
   printT(LogLevel::Status, "Initialising models");
   ModelRenderer modelRenderer;
@@ -123,6 +123,7 @@ void main_marching_cubes(int argc, char *argv[]) {
         .setValleyScale(ui.terrain.valleyScaleSlider->value.get())
         .setHeightScale(ui.terrain.heightScaleSlider->value.get());
     chunks.invalidate();
+    chunks.getSurroundings().info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
   });
   ui.terrain.randomizeBtn->setMouseClicked([&ui, &chunks] {
     chunks.getGenerationOptions().randomize();
@@ -133,6 +134,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     ui.terrain.valleyScaleSlider->setSliderValue(chunks.getGenerationOptions().getValleyScale());
     ui.terrain.heightScaleSlider->setSliderValue(chunks.getGenerationOptions().getHeightScale());
     chunks.invalidate();
+    chunks.getSurroundings().info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
   });
 
   FileTextureLoader textureLoader{assetPath};

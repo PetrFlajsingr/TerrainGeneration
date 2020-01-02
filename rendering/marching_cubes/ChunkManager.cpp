@@ -17,10 +17,15 @@ using namespace ShaderLiterals;
 
 ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, JsonConfig<true> config)
     : cameraController(std::move(cameraController)),
-      surr({config.get<float>("render", "viewDistance").value(),
+      chunkUsageManager(ChunkUsageInitData{config.get<unsigned int>("marching_cubes", "chunkPoolSize").value(),
+                                           config.get<unsigned int>("marching_cubes", "computeBatchSize").value(),
+                                           config.get<float>("render", "viewDistance").value(),
+                                           config.get<unsigned int>("render", "levelOfDetail").value(),
+                                           config.get<float>("marching_cubes", "chunkSize").value(), Unloading::Aggresive}),
+      surr(std::make_unique<Surroundings>(config.get<float>("render", "viewDistance").value(),
             glm::uvec3{config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
-            config.get<unsigned int>("marching_cubes", "chunkPoolSize").value(),
-            config.get<float>("marching_cubes", "chunkSize").value()}),
+            chunkUsageManager,
+            config.get<float>("marching_cubes", "chunkSize").value())),
       config(config) {
   loadShaders();
   createPrograms();
@@ -188,8 +193,8 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   geo::ViewFrustum viewFrustum = geo::ViewFrustum::FromProjectionView(view, projection);
 
   std::vector<Chunk *> visibleChunks;
-  visibleChunks.reserve(surr.getUsedChunks().size() / 2);
-  for (auto &chunk : surr.getUsedChunks()) {
+  visibleChunks.reserve(chunkUsageManager.getUsedChunks().size() / 2);
+  for (auto &chunk : chunkUsageManager.getUsedChunks()) {
     if (!renderData.viewFrustumCulling || viewFrustum.contains(chunk->boundingBox) != geo::RelativePosition::Outside) {
       if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance && chunk->indexCount != 0) {
         visibleChunks.emplace_back(chunk);
@@ -352,10 +357,10 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
 
     chunk->setComputed(true);
     if (chunk->indexCount != 0) {
-      surr.setFilled(chunk);
+      surr->setFilled(chunk);
       chunk->getDensityBuffer()->pageCommitment(false);
     } else {
-      surr.setEmpty(chunk);
+      surr->setEmpty(chunk);
       chunk->getDensityBuffer()->pageCommitment(false);
     }
   }
@@ -363,8 +368,8 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
 
 void ChunkManager::generateChunks() {
   std::vector<Chunk *> ptrs;
-  surr.checkDistances(cameraController->camera.Position);
-  for (auto chunk : surr.getUsedChunks()) {
+  surr->checkDistances(cameraController->camera.Position);
+  for (auto chunk : chunkUsageManager.getUsedChunks()) {
     if (!chunk->isComputed()) {
       ptrs.emplace_back(chunk);
     }
@@ -382,8 +387,8 @@ void ChunkManager::generateChunks() {
 }
 void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
   std::vector<Chunk *> visibleChunks;
-  visibleChunks.reserve(surr.getUsedChunks().size() / 4);
-  for (auto &chunk : surr.getUsedChunks()) {
+  visibleChunks.reserve(chunkUsageManager.getUsedChunks().size() / 4);
+  for (auto &chunk : chunkUsageManager.getUsedChunks()) {
     // if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance
     if (aabb.contains(chunk->boundingBox) != geo::RelativePosition::Outside && chunk->indexCount != 0) {
       visibleChunks.emplace_back(chunk);
@@ -398,5 +403,11 @@ TerrainGenerationOptions &ChunkManager::getGenerationOptions() {
   return generationOptions;
 }
 void ChunkManager::invalidate() {
-  surr.invalidate();
+  //surr->invalidate();
+  chunkUsageManager.reset();
+  surr = std::make_unique<Surroundings>(config.get<float>("render", "viewDistance").value(),
+                                        glm::uvec3{config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
+                                        chunkUsageManager,
+                                        config.get<float>("marching_cubes", "chunkSize").value());
 }
+Surroundings &ChunkManager::getSurroundings() { return *surr;}

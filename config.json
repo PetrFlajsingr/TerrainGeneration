@@ -19,7 +19,7 @@
   },
   "render": {
     "viewDistance": 300000,
-    "levelOfDetail": 0,
+    "levelOfDetail": 1,
     "viewFrustumCulling": true,
     "shadows": {
       "enabled": true
@@ -30,7 +30,7 @@
     "surroundingSize": 5,
     "chunkPoolSize": 2048,
     "aggressiveChunkUnloading": false,
-    "computeBatchSize": 256
+    "computeBatchSize": 100
   },
   "device": {
     "screen": {

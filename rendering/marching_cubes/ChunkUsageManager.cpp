@@ -64,7 +64,9 @@ Chunk *ChunkUsageManager::borrowChunk(Tile &tile) {
 }
 
 void ChunkUsageManager::returnChunk(Chunk *chunk) {
-  assert(chunk != nullptr);
+  if (chunk == nullptr) {
+    return;
+  }
   chunk->setComputed(false);
   data.available.emplace_back(chunk);
   data.used.remove(chunk);

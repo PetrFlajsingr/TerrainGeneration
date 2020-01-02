@@ -10,9 +10,9 @@
 using namespace MakeRange;
 
 constexpr unsigned int lodDepth = 1;
-Surroundings::Surroundings(float loadDistance, glm::uvec3 size, unsigned int chunkPoolSize, float step)
+Surroundings::Surroundings(float loadDistance, glm::uvec3 size, ChunkUsageManager &chunkUsageManager, float step)
     : loadDistance(loadDistance), size(size), step(step), lodData(lodDepth, loadDistance, step),
-      chunkUsageManager(ChunkUsageInitData{chunkPoolSize, 100, loadDistance, lodDepth, step, Unloading::Aggresive}) {
+      chunkUsageManager(chunkUsageManager) {
   for (auto &map : maps) {
     map.tiles.resize(size.x * size.y * size.z);
   }
@@ -273,10 +273,16 @@ void Surroundings::setNotLoaded(Chunk *chunk) {
 void Surroundings::invalidate() {
   for (auto &map : maps) {
     const auto chunksForRecycle = map.restartChunks();
-    for (auto chunk : chunksForRecycle) {
+    /*for (auto chunk : chunksForRecycle) {
+      if (std::find(chunkUsageManager.getAvailabled().begin(), chunkUsageManager.getAvailabled().end(), chunk) != chunkUsageManager.getAvailabled().end()) {
+        print("Skip");
+        continue;
+      }
       chunkUsageManager.returnTileChunk(chunk);
-    }
+    }*/
   }
+  chunkUsageManager.reset();
+  //chunkUsageManager.getChunkToTileMap().clear();
   lastCameraPosition += 0.01f;
 }
 
@@ -376,13 +382,10 @@ std::vector<Chunk *> Map::restartChunks() {
   using namespace MakeRange;
   std::vector<Chunk *> result;
   for (auto tile : tiles) {
-    tile.lod.tree.traverseDepthFirstIfNode([&result](Leaf<LODTreeData, 8> &loddata) {
-      if (loddata->chunk != nullptr) {
-        result.emplace_back(loddata->chunk);
-        loddata->chunk = nullptr;
-      }
-      loddata->isCurrent = false;
-      loddata->isDivided = false;
+    tile.lod.tree.traverseDepthFirstIf([&result](LODTreeData &loddata) {
+      loddata.chunk = nullptr;
+      loddata.isCurrent = false;
+      loddata.isDivided = false;
       return true;
     });
     tile.state = ChunkState::NotLoaded;

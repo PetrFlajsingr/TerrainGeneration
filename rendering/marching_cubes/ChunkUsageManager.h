@@ -32,7 +32,7 @@ struct ChunkUsageInitData {
 
 class DefaultChunkBorrowingPolicy;
 
-// template <typename ChunkBorrowingPolicy = DefaultChunkBorrowingPolicy>
+//template <typename ChunkBorrowingPolicy = DefaultChunkBorrowingPolicy>
 class ChunkUsageManager {
 public:
   // list because of frequent deletion in random places
@@ -53,8 +53,18 @@ public:
   void returnTileChunk(Chunk *chunk);
 
   const ChunkPtrs &getUsedChunks() const { return data.used; }
+  const ChunkPtrs &getAvailabled() const { return data.available; }
 
-  [[nodiscard]] const ChunkToTileMap &getChunkToTileMap() { return data.chunkToTileMap; }
+  [[nodiscard]] ChunkToTileMap &getChunkToTileMap() { return data.chunkToTileMap; }
+
+  void reset() {
+    for (auto chunk : data.used) {
+      chunk->setComputed(false);
+    }
+    data.available.insert(data.available.end(), data.used.begin(), data.used.end());
+    data.used.clear();
+    data.chunkToTileMap.clear();
+  }
 
   struct Info {
     std::size_t availableChunks;
@@ -88,7 +98,7 @@ private:
 };
 
 class DefaultChunkBorrowingPolicy {
-protected:
+public:
   using ChunkPtrs = ChunkUsageManager::ChunkPtrs;
   Chunk *borrowChunk(ChunkPtrs &available, ChunkPtrs &used) {
     auto result = available.front();
@@ -106,7 +116,7 @@ protected:
 };
 
 class ThreadSafeChunkBorrowingPolicy : DefaultChunkBorrowingPolicy {
-protected:
+public:
   using ChunkPtrs = ChunkUsageManager::ChunkPtrs;
   Chunk *borrowChunk(ChunkPtrs &available, ChunkPtrs &used) {
     std::unique_lock lck{mtx};

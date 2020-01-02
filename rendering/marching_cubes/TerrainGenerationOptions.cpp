@@ -57,20 +57,21 @@ void TerrainGenerationOptions::randomize() {
   std::random_device dev;
   std::mt19937 rng(dev());
   {
-    std::uniform_int_distribution<std::mt19937::result_type> dist(1, 8);
+    std::uniform_int_distribution<std::mt19937::result_type> dist(1, 16);
     octaves = dist(rng);
   }
   {
     std::uniform_real_distribution<> dist(0.0001, 100);
     gain = dist(rng);
     lacunarity = dist(rng);
-    valleyScale = dist(rng);
     heightScale = dist(rng);
   }
   {
     std::uniform_real_distribution<> dist(-1, 1);
     sharpness = dist(rng);
   }
+  std::uniform_real_distribution<> dist(0, 1);
+  valleyScale = dist(rng);
 }
 
 void TerrainGenerationOptions::setUniforms(GLuint program) {

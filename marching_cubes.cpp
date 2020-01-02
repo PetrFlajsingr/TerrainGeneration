@@ -124,6 +124,16 @@ void main_marching_cubes(int argc, char *argv[]) {
         .setHeightScale(ui.terrain.heightScaleSlider->value.get());
     chunks.invalidate();
   });
+  ui.terrain.randomizeBtn->setMouseClicked([&ui, &chunks] {
+    chunks.getGenerationOptions().randomize();
+    ui.terrain.octavesSlider->setSliderValue(chunks.getGenerationOptions().getOctaves());
+    ui.terrain.gainSlider->setSliderValue(chunks.getGenerationOptions().getGain());
+    ui.terrain.lacunaritySlider->setSliderValue(chunks.getGenerationOptions().getLacunarity());
+    ui.terrain.sharpnessSlider->setSliderValue(chunks.getGenerationOptions().getSharpness());
+    ui.terrain.valleyScaleSlider->setSliderValue(chunks.getGenerationOptions().getValleyScale());
+    ui.terrain.heightScaleSlider->setSliderValue(chunks.getGenerationOptions().getHeightScale());
+    chunks.invalidate();
+  });
 
   FileTextureLoader textureLoader{assetPath};
   TexOptions texOptions{GL_TEXTURE_2D,

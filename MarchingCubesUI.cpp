@@ -86,6 +86,9 @@ UI::UI(UIManager &uiManager) {
 
   terrain.applyChangesBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{1520, 1040, 1}, glm::vec3{150, 30, 0});
   terrain.applyChangesBtn->text.setFont("arialbd", 10).setText(L"Apply changes"_sw);
+
+  terrain.randomizeBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{1670, 1040, 1}, glm::vec3{150, 30, 0});
+  terrain.randomizeBtn->text.setFont("arialbd", 10).setText(L"Randomize"_sw);
 }
 
 void UI::setVisible(bool visible) {

@@ -47,6 +47,7 @@ struct UI {
     std::shared_ptr<Slider<float>> heightScaleSlider;
 
     std::shared_ptr<Button> applyChangesBtn;
+    std::shared_ptr<Button> randomizeBtn;
   } terrain;
 };
 

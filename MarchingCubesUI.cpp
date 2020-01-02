@@ -62,11 +62,11 @@ UI::UI(UIManager &uiManager) {
   terrain.octavesSlider->setMin(1).setMax(10).setSliderValue(4);
   terrain.gainSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 530, 1}, glm::vec3{315, 20, 0});
   terrain.gainSlider->value.subscribe([this](const auto &value) { terrain.gainValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.gainSlider->setMin(0.1).setMax(100000).setSliderValue(30000);
+  terrain.gainSlider->setMin(0.00001).setMax(100).setSliderValue(15);
   terrain.lacunaritySlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 560, 1}, glm::vec3{315, 20, 0});
   terrain.lacunaritySlider->value.subscribe(
       [this](const auto &value) { terrain.lacunarityValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.lacunaritySlider->setMin(0.1).setMax(1000).setSliderValue(2);
+  terrain.lacunaritySlider->setMin(0.00001).setMax(100).setSliderValue(6);
   terrain.sharpnessSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 590, 1}, glm::vec3{315, 20, 0});
   terrain.sharpnessSlider->value.subscribe(
       [this](const auto &value) { terrain.sharpnessValLbl->text.setText(WString{std::to_wstring(value)}); });
@@ -74,11 +74,11 @@ UI::UI(UIManager &uiManager) {
   terrain.valleyScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 620, 1}, glm::vec3{315, 20, 0});
   terrain.valleyScaleSlider->value.subscribe(
       [this](const auto &value) { terrain.valleyScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.valleyScaleSlider->setMin(0.00001).setMax(10).setSliderValue(0);
+  terrain.valleyScaleSlider->setMin(0.00001).setMax(10).setSliderValue(0.1);
   terrain.heightScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 650, 1}, glm::vec3{315, 20, 0});
   terrain.heightScaleSlider->value.subscribe(
       [this](const auto &value) { terrain.heightScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.heightScaleSlider->setMin(0).setMax(1000).setSliderValue(1);
+  terrain.heightScaleSlider->setMin(0).setMax(50).setSliderValue(5);
 
   uiLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 300, 1}, glm::vec3{140, 20, 0});
   uiLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Show/hide UI: "_sw);

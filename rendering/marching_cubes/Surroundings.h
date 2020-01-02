@@ -44,6 +44,7 @@ struct Map {
 
   void init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
   std::vector<Chunk *> restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
+  std::vector<Chunk *> restartChunks();
 };
 
 class Surroundings {
@@ -57,9 +58,11 @@ public:
   void setEmpty(Chunk *chunk);
 
   void setFilled(Chunk *chunk);
+  void setNotLoaded(Chunk *chunk);
 
   const std::list<Chunk *> &getUsedChunks() const { return chunkUsageManager.getUsedChunks(); }
 
+  void invalidate();
   const float loadDistance;
   const glm::uvec3 size;
   const float step;

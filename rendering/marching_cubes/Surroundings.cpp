@@ -265,6 +265,22 @@ void Surroundings::checkForMapMove(glm::vec3 cameraPosition) {
   }
   rearrangeSurroundings(cameraIn);
 }
+void Surroundings::setNotLoaded(Chunk *chunk) {
+  auto &usedChunks = chunkUsageManager.getChunkToTileMap();
+  if (auto iter = usedChunks.find(chunk); iter != usedChunks.end()) {
+    iter->second->state = ChunkState::NotLoaded;
+  }
+}
+void Surroundings::invalidate() {
+  for (auto &map : maps) {
+    const auto chunksForRecycle = map.restartChunks();
+    for (auto chunk : chunksForRecycle) {
+      chunk->setComputed(false);
+      chunkUsageManager.returnTileChunk(chunk);
+    }
+  }
+  lastCameraPosition = glm::vec3{std::numeric_limits<float>::infinity()};
+}
 
 bool Map::isInRange(glm::vec3 cameraPosition, float range) { return boundingSphere.distance(cameraPosition) <= range; }
 void Map::init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData) {
@@ -353,6 +369,24 @@ std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 
       loddata.isDivided = false;
       ++perLevelCnt;
     });
+  }
+  return result;
+}
+std::vector<Chunk *> Map::restartChunks() {
+  using namespace MakeRange;
+  std::vector<Chunk *> result;
+  for (auto i : range(tiles.size())) {
+    tiles[i].lod.tree.traverseDepthFirstIf([&result](LODTreeData &loddata) {
+      if (loddata.chunk != nullptr) {
+        result.emplace_back(loddata.chunk);
+        loddata.chunk = nullptr;
+        loddata.isCurrent = false;
+      }
+      const auto wasDivided = loddata.isDivided;
+      loddata.isDivided = false;
+      return wasDivided;
+    });
+    tiles[i].state = ChunkState::NotLoaded;
   }
   return result;
 }

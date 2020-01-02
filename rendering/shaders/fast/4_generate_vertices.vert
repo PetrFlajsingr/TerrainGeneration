@@ -165,7 +165,7 @@ uniform float heightScale;
 
 float nTest(vec3 x, uint numOctaves) {
     float result = 0;
-    const float Ia = 1;
+    const float Ia = 0.01;
     const float If = 0.0000001;
     const float Ss = sharpness;
     const float Se = valleyScale;

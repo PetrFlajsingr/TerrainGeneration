@@ -394,3 +394,9 @@ void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
     ge::gl::glDrawElements(GL_TRIANGLES, chunk->indexCount, GL_UNSIGNED_INT, nullptr);
   }
 }
+TerrainGenerationOptions &ChunkManager::getGenerationOptions() {
+  return generationOptions;
+}
+void ChunkManager::invalidate() {
+  surr.invalidate();
+}

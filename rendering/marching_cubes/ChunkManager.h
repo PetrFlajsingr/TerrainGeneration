@@ -62,6 +62,9 @@ public:
   void draw(DrawMode mode, DrawOptions = {false, false, 0});
   void drawToShadowMap(const geo::BoundingBox<3> &aabb);
 
+  [[nodiscard]] TerrainGenerationOptions &getGenerationOptions();
+
+  void invalidate();
 private:
   TerrainGenerationOptions generationOptions;
   JsonConfig<true> config;

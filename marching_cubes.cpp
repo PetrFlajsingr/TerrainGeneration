@@ -114,6 +114,17 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   ui.uiSwitch->isOn.subscribe_and_call([&ui](const auto &value) { ui.setVisible(value); });
 
+  ui.terrain.applyChangesBtn->setMouseClicked([&ui, &chunks] {
+    chunks.getGenerationOptions()
+        .setOctaves(ui.terrain.octavesSlider->value.get())
+        .setGain(ui.terrain.gainSlider->value.get())
+        .setLacunarity(ui.terrain.lacunaritySlider->value.get())
+        .setSharpness(ui.terrain.sharpnessSlider->value.get())
+        .setValleyScale(ui.terrain.valleyScaleSlider->value.get())
+        .setHeightScale(ui.terrain.heightScaleSlider->value.get());
+    chunks.invalidate();
+  });
+
   FileTextureLoader textureLoader{assetPath};
   TexOptions texOptions{GL_TEXTURE_2D,
                         GL_RGB,
@@ -148,12 +159,11 @@ void main_marching_cubes(int argc, char *argv[]) {
   using namespace std::chrono_literals;
   float time = 0;
 
-  printT(LogLevel::Status, "All set, starting main loop");
-
   bool useGrassTex = true;
-
   auto texBtn = uiManager.createGUIObject<Button>(glm::vec3{550, 0, 1}, glm::vec3{100, 50, 0});
   texBtn->setMouseClicked([&useGrassTex] { useGrassTex = !useGrassTex; });
+
+  printT(LogLevel::Status, "All set, starting main loop");
 
   mainLoop->setIdleCallback([&]() {
     ge::gl::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

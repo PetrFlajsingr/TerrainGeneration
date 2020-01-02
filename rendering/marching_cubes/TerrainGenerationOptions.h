@@ -5,6 +5,8 @@
 #ifndef TERRAINGENERATION_TERRAINGENERATIONOPTIONS_H
 #define TERRAINGENERATION_TERRAINGENERATIONOPTIONS_H
 
+#include "geGL/geGL.h"
+
 class TerrainGenerationOptions {
 public:
   TerrainGenerationOptions() = default;

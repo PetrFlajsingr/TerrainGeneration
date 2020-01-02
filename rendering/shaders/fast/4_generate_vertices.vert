@@ -173,8 +173,8 @@ float nTest(vec3 x, uint numOctaves) {
     float g = gain;
     float l = lacunarity;
     for (uint i = 0; i < numOctaves; ++i) {
-        const float g = pow(g, i);
-        const float l = pow(l, i);
+        const float g = i * g;
+        const float l = i * l;
         const float eps = Ia * g;
         const float lambda = If * l;
 

@@ -28,12 +28,12 @@ public:
   void randomize();
 
 private:
-  unsigned int octaves = 4;
-  float gain = 15;
-  float lacunarity = 6;
+  unsigned int octaves = 8;
+  float gain = 50;
+  float lacunarity = 50;
   float sharpness = 0.000001;
-  float valleyScale = 0.1;
-  float heightScale = 5;
+  float valleyScale = 0.0000000000000001;
+  float heightScale = 25;
 };
 
 #endif // TERRAINGENERATION_TERRAINGENERATIONOPTIONS_H

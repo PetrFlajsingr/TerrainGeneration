@@ -14,7 +14,7 @@ UI::UI(UIManager &uiManager) {
   lineFillBtn->text.setFont("arialbd", 40).setText(L"Line"_sw);
 
   shadowMapsBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0, 60, 1}, glm::vec3{160, 60, 0});
-  shadowMapsBtn->text.setFont("arialbd", 20).setText(L"Show/hide shadow maps"_sw);
+  shadowMapsBtn->text.setFont("arialbd", 20).setText(L"shad. maps"_sw);
 
   fpsLbl = uiManager.createGUIObject<Label>(glm::vec3{1300, 0, 1}, glm::vec3{220, 20, 0});
   fpsLbl->text.setFont("arialbd", 10);
@@ -59,14 +59,14 @@ UI::UI(UIManager &uiManager) {
   terrain.octavesSlider = uiManager.createGUIObject<Slider<unsigned int>>(glm::vec3{1520, 365 + 500, 1}, glm::vec3{315, 20, 0});
   terrain.octavesSlider->value.subscribe(
       [this](const auto &value) { terrain.octavesValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.octavesSlider->setMin(1).setMax(10).setSliderValue(4);
+  terrain.octavesSlider->setMin(1).setMax(16).setSliderValue(8);
   terrain.gainSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 530, 1}, glm::vec3{315, 20, 0});
   terrain.gainSlider->value.subscribe([this](const auto &value) { terrain.gainValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.gainSlider->setMin(0.00001).setMax(100).setSliderValue(15);
+  terrain.gainSlider->setMin(0.00001).setMax(100).setSliderValue(50);
   terrain.lacunaritySlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 560, 1}, glm::vec3{315, 20, 0});
   terrain.lacunaritySlider->value.subscribe(
       [this](const auto &value) { terrain.lacunarityValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.lacunaritySlider->setMin(0.00001).setMax(100).setSliderValue(6);
+  terrain.lacunaritySlider->setMin(0.00001).setMax(100).setSliderValue(50);
   terrain.sharpnessSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 590, 1}, glm::vec3{315, 20, 0});
   terrain.sharpnessSlider->value.subscribe(
       [this](const auto &value) { terrain.sharpnessValLbl->text.setText(WString{std::to_wstring(value)}); });
@@ -74,11 +74,11 @@ UI::UI(UIManager &uiManager) {
   terrain.valleyScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 620, 1}, glm::vec3{315, 20, 0});
   terrain.valleyScaleSlider->value.subscribe(
       [this](const auto &value) { terrain.valleyScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.valleyScaleSlider->setMin(0.00001).setMax(10).setSliderValue(0.1);
+  terrain.valleyScaleSlider->setMin(-1).setMax(1).setSliderValue(0.000000001);
   terrain.heightScaleSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{1520, 365 + 650, 1}, glm::vec3{315, 20, 0});
   terrain.heightScaleSlider->value.subscribe(
       [this](const auto &value) { terrain.heightScaleValLbl->text.setText(WString{std::to_wstring(value)}); });
-  terrain.heightScaleSlider->setMin(0).setMax(50).setSliderValue(5);
+  terrain.heightScaleSlider->setMin(0).setMax(50).setSliderValue(25);
 
   uiLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 300, 1}, glm::vec3{140, 20, 0});
   uiLbl->text.setFont("arialbd", 10).setColor(Color::white).setText(L"Show/hide UI: "_sw);

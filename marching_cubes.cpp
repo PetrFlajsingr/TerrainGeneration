@@ -3,9 +3,8 @@
 //
 #define STB_IMAGE_IMPLEMENTATION
 #include "marching_cubes.h"
-#include "Camera.h"
 #include "MarchingCubesUI.h"
-#include "rendering/Data.h"
+#include "common/ConfigData.h"
 #include "rendering/shadow_maps/CascadedShadowMap.h"
 #include "rendering/textures/DrawTexture.h"
 #include "rendering/textures/FileTextureLoader.h"
@@ -23,7 +22,6 @@
 #include <rendering/models/ModelRenderer.h>
 #include <time/FPSCounter.h>
 #include <types.h>
-#include <ui/elements/Switch.h>
 
 using namespace sdl2cpp::ui;
 using Conf = JsonConfig<true>;
@@ -34,14 +32,26 @@ void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
                                   std::to_wstring(fpsCounter.average()) + L" memory unused: " + std::to_wstring(available)));
 }
 
+std::pair<unsigned int, unsigned int> getWindowSize() {
+  SDL_DisplayMode DM;
+  if (SDL_GetDesktopDisplayMode(0, &DM) != 0) {
+    throw exc::Error("SDL_GetDesktopDisplayMode failed");
+  }
+  unsigned int w = DM.w;
+  unsigned int h = DM.h;
+  return {w, h};
+}
+
 void main_marching_cubes(int argc, char *argv[]) {
   loc_assert(argc != 1, "Provide path for config");
   printT(LogLevel::Info, "Loading config");
   Conf config{argv[1]};
+
+  const auto configData = config.get<ConfigData>().value();
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
 
-  const auto deviceData = config.get<DeviceData>("device").value();
-  auto window = std::make_shared<sdl2cpp::Window>(deviceData.screen.width, deviceData.screen.height);
+  const auto [screenWidth, screenHeight] = getWindowSize();
+  auto window = std::make_shared<sdl2cpp::Window>(screenWidth, screenHeight);
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);
 
@@ -51,9 +61,9 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   ge::gl::glClearColor(0, 153.0f / 255, 203.0f / 255, 1);
 
-  setShaderLocation(config.get<std::string>("paths", "shaderLocation").value());
+  setShaderLocation(configData.paths.shaderLocation);
 
-  const auto assetPath = config.get<std::string>("paths", "assetsLocation").value();
+  const auto assetPath = configData.paths.assetsLocation;
 
   sdl2cpp::ui::UIManager uiManager{window, String{assetPath + "/gui/fonts"}};
 
@@ -72,7 +82,6 @@ void main_marching_cubes(int argc, char *argv[]) {
     line = !line;
   });
 
-  ui.movementSpeedSlider->setMin(1.0f).setMax(5000.0f).setSliderValue(10.0f);
   ui.movementSpeedSlider->value.subscribe_and_call([&ui](auto sliderValue) {
     ui.cameraController->setMovementSpeed(sliderValue);
     ui.speedLbl->text.setText(L"Current speed: {}"_sw.format(sliderValue));
@@ -81,7 +90,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   FPSCounter fpsCounter;
 
   printT(LogLevel::Status, "Initialising chunk manager");
-  ChunkManager chunks{ui.cameraController, config};
+  ChunkManager chunks{ui.cameraController, configData};
   chunks.getSurroundings().info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
 
   printT(LogLevel::Status, "Initialising models");
@@ -231,9 +240,7 @@ void main_marching_cubes(int argc, char *argv[]) {
       renderProgram->setMatrix4fv("projection", glm::value_ptr(ui.cameraController->camera.projection.matrix.getRef()));
       ge::gl::glUniform1i(renderProgram->getUniformLocation("cascadedDepthTexture"), 0);
 
-      chunks.draw(drawMode, {config.get<bool>("debug", "drawChunkBorder", "enabled").value(),
-                             config.get<bool>("debug", "drawNormals").value(),
-                             config.get<unsigned int>("debug", "drawChunkBorder", "step").value()});
+      chunks.draw(drawMode);
 
       modelRenderer.render(renderProgram, ui.cameraController->getViewMatrix(), true);
     }

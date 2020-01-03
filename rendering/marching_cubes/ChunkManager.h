@@ -10,6 +10,7 @@
 #include "graphics/Geometry.h"
 #include "ui/elements/CameraController.h"
 #include "various/loc_assert.h"
+#include <common/ConfigData.h>
 #include <config/JsonConfig.h>
 #include <geGL/StaticCalls.h>
 #include <graphics/TransformFeedback.h>
@@ -20,7 +21,6 @@
 
 #include "Surroundings.h"
 #include "TerrainGenerationOptions.h"
-#include "rendering/Data.h"
 #include "rendering/Light.h"
 #include "types.h"
 
@@ -42,11 +42,11 @@ constexpr float step = 2;
 constexpr unsigned int size = 32;
 class ChunkManager {
 public:
-  ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, JsonConfig<true> config);
+  ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData);
 
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 
-  RenderData renderData;
+  ConfigData configData;
   bool render = true;
   std::shared_ptr<ge::gl::Program> smProgram;
 
@@ -64,7 +64,6 @@ private:
   TerrainGenerationOptions generationOptions;
   ChunkUsageManager chunkUsageManager;
   std::unique_ptr<Surroundings> surr;
-  JsonConfig<true> config;
   void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection);
   void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
   void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step);

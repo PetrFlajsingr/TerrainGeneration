@@ -15,23 +15,19 @@
 
 using namespace ShaderLiterals;
 
-ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, JsonConfig<true> config)
+ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData)
     : cameraController(std::move(cameraController)),
-      chunkUsageManager(ChunkUsageInitData{config.get<unsigned int>("marching_cubes", "chunkPoolSize").value(),
-                                           config.get<unsigned int>("marching_cubes", "computeBatchSize").value(),
-                                           config.get<float>("render", "viewDistance").value(),
-                                           config.get<unsigned int>("render", "levelOfDetail").value(),
-                                           config.get<float>("marching_cubes", "chunkSize").value(), Unloading::Aggresive}),
-      surr(std::make_unique<Surroundings>(config.get<float>("render", "viewDistance").value(),
-                                          glm::uvec3{config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
-                                          chunkUsageManager, config.get<float>("marching_cubes", "chunkSize").value())),
-      config(config) {
+      chunkUsageManager(ChunkUsageInitData{configData.marchingCubes.chunkPoolSize, configData.marchingCubes.computeBatchSize,
+                                           configData.render.viewDistance, configData.render.levelOfDetail,
+                                           configData.marchingCubes.chunkSize, Unloading::Aggresive}),
+      surr(std::make_unique<Surroundings>(configData.render.viewDistance, glm::uvec3{configData.marchingCubes.surroundingSize},
+                                          chunkUsageManager, configData.marchingCubes.chunkSize)),
+      configData(configData) {
   loadShaders();
   createPrograms();
   linkPrograms();
   createLUT();
   createBuffers();
-  renderData = config.get<RenderData>("render").value();
 }
 
 void ChunkManager::loadShaders() {
@@ -194,8 +190,9 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   std::vector<Chunk *> visibleChunks;
   visibleChunks.reserve(chunkUsageManager.getUsedChunks().size() / 2);
   for (auto &chunk : chunkUsageManager.getUsedChunks()) {
-    if (!renderData.viewFrustumCulling || viewFrustum.contains(chunk->boundingBox) != geo::RelativePosition::Outside) {
-      if (chunk->boundingSphere.distance(cameraController->camera.Position) < renderData.viewDistance && chunk->indexCount != 0) {
+    if (viewFrustum.contains(chunk->boundingBox) != geo::RelativePosition::Outside) {
+      if (chunk->boundingSphere.distance(cameraController->camera.Position) < configData.render.viewDistance &&
+          chunk->indexCount != 0) {
         visibleChunks.emplace_back(chunk);
       }
     }
@@ -398,12 +395,13 @@ void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
     ge::gl::glDrawElements(GL_TRIANGLES, chunk->indexCount, GL_UNSIGNED_INT, nullptr);
   }
 }
+
 TerrainGenerationOptions &ChunkManager::getGenerationOptions() { return generationOptions; }
+
 void ChunkManager::invalidate() {
-  // surr->invalidate();
   chunkUsageManager.reset();
-  surr = std::make_unique<Surroundings>(config.get<float>("render", "viewDistance").value(),
-                                        glm::uvec3{config.get<unsigned int>("marching_cubes", "surroundingSize").value()},
-                                        chunkUsageManager, config.get<float>("marching_cubes", "chunkSize").value());
+  surr = std::make_unique<Surroundings>(configData.render.viewDistance, glm::uvec3{configData.marchingCubes.surroundingSize},
+                                        chunkUsageManager, configData.marchingCubes.chunkSize);
 }
+
 Surroundings &ChunkManager::getSurroundings() { return *surr; }

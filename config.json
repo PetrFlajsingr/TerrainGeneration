@@ -8,21 +8,10 @@
     "shaderLocation": "/home/petr/CLionProjects/TerrainGeneration/rendering/shaders",
     "assetsLocation": "/home/petr/CLionProjects/TerrainGeneration/assets"
   },
-  "debug": {
-    "drawMesh": true,
-    "drawNormals": false,
-    "drawChunkBorder": {
-      "enabled": false,
-      "step": 32
-    }
-  },
   "render": {
     "viewDistance": 300000,
     "levelOfDetail": 1,
-    "viewFrustumCulling": true,
-    "shadows": {
-      "enabled": true
-    }
+    "shadows": true
   },
   "marching_cubes": {
     "chunkSize": 1000,

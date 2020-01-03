@@ -48,6 +48,9 @@ template <typename T, typename... Keys> void setJsonNode(nlohmann::json &contain
 
 template <> struct ConfigContainerTraits<nlohmann::json> {
   template <typename T, typename... Keys> static std::optional<T> find(nlohmann::json &container, const Keys &... keys) {
+    if constexpr (sizeof...(keys) == 0) {
+      return container;
+    }
     if (auto iter = findJsonNode(container, keys...); iter.has_value()) {
       return **iter;
     }

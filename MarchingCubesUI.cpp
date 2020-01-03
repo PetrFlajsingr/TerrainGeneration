@@ -26,6 +26,7 @@ UI::UI(UIManager &uiManager) {
   speedLbl->text.setFont("arialbd", 10).setColor(Color::white);
   movementSpeedSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{0, 700, 1}, glm::vec3{200, 50, 0});
   movementSpeedSlider->setColor(Color::transparent(Color::red, 0.5f));
+  movementSpeedSlider->setMin(1.0f).setMax(5000.0f).setSliderValue(100.0f);
 
   chunkInfoLbl = uiManager.createGUIObject<Label>(glm::vec3{0, 1000, 1}, glm::vec3{500, 20, 0});
   chunkInfoLbl->text.setFont("arialbd", 10).setColor(Color::white);

@@ -16,7 +16,7 @@ namespace sdl2cpp::ui {
  * Common class for all ui objects.
  */
 class UIObject : public std::enable_shared_from_this<UIObject> {
-  OBSERVABLE_PROPERTIES(UIObject);
+  OBSERVABLE_PROPERTIES(UIObject)
 
 public:
   explicit UIObject(UIManager &guiManager);
@@ -57,7 +57,7 @@ private:
  */
 class UIVisible : public virtual UIObject {
   friend class UIManager;
-  OBSERVABLE_PROPERTIES(UIVisible);
+  OBSERVABLE_PROPERTIES(UIVisible)
 
 public:
   UIVisible(glm::vec3 position, glm::vec3 dimensions);

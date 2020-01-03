@@ -56,7 +56,7 @@ void Tree<T, ChildCount>::setParent(Node<T, ChildCount> *parent, Leaf<T, ChildCo
   for (auto &child : node->asNode().getChildren()) {
     setParent(&node->asNode(), child.get());
   }
-};
+}
 
 template <typename T, unsigned int ChildCount> Tree<T, ChildCount>::Tree(const Tree &other) {
   root = other.root == nullptr ? nullptr : std::make_unique<Root>(other.root->asNode());

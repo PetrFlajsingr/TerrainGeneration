@@ -14,7 +14,7 @@ namespace sdl2cpp::ui {
  * Typical button with text.
  */
 class Button : public MouseInteractable {
-  OBSERVABLE_PROPERTIES(Button);
+  OBSERVABLE_PROPERTIES(Button)
 
 public:
   Button(UIManager &guiManager, glm::vec3 position, glm::vec3 dimensions);

@@ -11,7 +11,7 @@
 
 class Text {
   freetypeglxx::VertexBuffer buffer = freetypeglxx::VertexBuffer("vertex:3f,tex_coord:2f,color:4f");
-  OBSERVABLE_PROPERTIES(Text);
+  OBSERVABLE_PROPERTIES(Text)
   friend class TextRenderer;
 
   struct vertex_t {

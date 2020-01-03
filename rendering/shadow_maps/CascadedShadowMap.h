@@ -73,6 +73,13 @@ private:
 template <typename F> void CascadedShadowMap::renderShadowMap(F renderFunction,
                                                               const PerspectiveProjection &perspectiveProjection,
                                                               const glm::mat4 &cameraView) {
+  static glm::mat4 lastCameraView;
+  static glm::vec3 lastLightDir{0};
+  if (lastCameraView == cameraView && lastLightDir == lightDir) {
+    return;
+  }
+  lastCameraView = cameraView;
+  lastLightDir = lightDir;
   using namespace MakeRange;
   calculateOrthoMatrices(perspectiveProjection.matrix.getRef(), cameraView, perspectiveProjection.getNear(),
                          perspectiveProjection.getFar());

@@ -90,6 +90,11 @@ UI::UI(UIManager &uiManager) {
 
   terrain.randomizeBtn = uiManager.createGUIObject<sdl2cpp::ui::Button>(glm::vec3{0.87, 0.96, 1}, glm::vec3{0.08, 0.028, 0});
   terrain.randomizeBtn->text.setFont("arialbd", 10).setText(L"Randomize"_sw);
+
+  lightDirLbl = uiManager.createGUIObject<sdl2cpp::ui::Label>(glm::vec3{0, 0.88, 1}, glm::vec3{0.08, 0.028, 0});
+  lightDirLbl->text.setFont("arialbd", 10).setText(L"Light dir:"_sw).setColor(Color::white);
+  lightDirSlider = uiManager.createGUIObject<Slider<float>>(glm::vec3{0.05, 0.9, 1}, glm::vec3{0.15, 0.02, 0});
+  lightDirSlider->setMin(-1).setMax(1).setSliderValue(0.5);
 }
 
 void UI::setVisible(bool visible) {
@@ -102,6 +107,8 @@ void UI::setVisible(bool visible) {
   speedLbl->setVisibility(visibility);
   cameraController->setVisibility(visibility);
   movementSpeedSlider->setVisibility(visibility);
+  lightDirSlider->setVisibility(visibility);
+  lightDirLbl->setVisibility(visibility);
 
   terrain.octavesLbl->setVisibility(visibility);
   terrain.gainLbl->setVisibility(visibility);

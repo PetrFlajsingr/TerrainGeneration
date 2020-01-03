@@ -24,6 +24,9 @@ struct UI {
   std::shared_ptr<Label> uiLbl;
   std::shared_ptr<Switch> uiSwitch;
 
+  std::shared_ptr<Label> lightDirLbl;
+  std::shared_ptr<Slider<float>> lightDirSlider;
+
   struct {
     std::shared_ptr<Label> octavesLbl;
     std::shared_ptr<Label> gainLbl;

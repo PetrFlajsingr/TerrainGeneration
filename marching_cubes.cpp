@@ -143,6 +143,16 @@ void main_marching_cubes(int argc, char *argv[]) {
     chunks.getSurroundings().info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
   });
 
+  ui.lightDirSlider->value.subscribe_and_call([&cascadedShadowMap] (float value) {
+    const auto y = 1.0f - glm::abs(value);
+    print(glm::vec3{1.f - y, -y, 0});
+    if (value < 0) {
+      cascadedShadowMap.setLightDir({-(1.f - y), -y, 0});
+    } else {
+      cascadedShadowMap.setLightDir({1.f - y, -y, 0});
+    }
+  });
+
   FileTextureLoader textureLoader{assetPath};
   TexOptions texOptions{GL_TEXTURE_2D,
                         GL_RGB,

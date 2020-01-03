@@ -20,19 +20,17 @@ class Chunk {
   using VertexArray = std::shared_ptr<ge::gl::VertexArray>;
 
 public:
-  enum Buffers { Density, Vertex, Normal, Index };
-  Chunk(glm::vec3 startPosition, float step, uint size);
+  /**
+   * Prepares GPU buffers and VAO for rendering.
+   * @param startPosition world space position for start of chunk -- lower left back corner
+   * @param step size of one cube within the chunk
+   * @param size amount of cubes in each row of a chunk
+   */
+  Chunk(glm::vec3 startPosition, float step, unsigned int size);
 
   Chunk(const Chunk &other);
   Chunk &operator=(const Chunk &other);
   Chunk(Chunk &&other) = default;
-
-  glm::vec3 startPosition;
-  float step;
-  uint size;
-
-  geo::BoundingBox<3> boundingBox;
-  geo::BoundingSphere<3> boundingSphere;
 
   [[nodiscard]] const SBuffer &getDensityBuffer() const;
   [[nodiscard]] const SBuffer &getVertexBuffer() const;
@@ -44,15 +42,32 @@ public:
   [[nodiscard]] bool isComputed() const;
 
   void setComputed(bool val);
-
   void recalc();
 
-  /* DEBUG */
-  uint vertexCount = 0;
-  /* \DEBUG */
-  uint indexCount = 0;
+  [[nodiscard]] const glm::vec3 &getStartPosition() const;
+  [[nodiscard]] float getStep() const;
+  [[nodiscard]] uint getSize() const;
+  [[nodiscard]] unsigned int getVertexCount() const;
+  [[nodiscard]] unsigned int getIndexCount() const;
+
+  [[nodiscard]] const geo::BoundingBox<3> &getBoundingBox() const;
+  [[nodiscard]] const geo::BoundingSphere<3> &getBoundingSphere() const;
+
+  void setStartPosition(const glm::vec3 &startPosition);
+  void setStep(float step);
+  void setVertexCount(unsigned int vertexCount);
+  void setIndexCount(unsigned int indexCount);
 
 private:
+  glm::vec3 startPosition;
+  float step;
+  uint size;
+  unsigned int vertexCount = 0;
+  unsigned int indexCount = 0;
+
+  geo::BoundingBox<3> boundingBox;
+  geo::BoundingSphere<3> boundingSphere;
+
   SBuffer densityBuffer;
   SBuffer vertexBuffer;
   SBuffer normalBuffer;

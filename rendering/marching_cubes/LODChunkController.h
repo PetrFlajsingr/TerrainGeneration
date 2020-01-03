@@ -13,7 +13,7 @@ class Tile;
 class EmptyChunkChecker {
 public:
   bool operator()(Leaf<LODTreeData, 8> &lodData) {
-    if (lodData->isCurrent && lodData->chunk != nullptr && lodData->chunk->indexCount > 0) {
+    if (lodData->isCurrent && lodData->chunk != nullptr && lodData->chunk->getIndexCount() > 0) {
       empty = false;
       return false;
     }

@@ -60,9 +60,9 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 pos
       assert(lodData->chunk != nullptr);
       lodData->chunk->setComputed(false);
       const auto chunkStep = data.steps[lodData->level];
-      lodData->chunk->step = chunkStep;
-      lodData->chunk->startPosition =
-          tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f;
+      lodData->chunk->setStep(chunkStep);
+      lodData->chunk->setStartPosition(
+          tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f);
       lodData->chunk->recalc();
       tile.state = ChunkState::Setup;
       ++counters.setupCount;
@@ -80,9 +80,9 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncForNew(glm::vec3 pos
         assert(lodData->chunk != nullptr);
         lodData->chunk->setComputed(false);
         const auto chunkStep = data.steps[lodData->level];
-        lodData->chunk->step = chunkStep;
-        lodData->chunk->startPosition =
-            tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f;
+        lodData->chunk->setStep(chunkStep);
+        lodData->chunk->setStartPosition(
+            tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f);
         lodData->chunk->recalc();
         tile.state = ChunkState::Setup;
         ++counters.setupCount;
@@ -149,9 +149,9 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
       lodData->chunk = chunkUsageManager.borrowChunk(tile);
       lodData->chunk->setComputed(false);
       const auto chunkStep = data.steps[lodData->level];
-      lodData->chunk->step = chunkStep;
-      lodData->chunk->startPosition =
-          tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f;
+      lodData->chunk->setStep(chunkStep);
+      lodData->chunk->setStartPosition(
+          tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f);
       lodData->chunk->recalc();
       ++counters.setupCount;
       return wasDivided;
@@ -167,9 +167,9 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
         lodData->chunk = chunkUsageManager.borrowChunk(tile);
         lodData->chunk->setComputed(false);
         const auto chunkStep = data.steps[lodData->level];
-        lodData->chunk->step = chunkStep;
-        lodData->chunk->startPosition =
-            tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f;
+        lodData->chunk->setStep(chunkStep);
+        lodData->chunk->setStartPosition(
+            tile.pos + chunkStep * offsetForSubChunk(lodData->index, LODData::ChunkCountInRow(lodData->level)) * 30.f);
         lodData->chunk->recalc();
         tile.state = ChunkState::Setup;
         ++counters.setupCount;

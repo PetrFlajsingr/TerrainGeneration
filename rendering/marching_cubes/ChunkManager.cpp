@@ -191,9 +191,9 @@ void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   std::vector<Chunk *> visibleChunks;
   visibleChunks.reserve(chunkUsageManager.getUsedChunks().size() / 2);
   for (auto &chunk : chunkUsageManager.getUsedChunks()) {
-    if (viewFrustum.contains(chunk->boundingBox) != geo::RelativePosition::Outside) {
-      if (chunk->boundingSphere.distance(cameraController->camera.Position) < configData.render.viewDistance &&
-          chunk->indexCount != 0) {
+    if (viewFrustum.contains(chunk->getBoundingBox()) != geo::RelativePosition::Outside) {
+      if (chunk->getBoundingSphere().distance(cameraController->camera.Position) < configData.render.viewDistance &&
+          chunk->getIndexCount() != 0) {
         visibleChunks.emplace_back(chunk);
       }
     }
@@ -221,7 +221,7 @@ void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 proje
 
   for (auto &chunk : chunks) {
     chunk->getVA()->bind();
-    ge::gl::glDrawElements(GL_TRIANGLES, chunk->indexCount, GL_UNSIGNED_INT, nullptr);
+    ge::gl::glDrawElements(GL_TRIANGLES, chunk->getIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
 }
 
@@ -233,15 +233,15 @@ void ChunkManager::drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVP
   ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(drawNormalsProgram, "mvpUniform"), 1, GL_FALSE, &MVPmatrix[0][0]);
   for (auto &chunk : chunks) {
     chunk->getVA()->bind();
-    ge::gl::glDrawArrays(GL_POINTS, 0, chunk->vertexCount);
+    ge::gl::glDrawArrays(GL_POINTS, 0, chunk->getVertexCount());
   }
 }
 
 void ChunkManager::drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step) {
   ge::gl::glUseProgram(drawCubeBoundariesProgram);
   for (auto &chunk : chunks) {
-    ge::gl::glUniform1f(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "chunkStep"), chunk->step);
-    ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "start"), 1, &chunk->startPosition[0]);
+    ge::gl::glUniform1f(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "chunkStep"), chunk->getStep());
+    ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "start"), 1, &chunk->getStartPosition()[0]);
     ge::gl::glUniformMatrix4fv(ge::gl::glGetUniformLocation(drawCubeBoundariesProgram, "mvpUniform"), 1, GL_FALSE,
                                &MVPmatrix[0][0]);
 
@@ -265,8 +265,8 @@ void ChunkManager::calculateDensity(const std::vector<Chunk *> &chunks) {
   for (auto &chunk : chunks) {
     chunk->getDensityBuffer()->pageCommitment(0, chunk->getDensityBuffer()->getSize(), true);
     chunk->getDensityBuffer()->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
-    ge::gl::glUniform1f(stepLocation, chunk->step);
-    ge::gl::glUniform3fv(startLocation, 1, &chunk->startPosition[0]);
+    ge::gl::glUniform1f(stepLocation, chunk->getStep());
+    ge::gl::glUniform3fv(startLocation, 1, &chunk->getStartPosition()[0]);
     ge::gl::glDispatchCompute(4, 4, 4);
     ge::gl::glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
   }
@@ -279,7 +279,7 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
     chunkCoordVertexArray->bind();
     transformFeedback1.begin(GL_POINTS);
     query.begin();
-    ge::gl::glDrawArrays(GL_POINTS, 0, std::pow(chunk->size, 3));
+    ge::gl::glDrawArrays(GL_POINTS, 0, std::pow(chunk->getSize(), 3));
     query.end();
     transformFeedback1.end();
     const uint caseCount = query.getui();
@@ -302,8 +302,8 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
         edgeMarkersVertexArray->bind();
         edgeToVertexLUTBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
         chunk->getDensityBuffer()->bindBase(GL_SHADER_STORAGE_BUFFER, 1);
-        ge::gl::glUniform1f(ge::gl::glGetUniformLocation(generateVerticesProgram, "chunkStep"), chunk->step);
-        ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1, &chunk->startPosition[0]);
+        ge::gl::glUniform1f(ge::gl::glGetUniformLocation(generateVerticesProgram, "chunkStep"), chunk->getStep());
+        ge::gl::glUniform3fv(ge::gl::glGetUniformLocation(generateVerticesProgram, "start"), 1, &chunk->getStartPosition()[0]);
 
         chunk->getVertexBuffer()->pageCommitment(0, edgeCount * sizeof(float) * 4 /*vertexBuffer->getSize()*/, true);
         chunk->getNormalBuffer()->pageCommitment(0, edgeCount * sizeof(float) * 3 /*normalBuffer->getSize()*/, true);
@@ -318,7 +318,7 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
         query.end();
         transformFeedback3.end();
 
-        chunk->vertexCount = query.getui();
+        chunk->setVertexCount(query.getui());
 
         ge::gl::glUseProgram(clearVertexIDsProgram);
         vertexIDsBuffer->bindBase(GL_SHADER_STORAGE_BUFFER, 0);
@@ -346,15 +346,15 @@ void ChunkManager::streamIdxVert(const std::vector<Chunk *> &chunks, ge::gl::Asy
         ge::gl::glDrawArrays(GL_POINTS, 0, caseCount);
         query.end();
         transformFeedback4.end();
-        chunk->indexCount = query.getui() * 3;
+        chunk->setIndexCount(query.getui() * 3);
       }
     } else {
-      chunk->vertexCount = 0;
-      chunk->indexCount = 0;
+      chunk->setVertexCount(0);
+      chunk->setIndexCount(0);
     }
 
     chunk->setComputed(true);
-    if (chunk->indexCount != 0) {
+    if (chunk->getIndexCount() != 0) {
       surr->setFilled(chunk);
       chunk->getDensityBuffer()->pageCommitment(false);
     } else {
@@ -387,14 +387,13 @@ void ChunkManager::drawToShadowMap(const geo::BoundingBox<3> &aabb) {
   std::vector<Chunk *> visibleChunks;
   visibleChunks.reserve(chunkUsageManager.getUsedChunks().size() / 4);
   for (auto &chunk : chunkUsageManager.getUsedChunks()) {
-    if (chunk->boundingSphere.distance(cameraController->camera.Position) < configData.render.viewDistance) {
-    //if (aabb.contains(chunk->boundingBox) != geo::RelativePosition::Outside && chunk->indexCount != 0) {
+    if (chunk->getBoundingSphere().distance(cameraController->camera.Position) < configData.render.viewDistance) {
       visibleChunks.emplace_back(chunk);
     }
   }
   for (auto &chunk : visibleChunks) {
     chunk->getVA()->bind();
-    ge::gl::glDrawElements(GL_TRIANGLES, chunk->indexCount, GL_UNSIGNED_INT, nullptr);
+    ge::gl::glDrawElements(GL_TRIANGLES, chunk->getIndexCount(), GL_UNSIGNED_INT, nullptr);
   }
 }
 

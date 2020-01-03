@@ -12,7 +12,9 @@ using namespace sdl2cpp::ui;
 struct UI {
 
   explicit UI(UIManager &uiManager);
+
   void setVisible(bool visible);
+
   std::shared_ptr<Button> lineFillBtn;
   std::shared_ptr<Button> shadowMapsBtn;
   std::shared_ptr<Button> pauseMCBtn;

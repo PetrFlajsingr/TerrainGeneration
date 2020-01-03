@@ -55,7 +55,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
         }
     }
 
-    float angleBias = 0.06f * (cascadeIdx);
+    float angleBias = 0.007f * (cascadeIdx);
 
     mat4 lightViewProjectionMatrix = lightViewProjectionMatrices[cascadeIdx];
 
@@ -71,7 +71,7 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     float currentDepth = projCoords.z;
     projCoords.z = cascadeIdx;
 
-    float bias = max(angleBias * (1.0 - dot(normal, lightDirection)), 0.0008);
+    float bias = max(angleBias * (1.0 - dot(normal, lightDirection)), 0.009);
 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(cascadedDepthTexture, 0).xy;

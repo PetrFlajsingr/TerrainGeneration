@@ -32,7 +32,7 @@ void updateFPSLabel(UI &ui, const FPSCounter &fpsCounter) {
                                   std::to_wstring(fpsCounter.average()) + L" memory unused: " + std::to_wstring(available)));
 }
 
-std::pair<unsigned int, unsigned int> getWindowSize() {
+std::pair<unsigned int, unsigned int> getDisplaySize() {
   SDL_DisplayMode DM;
   if (SDL_GetDesktopDisplayMode(0, &DM) != 0) {
     throw exc::Error("SDL_GetDesktopDisplayMode failed");
@@ -50,7 +50,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   const auto configData = config.get<ConfigData>().value();
   auto mainLoop = std::make_shared<sdl2cpp::MainLoop>();
 
-  const auto [screenWidth, screenHeight] = getWindowSize();
+  const auto [screenWidth, screenHeight] = getDisplaySize();
   auto window = std::make_shared<sdl2cpp::Window>(screenWidth, screenHeight);
   window->createContext("rendering", 430);
   mainLoop->addWindow("mainWindow", window);

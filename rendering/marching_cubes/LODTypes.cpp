@@ -17,8 +17,6 @@ LODData::LODData(unsigned int levelCount, float viewDistance, float chunkStep) :
     steps[i] = chunkStep / std::pow(2, i);
   }
   distances[0] = std::numeric_limits<float>::infinity();
-
-  print(distances);
 }
 
 unsigned int LODData::ChunkCountInRow(unsigned int level) {

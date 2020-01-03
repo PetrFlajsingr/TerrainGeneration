@@ -81,6 +81,7 @@ template <typename F> void CascadedShadowMap::renderShadowMap(F renderFunction,
   TempViewportSetter viewportSetter{{0, 0, static_cast<int>(size), static_cast<int>(size)}};
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 
+  ge::gl::glDisable(GL_CULL_FACE);
   for (auto i : range(cascadeCount)) {
     bindCascade(i);
     ge::gl::glClear(GL_DEPTH_BUFFER_BIT);
@@ -93,6 +94,7 @@ template <typename F> void CascadedShadowMap::renderShadowMap(F renderFunction,
   }
   ge::gl::glDisable(GL_DEPTH_CLAMP);
   ge::gl::glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  ge::gl::glEnable(GL_CULL_FACE);
   ge::gl::glCullFace(GL_BACK);
 }
 

@@ -18,6 +18,14 @@
     "surroundingSize": 5,
     "chunkPoolSize": 2048,
     "aggressiveChunkUnloading": false,
-    "computeBatchSize": 100
+    "computeBatchSize": 100,
+    "textures" : {
+      "x+" : "sand/sand_ripples.jpg",
+      "x-" : "sand/sand_ripples.jpg",
+      "y+" : "desert sand.jpg",
+      "y-" : "Seamless ground rock.jpg",
+      "z+" : "sand/sand_ripples.jpg",
+      "z-" : "sand/sand_ripples.jpg"
+    }
   }
 }

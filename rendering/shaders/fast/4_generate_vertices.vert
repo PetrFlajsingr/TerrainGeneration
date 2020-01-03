@@ -11,36 +11,6 @@ out vec3 Normal;
 uniform vec3 start;
 uniform float chunkStep;
 
-float hash(float n) { return fract(sin(n) * 1e4); }
-float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
-
-float noise(vec3 x) {
-    const vec3 step = vec3(110, 241, 171);
-
-    vec3 i = floor(x);
-    vec3 f = fract(x);
-
-    float n = dot(i, step);
-
-    vec3 u = f * f * (3.0 - 2.0 * f);
-    return mix(mix(mix(hash(n + dot(step, vec3(0, 0, 0))), hash(n + dot(step, vec3(1, 0, 0))), u.x),
-    mix(hash(n + dot(step, vec3(0, 1, 0))), hash(n + dot(step, vec3(1, 1, 0))), u.x), u.y),
-    mix(mix(hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
-    mix(hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
-}
-
-float fbm(vec3 x, uint numOctaves) {
-    float v = 0.0;
-    float a = 0.5;
-    vec3 shift = vec3(100);
-    for (int i = 0; i < numOctaves; ++i) {
-        v += a * noise(x);
-        x = x * 2.0 + shift;
-        a *= 0.5;
-    }
-    return v;
-}
-
 vec3 vertexForIndex(uint number, vec3 v0, float step) {
     uint w = 32;
     uint h = w;
@@ -72,10 +42,6 @@ uint computeVertexIndex(uvec3 chunkCoord, uint vertexNumber) {
         case 7: return index + w * h + w + 1;
     }
     return 0;
-}
-
-float distToSphere(vec3 vertex, vec3 center, float radius) {
-    return -(sqrt(pow(center.x-vertex.x, 2) + pow(center.y-vertex.y, 2) + pow(center.z-vertex.z, 2)) - radius);
 }
 
 //	Classic Perlin 3D Noise
@@ -165,7 +131,7 @@ uniform float heightScale;
 
 float nTest(vec3 x, uint numOctaves) {
     float result = 0;
-    const float Ia = 0.01;
+    const float Ia = 1;
     const float If = 0.0000001;
     const float Ss = sharpness;
     const float Se = valleyScale;
@@ -196,7 +162,6 @@ float nTest(vec3 x, uint numOctaves) {
     }
     return result;
 }
-
 
 float calculateDensity(vec3 vertex) {
     return -vertex.y + nTest(vertex, octaves);

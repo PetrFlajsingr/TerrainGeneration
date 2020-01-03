@@ -71,12 +71,12 @@ vec3 readShadowMap(vec3 lightDirection, vec3 normal, float depthViewSpace, vec3 
     float currentDepth = projCoords.z;
     projCoords.z = cascadeIdx;
 
-    float bias = max(angleBias * (1.0 - dot(normal, lightDirection)), 0.009);
+    const float bias = max(angleBias * (1.0 - dot(normal, lightDirection)), 0.009);
 
     float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(cascadedDepthTexture, 0).xy;
+    const vec2 texelSize = 1.0 / textureSize(cascadedDepthTexture, 0).xy;
 
-    const int kernelSize = 5;
+    const int kernelSize = 3;
     const int kernelOffset = kernelSize / 2;
     for (int x = -kernelOffset; x <= kernelOffset; ++x)
     {

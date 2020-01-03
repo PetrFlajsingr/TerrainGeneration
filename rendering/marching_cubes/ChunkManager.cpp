@@ -15,7 +15,7 @@
 
 using namespace ShaderLiterals;
 
-ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData)
+ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData, const std::array<std::string, 6> textureFileNames)
     : cameraController(std::move(cameraController)),
       chunkUsageManager(ChunkUsageInitData{configData.marchingCubes.chunkPoolSize, configData.marchingCubes.computeBatchSize,
                                            configData.render.viewDistance, configData.render.levelOfDetail,
@@ -23,7 +23,7 @@ ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> camera
       surr(std::make_unique<Surroundings>(configData.render.viewDistance, glm::uvec3{configData.marchingCubes.surroundingSize},
                                           chunkUsageManager, configData.marchingCubes.chunkSize,
                                           configData.render.levelOfDetail)),
-      configData(configData) {
+      configData(configData), textures(configData.paths.assetsLocation, textureFileNames) {
   loadShaders();
   createPrograms();
   linkPrograms();
@@ -171,11 +171,11 @@ void ChunkManager::linkPrograms() {
 void ChunkManager::draw(DrawMode mode, DrawOptions drawOptions) {
   ge::gl::glEnable(GL_DEPTH_TEST);
   ge::gl::glEnable(GL_CULL_FACE);
-  auto projection = cameraController->camera.projection.matrix.getRef();
-  auto view = cameraController->getViewMatrix();
+  const auto &projection = cameraController->camera.projection.matrix.getRef();
+  const auto view = cameraController->getViewMatrix();
 
-  auto model = glm::mat4();
-  auto MVPmatrix = projection * view * model;
+  const auto model = glm::mat4();
+  const auto MVPmatrix = projection * view * model;
 
   switch (mode) {
   case DrawMode::Polygon:
@@ -216,6 +216,7 @@ void ChunkManager::drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 proje
     glm::mat4 model{1};
     smProgram->setMatrix4fv("model", &model[0][0]);
     smProgram->setMatrix4fv("view", &cameraController->getViewMatrix()[0][0]);
+    textures.bind(*smProgram);
   }
 
   for (auto &chunk : chunks) {

@@ -42,6 +42,18 @@ std::pair<unsigned int, unsigned int> getDisplaySize() {
   return {w, h};
 }
 
+std::array<std::string, 6> getTextureNamesFromConfig(Conf &config) {
+  return {
+    config.get<std::string>("marching_cubes", "textures", "x+").value(),
+    config.get<std::string>("marching_cubes", "textures", "x-").value(),
+    config.get<std::string>("marching_cubes", "textures", "y+").value(),
+    config.get<std::string>("marching_cubes", "textures", "y-").value(),
+    config.get<std::string>("marching_cubes", "textures", "z+").value(),
+    config.get<std::string>("marching_cubes", "textures", "z-").value(),
+  };
+}
+
+
 void main_marching_cubes(int argc, char *argv[]) {
   loc_assert(argc != 1, "Provide path for config");
   printT(LogLevel::Info, "Loading config");
@@ -90,7 +102,7 @@ void main_marching_cubes(int argc, char *argv[]) {
   FPSCounter fpsCounter;
 
   printT(LogLevel::Status, "Initialising chunk manager");
-  ChunkManager chunks{ui.cameraController, configData};
+  ChunkManager chunks{ui.cameraController, configData, getTextureNamesFromConfig(config)};
   chunks.getSurroundings().info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
 
   printT(LogLevel::Status, "Initialising models");
@@ -145,7 +157,6 @@ void main_marching_cubes(int argc, char *argv[]) {
 
   ui.lightDirSlider->value.subscribe_and_call([&cascadedShadowMap] (float value) {
     const auto y = 1.0f - glm::abs(value);
-    print(glm::vec3{1.f - y, -y, 0});
     if (value < 0) {
       cascadedShadowMap.setLightDir({-(1.f - y), -y, 0});
     } else {
@@ -153,43 +164,10 @@ void main_marching_cubes(int argc, char *argv[]) {
     }
   });
 
-  FileTextureLoader textureLoader{assetPath};
-  TexOptions texOptions{GL_TEXTURE_2D,
-                        GL_RGB,
-                        true,
-                        {
-                            {GL_TEXTURE_WRAP_S, GL_REPEAT},
-                            {GL_TEXTURE_WRAP_T, GL_REPEAT},
-                            {GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR},
-                            {GL_TEXTURE_MAG_FILTER, GL_LINEAR},
-                        }};
-
-  struct {
-    unsigned int tex2;
-    unsigned int tex1;
-    unsigned int tex3;
-  } sandTex;
-
-  sandTex.tex2 = textureLoader.loadTexture("sand/sand_ripples.jpg", texOptions);
-  sandTex.tex1 = textureLoader.loadTexture("Seamless ground rock.jpg", texOptions);
-  sandTex.tex3 = textureLoader.loadTexture("desert sand.jpg", texOptions);
-
-  struct {
-    unsigned int tex2;
-    unsigned int tex1;
-    unsigned int tex3;
-  } grassTex;
-
-  grassTex.tex2 = textureLoader.loadTexture("Grass Green Textures/GrassGreenTexture0003.jpg", texOptions);
-  grassTex.tex1 = textureLoader.loadTexture("Seamless ground rock.jpg", texOptions);
-  grassTex.tex3 = textureLoader.loadTexture("desert sand.jpg", texOptions);
+  MarchingCubesTextures textures{assetPath, getTextureNamesFromConfig(config)};
 
   using namespace std::chrono_literals;
   float time = 0;
-
-  bool useGrassTex = true;
-  auto texBtn = uiManager.createGUIObject<Button>(glm::vec3{550, 0, 1}, glm::vec3{100, 50, 0});
-  texBtn->setMouseClicked([&useGrassTex] { useGrassTex = !useGrassTex; });
 
   printT(LogLevel::Status, "All set, starting main loop");
 
@@ -219,30 +197,7 @@ void main_marching_cubes(int argc, char *argv[]) {
 
       renderProgram->use();
 
-      if (useGrassTex) {
-        ge::gl::glActiveTexture(GL_TEXTURE0 + 1);
-        ge::gl::glBindTexture(GL_TEXTURE_2D, grassTex.tex1);
-        ge::gl::glActiveTexture(GL_TEXTURE0 + 2);
-        ge::gl::glBindTexture(GL_TEXTURE_2D, grassTex.tex2);
-        ge::gl::glActiveTexture(GL_TEXTURE0 + 3);
-        ge::gl::glBindTexture(GL_TEXTURE_2D, grassTex.tex3);
-      } else {
-        {
-          ge::gl::glActiveTexture(GL_TEXTURE0 + 1);
-          ge::gl::glBindTexture(GL_TEXTURE_2D, sandTex.tex1);
-          ge::gl::glActiveTexture(GL_TEXTURE0 + 2);
-          ge::gl::glBindTexture(GL_TEXTURE_2D, sandTex.tex2);
-          ge::gl::glActiveTexture(GL_TEXTURE0 + 3);
-          ge::gl::glBindTexture(GL_TEXTURE_2D, sandTex.tex3);
-        }
-      }
-
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusX"), 3);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusY"), 2);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("texturePlusZ"), 3);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusX"), 3);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusY"), 1);
-      ge::gl::glUniform1i(renderProgram->getUniformLocation("textureMinusZ"), 3);
+      textures.bind(*renderProgram);
       cascadedShadowMap.bindRender(renderProgram);
       renderProgram->setMatrix4fv("inverseViewMatrix", glm::value_ptr(glm::inverse(ui.cameraController->getViewMatrix())));
 

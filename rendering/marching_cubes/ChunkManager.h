@@ -19,6 +19,7 @@
 #include <memory>
 #include <vector>
 
+#include "MCTextures.h"
 #include "Surroundings.h"
 #include "TerrainGenerationOptions.h"
 #include "rendering/Light.h"
@@ -42,7 +43,7 @@ constexpr float step = 2;
 constexpr unsigned int size = 32;
 class ChunkManager {
 public:
-  ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData);
+  ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData, const std::array<std::string, 6> textureFileNames);
 
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 
@@ -64,6 +65,7 @@ private:
   TerrainGenerationOptions generationOptions;
   ChunkUsageManager chunkUsageManager;
   std::unique_ptr<Surroundings> surr;
+  MarchingCubesTextures textures;
   void drawChunk(const std::vector<Chunk *> &chunks, glm::mat4 projection);
   void drawNormals(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix);
   void drawChunkCubes(const std::vector<Chunk *> &chunks, glm::mat4 MVPmatrix, uint step);

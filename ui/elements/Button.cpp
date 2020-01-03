@@ -14,16 +14,18 @@
 sdl2cpp::ui::Button::Button(UIManager &guiManager, glm::vec3 position, glm::vec3 dimensions)
     : UIObject(guiManager), UIVisible(position, dimensions), MouseInteractable(),
       text(guiManager.getTextRenderer().createText()) {
-  SDL_Rect rect{static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(dimensions.x),
-                static_cast<int>(dimensions.y)};
-  auto positions = sdlRectToGLCoordinates(rect, 1920, 1080);
+  const auto [windowWidth, windowHeight] = guiManager.getWindowSize();
+  SDL_Rect rect{static_cast<int>(position.x * windowWidth), static_cast<int>(position.y * windowHeight),
+                static_cast<int>(dimensions.x * windowWidth), static_cast<int>(dimensions.y * windowHeight)};
+  auto positions = sdlRectToGLCoordinates(rect, windowWidth, windowHeight);
   buffer = createBuffer<glm::vec3>(4, GL_STATIC_DRAW, &positions[0]);
   vao = std::make_shared<ge::gl::VertexArray>();
   vao->addAttrib(buffer, 0, 3, GL_FLOAT, sizeof(float) * 3, 0, GL_FALSE);
 
-  text.setPosition({position.x / 1920 * 1000, 562.5 - (position.y + dimensions.y) / 1080 * 562.5, 0});
+  text.setPosition({position.x * 1000, 562.5 - (position.y + dimensions.y) * 562.5, 0});
   text.setColor({0, 0, 1, 1});
 }
+
 void sdl2cpp::ui::Button::draw(GUIRenderer &renderer) {
   renderer.getProgram()->set4fv("color", &color[0]);
   vao->bind();
@@ -40,12 +42,12 @@ void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {
   }
 }
 
-void sdl2cpp::ui::Button::onMouseDown(MouseButton button, SDL_Point point) {
+void sdl2cpp::ui::Button::onMouseDown(MouseButton button, glm::vec2 point) {
   MouseInteractable::onMouseDown(button, point);
   color = {0, 0, 1, 1};
 }
 
-void sdl2cpp::ui::Button::onMouseUp(MouseButton button, SDL_Point point) {
+void sdl2cpp::ui::Button::onMouseUp(MouseButton button, glm::vec2 point) {
   MouseInteractable::onMouseUp(button, point);
   color = {1, 0, 0, 1};
 }

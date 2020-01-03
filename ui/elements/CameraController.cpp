@@ -13,7 +13,7 @@ sdl2cpp::ui::CameraController::CameraController(UIManager &guiManager, Perspecti
   camera.Front = direction;
 }
 
-void sdl2cpp::ui::CameraController::onMouseDown(MouseButton button, [[maybe_unused]] SDL_Point position) {
+void sdl2cpp::ui::CameraController::onMouseDown(MouseButton button, [[maybe_unused]] glm::vec2 position) {
   switch (button) {
   case MouseButton::Left:
     break;
@@ -28,7 +28,7 @@ void sdl2cpp::ui::CameraController::onMouseDown(MouseButton button, [[maybe_unus
   }
 }
 
-void sdl2cpp::ui::CameraController::onMouseUp(MouseButton button, [[maybe_unused]] SDL_Point position) {
+void sdl2cpp::ui::CameraController::onMouseUp(MouseButton button, [[maybe_unused]] glm::vec2 position) {
   if (button == MouseButton::Right) {
     lockedToCamera = false;
     setFocus(sdl2cpp::ui::Focus::NotFocused);
@@ -37,7 +37,7 @@ void sdl2cpp::ui::CameraController::onMouseUp(MouseButton button, [[maybe_unused
   }
 }
 
-void sdl2cpp::ui::CameraController::onMouseMove(SDL_Point newPos, SDL_Point oldPos) {
+void sdl2cpp::ui::CameraController::onMouseMove(glm::vec2 newPos, glm::vec2 oldPos) {
   if (lockedToCamera) {
     camera.ProcessMouseMovement(static_cast<float>(newPos.x - oldPos.x), static_cast<float>(-(newPos.y - oldPos.y)), true);
   }

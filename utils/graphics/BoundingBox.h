@@ -16,7 +16,7 @@ template <unsigned int Dimensions = 3> struct BoundingBox {
   Point p1, p2;
 
   BoundingBox() = default;
-  BoundingBox(glm::vec3 p1, glm::vec3 p2) : p1(p1), p2(p2) {}
+  BoundingBox(Point p1, Point p2);
 
   bool operator==(const BoundingBox &rhs) const;
 
@@ -24,7 +24,7 @@ template <unsigned int Dimensions = 3> struct BoundingBox {
 
   [[nodiscard]] RelativePosition contains(const BoundingBox<3> &aabb) const;
 
-  [[nodiscard]] bool contains(glm::vec3 point) const;
+  [[nodiscard]] bool contains(Point point) const;
 };
 template <unsigned int Dims> std::ostream &operator<<(std::ostream &stream, const BoundingBox<Dims> &aabb);
 } // namespace geo

@@ -3,6 +3,7 @@
 //
 
 #include "MouseInteractable.h"
+#include "ui/managers/UIManager.h"
 #include <error_handling/exceptions.h>
 
 void sdl2cpp::ui::CustomMouseInteractable::onMouseDown([[maybe_unused]] const SDL_Event &event) {}
@@ -17,17 +18,17 @@ void sdl2cpp::ui::CustomMouseInteractable::onMouseWheel([[maybe_unused]] const S
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDown(const SDL_Event &event) {
   MouseButton button = buttonFromEvent(event);
   buttonStates[static_cast<int>(button)] = MouseButtonState::Pressed;
-  SDL_Point position = positionFromEvent(event);
+  const auto position = positionFromEvent(event);
   onMouseDown(button, position);
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseUp(const SDL_Event &event) {
   MouseButton button = buttonFromEvent(event);
   buttonStates[static_cast<int>(button)] = MouseButtonState::Released;
-  SDL_Point position = positionFromEvent(event);
+  const auto position = positionFromEvent(event);
   onMouseUp(button, position);
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseMove(const SDL_Event &event) {
-  SDL_Point newPosition = positionFromEvent(event);
+  const auto newPosition = positionFromEvent(event);
   auto oldPosition = newPosition;
   oldPosition.x -= event.motion.xrel;
   oldPosition.y -= event.motion.yrel;
@@ -35,12 +36,12 @@ void sdl2cpp::ui::CustomEventMouseInteractable::onMouseMove(const SDL_Event &eve
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseClicked(const SDL_Event &event) {
   MouseButton button = buttonFromEvent(event);
-  SDL_Point position = positionFromEvent(event);
+  const auto position = positionFromEvent(event);
   onMouseClicked(button, position);
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDblClicked(const SDL_Event &event) {
   MouseButton button = buttonFromEvent(event);
-  SDL_Point position = positionFromEvent(event);
+  const auto position = positionFromEvent(event);
   onMouseDblClicked(button, position);
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOver([[maybe_unused]] const SDL_Event &event) { onMouseOver(); }
@@ -83,23 +84,24 @@ sdl2cpp::ui::MouseButton sdl2cpp::ui::CustomEventMouseInteractable::buttonFromEv
   throw exc::InternalError("SDL_Event carries non-sensical value.");
 }
 
-SDL_Point sdl2cpp::ui::CustomEventMouseInteractable::positionFromEvent(const SDL_Event &event) const {
-  return {event.button.x, event.button.y};
+glm::vec2 sdl2cpp::ui::CustomEventMouseInteractable::positionFromEvent(const SDL_Event &event) {
+  const auto [windowWidth, windowHeight] = getUIManager().getWindowSize();
+  return {event.button.x / static_cast<float>(windowWidth), event.button.y / static_cast<float>(windowHeight)};
 }
 
 sdl2cpp::ui::MouseButtonState sdl2cpp::ui::CustomEventMouseInteractable::getButtonState(sdl2cpp::ui::MouseButton button) const {
   return buttonStates[static_cast<int>(button)];
 }
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDown([[maybe_unused]] MouseButton button,
-                                                            [[maybe_unused]] SDL_Point position) {}
+                                                            [[maybe_unused]] glm::vec2 position) {}
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseUp([[maybe_unused]] MouseButton button,
-                                                          [[maybe_unused]] SDL_Point position) {}
-void sdl2cpp::ui::CustomEventMouseInteractable::onMouseMove([[maybe_unused]] SDL_Point newPos,
-                                                            [[maybe_unused]] SDL_Point oldPos) {}
+                                                          [[maybe_unused]] glm::vec2 position) {}
+void sdl2cpp::ui::CustomEventMouseInteractable::onMouseMove([[maybe_unused]] glm::vec2 newPos,
+                                                            [[maybe_unused]] glm::vec2 oldPos) {}
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseClicked([[maybe_unused]] MouseButton button,
-                                                               [[maybe_unused]] SDL_Point position) {}
+                                                               [[maybe_unused]] glm::vec2 position) {}
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseDblClicked([[maybe_unused]] MouseButton button,
-                                                                  [[maybe_unused]] SDL_Point position) {}
+                                                                  [[maybe_unused]] glm::vec2 position) {}
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOver() {}
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseOut() {}
 void sdl2cpp::ui::CustomEventMouseInteractable::onMouseWheel([[maybe_unused]] ScrollDirection direction,
@@ -122,7 +124,7 @@ sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseClicked(
   return *this;
 }
 
-SDL_Point sdl2cpp::ui::MouseInteractable::positionFromEvent(const SDL_Event &event) const {
+glm::vec2 sdl2cpp::ui::MouseInteractable::positionFromEvent(const SDL_Event &event) const {
   return {event.button.x, event.button.y};
 }
 
@@ -161,27 +163,27 @@ sdl2cpp::ui::MouseInteractable &sdl2cpp::ui::MouseInteractable::setMouseWheel(sd
   return *this;
 }
 
-void sdl2cpp::ui::MouseInteractable::onMouseDown(MouseButton button, SDL_Point point) {
+void sdl2cpp::ui::MouseInteractable::onMouseDown(MouseButton button, glm::vec2 point) {
   if (e_onMouseDown.has_value()) {
     e_onMouseDown.value()(createEventInfo(Event::Type::MouseDown), button, point);
   }
 }
-void sdl2cpp::ui::MouseInteractable::onMouseUp(MouseButton button, SDL_Point point) {
+void sdl2cpp::ui::MouseInteractable::onMouseUp(MouseButton button, glm::vec2 point) {
   if (e_OnMouseUp.has_value()) {
     e_OnMouseUp.value()(createEventInfo(Event::Type::MouseUp), button, point);
   }
 }
-void sdl2cpp::ui::MouseInteractable::onMouseMove(SDL_Point point, SDL_Point sdlPoint) {
+void sdl2cpp::ui::MouseInteractable::onMouseMove(glm::vec2 point, glm::vec2 sdlPoint) {
   if (e_onMouseMove.has_value()) {
     e_onMouseMove.value()(createEventInfo(Event::Type::MouseMove), point, sdlPoint);
   }
 }
-void sdl2cpp::ui::MouseInteractable::onMouseClicked(MouseButton button, SDL_Point point) {
+void sdl2cpp::ui::MouseInteractable::onMouseClicked(MouseButton button, glm::vec2 point) {
   if (e_onMouseClicked.has_value()) {
     e_onMouseClicked.value()(createEventInfo(Event::Type::MouseClicked), button, point);
   }
 }
-void sdl2cpp::ui::MouseInteractable::onMouseDblClicked(MouseButton button, SDL_Point point) {
+void sdl2cpp::ui::MouseInteractable::onMouseDblClicked(MouseButton button, glm::vec2 point) {
   if (e_onMouseDblClicked.has_value()) {
     e_onMouseDblClicked.value()(createEventInfo(Event::Type::MouseDblClicked), button, point);
   }

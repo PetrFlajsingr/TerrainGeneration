@@ -27,7 +27,7 @@ void sdl2cpp::ui::UIObject::setFocus(sdl2cpp::ui::Focus focus) {
   }
   onFocusChanged(focus);
 }
-sdl2cpp::ui::UIManager &sdl2cpp::ui::UIObject::getGUIManager() { return guiManager; }
+sdl2cpp::ui::UIManager &sdl2cpp::ui::UIObject::getUIManager() { return guiManager; }
 std::string_view sdl2cpp::ui::UIObject::getId() const { return id; }
 void sdl2cpp::ui::UIObject::onFocusChanged([[maybe_unused]] sdl2cpp::ui::Focus focus) {}
 void sdl2cpp::ui::UIObject::onEnabledChanged([[maybe_unused]] bool enabled) {}

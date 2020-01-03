@@ -34,11 +34,11 @@ public:
 
 protected:
   void onMouseWheel(ScrollDirection direction, int offset) override;
-  void onMouseDown(MouseButton button, SDL_Point position) override;
+  void onMouseDown(MouseButton button, glm::vec2 position) override;
   void draw(sdl2cpp::ui::GUIRenderer &renderer) override;
 
-  void onMouseUp(MouseButton button, SDL_Point position) override;
-  void onMouseMove(SDL_Point newPos, SDL_Point oldPos) override;
+  void onMouseUp(MouseButton button, glm::vec2 position) override;
+  void onMouseMove(glm::vec2 newPos, glm::vec2 oldPos) override;
   void onKeyDown(SDL_Keycode keycode) override;
   void onKeyUp(SDL_Keycode keycode) override;
 

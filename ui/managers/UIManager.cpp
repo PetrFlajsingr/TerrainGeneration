@@ -38,6 +38,14 @@ void sdl2cpp::ui::UIManager::render(glm::mat4 projection, glm::mat4 view, glm::m
   renderer.getTextRenderer().end();
 }
 FontManager &sdl2cpp::ui::UIManager::getFontManager() { return renderer.getTextRenderer().getFontManager(); }
+
 sdl2cpp::ui::FocusManager &sdl2cpp::ui::UIManager::getFocusManager() { return focusManager; }
+
 TextRenderer &sdl2cpp::ui::UIManager::getTextRenderer() { return renderer.getTextRenderer(); }
+
 sdl2cpp::ui::EventDispatcher &sdl2cpp::ui::UIManager::getEventDispatcher() { return eventDispatcher; }
+
+std::pair<unsigned int, unsigned int> sdl2cpp::ui::UIManager::getWindowSize() {
+  return {window->getWidth(), window->getHeight()};
+}
+sdl2cpp::Window &sdl2cpp::ui::UIManager::getWindow() { return *window; }

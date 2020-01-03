@@ -3,13 +3,16 @@
 //
 
 #include "Switch.h"
+#include "ui/managers/UIManager.h"
 #include <graphics/geGL_utils.h>
 #include <ui/utils.h>
+
 Switch::Switch(sdl2cpp::ui::UIManager &uiManager, glm::vec3 position, glm::vec3 dimensions, bool isOn)
     : UIObject(uiManager), UIVisible(position, dimensions), isOn(isOn) {
-  SDL_Rect rect{static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(dimensions.x),
-                static_cast<int>(dimensions.y)};
-  auto positions = sdlRectToGLCoordinates(rect, 1920, 1080);
+  const auto [windowWidth, windowHeight] = uiManager.getWindowSize();
+  SDL_Rect rect{static_cast<int>(position.x * windowWidth), static_cast<int>(position.y * windowHeight),
+                static_cast<int>(dimensions.x * windowWidth), static_cast<int>(dimensions.y * windowHeight)};
+  auto positions = sdlRectToGLCoordinates(rect, windowWidth, windowHeight);
   buffer = createBuffer<glm::vec3>(4, GL_STATIC_DRAW, &positions[0]);
   vao = std::make_shared<ge::gl::VertexArray>();
   vao->addAttrib(buffer, 0, 3, GL_FLOAT, sizeof(float) * 3, 0, GL_FALSE);
@@ -24,7 +27,7 @@ void Switch::draw(sdl2cpp::ui::GUIRenderer &renderer) {
   vao->unbind();
 }
 
-void Switch::onMouseClicked([[maybe_unused]] sdl2cpp::ui::MouseButton button, [[maybe_unused]] SDL_Point point) {
+void Switch::onMouseClicked([[maybe_unused]] sdl2cpp::ui::MouseButton button, [[maybe_unused]] glm::vec2 point) {
   isOn = !isOn.get();
 }
 

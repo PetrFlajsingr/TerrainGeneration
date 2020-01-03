@@ -58,18 +58,18 @@ protected:
   void onMouseOut(const SDL_Event &event) final;
   void onMouseWheel(const SDL_Event &event) final;
 
-  virtual void onMouseDown(MouseButton button, SDL_Point position);
-  virtual void onMouseUp(MouseButton button, SDL_Point position);
-  virtual void onMouseMove(SDL_Point newPos, SDL_Point oldPos);
-  virtual void onMouseClicked(MouseButton button, SDL_Point position);
-  virtual void onMouseDblClicked(MouseButton button, SDL_Point position);
+  virtual void onMouseDown(MouseButton button, glm::vec2 position);
+  virtual void onMouseUp(MouseButton button, glm::vec2 position);
+  virtual void onMouseMove(glm::vec2 newPos, glm::vec2 oldPos);
+  virtual void onMouseClicked(MouseButton button, glm::vec2 position);
+  virtual void onMouseDblClicked(MouseButton button, glm::vec2 position);
   virtual void onMouseOver();
   virtual void onMouseOut();
   virtual void onMouseWheel(ScrollDirection direction, int offset);
 
 private:
   MouseButton buttonFromEvent(const SDL_Event &event) const;
-  SDL_Point positionFromEvent(const SDL_Event &event) const;
+  glm::vec2 positionFromEvent(const SDL_Event &event);
   std::array<MouseButtonState, MouseButtonCount> buttonStates{MouseButtonState::Released, MouseButtonState::Released,
                                                               MouseButtonState::Released};
 };
@@ -108,34 +108,34 @@ private:
   std::optional<Event::MouseWheelFnc> e_onMouseWheel = std::nullopt;
 
 protected:
-  void onMouseDown(MouseButton button, SDL_Point point) override;
-  void onMouseUp(MouseButton button, SDL_Point point) override;
-  void onMouseMove(SDL_Point point, SDL_Point sdlPoint) override;
-  void onMouseClicked(MouseButton button, SDL_Point point) override;
-  void onMouseDblClicked(MouseButton button, SDL_Point point) override;
+  void onMouseDown(MouseButton button, glm::vec2 point) override;
+  void onMouseUp(MouseButton button, glm::vec2 point) override;
+  void onMouseMove(glm::vec2 point, glm::vec2 sdlPoint) override;
+  void onMouseClicked(MouseButton button, glm::vec2 point) override;
+  void onMouseDblClicked(MouseButton button, glm::vec2 point) override;
   void onMouseOver() override;
   void onMouseOut() override;
   void onMouseWheel(ScrollDirection direction, int i) override;
 
 private:
   [[nodiscard]] MouseButton buttonFromEvent(const SDL_Event &event) const;
-  [[nodiscard]] SDL_Point positionFromEvent(const SDL_Event &event) const;
+  [[nodiscard]] glm::vec2 positionFromEvent(const SDL_Event &event) const;
 };
 
 template <SimpleInvocable F> MouseInteractable &MouseInteractable::setMouseDown(F onDown) {
-  e_onMouseDown = [onDown](EventInfo, MouseButton, SDL_Point) { onDown(); };
+  e_onMouseDown = [onDown](EventInfo, MouseButton, glm::vec2) { onDown(); };
   return *this;
 }
 template <SimpleInvocable F> MouseInteractable &MouseInteractable::setMouseUp(F onUp) {
-  e_OnMouseUp = [onUp](EventInfo, MouseButton, SDL_Point) { onUp(); };
+  e_OnMouseUp = [onUp](EventInfo, MouseButton, glm::vec2) { onUp(); };
   return *this;
 }
 template <SimpleInvocable F> MouseInteractable &MouseInteractable::setMouseClicked(F onClicked) {
-  e_onMouseClicked = [onClicked](EventInfo, MouseButton, SDL_Point) { onClicked(); };
+  e_onMouseClicked = [onClicked](EventInfo, MouseButton, glm::vec2) { onClicked(); };
   return *this;
 }
 template <SimpleInvocable F> MouseInteractable &MouseInteractable::setMouseDblClicked(F onDblClicked) {
-  e_onMouseDblClicked = [onDblClicked](EventInfo, MouseButton, SDL_Point) { onDblClicked(); };
+  e_onMouseDblClicked = [onDblClicked](EventInfo, MouseButton, glm::vec2) { onDblClicked(); };
   return *this;
 }
 template <SimpleInvocable F> MouseInteractable &MouseInteractable::setMouseOver(F onOver) {
@@ -147,7 +147,7 @@ template <SimpleInvocable F> MouseInteractable &MouseInteractable::setMouseOut(F
   return *this;
 }
 template <SimpleInvocable F> MouseInteractable &MouseInteractable::setMouseMove(F onMove) {
-  e_onMouseMove = [onMove](EventInfo, SDL_Point, SDL_Point) { onMove(); };
+  e_onMouseMove = [onMove](EventInfo, glm::vec2, glm::vec2) { onMove(); };
   return *this;
 }
 template <SimpleInvocable F> MouseInteractable &MouseInteractable::setMouseWheel(F onWheel) {

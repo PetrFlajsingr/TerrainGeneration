@@ -4,19 +4,21 @@
 
 #include "EventDispatcher.h"
 #include "FocusManager.h"
+#include "UIManager.h"
+#include <graphics/BoundingBox.h>
 #include <io/print.h>
 
-sdl2cpp::ui::EventDispatcher::EventDispatcher(std::shared_ptr<sdl2cpp::Window> window, FocusManager &focusManager)
-    : window(std::move(window)), focusManager(focusManager) {
+sdl2cpp::ui::EventDispatcher::EventDispatcher(UIManager &uiManager, FocusManager &focusManager)
+    : uiManager(uiManager), focusManager(focusManager) {
   registerWindowEvents();
 }
 
 void sdl2cpp::ui::EventDispatcher::registerWindowEvents() {
   for (auto event : keyboardEvents) {
-    window->setEventCallback(event, [this](const auto &event) { return keyboardEventHandler(event); });
+    uiManager.getWindow().setEventCallback(event, [this](const auto &event) { return keyboardEventHandler(event); });
   }
   for (auto event : mouseEvents) {
-    window->setEventCallback(event, [this](const auto &event) { return mouseEventHandler(event); });
+    uiManager.getWindow().setEventCallback(event, [this](const auto &event) { return mouseEventHandler(event); });
   }
 }
 
@@ -44,8 +46,10 @@ bool sdl2cpp::ui::EventDispatcher::mouseEventHandler(const SDL_Event &event) {
   using namespace std::chrono;
   static auto lastClickTime = 0ms;
   const auto currentTime = now<std::chrono::milliseconds>();
-  int x = event.motion.x;
-  int y = event.motion.y / 1020.f * 1080.f;
+
+  const auto [windowWidth, windowHeight] = uiManager.getWindowSize();
+  const auto x = event.motion.x / static_cast<float>(windowWidth);
+  const auto y = event.motion.y / static_cast<float>(windowHeight);
 
   if (event.type == SDL_MOUSEWHEEL) {
     if (mouseIn != nullptr) {
@@ -141,15 +145,16 @@ bool isIn(SDL_Point point, SDL_Rect rect) {
 }
 
 std::optional<std::shared_ptr<sdl2cpp::ui::CustomMouseInteractable>>
-sdl2cpp::ui::EventDispatcher::findMouseInteractableOnPosition(int x, int y) {
+sdl2cpp::ui::EventDispatcher::findMouseInteractableOnPosition(float x, float y) {
   for (auto iter = mouseEventListeners.begin(); iter != mouseEventListeners.end(); ++iter) {
     if (iter->expired()) {
       mouseEventListeners.erase(iter);
     }
     auto ptr = iter->lock();
-    SDL_Rect rect{static_cast<int>(ptr->position.get().x), static_cast<int>(ptr->position.get().y),
-                  static_cast<int>(ptr->dimensions.get().x), static_cast<int>(ptr->dimensions.get().y)};
-    if (isIn(SDL_Point{x, y}, rect)) {
+    const glm::vec2 p1{ptr->position.get().x, ptr->position.get().y};
+    const glm::vec2 p2 = p1 + glm::vec2{ptr->dimensions.get().x, ptr->dimensions.get().y};
+    geo::BoundingBox<2> bb{p1, p2};
+    if (bb.contains({x, y})) {
       if (fullControl.has_value() && !fullControl->expired()) {
         auto locked = fullControl->lock();
         if (ptr != locked) {

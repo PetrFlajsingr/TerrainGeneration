@@ -14,10 +14,10 @@ void sdl2cpp::ui::Interactable::disableControls() { controlsEnabled = false; }
 void sdl2cpp::ui::Interactable::onEnabledChanged(bool enabled) { enabled ? enableControls() : disableControls(); }
 
 void sdl2cpp::ui::Interactable::enableFullControl() {
-  getGUIManager().getEventDispatcher().setFullControl(std::dynamic_pointer_cast<Interactable>(shared_from_this()));
+  getUIManager().getEventDispatcher().setFullControl(std::dynamic_pointer_cast<Interactable>(shared_from_this()));
 }
 
-void sdl2cpp::ui::Interactable::disableFullControl() { getGUIManager().getEventDispatcher().disableFullControl(); }
+void sdl2cpp::ui::Interactable::disableFullControl() { getUIManager().getEventDispatcher().disableFullControl(); }
 
 sdl2cpp::ui::EventInfo sdl2cpp::ui::Interactable::createEventInfo(sdl2cpp::ui::Event::Type eventType) {
   return {*this, eventType};

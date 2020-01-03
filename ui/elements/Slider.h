@@ -6,6 +6,7 @@
 #define TERRAINGENERATION_SLIDER_H
 
 #include "ui/interface/MouseInteractable.h"
+#include "ui/managers/UIManager.h"
 #include <graphics/geGL_utils.h>
 #include <io/print.h>
 #include <ui/utils.h>
@@ -19,9 +20,10 @@ public:
   using value_type = T;
   Slider(UIManager &guiManager, glm::vec3 position, glm::vec3 dimensions)
       : UIObject(guiManager), UIVisible(position, dimensions) {
-    SDL_Rect rect{static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(dimensions.x),
-                  static_cast<int>(dimensions.y)};
-    auto positions = sdlRectToGLCoordinates(rect, 1920, 1080);
+    const auto [windowWidth, windowHeight] = guiManager.getWindowSize();
+    SDL_Rect rect{static_cast<int>(position.x * windowWidth), static_cast<int>(position.y * windowHeight),
+                  static_cast<int>(dimensions.x * windowWidth), static_cast<int>(dimensions.y * windowHeight)};
+    auto positions = sdlRectToGLCoordinates(rect, windowWidth, windowHeight);
     buffer = createBuffer<glm::vec3>(4, GL_STATIC_DRAW, &positions[0]);
     vao = std::make_shared<ge::gl::VertexArray>();
     vao->addAttrib(buffer, 0, 3, GL_FLOAT, sizeof(float) * 3, 0, GL_FALSE);
@@ -45,8 +47,8 @@ public:
 protected:
   void draw(GUIRenderer &renderer) override;
 
-  void onMouseDown(MouseButton button, SDL_Point point) override;
-  void onMouseMove(SDL_Point newPos, SDL_Point oldPos) override;
+  void onMouseDown(MouseButton button, glm::vec2 point) override;
+  void onMouseMove(glm::vec2 newPos, glm::vec2 oldPos) override;
   void onMouseOver() override;
   void onMouseOut() override;
 
@@ -104,9 +106,10 @@ template <typename T> void Slider<T>::draw(GUIRenderer &renderer) {
   const auto width = dimensions.get().x * (1.f - percentage);
   const auto position = this->position.get();
   const auto dimensions = this->dimensions.get();
-  SDL_Rect rect{static_cast<int>(position.x), static_cast<int>(position.y), static_cast<int>(width),
-                static_cast<int>(dimensions.y)};
-  auto positions = sdlRectToGLCoordinates(rect, 1920, 1080);
+  const auto [windowWidth, windowHeight] = getUIManager().getWindowSize();
+  SDL_Rect rect{static_cast<int>(position.x * windowWidth), static_cast<int>(position.y * windowHeight),
+                static_cast<int>(width * windowWidth), static_cast<int>(dimensions.y * windowHeight)};
+  auto positions = sdlRectToGLCoordinates(rect, windowWidth, windowHeight);
   buffer->setData(positions.data());
 
   renderer.getProgram()->set4fv("color", &color[0]);
@@ -118,7 +121,7 @@ template <typename T> void Slider<T>::step() {
   auto newValue = value.get() + sliderStep;
   setSliderValue(newValue);
 }
-template <typename T> void Slider<T>::onMouseDown(MouseButton button, SDL_Point point) {
+template <typename T> void Slider<T>::onMouseDown(MouseButton button, glm::vec2 point) {
   if (button == MouseButton::Left) {
     const auto sliderWidth = dimensions.get().x;
     const auto percentageTraveled = (point.x - position.get().x) / sliderWidth;
@@ -128,7 +131,7 @@ template <typename T> void Slider<T>::onMouseDown(MouseButton button, SDL_Point 
   }
 }
 
-template <typename T> void Slider<T>::onMouseMove(SDL_Point newPos, [[maybe_unused]] SDL_Point oldPos) {
+template <typename T> void Slider<T>::onMouseMove(glm::vec2 newPos, [[maybe_unused]] glm::vec2 oldPos) {
   if (getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
     const auto sliderWidth = dimensions.get().x;
     const auto percentageTraveled = (newPos.x - position.get().x) / sliderWidth;

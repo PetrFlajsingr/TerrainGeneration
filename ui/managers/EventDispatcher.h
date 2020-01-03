@@ -24,7 +24,7 @@ class EventDispatcher {
   friend class UIManager;
 
 public:
-  explicit EventDispatcher(std::shared_ptr<Window> window, FocusManager &focusManager);
+  explicit EventDispatcher(UIManager &uiManager, FocusManager &focusManager);
 
   /**
    * Add event to timed event list.
@@ -48,7 +48,7 @@ private:
   std::list<TimedEvent> events;
   TimedEvent *clickEvent = nullptr;
 
-  std::shared_ptr<Window> window;
+  UIManager &uiManager;
   FocusManager &focusManager;
 
   std::optional<std::weak_ptr<Interactable>> fullControl = std::nullopt;
@@ -68,7 +68,7 @@ private:
    * @return mouse interactable on position or std::nullopt if none was found on
    * given position
    */
-  std::optional<std::shared_ptr<CustomMouseInteractable>> findMouseInteractableOnPosition(int x, int y);
+  std::optional<std::shared_ptr<CustomMouseInteractable>> findMouseInteractableOnPosition(float x, float y);
   /**
    * Find keyboard interactable currently in focus.
    * @return focused keyobard interactable or std::nullopt if no element has

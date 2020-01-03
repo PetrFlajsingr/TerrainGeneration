@@ -37,8 +37,8 @@ std::pair<unsigned int, unsigned int> getWindowSize() {
   if (SDL_GetDesktopDisplayMode(0, &DM) != 0) {
     throw exc::Error("SDL_GetDesktopDisplayMode failed");
   }
-  unsigned int w = DM.w;
-  unsigned int h = DM.h;
+  unsigned int w = DM.w * 0.8;
+  unsigned int h = DM.h * 0.8;
   return {w, h};
 }
 

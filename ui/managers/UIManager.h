@@ -15,8 +15,8 @@
 namespace sdl2cpp::ui {
 class UIManager {
 public:
-  explicit UIManager(const std::shared_ptr<Window> &window, const String &fontPath)
-      : window(window), eventDispatcher(window, focusManager), renderer(fontPath) {}
+  explicit UIManager(std::shared_ptr<Window> window, const String &fontPath)
+      : window(std::move(window)), eventDispatcher(*this, focusManager), renderer(fontPath) {}
   UIManager(const UIManager &) = delete;
   UIManager &operator=(const UIManager &) = delete;
 
@@ -57,6 +57,10 @@ public:
   }
 
   void enqueueEvent(TimedEvent &&event) { eventDispatcher.addEvent(std::forward<TimedEvent &&>(event)); }
+
+  std::pair<unsigned int, unsigned int> getWindowSize();
+
+  Window &getWindow();
 
 private:
   std::shared_ptr<Window> window;

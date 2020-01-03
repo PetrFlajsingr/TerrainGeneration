@@ -28,8 +28,8 @@ public:
 protected:
   void draw(GUIRenderer &renderer) override;
   void onEnabledChanged(bool enabled) override;
-  void onMouseDown(MouseButton button, SDL_Point point) override;
-  void onMouseUp(MouseButton button, SDL_Point point) override;
+  void onMouseDown(MouseButton button, glm::vec2 point) override;
+  void onMouseUp(MouseButton button, glm::vec2 point) override;
   void onMouseOver() override;
   void onMouseOut() override;
 

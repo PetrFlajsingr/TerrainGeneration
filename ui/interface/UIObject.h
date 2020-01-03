@@ -37,7 +37,7 @@ public:
   observable_property<bool> enabled{true};
   observable_property<Focus> focus{Focus::NotFocused};
 
-  UIManager &getGUIManager();
+  UIManager &getUIManager();
 
   std::string_view getId() const;
 

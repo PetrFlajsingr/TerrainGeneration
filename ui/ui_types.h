@@ -27,13 +27,13 @@ using VisibilityChangedFnc = std::function<void(EventInfo, Visibility)>;
 using FocusChangedFnc = std::function<void(EventInfo, Focus)>;
 using EnabledChangedFnc = std::function<void(EventInfo, bool)>;
 
-using MouseDownFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
-using MouseUpFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
-using MouseClickedFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
-using MouseDblClickedFnc = std::function<void(EventInfo, MouseButton, SDL_Point)>;
+using MouseDownFnc = std::function<void(EventInfo, MouseButton, glm::vec2)>;
+using MouseUpFnc = std::function<void(EventInfo, MouseButton, glm::vec2)>;
+using MouseClickedFnc = std::function<void(EventInfo, MouseButton, glm::vec2)>;
+using MouseDblClickedFnc = std::function<void(EventInfo, MouseButton, glm::vec2)>;
 using MouseOverFnc = std::function<void(EventInfo)>;
 using MouseOutFnc = std::function<void(EventInfo)>;
-using MouseMoveFnc = std::function<void(EventInfo, SDL_Point, SDL_Point)>;
+using MouseMoveFnc = std::function<void(EventInfo, glm::vec2, glm::vec2)>;
 using MouseWheelFnc = std::function<void(EventInfo, ScrollDirection, int)>;
 
 using KeyUpFnc = std::function<void(EventInfo, SDL_Keycode)>;

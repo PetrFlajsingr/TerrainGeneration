@@ -24,9 +24,9 @@ public:
   std::string info() const override;
 
 protected:
-  void onKeyPressed(EventInfo info, SDL_Keycode keycode) override;
-  void onKeyDown(EventInfo info, SDL_Keycode keycode) override;
-  void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyPressed(SDL_Keycode keycode) override;
+  void onKeyDown(SDL_Keycode keycode) override;
+  void onKeyUp(SDL_Keycode keycode) override;
   void draw(GUIRenderer &renderer) override;
   void onFocusChanged(Focus focus) override;
 

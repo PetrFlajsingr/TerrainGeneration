@@ -31,6 +31,8 @@ public:
 protected:
   void onEnabledChanged(bool enabled) override;
 
+  EventInfo createEventInfo(Event::Type eventType);
+
 private:
   bool controlsEnabled = true;
 };

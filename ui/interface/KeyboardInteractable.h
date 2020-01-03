@@ -43,9 +43,9 @@ protected:
   void onKeyDown(const SDL_Event &event) final;
   void onKeyUp(const SDL_Event &event) final;
 
-  virtual void onKeyPressed(EventInfo, SDL_Keycode);
-  virtual void onKeyDown(EventInfo, SDL_Keycode);
-  virtual void onKeyUp(EventInfo, SDL_Keycode);
+  virtual void onKeyPressed(SDL_Keycode);
+  virtual void onKeyDown(SDL_Keycode);
+  virtual void onKeyUp(SDL_Keycode);
 };
 
 /**
@@ -62,9 +62,9 @@ public:
   template <SimpleInvocable F> KeyboardInteractable &setOnKeyPressed(F onPressed);
 
 protected:
-  void onKeyPressed(EventInfo info, SDL_Keycode keycode) override;
-  void onKeyDown(EventInfo info, SDL_Keycode keycode) override;
-  void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyPressed(SDL_Keycode keycode) override;
+  void onKeyDown(SDL_Keycode keycode) override;
+  void onKeyUp(SDL_Keycode keycode) override;
 
 private:
   std::optional<Event::KeyUpFnc> e_keyUp = std::nullopt;

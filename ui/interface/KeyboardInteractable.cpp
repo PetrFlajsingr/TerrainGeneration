@@ -8,36 +8,33 @@ void sdl2cpp::ui::CustomKeyboardInteractable::onKeyPressed([[maybe_unused]] cons
 void sdl2cpp::ui::CustomKeyboardInteractable::onKeyDown([[maybe_unused]] const SDL_Event &event) {}
 void sdl2cpp::ui::CustomKeyboardInteractable::onKeyUp([[maybe_unused]] const SDL_Event &event) {}
 
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(const SDL_Event &event) {
-  onKeyPressed(EventInfo{*this, Event::Type::KeyPressed}, event.key.keysym.sym);
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(const SDL_Event &event) { onKeyPressed(event.key.keysym.sym);
 }
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(const SDL_Event &event) {
-  onKeyDown(EventInfo{*this, Event::Type::KeyPressed}, event.key.keysym.sym);
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(const SDL_Event &event) { onKeyDown(event.key.keysym.sym);
 }
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(const SDL_Event &event) {
-  onKeyUp(EventInfo{*this, Event::Type::KeyPressed}, event.key.keysym.sym);
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(const SDL_Event &event) { onKeyUp(event.key.keysym.sym);
 }
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(sdl2cpp::ui::EventInfo, SDL_Keycode) {}
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(sdl2cpp::ui::EventInfo, SDL_Keycode) {}
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(sdl2cpp::ui::EventInfo, SDL_Keycode) {}
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(SDL_Keycode) {}
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(SDL_Keycode) {}
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(SDL_Keycode) {}
 
-void sdl2cpp::ui::KeyboardInteractable::onKeyPressed(sdl2cpp::ui::EventInfo info, SDL_Keycode keycode) {
+void sdl2cpp::ui::KeyboardInteractable::onKeyPressed(SDL_Keycode keycode) {
   if (!e_keyPressed.has_value()) {
     return;
   }
-  e_keyPressed.value()(info, keycode);
+  e_keyPressed.value()(createEventInfo(Event::Type::KeyPressed), keycode);
 }
-void sdl2cpp::ui::KeyboardInteractable::onKeyDown(sdl2cpp::ui::EventInfo info, SDL_Keycode keycode) {
+void sdl2cpp::ui::KeyboardInteractable::onKeyDown(SDL_Keycode keycode) {
   if (!e_keyDown.has_value()) {
     return;
   }
-  e_keyDown.value()(info, keycode);
+  e_keyDown.value()(createEventInfo(Event::Type::KeyDown), keycode);
 }
-void sdl2cpp::ui::KeyboardInteractable::onKeyUp(sdl2cpp::ui::EventInfo info, SDL_Keycode keycode) {
+void sdl2cpp::ui::KeyboardInteractable::onKeyUp(SDL_Keycode keycode) {
   if (!e_keyUp.has_value()) {
     return;
   }
-  e_keyUp.value()(info, keycode);
+  e_keyUp.value()(createEventInfo(Event::Type::KeyUp), keycode);
 }
 
 sdl2cpp::ui::KeyboardInteractable &sdl2cpp::ui::KeyboardInteractable::setOnKeyUp(sdl2cpp::ui::Event::KeyUpFnc onUp) {

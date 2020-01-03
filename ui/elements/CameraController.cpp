@@ -43,7 +43,7 @@ void sdl2cpp::ui::CameraController::onMouseMove(EventInfo info, SDL_Point newPos
   }
 }
 
-void sdl2cpp::ui::CameraController::onKeyDown(EventInfo info, SDL_Keycode keycode) {
+void sdl2cpp::ui::CameraController::onKeyDown(SDL_Keycode keycode) {
   switch (keycode) {
   case SDLK_LSHIFT:
   case SDLK_RSHIFT:
@@ -75,7 +75,7 @@ void sdl2cpp::ui::CameraController::draw([[maybe_unused]] sdl2cpp::ui::GUIRender
 void sdl2cpp::ui::CameraController::onMouseWheel(EventInfo info, [[maybe_unused]] ScrollDirection direction, int offset) {
   camera.ProcessMouseScroll(static_cast<float>(offset));
 }
-void sdl2cpp::ui::CameraController::onKeyUp(EventInfo info, SDL_Keycode keycode) {
+void sdl2cpp::ui::CameraController::onKeyUp(SDL_Keycode keycode) {
   switch (keycode) {
   case SDLK_LSHIFT:
   case SDLK_RSHIFT:

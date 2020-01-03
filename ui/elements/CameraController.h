@@ -39,8 +39,8 @@ protected:
 
   void onMouseUp(EventInfo info, MouseButton button, SDL_Point position) override;
   void onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) override;
-  void onKeyDown(EventInfo info, SDL_Keycode keycode) override;
-  void onKeyUp(EventInfo info, SDL_Keycode keycode) override;
+  void onKeyDown(SDL_Keycode keycode) override;
+  void onKeyUp(SDL_Keycode keycode) override;
 
 private:
   bool lockedToCamera = false;

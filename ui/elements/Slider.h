@@ -45,10 +45,10 @@ public:
 protected:
   void draw(GUIRenderer &renderer) override;
 
-  void onMouseDown(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseMove(EventInfo info, SDL_Point newPos, SDL_Point oldPos) override;
-  void onMouseOver(EventInfo info) override;
-  void onMouseOut(EventInfo info) override;
+  void onMouseDown(MouseButton button, SDL_Point point) override;
+  void onMouseMove(SDL_Point newPos, SDL_Point oldPos) override;
+  void onMouseOver() override;
+  void onMouseOut() override;
 
 private:
   T min = T{0};
@@ -118,7 +118,7 @@ template <typename T> void Slider<T>::step() {
   auto newValue = value.get() + sliderStep;
   setSliderValue(newValue);
 }
-template <typename T> void Slider<T>::onMouseDown(EventInfo info, MouseButton button, SDL_Point point) {
+template <typename T> void Slider<T>::onMouseDown(MouseButton button, SDL_Point point) {
   if (button == MouseButton::Left) {
     const auto sliderWidth = dimensions.get().x;
     const auto percentageTraveled = (point.x - position.get().x) / sliderWidth;
@@ -128,7 +128,7 @@ template <typename T> void Slider<T>::onMouseDown(EventInfo info, MouseButton bu
   }
 }
 
-template <typename T> void Slider<T>::onMouseMove(EventInfo info, SDL_Point newPos, [[maybe_unused]] SDL_Point oldPos) {
+template <typename T> void Slider<T>::onMouseMove(SDL_Point newPos, [[maybe_unused]] SDL_Point oldPos) {
   if (getButtonState(MouseButton::Left) == MouseButtonState::Pressed) {
     const auto sliderWidth = dimensions.get().x;
     const auto percentageTraveled = (newPos.x - position.get().x) / sliderWidth;
@@ -137,8 +137,8 @@ template <typename T> void Slider<T>::onMouseMove(EventInfo info, SDL_Point newP
     setSliderValue(internalValue);
   }
 }
-template <typename T> void Slider<T>::onMouseOver(EventInfo info) { setColor({0, 1, 0, 1}); }
-template <typename T> void Slider<T>::onMouseOut(EventInfo info) { setColor({1, 0, 0, 1}); }
+template <typename T> void Slider<T>::onMouseOver() { setColor({0, 1, 0, 1}); }
+template <typename T> void Slider<T>::onMouseOut() { setColor({1, 0, 0, 1}); }
 template <typename T> std::string Slider<T>::info() const { return "Slider"; }
 template <typename T> void Slider<T>::setColor(const glm::vec4 &color) { Slider::color = color; }
 

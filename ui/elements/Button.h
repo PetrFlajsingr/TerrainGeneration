@@ -28,10 +28,10 @@ public:
 protected:
   void draw(GUIRenderer &renderer) override;
   void onEnabledChanged(bool enabled) override;
-  void onMouseDown(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseUp(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseOver(EventInfo info) override;
-  void onMouseOut(EventInfo info) override;
+  void onMouseDown(MouseButton button, SDL_Point point) override;
+  void onMouseUp(MouseButton button, SDL_Point point) override;
+  void onMouseOver() override;
+  void onMouseOut() override;
 
 private:
   glm::vec4 color{1, 0, 0, 1};

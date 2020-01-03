@@ -8,12 +8,9 @@ void sdl2cpp::ui::CustomKeyboardInteractable::onKeyPressed([[maybe_unused]] cons
 void sdl2cpp::ui::CustomKeyboardInteractable::onKeyDown([[maybe_unused]] const SDL_Event &event) {}
 void sdl2cpp::ui::CustomKeyboardInteractable::onKeyUp([[maybe_unused]] const SDL_Event &event) {}
 
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(const SDL_Event &event) { onKeyPressed(event.key.keysym.sym);
-}
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(const SDL_Event &event) { onKeyDown(event.key.keysym.sym);
-}
-void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(const SDL_Event &event) { onKeyUp(event.key.keysym.sym);
-}
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(const SDL_Event &event) { onKeyPressed(event.key.keysym.sym); }
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(const SDL_Event &event) { onKeyDown(event.key.keysym.sym); }
+void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(const SDL_Event &event) { onKeyUp(event.key.keysym.sym); }
 void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyPressed(SDL_Keycode) {}
 void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyDown(SDL_Keycode) {}
 void sdl2cpp::ui::CustomEventKeyboardInteractable::onKeyUp(SDL_Keycode) {}

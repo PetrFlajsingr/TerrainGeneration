@@ -40,23 +40,23 @@ void sdl2cpp::ui::Button::onEnabledChanged(bool enabled) {
   }
 }
 
-void sdl2cpp::ui::Button::onMouseDown(sdl2cpp::ui::EventInfo info, sdl2cpp::ui::MouseButton button, SDL_Point point) {
-  MouseInteractable::onMouseDown(info, button, point);
+void sdl2cpp::ui::Button::onMouseDown(MouseButton button, SDL_Point point) {
+  MouseInteractable::onMouseDown(button, point);
   color = {0, 0, 1, 1};
 }
 
-void sdl2cpp::ui::Button::onMouseUp(sdl2cpp::ui::EventInfo info, sdl2cpp::ui::MouseButton button, SDL_Point point) {
-  MouseInteractable::onMouseUp(info, button, point);
+void sdl2cpp::ui::Button::onMouseUp(MouseButton button, SDL_Point point) {
+  MouseInteractable::onMouseUp(button, point);
   color = {1, 0, 0, 1};
 }
 
-void sdl2cpp::ui::Button::onMouseOver(sdl2cpp::ui::EventInfo info) {
-  MouseInteractable::onMouseOver(info);
+void sdl2cpp::ui::Button::onMouseOver() {
+  MouseInteractable::onMouseOver();
   color = {0, 1, 0, 1};
 }
 
-void sdl2cpp::ui::Button::onMouseOut(sdl2cpp::ui::EventInfo info) {
-  MouseInteractable::onMouseOut(info);
+void sdl2cpp::ui::Button::onMouseOut() {
+  MouseInteractable::onMouseOut();
   color = {1, 0, 0, 1};
 }
 void sdl2cpp::ui::Button::setColor(glm::vec4 color) { Button::color = color; }

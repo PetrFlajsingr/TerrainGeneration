@@ -58,14 +58,14 @@ protected:
   void onMouseOut(const SDL_Event &event) final;
   void onMouseWheel(const SDL_Event &event) final;
 
-  virtual void onMouseDown(EventInfo, MouseButton, SDL_Point);
-  virtual void onMouseUp(EventInfo, MouseButton, SDL_Point);
-  virtual void onMouseMove(EventInfo, SDL_Point, SDL_Point);
-  virtual void onMouseClicked(EventInfo, MouseButton, SDL_Point);
-  virtual void onMouseDblClicked(EventInfo, MouseButton, SDL_Point);
-  virtual void onMouseOver(EventInfo);
-  virtual void onMouseOut(EventInfo);
-  virtual void onMouseWheel(EventInfo, ScrollDirection, int);
+  virtual void onMouseDown(MouseButton button, SDL_Point position);
+  virtual void onMouseUp(MouseButton button, SDL_Point position);
+  virtual void onMouseMove(SDL_Point newPos, SDL_Point oldPos);
+  virtual void onMouseClicked(MouseButton button, SDL_Point position);
+  virtual void onMouseDblClicked(MouseButton button, SDL_Point position);
+  virtual void onMouseOver();
+  virtual void onMouseOut();
+  virtual void onMouseWheel(ScrollDirection direction, int offset);
 
 private:
   MouseButton buttonFromEvent(const SDL_Event &event) const;
@@ -108,14 +108,14 @@ private:
   std::optional<Event::MouseWheelFnc> e_onMouseWheel = std::nullopt;
 
 protected:
-  void onMouseDown(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseUp(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseMove(EventInfo info, SDL_Point point, SDL_Point sdlPoint) override;
-  void onMouseClicked(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseDblClicked(EventInfo info, MouseButton button, SDL_Point point) override;
-  void onMouseOver(EventInfo info) override;
-  void onMouseOut(EventInfo info) override;
-  void onMouseWheel(EventInfo info, ScrollDirection direction, int i) override;
+  void onMouseDown(MouseButton button, SDL_Point point) override;
+  void onMouseUp(MouseButton button, SDL_Point point) override;
+  void onMouseMove(SDL_Point point, SDL_Point sdlPoint) override;
+  void onMouseClicked(MouseButton button, SDL_Point point) override;
+  void onMouseDblClicked(MouseButton button, SDL_Point point) override;
+  void onMouseOver() override;
+  void onMouseOut() override;
+  void onMouseWheel(ScrollDirection direction, int i) override;
 
 private:
   [[nodiscard]] MouseButton buttonFromEvent(const SDL_Event &event) const;

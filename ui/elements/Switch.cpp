@@ -24,8 +24,7 @@ void Switch::draw(sdl2cpp::ui::GUIRenderer &renderer) {
   vao->unbind();
 }
 
-void Switch::onMouseClicked(sdl2cpp::ui::EventInfo info, [[maybe_unused]] sdl2cpp::ui::MouseButton button,
-                            [[maybe_unused]] SDL_Point point) {
+void Switch::onMouseClicked([[maybe_unused]] sdl2cpp::ui::MouseButton button, [[maybe_unused]] SDL_Point point) {
   isOn = !isOn.get();
 }
 

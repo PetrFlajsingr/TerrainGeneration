@@ -20,7 +20,7 @@ public:
   std::string info() const override;
 
 protected:
-  void onMouseClicked(sdl2cpp::ui::EventInfo info, sdl2cpp::ui::MouseButton button, SDL_Point point) override;
+  void onMouseClicked(sdl2cpp::ui::MouseButton button, SDL_Point point) override;
 
 protected:
   void draw(sdl2cpp::ui::GUIRenderer &renderer) override;

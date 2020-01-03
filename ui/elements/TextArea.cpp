@@ -7,9 +7,7 @@
 sdl2cpp::ui::TextArea::TextArea(UIManager &guiManager, const glm::vec3 &position, const glm::vec3 &dimensions)
     : UIObject(guiManager), UIVisible(position, dimensions) {}
 
-void sdl2cpp::ui::TextArea::onKeyPressed(SDL_Keycode keycode) {
-  text = text.get() + SDL_GetKeyName(keycode);
-}
+void sdl2cpp::ui::TextArea::onKeyPressed(SDL_Keycode keycode) { text = text.get() + SDL_GetKeyName(keycode); }
 
 void sdl2cpp::ui::TextArea::onKeyDown(SDL_Keycode keycode) {}
 

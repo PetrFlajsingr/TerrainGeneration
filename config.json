@@ -19,11 +19,5 @@
     "chunkPoolSize": 2048,
     "aggressiveChunkUnloading": false,
     "computeBatchSize": 100
-  },
-  "device": {
-    "screen": {
-      "width": 1920,
-      "height": 1080
-    }
   }
 }

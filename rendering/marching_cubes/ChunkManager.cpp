@@ -21,7 +21,8 @@ ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> camera
                                            configData.render.viewDistance, configData.render.levelOfDetail,
                                            configData.marchingCubes.chunkSize, Unloading::Aggresive}),
       surr(std::make_unique<Surroundings>(configData.render.viewDistance, glm::uvec3{configData.marchingCubes.surroundingSize},
-                                          chunkUsageManager, configData.marchingCubes.chunkSize)),
+                                          chunkUsageManager, configData.marchingCubes.chunkSize,
+                                          configData.render.levelOfDetail)),
       configData(configData) {
   loadShaders();
   createPrograms();
@@ -401,7 +402,7 @@ TerrainGenerationOptions &ChunkManager::getGenerationOptions() { return generati
 void ChunkManager::invalidate() {
   chunkUsageManager.reset();
   surr = std::make_unique<Surroundings>(configData.render.viewDistance, glm::uvec3{configData.marchingCubes.surroundingSize},
-                                        chunkUsageManager, configData.marchingCubes.chunkSize);
+                                        chunkUsageManager, configData.marchingCubes.chunkSize, configData.render.levelOfDetail);
 }
 
 Surroundings &ChunkManager::getSurroundings() { return *surr; }

@@ -49,7 +49,7 @@ struct Map {
 
 class Surroundings {
 public:
-  Surroundings(float loadDistance, glm::uvec3 size, ChunkUsageManager &, float step);
+  Surroundings(float loadDistance, glm::uvec3 size, ChunkUsageManager &chunkUsageManager, float step, unsigned int lodDepth);
 
   observable::value<WString> info;
 

@@ -2,8 +2,7 @@
   "gl": {
     "depthTest": true,
     "msaa": false,
-    "backfaceCulling": true,
-    "shadingModel": "blinn"
+    "backfaceCulling": true
   },
   "paths": {
     "shaderLocation": "/home/petr/CLionProjects/TerrainGeneration/rendering/shaders",

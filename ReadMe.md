@@ -1,13 +1,24 @@
 # Terrain generation
 
-Project for Advanced Computer Graphics, FIT VUT.
-
-Terrain generation using marching cubes. Entire terrain is created on the GPU.
-
-Demo uses cascaded shadow mapping for shadows.
+Required libraries:
+* `freeglut3-dev`
+* `SDL2`
 
 
-![Alt text](https://i.imgur.com/PeimkjL.png "Demo")
+To build the project:
 
-![Alt text](https://i.imgur.com/iTc1C1s.png "Demo planet")
+Set `SDL2_DIR`.
 
+`mkdir build && cd build`
+
+`cmake ..`
+
+Modify CMakeLists.txt of freetypeglpp to use system GLUT after failure.
+
+`cmake ..`
+
+`make`
+
+To run the project:
+
+`./TerrainGeneration <path to config.json file>`

@@ -15,7 +15,7 @@
   },
   "marching_cubes": {
     "chunkSize": 1000,
-    "surroundingSize": 5,
+    "surroundingSize": 10,
     "chunkPoolSize": 2048,
     "aggressiveChunkUnloading": false,
     "computeBatchSize": 100,

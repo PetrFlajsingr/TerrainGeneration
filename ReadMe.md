@@ -27,3 +27,5 @@ Modify CMakeLists.txt of freetypeglpp to use system GLUT in case of a failure.
 To run the project:
 
 `./TerrainGeneration <path to config.json file>`
+
+Do not forget to modify paths in `config.json` for assets and shaders.

@@ -52,19 +52,12 @@ public:
   void returnChunk(Chunk *chunk);
   void returnTileChunk(Chunk *chunk);
 
-  const ChunkPtrs &getUsedChunks() const { return data.used; }
-  const ChunkPtrs &getAvailabled() const { return data.available; }
+  const ChunkPtrs &getUsedChunks() const;
+  const ChunkPtrs &getAvailable() const;
 
-  [[nodiscard]] ChunkToTileMap &getChunkToTileMap() { return data.chunkToTileMap; }
+  [[nodiscard]] ChunkToTileMap &getChunkToTileMap();
 
-  void reset() {
-    for (auto chunk : data.used) {
-      chunk->setComputed(false);
-    }
-    data.available.insert(data.available.end(), data.used.begin(), data.used.end());
-    data.used.clear();
-    data.chunkToTileMap.clear();
-  }
+  void reset();
 
   struct Info {
     std::size_t availableChunks;
@@ -72,8 +65,8 @@ public:
     Unloading unloadingPolicy;
   };
 
-  [[nodiscard]] Info getInfo() const { return {data.available.size(), data.used.size(), unloading}; }
-  [[nodiscard]] const LODChunkController::Counters &getCounters() const { return lodController.getCounters(); }
+  [[nodiscard]] Info getInfo() const;
+  [[nodiscard]] const LODChunkController::Counters &getCounters() const;
 
 private:
   ChunkPool chunkPool;
@@ -81,8 +74,6 @@ private:
   Unloading unloading;
   float loadingDistance;
   glm::vec3 cameraPosition{0, 0, 0};
-
-  std::mutex mtx;
 
   LODChunkController lodController;
   struct {

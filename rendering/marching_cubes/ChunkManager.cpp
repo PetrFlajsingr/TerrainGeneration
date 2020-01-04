@@ -15,7 +15,8 @@
 
 using namespace ShaderLiterals;
 
-ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData, const std::array<std::string, 6> textureFileNames)
+ChunkManager::ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData,
+                           const std::array<std::string, 6> &textureFileNames)
     : cameraController(std::move(cameraController)),
       chunkUsageManager(ChunkUsageInitData{configData.marchingCubes.chunkPoolSize, configData.marchingCubes.computeBatchSize,
                                            configData.render.viewDistance, configData.render.levelOfDetail,

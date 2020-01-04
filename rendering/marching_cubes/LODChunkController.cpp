@@ -188,4 +188,19 @@ LODChunkController::TreeTraversalFnc LODChunkController::fncLODCheck(glm::vec3 p
     return lodData->isDivided;
   };
 }
+
 EmptyChunkChecker LODChunkController::getEmptyCheck() { return EmptyChunkChecker(); }
+LODData &LODChunkController::getLODData() { return data; }
+const LODData &LODChunkController::getLODData() const { return data; }
+const LODChunkController::Counters &LODChunkController::getCounters() const { return counters; }
+
+bool EmptyChunkChecker::operator()(Leaf<LODTreeData, 8> &lodData) {
+  if (lodData->isCurrent && lodData->chunk != nullptr && lodData->chunk->getIndexCount() > 0) {
+    empty = false;
+    return false;
+  }
+  return lodData->isDivided;
+}
+
+EmptyChunkChecker::operator bool() { return empty; }
+bool EmptyChunkChecker::isEmpty() const { return empty; }

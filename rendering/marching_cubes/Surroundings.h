@@ -29,7 +29,7 @@ struct Tile {
   glm::vec3 pos;
   glm::vec3 center;
   Tile() = default;
-  Tile(ChunkState state, LOD lod, glm::vec3 pos, glm::vec3 center) : state(state), lod(lod), pos(pos), center(center) {}
+  Tile(ChunkState state, const LOD& lod, glm::vec3 pos, glm::vec3 center);
 };
 
 struct Map {
@@ -44,7 +44,7 @@ struct Map {
 
   void init(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step, const LODData &lodData);
   std::vector<Chunk *> restart(glm::vec3 start, glm::vec3 center, glm::uvec3 tileSize, float step);
-  std::vector<Chunk *> restartChunks();
+  void restartChunks();
 };
 
 class Surroundings {

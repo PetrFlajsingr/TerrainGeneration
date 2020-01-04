@@ -105,3 +105,17 @@ void ChunkUsageManager::manageMarkedEmptyTile(Tile &tile) {
     tile.state = ChunkState::Filled;
   }
 }
+const ChunkUsageManager::ChunkPtrs &ChunkUsageManager::getUsedChunks() const { return data.used; }
+const ChunkUsageManager::ChunkPtrs &ChunkUsageManager::getAvailable() const { return data.available; }
+ChunkUsageManager::ChunkToTileMap &ChunkUsageManager::getChunkToTileMap() { return data.chunkToTileMap; }
+
+void ChunkUsageManager::reset() {
+  for (auto chunk : data.used) {
+    chunk->setComputed(false);
+  }
+  data.available.insert(data.available.end(), data.used.begin(), data.used.end());
+  data.used.clear();
+  data.chunkToTileMap.clear();
+}
+ChunkUsageManager::Info ChunkUsageManager::getInfo() const { return {data.available.size(), data.used.size(), unloading}; }
+const LODChunkController::Counters &ChunkUsageManager::getCounters() const { return lodController.getCounters(); }

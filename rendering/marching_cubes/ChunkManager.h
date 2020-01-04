@@ -43,7 +43,7 @@ constexpr float step = 2;
 constexpr unsigned int size = 32;
 class ChunkManager {
 public:
-  ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData, const std::array<std::string, 6> textureFileNames);
+  ChunkManager(std::shared_ptr<sdl2cpp::ui::CameraController> cameraController, const ConfigData &configData, const std::array<std::string, 6> &textureFileNames);
 
   std::shared_ptr<sdl2cpp::ui::CameraController> cameraController;
 

@@ -377,11 +377,10 @@ std::vector<Chunk *> Map::restart(glm::vec3 start, glm::vec3 center, glm::uvec3 
   }
   return result;
 }
-std::vector<Chunk *> Map::restartChunks() {
+void Map::restartChunks() {
   using namespace MakeRange;
-  std::vector<Chunk *> result;
   for (auto tile : tiles) {
-    tile.lod.tree.traverseDepthFirstIf([&result](LODTreeData &loddata) {
+    tile.lod.tree.traverseDepthFirstIf([](LODTreeData &loddata) {
       loddata.chunk = nullptr;
       loddata.isCurrent = false;
       loddata.isDivided = false;
@@ -389,5 +388,5 @@ std::vector<Chunk *> Map::restartChunks() {
     });
     tile.state = ChunkState::NotLoaded;
   }
-  return result;
 }
+Tile::Tile(ChunkState state, const LOD& lod, glm::vec3 pos, glm::vec3 center) : state(state), lod(lod), pos(pos), center(center) {}

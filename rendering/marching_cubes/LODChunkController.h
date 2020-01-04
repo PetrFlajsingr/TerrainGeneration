@@ -12,17 +12,11 @@ class ChunkUsageManager;
 class Tile;
 class EmptyChunkChecker {
 public:
-  bool operator()(Leaf<LODTreeData, 8> &lodData) {
-    if (lodData->isCurrent && lodData->chunk != nullptr && lodData->chunk->getIndexCount() > 0) {
-      empty = false;
-      return false;
-    }
-    return lodData->isDivided;
-  }
+  bool operator()(Leaf<LODTreeData, 8> &lodData);
 
-  operator bool() { return empty; }
+  operator bool();
 
-  [[nodiscard]] bool isEmpty() const { return empty; }
+  [[nodiscard]] bool isEmpty() const;
 
 private:
   bool empty = true;
@@ -42,10 +36,10 @@ public:
   TreeTraversalFnc getTraverseFnc(Mode mode, glm::vec3 position, Tile &tile);
   static EmptyChunkChecker getEmptyCheck();
 
-  [[nodiscard]] LODData &getLODData() { return data; }
-  [[nodiscard]] const LODData &getLODData() const { return data; }
+  [[nodiscard]] LODData &getLODData();
+  [[nodiscard]] const LODData &getLODData() const;
 
-  [[nodiscard]] const Counters &getCounters() const { return counters; }
+  [[nodiscard]] const Counters &getCounters() const;
   void resetCounters();
 
   static glm::vec3 offsetForSubChunk(unsigned int index, unsigned int maxValue);

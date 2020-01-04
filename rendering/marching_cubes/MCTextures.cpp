@@ -38,6 +38,4 @@ void MarchingCubesTextures::bind(ge::gl::Program &program) {
   ge::gl::glUniform1i(program.getUniformLocation("textureMinusZ"), 6);
 }
 
-MarchingCubesTextures::~MarchingCubesTextures() {
-  ge::gl::glDeleteTextures(6, textures.data());
-}
+MarchingCubesTextures::~MarchingCubesTextures() { ge::gl::glDeleteTextures(6, textures.data()); }

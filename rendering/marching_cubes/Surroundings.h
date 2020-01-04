@@ -29,7 +29,7 @@ struct Tile {
   glm::vec3 pos;
   glm::vec3 center;
   Tile() = default;
-  Tile(ChunkState state, const LOD& lod, glm::vec3 pos, glm::vec3 center);
+  Tile(ChunkState state, const LOD &lod, glm::vec3 pos, glm::vec3 center);
 };
 
 struct Map {

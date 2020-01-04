@@ -44,15 +44,14 @@ std::pair<unsigned int, unsigned int> getDisplaySize() {
 
 std::array<std::string, 6> getTextureNamesFromConfig(Conf &config) {
   return {
-    config.get<std::string>("marching_cubes", "textures", "x+").value(),
-    config.get<std::string>("marching_cubes", "textures", "x-").value(),
-    config.get<std::string>("marching_cubes", "textures", "y+").value(),
-    config.get<std::string>("marching_cubes", "textures", "y-").value(),
-    config.get<std::string>("marching_cubes", "textures", "z+").value(),
-    config.get<std::string>("marching_cubes", "textures", "z-").value(),
+      config.get<std::string>("marching_cubes", "textures", "x+").value(),
+      config.get<std::string>("marching_cubes", "textures", "x-").value(),
+      config.get<std::string>("marching_cubes", "textures", "y+").value(),
+      config.get<std::string>("marching_cubes", "textures", "y-").value(),
+      config.get<std::string>("marching_cubes", "textures", "z+").value(),
+      config.get<std::string>("marching_cubes", "textures", "z-").value(),
   };
 }
-
 
 void main_marching_cubes(int argc, char *argv[]) {
   loc_assert(argc != 1, "Provide path for config");
@@ -155,7 +154,7 @@ void main_marching_cubes(int argc, char *argv[]) {
     chunks.getSurroundings().info.subscribe([&ui](auto &val) { ui.chunkInfoLbl->text.setText(val); });
   });
 
-  ui.lightDirSlider->value.subscribe_and_call([&cascadedShadowMap] (float value) {
+  ui.lightDirSlider->value.subscribe_and_call([&cascadedShadowMap](float value) {
     const auto y = 1.0f - glm::abs(value);
     if (value < 0) {
       cascadedShadowMap.setLightDir({-(1.f - y), -y, 0});

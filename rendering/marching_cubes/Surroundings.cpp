@@ -272,16 +272,9 @@ void Surroundings::setNotLoaded(Chunk *chunk) {
 }
 void Surroundings::invalidate() {
   for (auto &map : maps) {
-    const auto chunksForRecycle = map.restartChunks();
-    /*for (auto chunk : chunksForRecycle) {
-      if (std::find(chunkUsageManager.getAvailabled().begin(), chunkUsageManager.getAvailabled().end(), chunk) !=
-    chunkUsageManager.getAvailabled().end()) { print("Skip"); continue;
-      }
-      chunkUsageManager.returnTileChunk(chunk);
-    }*/
+    map.restartChunks();
   }
   chunkUsageManager.reset();
-  // chunkUsageManager.getChunkToTileMap().clear();
   lastCameraPosition += 0.01f;
 }
 
@@ -389,4 +382,5 @@ void Map::restartChunks() {
     tile.state = ChunkState::NotLoaded;
   }
 }
-Tile::Tile(ChunkState state, const LOD& lod, glm::vec3 pos, glm::vec3 center) : state(state), lod(lod), pos(pos), center(center) {}
+Tile::Tile(ChunkState state, const LOD &lod, glm::vec3 pos, glm::vec3 center)
+    : state(state), lod(lod), pos(pos), center(center) {}

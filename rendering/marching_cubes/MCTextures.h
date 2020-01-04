@@ -5,9 +5,9 @@
 #ifndef TERRAINGENERATION_MCTEXTURES_H
 #define TERRAINGENERATION_MCTEXTURES_H
 
-#include <string>
 #include <array>
 #include <geGL/Program.h>
+#include <string>
 
 class MarchingCubesTextures {
 public:

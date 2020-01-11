@@ -1,5 +1,9 @@
 # Terrain generation
 
+Procedural terrain generation using marching cubes.
+
+Documentation (czech): https://github.com/PetrFlajsingr/TerrainGeneration-DOC
+
 gcc-9 required (c++20)
 
 Required libraries:
